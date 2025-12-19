@@ -1,0 +1,20 @@
+# Utiliser l'image officielle d'Apache 2.4
+FROM httpd:2.4
+
+# Activer les modules Apache nécessaires pour le reverse proxy vers PHP-FPM
+# et la réécriture d'URL.
+RUN sed -i \
+    -e 's/^#\(LoadModule .*mod_proxy.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_proxy_fcgi.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_rewrite.so\)/\1/' \
+    conf/httpd.conf
+
+# Copier le fichier de configuration du Virtual Host personnalisé
+# Ce fichier définit comment Apache doit servir le site et communiquer avec PHP-FPM.
+COPY docker/apache/vite.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
+
+# Inclure le fichier de configuration des Virtual Hosts dans la configuration principale d'Apache
+RUN echo "Include conf/extra/httpd-vhosts.conf" >> /usr/local/apache2/conf/httpd.conf
+
+# Exposer le port 80 pour le trafic HTTP
+EXPOSE 80
