@@ -33,7 +33,7 @@ services:
       - "8000:80"
     volumes:
       - .:/var/www/vite_gourmand
-      - ./docker/apache/vite.conf:/etc/apache2/sites-available/vite.conf
+      - ./docker/apache/vite.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
     depends_on:
       - php-app
     networks:
