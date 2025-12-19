@@ -1,0 +1,126 @@
+version: '3.9'
+
+services:
+  # PHP-FPM Service
+  php-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    container_name: vite-php-app
+    working_dir: /var/www/vite_gourmand
+    volumes:
+      - .:/var/www/vite_gourmand
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DB_HOST=mysql
+      - MONGO_HOST=mongodb
+    depends_on:
+      - mysql
+      - mongodb
+    networks:
+      - vite-network
+    restart: unless-stopped
+
+  # Apache Web Server
+  apache:
+    build:
+      context: .
+      dockerfile: Dockerfile.apache
+    container_name: vite-apache
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/vite_gourmand
+      - ./docker/apache/vite.conf:/etc/apache2/sites-available/vite.conf
+    depends_on:
+      - php-app
+    networks:
+      - vite-network
+    restart: unless-stopped
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: vite-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: vite_gourmand
+      MYSQL_USER: vite_user
+      MYSQL_PASSWORD: vite_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/database_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
+    networks:
+      - vite-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:4.4
+    container_name: vite-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: vite_gourmand
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongoDB/database_mongodb_setup.js:/docker-entrypoint-initdb.d/setup.js
+    networks:
+      - vite-network
+    restart: unless-stopped
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # phpMyAdmin (optionnel, dev only)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: vite-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - vite-network
+    restart: unless-stopped
+
+  # Mongo Express (optionnel, dev only)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: vite-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017
+    ports:
+      - "8082:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - vite-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+  mongodb_data:
+    driver: local
+
+networks:
+  vite-network:
+    driver: bridge
