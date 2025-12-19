@@ -3,10 +3,7 @@
 .gitignore
 .gitattributes
 
-# Docker
-.dockerignore
-docker-compose.yml
-Dockerfile.*
+
 
 # Node
 node_modules
