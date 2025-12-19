@@ -10,3 +10,6 @@ package-lock.json
 
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
+
+# Composer
+vendor/
