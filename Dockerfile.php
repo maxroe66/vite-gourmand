@@ -1,5 +1,5 @@
 # Base image PHP 8.0 FPM
-FROM php:8.0-fpm
+FROM php:8.1-fpm
 
 # Arguments pour l'utilisateur et le groupe
 ARG UID=1000
