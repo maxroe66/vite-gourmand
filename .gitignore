@@ -1,0 +1,12 @@
+# Dossiers ignorés
+fichiers_perso/
+src/
+plugins/
+images/
+
+# Fichiers ignorés
+README.md
+package-lock.json
+
+# Fichiers de métadonnées Windows
+*:Zone.Identifier
