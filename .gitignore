@@ -1,13 +1,13 @@
 # Dossiers ignorés
 fichiers_perso/
-src/
 plugins/
 images/
-front/
+frontend/
 
 # Fichiers ignorés
 README.md
 package-lock.json
+.env
 
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
