@@ -1,11 +1,13 @@
+
 <?php
 use App\Middlewares\AuthMiddleware;
+use App\Utils\MonologLogger;
 // 1. Autoload et config
 require_once __DIR__ . '/../vendor/autoload.php';
 $config = require __DIR__ . '/../backend/config/config.php';
 
 // 2. Headers globaux (CORS + JSON)
-header('Access-Control-Allow-Origin: *'); // À adapter selon l'URL de ton front
+header('Access-Control-Allow-Origin: *'); // À adapter selon l'URL du front
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json; charset=utf-8');
@@ -36,13 +38,16 @@ if (str_starts_with($path, $apiPrefix)) {
     if ($path === '') $path = '/';
 }
 
-// 9. Gestion d'erreur globale
+// 9. Gestion d'erreur globale + logs
 try {
+    // Log de la requête reçue
+    MonologLogger::getLogger()->info("Requête reçue : $method $path");
     // Debug : afficher le chemin reçu
     // var_dump($path); die();
     // Lance le dispatch
     $router->dispatch($method, $path);
 } catch (Exception $e) {
+    MonologLogger::getLogger()->error("Erreur serveur : " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'error' => 'Erreur serveur',
