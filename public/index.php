@@ -1,5 +1,5 @@
-
 <?php
+use App\Middlewares\AuthMiddleware;
 // 1. Autoload et config
 require_once __DIR__ . '/../vendor/autoload.php';
 $config = require __DIR__ . '/../backend/config/config.php';

@@ -16,11 +16,11 @@ class AuthMiddleware
         }
 
         $token = str_replace('Bearer ', '', $headers['Authorization']);
-        $secret = $_ENV['JWT_SECRET']; // ou depuis ta config
+        $secret = $_ENV['JWT_SECRET']; // ou depuis la config
 
         try {
             $decoded = JWT::decode($token, new Key($secret, 'HS256'));
-            // Tu peux stocker l'utilisateur dans une variable globale ou session si besoin
+            // stocker l'utilisateur dans une variable globale ou session si besoin
             return $decoded;
         } catch (\Exception $e) {
             http_response_code(401);
