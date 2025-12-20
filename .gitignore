@@ -1,9 +1,8 @@
 # Dossiers ignorés
 fichiers_perso/
-src/
 plugins/
 images/
-front/
+frontend/
 
 # Fichiers ignorés
 README.md
