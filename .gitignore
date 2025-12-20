@@ -3,6 +3,7 @@ fichiers_perso/
 src/
 plugins/
 images/
+front/
 
 # Fichiers ignorés
 README.md
