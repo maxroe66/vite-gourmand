@@ -60,13 +60,24 @@ class AuthController
             ];
         }
 
-        // 4. Envoi de l'email de bienvenue (à compléter)
-        // 5. Gestion des erreurs et logs (à compléter)
-        // 6. Retourne la réponse (succès ou erreur)
+        // 4. Envoi de l'email de bienvenue
+        $emailSent = $this->mailerService->sendWelcomeEmail($data['email'], $data['firstName']);
+        if (!$emailSent) {
+            $this->logger->error('Échec envoi email bienvenue', ['email' => $data['email']]);
+            // On peut choisir de ne pas bloquer l'inscription, mais d'informer le client
+            return [
+                'success' => true,
+                'userId' => $userId,
+                'message' => "Inscription réussie, mais l'email de bienvenue n'a pas pu être envoyé."
+            ];
+        }
+
+        // 5. Gestion des erreurs et logs (déjà fait)
+        // 6. Retourne la réponse (succès)
         return [
             'success' => true,
             'userId' => $userId,
-            'message' => 'Inscription réussie.'
+            'message' => 'Inscription réussie. Email de bienvenue envoyé.'
         ];
     }
 
