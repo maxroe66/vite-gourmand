@@ -12,6 +12,15 @@
 			"name": "tout valide",
 			"event": [
 				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set(\"timestamp\", Date.now());"
+						]
+					}
+				},
+				{
 					"listen": "test",
 					"script": {
 						"exec": [
@@ -35,7 +44,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"testuser@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}",
+					"raw": "{\r\n  \"email\": \"testuser_{{timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -462,15 +471,26 @@
 			"name": "encodage exotique (Unicode, emojis)",
 			"event": [
 				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.variables.set(\"timestamp\", Date.now());"
+						]
+					}
+				},
+				{
 					"listen": "test",
 					"script": {
 						"exec": [
 							"pm.test(\"Statut 400 attendu pour encodage exotique\", function () {\r",
 							"    pm.response.to.have.status(400);\r",
 							"});\r",
-							"pm.test(\"Réponse JSON succès\", function () {\r",
+							"pm.test(\"Réponse JSON échec attendu\", function () {\r",
 							"    var json = pm.response.json();\r",
-							"    pm.expect(json.success).to.eql(true);\r",
+							"    pm.expect(json.success).to.eql(false);\r",
+							"    pm.expect(json).to.have.property('errors');\r",
+							"    pm.expect(json.errors).to.have.property('firstName');\r",
 							"});"
 						],
 						"type": "text/javascript",
@@ -484,7 +504,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"emoji@example.com\",\r\n  \"firstName\": \"😀🚀✨漢字\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+					"raw": "{\r\n  \"email\": \"emoji_{{timestamp}}@example.com\",\r\n  \"firstName\": \"😀🚀✨漢字\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8000/api/auth/register",
