@@ -1,5 +1,5 @@
 <?php
-namespace App\Services;
+namespace App\Exceptions;
 
 class UserServiceException extends \Exception
 {

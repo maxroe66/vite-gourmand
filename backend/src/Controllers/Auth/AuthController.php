@@ -54,7 +54,7 @@ class AuthController
         // 3. Création de l'utilisateur en base
         try {
             $userId = $this->userService->createUser($data);
-        } catch (\App\Services\UserServiceException $e) {
+        } catch (\App\Exceptions\UserServiceException $e) {
             $this->logger->error('Échec création utilisateur', ['email' => $data['email'], 'code' => $e->getCode(), 'msg' => $e->getMessage()]);
             return [
                 'success' => false,
