@@ -285,54 +285,55 @@ INSERT INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, q
 -- ============================================================
 
 -- Historique Commande 1 (EN_ATTENTE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(1, 1, 'EN_ATTENTE', '2024-12-05 14:30:00', 3, 'Commande créée');
+
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(1, 'EN_ATTENTE', '2024-12-05 14:30:00', 3, 'Commande créée');
 
 -- Historique Commande 2 (ACCEPTE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(2, 2, 'EN_ATTENTE', '2024-11-20 10:15:00', 4, 'Commande créée'),
-(3, 2, 'ACCEPTE', '2024-11-21 09:00:00', 2, 'Commande validée par Julie');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(2, 'EN_ATTENTE', '2024-11-20 10:15:00', 4, 'Commande créée'),
+(2, 'ACCEPTE', '2024-11-21 09:00:00', 2, 'Commande validée par Julie');
 
 -- Historique Commande 3 (EN_PREPARATION)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(4, 3, 'EN_ATTENTE', '2024-11-25 16:45:00', 5, 'Commande créée'),
-(5, 3, 'ACCEPTE', '2024-11-26 10:30:00', 2, 'Commande validée'),
-(6, 3, 'EN_PREPARATION', '2024-12-08 08:00:00', 2, 'Préparation en cuisine');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(3, 'EN_ATTENTE', '2024-11-25 16:45:00', 5, 'Commande créée'),
+(3, 'ACCEPTE', '2024-11-26 10:30:00', 2, 'Commande validée'),
+(3, 'EN_PREPARATION', '2024-12-08 08:00:00', 2, 'Préparation en cuisine');
 
 -- Historique Commande 4 (LIVRE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(7, 4, 'EN_ATTENTE', '2024-10-15 09:30:00', 6, 'Commande créée'),
-(8, 4, 'ACCEPTE', '2024-10-16 11:00:00', 2, 'Commande validée'),
-(9, 4, 'EN_PREPARATION', '2024-11-08 07:00:00', 2, 'Préparation démarrée'),
-(10, 4, 'EN_LIVRAISON', '2024-11-10 11:00:00', 2, 'Livraison en cours'),
-(11, 4, 'LIVRE', '2024-11-10 12:45:00', 2, 'Livraison effectuée');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(4, 'EN_ATTENTE', '2024-10-15 09:30:00', 6, 'Commande créée'),
+(4, 'ACCEPTE', '2024-10-16 11:00:00', 2, 'Commande validée'),
+(4, 'EN_PREPARATION', '2024-11-08 07:00:00', 2, 'Préparation démarrée'),
+(4, 'EN_LIVRAISON', '2024-11-10 11:00:00', 2, 'Livraison en cours'),
+(4, 'LIVRE', '2024-11-10 12:45:00', 2, 'Livraison effectuée');
 
 -- Historique Commande 5 (TERMINEE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(12, 5, 'EN_ATTENTE', '2024-09-20 11:20:00', 7, 'Commande créée'),
-(13, 5, 'ACCEPTE', '2024-09-21 09:00:00', 2, 'Commande validée'),
-(14, 5, 'EN_PREPARATION', '2024-10-03 08:00:00', 2, 'Préparation cuisine'),
-(15, 5, 'EN_LIVRAISON', '2024-10-05 17:00:00', 2, 'Départ livraison'),
-(16, 5, 'LIVRE', '2024-10-05 19:15:00', 2, 'Livraison effectuée'),
-(17, 5, 'TERMINEE', '2024-10-05 19:30:00', 2, 'Prestation terminée');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(5, 'EN_ATTENTE', '2024-09-20 11:20:00', 7, 'Commande créée'),
+(5, 'ACCEPTE', '2024-09-21 09:00:00', 2, 'Commande validée'),
+(5, 'EN_PREPARATION', '2024-10-03 08:00:00', 2, 'Préparation cuisine'),
+(5, 'EN_LIVRAISON', '2024-10-05 17:00:00', 2, 'Départ livraison'),
+(5, 'LIVRE', '2024-10-05 19:15:00', 2, 'Livraison effectuée'),
+(5, 'TERMINEE', '2024-10-05 19:30:00', 2, 'Prestation terminée');
 
 -- Historique Commande 6 (TERMINEE - hors Bordeaux)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(18, 6, 'EN_ATTENTE', '2024-07-10 14:00:00', 3, 'Commande créée'),
-(19, 6, 'ACCEPTE', '2024-07-11 10:00:00', 2, 'Commande validée'),
-(20, 6, 'EN_PREPARATION', '2024-08-13 09:00:00', 2, 'Préparation démarrée'),
-(21, 6, 'EN_LIVRAISON', '2024-08-15 15:00:00', 2, 'En route vers Arcachon'),
-(22, 6, 'LIVRE', '2024-08-15 17:50:00', 2, 'Livraison effectuée'),
-(23, 6, 'TERMINEE', '2024-08-15 18:00:00', 2, 'Prestation terminée');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(6, 'EN_ATTENTE', '2024-07-10 14:00:00', 3, 'Commande créée'),
+(6, 'ACCEPTE', '2024-07-11 10:00:00', 2, 'Commande validée'),
+(6, 'EN_PREPARATION', '2024-08-13 09:00:00', 2, 'Préparation démarrée'),
+(6, 'EN_LIVRAISON', '2024-08-15 15:00:00', 2, 'En route vers Arcachon'),
+(6, 'LIVRE', '2024-08-15 17:50:00', 2, 'Livraison effectuée'),
+(6, 'TERMINEE', '2024-08-15 18:00:00', 2, 'Prestation terminée');
 
 -- Historique Commande 7 (EN_ATTENTE_RETOUR)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(24, 7, 'EN_ATTENTE', '2024-11-15 15:30:00', 4, 'Commande créée'),
-(25, 7, 'ACCEPTE', '2024-11-16 09:30:00', 2, 'Commande validée'),
-(26, 7, 'EN_PREPARATION', '2024-11-29 08:00:00', 2, 'Préparation cuisine'),
-(27, 7, 'EN_LIVRAISON', '2024-12-01 15:00:00', 2, 'Livraison en cours'),
-(28, 7, 'LIVRE', '2024-12-01 16:50:00', 2, 'Livraison effectuée avec matériel'),
-(29, 7, 'EN_ATTENTE_RETOUR', '2024-12-01 17:00:00', 2, 'En attente retour matériel');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(7, 'EN_ATTENTE', '2024-11-15 15:30:00', 4, 'Commande créée'),
+(7, 'ACCEPTE', '2024-11-16 09:30:00', 2, 'Commande validée'),
+(7, 'EN_PREPARATION', '2024-11-29 08:00:00', 2, 'Préparation cuisine'),
+(7, 'EN_LIVRAISON', '2024-12-01 15:00:00', 2, 'Livraison en cours'),
+(7, 'LIVRE', '2024-12-01 16:50:00', 2, 'Livraison effectuée avec matériel'),
+(7, 'EN_ATTENTE_RETOUR', '2024-12-01 17:00:00', 2, 'En attente retour matériel');
 
 -- ============================================================
 -- AVIS CLIENTS
