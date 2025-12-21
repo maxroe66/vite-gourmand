@@ -20,6 +20,8 @@ Ce document détaille le fonctionnement, l’API, la logique métier, les tests 
 ---
 
 ## 3. Spécification de l’API
+> **Note :**
+> L'échec d'envoi de l'email de bienvenue n'est pas une erreur bloquante pour l'inscription. L'utilisateur est bien créé, mais la clé `emailSent` indique si l'email a pu être envoyé. Ce cas n'est pas géré par une exception personnalisée, car il ne remet pas en cause la création du compte.
 
 ### Endpoint
 - **POST** `/api/auth/register`
@@ -43,6 +45,7 @@ Ce document détaille le fonctionnement, l’API, la logique métier, les tests 
 {
   "success": true,
   "userId": 42,
+  "emailSent": true,
   "message": "Inscription réussie. Email de bienvenue envoyé."
 }
 ```
@@ -64,7 +67,25 @@ Ce document détaille le fonctionnement, l’API, la logique métier, les tests 
 ```json
 {
   "success": false,
-  "message": "Erreur lors de la création de l'utilisateur."
+  "message": "Cette adresse email est déjà utilisée."
+}
+```
+
+### Réponse — Erreur technique lors de la création
+```json
+{
+  "success": false,
+  "message": "Erreur technique lors de la création de l'utilisateur. Veuillez réessayer plus tard."
+}
+```
+
+### Réponse — Email de bienvenue non envoyé
+```json
+{
+  "success": true,
+  "userId": 42,
+  "emailSent": false,
+  "message": "Inscription réussie, mais l'email de bienvenue n'a pas pu être envoyé."
 }
 ```
 
