@@ -7,6 +7,12 @@ require_once __DIR__ . '/../Models/User.php';
 
 class UserService
 {
+    private ?\PDO $pdo = null;
+
+    public function __construct(?\PDO $pdo = null)
+    {
+        $this->pdo = $pdo;
+    }
     /**
      * Crée un nouvel utilisateur
      * @param array $data
@@ -52,6 +58,9 @@ class UserService
 
     private function getConnection(): \PDO
     {
+        if ($this->pdo !== null) {
+            return $this->pdo;
+        }
         // À adapter selon ta config
         $host = 'mysql';
         $db   = 'vite_gourmand';
