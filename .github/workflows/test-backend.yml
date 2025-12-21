@@ -1,0 +1,49 @@
+name: Tests backend automatisés
+
+on:
+  push:
+    branches: [ main, master, develop, feat/* ]
+  pull_request:
+    branches: [ main, master, develop, feat/* ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: vite_gourmand_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Installer Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
+      - name: Lancer l'environnement Docker
+        run: docker-compose up -d
+
+      - name: Attendre que MySQL soit prêt
+        run: |
+          for i in {1..30}; do
+            docker exec $(docker ps -qf "name=mysql-test") mysqladmin ping -h"localhost" -uroot -proot && break
+            sleep 2
+          done
+
+      - name: Lancer les tests backend
+        run: ./scripts/test_backend.sh
+
+      - name: Afficher les logs en cas d'échec
+        if: failure()
+        run: docker-compose logs
