@@ -5,7 +5,7 @@ services:
   php-app:
     build:
       context: .
-      dockerfile: Dockerfile.php
+      dockerfile: docker/php/Dockerfile.php
     container_name: vite-php-app
     working_dir: /var/www/vite_gourmand
     volumes:
@@ -27,7 +27,7 @@ services:
   apache:
     build:
       context: .
-      dockerfile: Dockerfile.apache
+      dockerfile: docker/apache/Dockerfile.apache
     container_name: vite-apache
     ports:
       - "8000:80"
