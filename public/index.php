@@ -1,7 +1,7 @@
-
 <?php
 use App\Middlewares\AuthMiddleware;
 use App\Utils\MonologLogger;
+use App\Core\Router;
 // 1. Autoload et config
 require_once __DIR__ . '/../vendor/autoload.php';
 $config = require __DIR__ . '/../backend/config/config.php';
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // 4. Importe les classes nécessaires
-use App\Core\Router;
+//use Backend\Core\Router;
 
 // 5. Instancie le routeur
 $router = new Router($config);
