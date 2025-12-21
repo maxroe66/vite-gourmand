@@ -37,9 +37,11 @@ class AuthController
         $validation = UserValidator::validate($data);
         if (!$validation['isValid']) {
             $this->logger->warning('Échec validation inscription', $validation['errors']);
+            $mainError = is_array($validation['errors']) && count($validation['errors']) > 0 ? reset($validation['errors']) : 'Des champs sont invalides.';
             return [
                 'success' => false,
-                'message' => 'Données invalides',
+                'message' => 'Des champs sont invalides.',
+                'mainError' => $mainError,
                 'errors' => $validation['errors']
             ];
         }
@@ -50,12 +52,13 @@ class AuthController
         unset($data['password']);
 
         // 3. Création de l'utilisateur en base
-        $userId = $this->userService->createUser($data);
-        if (!$userId) {
-            $this->logger->error('Échec création utilisateur', ['email' => $data['email']]);
+        try {
+            $userId = $this->userService->createUser($data);
+        } catch (\App\Exceptions\UserServiceException $e) {
+            $this->logger->error('Échec création utilisateur', ['email' => $data['email'], 'code' => $e->getCode(), 'msg' => $e->getMessage()]);
             return [
                 'success' => false,
-                'message' => "Erreur lors de la création de l'utilisateur."
+                'message' => $e->getMessage()
             ];
         }
 
@@ -67,6 +70,7 @@ class AuthController
             return [
                 'success' => true,
                 'userId' => $userId,
+                'emailSent' => false,
                 'message' => "Inscription réussie, mais l'email de bienvenue n'a pas pu être envoyé."
             ];
         }
@@ -76,6 +80,7 @@ class AuthController
         return [
             'success' => true,
             'userId' => $userId,
+            'emailSent' => true,
             'message' => 'Inscription réussie. Email de bienvenue envoyé.'
         ];
     }
