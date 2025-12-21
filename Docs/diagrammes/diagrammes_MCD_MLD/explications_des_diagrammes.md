@@ -1255,9 +1255,9 @@ VIEW v_menus_actifs
 - `diagramme_mld_correct.md` : MLD simplifié pour visualisation
 
 ### Scripts SQL
-- `../sql/database_creation.sql` : Script de création des tables MySQL
-- `../sql/database_fixtures.sql` : Données de test pour démonstration
-- `../database_mongodb_setup.js` : Configuration MongoDB (avis, statistiques)
+- `../backend/database/sql/database_creation.sql` : Script de création des tables MySQL
+- `../backend/database/sql/database_fixtures.sql` : Données de test pour démonstration
+- `../backend/database/mongoDB/database_mongodb_setup.js` : Configuration MongoDB (avis, statistiques)
 
 ### Documentation
 - `explications_des_diagrammes.md` : Ce fichier (documentation complète)

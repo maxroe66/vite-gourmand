@@ -102,7 +102,7 @@ Ce projet contient tous les livrables attendus pour la partie base de données :
 - **Amélioration** : Tables de traçabilité (COMMANDE_STATUT, COMMANDE_ANNULATION, COMMANDE_MODIFICATION)
 
 #### 3. Schéma Physique SQL
-- **Fichier** : `../sql/database_creation.sql`
+- **Fichier** : `../backend/database/sql/database_creation.sql`
 - **Contenu** : 
   - Création de 16 tables avec contraintes nommées
   - 2 triggers (historisation automatique)
@@ -111,7 +111,7 @@ Ce projet contient tous les livrables attendus pour la partie base de données :
 - **SGBD** : MySQL 8.0+ / MariaDB 10.5+
 
 #### 4. Base NoSQL (MongoDB)
-- **Fichier** : `../database_mongodb_setup.js`
+- **Fichier** : `../backend/database/mongoDB/database_mongodb_setup.js`
 - **Contenu** : 
   - 2 collections (avis, statistiques_commandes)
   - Validation de schéma JSON
@@ -119,7 +119,7 @@ Ce projet contient tous les livrables attendus pour la partie base de données :
   - 2 vues agrégées
 
 #### 5. Données de Test
-- **Fichier** : `../sql/database_fixtures.sql`
+- **Fichier** : `../backend/database/sql/database_fixtures.sql`
 - **Contenu** : 
   - 7 utilisateurs (1 admin, 1 employé, 5 clients)
   - 6 menus complets
