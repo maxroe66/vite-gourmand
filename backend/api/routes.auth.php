@@ -3,11 +3,10 @@
 $router->post('/auth/register', function() {
 	$input = json_decode(file_get_contents('php://input'), true);
 	if (!$input) {
-		http_response_code(400);
-		return [
+		\App\Core\Response::json([
 			'success' => false,
 			'message' => 'Données invalides'
-		];
+		], 400);
 	}
 
 	$userService = new \App\Services\UserService();
@@ -17,12 +16,7 @@ $router->post('/auth/register', function() {
 	$authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger);
 
 	$response = $authController->register($input);
-	if ($response['success']) {
-		http_response_code(201);
-	} else {
-		http_response_code(400);
-	}
-	return $response;
+	\App\Core\Response::json($response, $response['success'] ? 201 : 400);
 });
 
 $router->get('/auth/test', function() {
