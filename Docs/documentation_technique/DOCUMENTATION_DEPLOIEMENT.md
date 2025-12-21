@@ -203,7 +203,7 @@ services:
   php-app:
     build:
       context: .
-      dockerfile: Dockerfile.php
+      dockerfile: docker/php/Dockerfile.php
     container_name: vite-php-app
     working_dir: /var/www/vite_gourmand
     volumes:
@@ -225,7 +225,7 @@ services:
   apache:
     build:
       context: .
-      dockerfile: Dockerfile.apache
+      dockerfile: docker/apache/Dockerfile.apache
     container_name: vite-apache
     ports:
       - "8000:80"
@@ -324,7 +324,7 @@ networks:
     driver: bridge
 ```
 
-#### `Dockerfile.php`
+#### `docker/php/Dockerfile.php`
 
 ```dockerfile
 FROM php:8.0-fpm
@@ -370,7 +370,7 @@ EXPOSE 9000
 CMD ["php-fpm"]
 ```
 
-#### `Dockerfile.apache`
+#### `docker/apache/Dockerfile.apache`
 
 ```dockerfile
 FROM apache:2.4
