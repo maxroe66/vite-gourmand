@@ -145,12 +145,12 @@ GOOGLE_MAPS_API_KEY=xxxxx  (optionnel pour dev)
 ```bash
 # MySQL
 # Option A : Via command line
-mysql -u root -proot < sql/database_creation.sql
-mysql -u root -proot vite_gourmand_dev < sql/database_fixtures.sql
+mysql -u root -proot < backend/database/sql/database_creation.sql
+mysql -u root -proot vite_gourmand_dev < backend/database/sql/database_fixtures.sql
 
 # Option B : Via GUI (MySQL Workbench)
-# - File → Open SQL Script → database_creation.sql → Execute
-# - File → Open SQL Script → database_fixtures.sql → Execute
+# - File → Open SQL Script → backend/database/sql/database_creation.sql → Execute
+# - File → Open SQL Script → backend/database/sql/database_fixtures.sql → Execute
 ```
 
 ### Étape 5 : Démarrer Serveur Local
@@ -251,8 +251,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql/database_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
+      - ./backend/database/sql/database_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/database/sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
     networks:
       - vite-network
     restart: unless-stopped
@@ -271,7 +271,7 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-      - ./mongoDB/database_mongodb_setup.js:/docker-entrypoint-initdb.d/setup.js
+      - ./backend/database/mongoDB/database_mongodb_setup.js:/docker-entrypoint-initdb.d/setup.js
     networks:
       - vite-network
     restart: unless-stopped
@@ -628,8 +628,8 @@ sudo certbot renew --dry-run
 ### Versioning SQL
 
 ```
-sql/
-├─ database_creation.sql      (v1.0 - schema initial)
+backend/database/sql/
+├─ backend/database/sql/database_creation.sql      (v1.0 - schema initial)
 ├─ migrations/
 │  ├─ 001_create_tables.sql
 │  ├─ 002_add_indexes.sql
@@ -641,13 +641,13 @@ sql/
 
 ```bash
 # Development
-1. Créer fichier migration: sql/migrations/005_new_feature.sql
-2. Tester localement: mysql vite_gourmand < sql/migrations/005_new_feature.sql
+1. Créer fichier migration: backend/database/sql/migrations/005_new_feature.sql
+2. Tester localement: mysql vite_gourmand < backend/database/sql/migrations/005_new_feature.sql
 3. Commit + push
 
 # Staging
 1. Backup DB: mysqldump vite_gourmand > backup_prod_$(date +%s).sql
-2. Exécuter: mysql vite_gourmand < sql/migrations/005_new_feature.sql
+2. Exécuter: mysql vite_gourmand < backend/database/sql/migrations/005_new_feature.sql
 3. Test new feature
 
 # Production
