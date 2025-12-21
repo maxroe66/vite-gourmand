@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Services\UserServiceException;
 require_once __DIR__ . '/../Models/User.php';
 
 class UserService
@@ -9,9 +10,10 @@ class UserService
     /**
      * Crée un nouvel utilisateur
      * @param array $data
-     * @return int|null userId ou null en cas d'échec
+     * @return int userId
+     * @throws UserServiceException
      */
-    public function createUser(array $data): ?int
+    public function createUser(array $data): int
     {
         $user = new User($data);
         try {
@@ -20,7 +22,7 @@ class UserService
             $stmt = $pdo->prepare('SELECT id_utilisateur FROM UTILISATEUR WHERE email = :email');
             $stmt->execute(['email' => $user->email]);
             if ($stmt->fetch()) {
-                return null; // Email déjà utilisé
+                throw UserServiceException::emailExists();
             }
             // Insertion
             $stmt = $pdo->prepare('INSERT INTO UTILISATEUR (email, prenom, nom, gsm, adresse_postale, ville, code_postal, mot_de_passe, role) VALUES (:email, :prenom, :nom, :gsm, :adresse_postale, :ville, :code_postal, :mot_de_passe, :role)');
@@ -36,13 +38,15 @@ class UserService
                 'role' => $user->role
             ]);
             return (int)$pdo->lastInsertId();
+        } catch (UserServiceException $e) {
+            throw $e;
         } catch (\PDOException $e) {
             \App\Utils\MonologLogger::getLogger()->error('Erreur PDO lors de la création utilisateur', [
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return null;
+            throw UserServiceException::dbError();
         }
     }
 
