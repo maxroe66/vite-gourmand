@@ -92,6 +92,7 @@ Ce document détaille le fonctionnement, l’API, la logique métier, les tests 
 ---
 
 ## 4. Logique métier (côté backend)
+  - Les exceptions personnalisées (ex : UserServiceException) sont centralisées dans le dossier `src/Exceptions/` pour une gestion claire et évolutive des erreurs métier et techniques.
 
 - **Contrôleur** : `App\Controllers\Auth\AuthController::register()`
 - **Services utilisés** :

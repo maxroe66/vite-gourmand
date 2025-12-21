@@ -2,7 +2,7 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Services\UserServiceException;
+use App\Exceptions\UserServiceException;
 require_once __DIR__ . '/../Models/User.php';
 
 class UserService
