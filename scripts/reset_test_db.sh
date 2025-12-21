@@ -4,7 +4,7 @@
 
 set -e
 
-MYSQL_HOST="localhost"
+MYSQL_HOST="vite-mysql-test"
 MYSQL_PORT="3307"
 MYSQL_USER="root"
 MYSQL_PASS="root"
