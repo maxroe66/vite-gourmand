@@ -56,9 +56,15 @@ class AuthController
             $userId = $this->userService->createUser($data);
         } catch (\App\Exceptions\UserServiceException $e) {
             $this->logger->error('Échec création utilisateur', ['email' => $data['email'], 'code' => $e->getCode(), 'msg' => $e->getMessage()]);
+            $errors = [];
+            // Si c'est une collision d'email, on précise l'erreur sur le champ email
+            if ($e->getCode() === \App\Exceptions\UserServiceException::EMAIL_EXISTS) {
+                $errors['email'] = $e->getMessage();
+            }
             return [
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'errors' => $errors
             ];
         }
 

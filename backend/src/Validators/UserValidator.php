@@ -17,6 +17,8 @@ class UserValidator
             $errors['firstName'] = 'Le prénom est requis.';
         } elseif (!is_string($data['firstName'])) {
             $errors['firstName'] = 'Le prénom doit être une chaîne de caractères.';
+        } elseif (!preg_match('/^[a-zA-ZÀ-ÖØ-öø-ÿ\-\s]+$/u', $data['firstName'])) {
+            $errors['firstName'] = 'Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole).';
         }
 
         // Nom (obligatoire et type string)
