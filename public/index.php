@@ -3,7 +3,7 @@ use App\Middlewares\AuthMiddleware;
 use App\Utils\MonologLogger;
 use App\Core\Router;
 // 1. Autoload et config
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../backend/vendor/autoload.php';
 $config = require __DIR__ . '/../backend/config/config.php';
 
 // 2. Headers globaux (CORS + JSON)

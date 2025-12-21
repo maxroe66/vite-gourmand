@@ -13,4 +13,4 @@ package-lock.json
 *:Zone.Identifier
 
 # Composer
-vendor/
+backend/vendor/

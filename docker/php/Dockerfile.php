@@ -36,7 +36,7 @@ WORKDIR /var/www/vite_gourmand
 
 # Copier uniquement les fichiers de dépendances et installer les vendors
 # Cela permet de bénéficier du cache Docker si les dépendances ne changent pas
-COPY --chown=vite_user:vite_group composer.json composer.lock ./
+COPY --chown=vite_user:vite_group backend/composer.json backend/composer.lock ./
 RUN composer install --no-scripts --no-autoloader
 
 # Copier le reste des fichiers de l'application
