@@ -37,9 +37,11 @@ class AuthController
         $validation = UserValidator::validate($data);
         if (!$validation['isValid']) {
             $this->logger->warning('Échec validation inscription', $validation['errors']);
+            $mainError = is_array($validation['errors']) && count($validation['errors']) > 0 ? reset($validation['errors']) : 'Des champs sont invalides.';
             return [
                 'success' => false,
-                'message' => 'Données invalides',
+                'message' => 'Des champs sont invalides.',
+                'mainError' => $mainError,
                 'errors' => $validation['errors']
             ];
         }

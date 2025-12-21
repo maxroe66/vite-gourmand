@@ -51,10 +51,11 @@ Ce document détaille le fonctionnement, l’API, la logique métier, les tests 
 ```json
 {
   "success": false,
-  "message": "Données invalides",
+  "message": "Des champs sont invalides.",
+  "mainError": "Le format de l'adresse email est invalide.",
   "errors": {
-    "email": "Email invalide.",
-    "password": "Mot de passe trop faible."
+    "email": "Le format de l'adresse email est invalide.",
+    "password": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."
   }
 }
 ```
