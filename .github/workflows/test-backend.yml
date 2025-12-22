@@ -56,6 +56,11 @@ jobs:
       - name: Install Newman (Postman CLI)
         run: npm install -g newman
 
+      - name: Install Mongo shell (client)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mongodb-clients
+
       - name: Wait for MySQL to be ready
         run: |
           for i in {1..30}; do
@@ -65,10 +70,9 @@ jobs:
 
       - name: Wait for MongoDB to be ready
         run: |
-          MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
           for i in {1..30}; do
-            docker exec "$MONGO_CID" \
-              mongo --authenticationDatabase admin -u root -p root \
+            mongo --host 127.0.0.1 --port 27017 \
+              --authenticationDatabase admin -u root -p root \
               --eval "db.adminCommand({ping:1})" && break
             sleep 2
           done
@@ -80,11 +84,10 @@ jobs:
           mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_creation.sql
           mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_fixtures.sql
 
-          # Setup MongoDB test database (inject DB_NAME so the script always targets the test DB)
+          # Setup MongoDB test database (force DB_NAME)
           if [ -f backend/database/mongoDB/database_mongodb_setup.js ]; then
-            MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
-            docker exec -i "$MONGO_CID" \
-              mongo --authenticationDatabase admin -u root -p root \
+            mongo --host 127.0.0.1 --port 27017 \
+              --authenticationDatabase admin -u root -p root \
               --eval "var DB_NAME='vite_gourmand_test';" \
               /dev/stdin < backend/database/mongoDB/database_mongodb_setup.js
           fi
@@ -92,9 +95,7 @@ jobs:
       - name: Install PHP dependencies
         run: |
           cd backend
-          if [ -f composer.json ]; then
-            composer install --no-interaction --prefer-dist
-          fi
+          composer install --no-interaction --prefer-dist
 
       - name: Start PHP built-in server for tests
         run: |
@@ -165,12 +166,10 @@ jobs:
           fi
           cd ..
 
-          if [ -f backend/tests/postman/inscription.postman_collection.json ]; then
-            newman run backend/tests/postman/inscription.postman_collection.json \
-              --env-var "base_url=http://127.0.0.1:8000" \
-              --timeout-request 10000 \
-              --delay-request 200
-          fi
+          newman run backend/tests/postman/inscription.postman_collection.json \
+            --env-var "base_url=http://127.0.0.1:8000" \
+            --timeout-request 10000 \
+            --delay-request 200
 
       - name: Stop PHP server
         if: always()
@@ -179,11 +178,3 @@ jobs:
             kill "$(cat php_server.pid)" || true
             rm php_server.pid
           fi
-
-      - name: Show logs on failure
-        if: failure()
-        run: |
-          echo "=== MySQL Logs ==="
-          docker logs "$(docker ps -q --filter ancestor=mysql:8.0 | head -n 1)" || true
-          echo "=== MongoDB Logs ==="
-          docker logs "$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)" || true
