@@ -5,7 +5,6 @@ images/
 frontend/
 
 # Fichiers ignorés
-README.md
 package-lock.json
 .env
 
