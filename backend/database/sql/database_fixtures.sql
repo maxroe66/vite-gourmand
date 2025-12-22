@@ -4,7 +4,7 @@
 -- Date: 11 décembre 2025
 -- ============================================================
 
-USE vite_et_gourmand;
+-- USE vite_et_gourmand;
 
 -- Désactivation temporaire des vérifications de clés étrangères
 SET FOREIGN_KEY_CHECKS = 0;
@@ -15,81 +15,81 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Mot de passe pour tous les comptes de test : "Password123!"
 -- Hash bcrypt : $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 
-INSERT INTO UTILISATEUR (id_utilisateur, nom, prenom, gsm, email, adresse_postale, mot_de_passe, role, actif, date_creation) VALUES
-(1, 'Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles, 33000 Bordeaux', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMINISTRATEUR', TRUE, '2024-01-15 10:00:00'),
-(2, 'Employe', 'Julie', '0556789012', 'julie@vite-gourmand.fr', '12 rue des Halles, 33000 Bordeaux', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'EMPLOYE', TRUE, '2024-01-15 10:30:00'),
-(3, 'Dupont', 'Marie', '0601020304', 'marie.dupont@email.fr', '25 cours de l\'Intendance, 33000 Bordeaux', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-02-10 14:30:00'),
-(4, 'Martin', 'Pierre', '0612345678', 'pierre.martin@email.fr', '48 rue Sainte-Catherine, 33000 Bordeaux', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-03-05 16:20:00'),
-(5, 'Bernard', 'Sophie', '0623456789', 'sophie.bernard@email.fr', '15 place de la Victoire, 33000 Bordeaux', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-04-12 11:15:00'),
-(6, 'Lefebvre', 'Thomas', '0634567890', 'thomas.lefebvre@email.fr', '8 avenue Victor Hugo, 33200 Bordeaux', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-05-20 09:45:00'),
-(7, 'Moreau', 'Claire', '0645678901', 'claire.moreau@email.fr', '22 rue de la Devise, 33000 Bordeaux', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-06-08 15:30:00');
+INSERT INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_postal, mot_de_passe, role, actif, date_creation) VALUES
+('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMINISTRATEUR', TRUE, '2024-01-15 10:00:00'),
+('Employe', 'Julie', '0556789012', 'julie@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'EMPLOYE', TRUE, '2024-01-15 10:30:00'),
+('Dupont', 'Marie', '0601020304', 'marie.dupont@email.fr', '25 cours de l''Intendance', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-02-10 14:30:00'),
+('Martin', 'Pierre', '0612345678', 'pierre.martin@email.fr', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-03-05 16:20:00'),
+('Bernard', 'Sophie', '0623456789', 'sophie.bernard@email.fr', '15 place de la Victoire', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-04-12 11:15:00'),
+('Lefebvre', 'Thomas', '0634567890', 'thomas.lefebvre@email.fr', '8 avenue Victor Hugo', 'Bordeaux', '33200', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-05-20 09:45:00'),
+('Moreau', 'Claire', '0645678901', 'claire.moreau@email.fr', '22 rue de la Devise', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-06-08 15:30:00');
 
 -- ============================================================
 -- THÈMES & RÉGIMES
 -- ============================================================
 
-INSERT INTO THEME (id_theme, libelle) VALUES
-(1, 'Noël'),
-(2, 'Pâques'),
-(3, 'Classique'),
-(4, 'Événement'),
-(5, 'Estival');
+INSERT INTO THEME (libelle) VALUES
+('Noël'),
+('Pâques'),
+('Classique'),
+('Événement'),
+('Estival');
 
-INSERT INTO REGIME (id_regime, libelle) VALUES
-(1, 'Classique'),
-(2, 'Végétarien'),
-(3, 'Vegan'),
-(4, 'Sans gluten');
+INSERT INTO REGIME (libelle) VALUES
+('Classique'),
+('Végétarien'),
+('Vegan'),
+('Sans gluten');
 
 -- ============================================================
 -- ALLERGÈNES
 -- ============================================================
 
-INSERT INTO ALLERGENE (id_allergene, libelle) VALUES
-(1, 'Gluten'),
-(2, 'Crustacés'),
-(3, 'Œufs'),
-(4, 'Poissons'),
-(5, 'Arachides'),
-(6, 'Soja'),
-(7, 'Lait'),
-(8, 'Fruits à coque'),
-(9, 'Céleri'),
-(10, 'Moutarde'),
-(11, 'Sésame'),
-(12, 'Sulfites'),
-(13, 'Lupin'),
-(14, 'Mollusques');
+INSERT INTO ALLERGENE (libelle) VALUES
+('Gluten'),
+('Crustacés'),
+('Œufs'),
+('Poissons'),
+('Arachides'),
+('Soja'),
+('Lait'),
+('Fruits à coque'),
+('Céleri'),
+('Moutarde'),
+('Sésame'),
+('Sulfites'),
+('Lupin'),
+('Mollusques');
 
 -- ============================================================
 -- PLATS
 -- ============================================================
 
 -- ENTRÉES
-INSERT INTO PLAT (id_plat, libelle, type, description) VALUES
-(1, 'Foie gras maison sur toast', 'ENTREE', 'Foie gras de canard mi-cuit, pain d\'épices et confiture de figues'),
-(2, 'Velouté de châtaignes', 'ENTREE', 'Crème de châtaignes, éclats de marrons et crème fraîche'),
-(3, 'Salade de chèvre chaud', 'ENTREE', 'Mesclun, fromage de chèvre rôti, noix et miel'),
-(4, 'Assiette de saumon fumé', 'ENTREE', 'Saumon fumé maison, blinis et crème citronnée'),
-(5, 'Tartare de légumes', 'ENTREE', 'Légumes crus marinés, avocat et vinaigrette balsamique');
+INSERT INTO PLAT (libelle, type, description) VALUES
+('Foie gras maison sur toast', 'ENTREE', 'Foie gras de canard mi-cuit, pain d\'épices et confiture de figues'),
+('Velouté de châtaignes', 'ENTREE', 'Crème de châtaignes, éclats de marrons et crème fraîche'),
+('Salade de chèvre chaud', 'ENTREE', 'Mesclun, fromage de chèvre rôti, noix et miel'),
+('Assiette de saumon fumé', 'ENTREE', 'Saumon fumé maison, blinis et crème citronnée'),
+('Tartare de légumes', 'ENTREE', 'Légumes crus marinés, avocat et vinaigrette balsamique');
 
 -- PLATS
-INSERT INTO PLAT (id_plat, libelle, type, description) VALUES
-(6, 'Chapon farci aux marrons', 'PLAT', 'Chapon rôti, farce aux marrons et champignons, jus corsé'),
-(7, 'Gigot d\'agneau aux herbes', 'PLAT', 'Gigot d\'agneau rôti sept heures, gratin dauphinois'),
-(8, 'Pavé de saumon grillé', 'PLAT', 'Saumon grillé, purée de patates douces et légumes de saison'),
-(9, 'Lasagnes végétariennes', 'PLAT', 'Lasagnes aux légumes du soleil, sauce béchamel'),
-(10, 'Risotto aux champignons', 'PLAT', 'Risotto crémeux, cèpes et parmesan'),
-(11, 'Magret de canard au miel', 'PLAT', 'Magret de canard rôti, sauce au miel et thym');
+INSERT INTO PLAT (libelle, type, description) VALUES
+('Chapon farci aux marrons', 'PLAT', 'Chapon rôti, farce aux marrons et champignons, jus corsé'),
+('Gigot d\'agneau aux herbes', 'PLAT', 'Gigot d\'agneau rôti sept heures, gratin dauphinois'),
+('Pavé de saumon grillé', 'PLAT', 'Saumon grillé, purée de patates douces et légumes de saison'),
+('Lasagnes végétariennes', 'PLAT', 'Lasagnes aux légumes du soleil, sauce béchamel'),
+('Risotto aux champignons', 'PLAT', 'Risotto crémeux, cèpes et parmesan'),
+('Magret de canard au miel', 'PLAT', 'Magret de canard rôti, sauce au miel et thym');
 
 -- DESSERTS
-INSERT INTO PLAT (id_plat, libelle, type, description) VALUES
-(12, 'Bûche de Noël chocolat', 'DESSERT', 'Biscuit roulé au chocolat, crème au beurre pralinée'),
-(13, 'Tarte tatin aux pommes', 'DESSERT', 'Pommes caramélisées sur pâte feuilletée, crème fraîche'),
-(14, 'Mousse au chocolat maison', 'DESSERT', 'Mousse au chocolat noir 70%, éclats de nougatine'),
-(15, 'Tiramisu traditionnel', 'DESSERT', 'Biscuits imbibés de café, crème mascarpone'),
-(16, 'Salade de fruits frais', 'DESSERT', 'Fruits de saison, coulis de fruits rouges'),
-(17, 'Fondant au chocolat', 'DESSERT', 'Coulant au chocolat, glace vanille');
+INSERT INTO PLAT (libelle, type, description) VALUES
+('Bûche de Noël chocolat', 'DESSERT', 'Biscuit roulé au chocolat, crème au beurre pralinée'),
+('Tarte tatin aux pommes', 'DESSERT', 'Pommes caramélisées sur pâte feuilletée, crème fraîche'),
+('Mousse au chocolat maison', 'DESSERT', 'Mousse au chocolat noir 70%, éclats de nougatine'),
+('Tiramisu traditionnel', 'DESSERT', 'Biscuits imbibés de café, crème mascarpone'),
+('Salade de fruits frais', 'DESSERT', 'Fruits de saison, coulis de fruits rouges'),
+('Fondant au chocolat', 'DESSERT', 'Coulant au chocolat, glace vanille');
 
 -- ============================================================
 -- ASSOCIATIONS PLATS - ALLERGÈNES
@@ -285,54 +285,55 @@ INSERT INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, q
 -- ============================================================
 
 -- Historique Commande 1 (EN_ATTENTE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(1, 1, 'EN_ATTENTE', '2024-12-05 14:30:00', 3, 'Commande créée');
+
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(1, 'EN_ATTENTE', '2024-12-05 14:30:00', 3, 'Commande créée');
 
 -- Historique Commande 2 (ACCEPTE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(2, 2, 'EN_ATTENTE', '2024-11-20 10:15:00', 4, 'Commande créée'),
-(3, 2, 'ACCEPTE', '2024-11-21 09:00:00', 2, 'Commande validée par Julie');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(2, 'EN_ATTENTE', '2024-11-20 10:15:00', 4, 'Commande créée'),
+(2, 'ACCEPTE', '2024-11-21 09:00:00', 2, 'Commande validée par Julie');
 
 -- Historique Commande 3 (EN_PREPARATION)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(4, 3, 'EN_ATTENTE', '2024-11-25 16:45:00', 5, 'Commande créée'),
-(5, 3, 'ACCEPTE', '2024-11-26 10:30:00', 2, 'Commande validée'),
-(6, 3, 'EN_PREPARATION', '2024-12-08 08:00:00', 2, 'Préparation en cuisine');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(3, 'EN_ATTENTE', '2024-11-25 16:45:00', 5, 'Commande créée'),
+(3, 'ACCEPTE', '2024-11-26 10:30:00', 2, 'Commande validée'),
+(3, 'EN_PREPARATION', '2024-12-08 08:00:00', 2, 'Préparation en cuisine');
 
 -- Historique Commande 4 (LIVRE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(7, 4, 'EN_ATTENTE', '2024-10-15 09:30:00', 6, 'Commande créée'),
-(8, 4, 'ACCEPTE', '2024-10-16 11:00:00', 2, 'Commande validée'),
-(9, 4, 'EN_PREPARATION', '2024-11-08 07:00:00', 2, 'Préparation démarrée'),
-(10, 4, 'EN_LIVRAISON', '2024-11-10 11:00:00', 2, 'Livraison en cours'),
-(11, 4, 'LIVRE', '2024-11-10 12:45:00', 2, 'Livraison effectuée');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(4, 'EN_ATTENTE', '2024-10-15 09:30:00', 6, 'Commande créée'),
+(4, 'ACCEPTE', '2024-10-16 11:00:00', 2, 'Commande validée'),
+(4, 'EN_PREPARATION', '2024-11-08 07:00:00', 2, 'Préparation démarrée'),
+(4, 'EN_LIVRAISON', '2024-11-10 11:00:00', 2, 'Livraison en cours'),
+(4, 'LIVRE', '2024-11-10 12:45:00', 2, 'Livraison effectuée');
 
 -- Historique Commande 5 (TERMINEE)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(12, 5, 'EN_ATTENTE', '2024-09-20 11:20:00', 7, 'Commande créée'),
-(13, 5, 'ACCEPTE', '2024-09-21 09:00:00', 2, 'Commande validée'),
-(14, 5, 'EN_PREPARATION', '2024-10-03 08:00:00', 2, 'Préparation cuisine'),
-(15, 5, 'EN_LIVRAISON', '2024-10-05 17:00:00', 2, 'Départ livraison'),
-(16, 5, 'LIVRE', '2024-10-05 19:15:00', 2, 'Livraison effectuée'),
-(17, 5, 'TERMINEE', '2024-10-05 19:30:00', 2, 'Prestation terminée');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(5, 'EN_ATTENTE', '2024-09-20 11:20:00', 7, 'Commande créée'),
+(5, 'ACCEPTE', '2024-09-21 09:00:00', 2, 'Commande validée'),
+(5, 'EN_PREPARATION', '2024-10-03 08:00:00', 2, 'Préparation cuisine'),
+(5, 'EN_LIVRAISON', '2024-10-05 17:00:00', 2, 'Départ livraison'),
+(5, 'LIVRE', '2024-10-05 19:15:00', 2, 'Livraison effectuée'),
+(5, 'TERMINEE', '2024-10-05 19:30:00', 2, 'Prestation terminée');
 
 -- Historique Commande 6 (TERMINEE - hors Bordeaux)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(18, 6, 'EN_ATTENTE', '2024-07-10 14:00:00', 3, 'Commande créée'),
-(19, 6, 'ACCEPTE', '2024-07-11 10:00:00', 2, 'Commande validée'),
-(20, 6, 'EN_PREPARATION', '2024-08-13 09:00:00', 2, 'Préparation démarrée'),
-(21, 6, 'EN_LIVRAISON', '2024-08-15 15:00:00', 2, 'En route vers Arcachon'),
-(22, 6, 'LIVRE', '2024-08-15 17:50:00', 2, 'Livraison effectuée'),
-(23, 6, 'TERMINEE', '2024-08-15 18:00:00', 2, 'Prestation terminée');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(6, 'EN_ATTENTE', '2024-07-10 14:00:00', 3, 'Commande créée'),
+(6, 'ACCEPTE', '2024-07-11 10:00:00', 2, 'Commande validée'),
+(6, 'EN_PREPARATION', '2024-08-13 09:00:00', 2, 'Préparation démarrée'),
+(6, 'EN_LIVRAISON', '2024-08-15 15:00:00', 2, 'En route vers Arcachon'),
+(6, 'LIVRE', '2024-08-15 17:50:00', 2, 'Livraison effectuée'),
+(6, 'TERMINEE', '2024-08-15 18:00:00', 2, 'Prestation terminée');
 
 -- Historique Commande 7 (EN_ATTENTE_RETOUR)
-INSERT INTO COMMANDE_STATUT (id_statut, id_commande, statut, date_changement, modifie_par, commentaire) VALUES
-(24, 7, 'EN_ATTENTE', '2024-11-15 15:30:00', 4, 'Commande créée'),
-(25, 7, 'ACCEPTE', '2024-11-16 09:30:00', 2, 'Commande validée'),
-(26, 7, 'EN_PREPARATION', '2024-11-29 08:00:00', 2, 'Préparation cuisine'),
-(27, 7, 'EN_LIVRAISON', '2024-12-01 15:00:00', 2, 'Livraison en cours'),
-(28, 7, 'LIVRE', '2024-12-01 16:50:00', 2, 'Livraison effectuée avec matériel'),
-(29, 7, 'EN_ATTENTE_RETOUR', '2024-12-01 17:00:00', 2, 'En attente retour matériel');
+INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(7, 'EN_ATTENTE', '2024-11-15 15:30:00', 4, 'Commande créée'),
+(7, 'ACCEPTE', '2024-11-16 09:30:00', 2, 'Commande validée'),
+(7, 'EN_PREPARATION', '2024-11-29 08:00:00', 2, 'Préparation cuisine'),
+(7, 'EN_LIVRAISON', '2024-12-01 15:00:00', 2, 'Livraison en cours'),
+(7, 'LIVRE', '2024-12-01 16:50:00', 2, 'Livraison effectuée avec matériel'),
+(7, 'EN_ATTENTE_RETOUR', '2024-12-01 17:00:00', 2, 'En attente retour matériel');
 
 -- ============================================================
 -- AVIS CLIENTS

@@ -1,7 +1,6 @@
-
+version: '3.8'
 
 services:
-  # PHP-FPM Service
   php-app:
     build:
       context: .
@@ -23,7 +22,6 @@ services:
       - vite-network
     restart: unless-stopped
 
-  # Apache Web Server
   apache:
     build:
       context: .
@@ -40,15 +38,14 @@ services:
       - vite-network
     restart: unless-stopped
 
-  # MySQL Database
   mysql:
     image: mysql:8.0
     container_name: vite-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: vite_gourmand
-      MYSQL_USER: vite_user
-      MYSQL_PASSWORD: vite_pass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -57,20 +54,31 @@ services:
       - ./backend/database/sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
     networks:
       - vite-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
 
-  # MongoDB Database
+  mysql-test:
+    image: mysql:8.0
+    container_name: vite-mysql-test
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_TEST_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_TEST_DATABASE}
+      MYSQL_USER: ${MYSQL_TEST_USER}
+      MYSQL_PASSWORD: ${MYSQL_TEST_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+      - ./backend/database/sql/database_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/database/sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
+    networks:
+      - vite-network
+
   mongodb:
     image: mongo:4.4
     container_name: vite-mongodb
     environment:
-      MONGO_INITDB_DATABASE: vite_gourmand
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
@@ -78,50 +86,55 @@ services:
       - ./backend/database/mongoDB/database_mongodb_setup.js:/docker-entrypoint-initdb.d/setup.js
     networks:
       - vite-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand({ping:1})"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # phpMyAdmin (optionnel, dev only)
+  mongodb-test:
+    image: mongo:4.4
+    container_name: vite-mongodb-test
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_TEST_INITDB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_TEST_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_TEST_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_test_data:/data/db
+      - ./backend/database/mongoDB/database_mongodb_setup.js:/docker-entrypoint-initdb.d/setup.js
+    networks:
+      - vite-network
+
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: vite-phpmyadmin
     environment:
       PMA_HOST: mysql
-      PMA_USER: root
-      PMA_PASSWORD: root
+      PMA_USER: ${PMA_USER}
+      PMA_PASSWORD: ${PMA_PASSWORD}
     ports:
       - "8081:80"
     depends_on:
       - mysql
     networks:
       - vite-network
-    restart: unless-stopped
 
-  # Mongo Express (optionnel, dev only)
   mongo-express:
     image: mongo-express:latest
     container_name: vite-mongo-express
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: root
-      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongodb:27017
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_MONGO_ADMINUSERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_MONGO_ADMINPASSWORD}
+      ME_CONFIG_MONGODB_URL: ${ME_MONGO_URL}
     ports:
       - "8082:8081"
     depends_on:
       - mongodb
     networks:
       - vite-network
-    restart: unless-stopped
 
 volumes:
   mysql_data:
-    driver: local
+  mysql_test_data:
   mongodb_data:
-    driver: local
+  mongodb_test_data:
 
 networks:
   vite-network:

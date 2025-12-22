@@ -5,10 +5,9 @@ images/
 frontend/
 
 # Fichiers ignorés
-README.md
 package-lock.json
 .env
-
+.env.compose
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
 
