@@ -7,7 +7,7 @@ frontend/
 # Fichiers ignorés
 package-lock.json
 .env
-
+.env.compose
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
 
