@@ -528,8 +528,8 @@ print("✓ Vue 'statistiques_menus_globales' créée");
 print("\n=== RÉSUMÉ DE LA BASE DE DONNÉES ===\n");
 
 print("Collections créées :");
-print("  - avis : " + db.avis.countDocuments() + " documents");
-print("  - statistiques_commandes : " + db.statistiques_commandes.countDocuments() + " documents");
+print("  - avis : " + db.avis.countDocuments({}) + " documents");
+print("  - statistiques_commandes : " + db.statistiques_commandes.countDocuments({}) + " documents");
 
 print("\nVues créées :");
 print("  - avis_page_accueil");
