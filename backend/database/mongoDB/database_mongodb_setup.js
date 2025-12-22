@@ -8,6 +8,9 @@
 // Connexion à la base de données
 // Utilise la variable d'environnement MONGO_INITDB_DATABASE ou "vite_et_gourmand" par défaut
 var dbName = typeof process !== 'undefined' && process.env.MONGO_INITDB_DATABASE ? process.env.MONGO_INITDB_DATABASE : "vite_et_gourmand";
+print("=== Environment check ===");
+print("process.env.MONGO_INITDB_DATABASE: " + (typeof process !== 'undefined' ? process.env.MONGO_INITDB_DATABASE : 'undefined'));
+print("Selected dbName: " + dbName);
 db = db.getSiblingDB(dbName);
 
 print("=== Base de données utilisée: " + dbName + " ===");

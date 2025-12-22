@@ -8,7 +8,7 @@ class UserServiceException extends \Exception
 
     public static function emailExists(): self
     {
-        return new self("Cette adresse email est déjà utilisée.", self::EMAIL_EXISTS);
+        return new self("Erreur email déjà utilisé", self::EMAIL_EXISTS);
     }
 
     public static function dbError($message = "Erreur technique lors de la création de l'utilisateur."): self
