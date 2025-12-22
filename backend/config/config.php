@@ -6,13 +6,13 @@ $dotenv->load();
 
 return [
     'db' => [
-        'dsn'  => 'mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'] . ';charset=utf8mb4',
+        'dsn'  => 'mysql:host=' . $_ENV['DB_HOST'] . ';dbname=vite_gourmand_test;charset=utf8mb4',
         'user' => $_ENV['DB_USER'],
         'pass' => $_ENV['DB_PASS'],
     ],
     'mongo' => [
         'uri' => $_ENV['MONGO_URI'],
-        'database' => $_ENV['DB_NAME'],
+        'database' => 'vite_gourmand_test',
     ],
     'jwt' => [
         'secret' => $_ENV['JWT_SECRET'],
