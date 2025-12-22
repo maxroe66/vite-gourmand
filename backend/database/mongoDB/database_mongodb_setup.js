@@ -6,16 +6,22 @@
 // ============================================================
 
 // Connexion à la base de données
-// Utilise la variable d'environnement MONGO_INITDB_DATABASE ou "vite_et_gourmand" par défaut
-var dbName = typeof process !== 'undefined' && process.env.MONGO_INITDB_DATABASE ? process.env.MONGO_INITDB_DATABASE : "vite_et_gourmand";
+// Priorité : variable JS DB_NAME (injectée via --eval) > MONGO_INITDB_DATABASE > DB test par défaut
+var dbName =
+    (typeof DB_NAME !== 'undefined' && DB_NAME)
+        ? DB_NAME
+        : (typeof process !== 'undefined' && process.env && process.env.MONGO_INITDB_DATABASE)
+            ? process.env.MONGO_INITDB_DATABASE
+            : "vite_gourmand_test";
+
 print("=== Environment check ===");
-print("process.env.MONGO_INITDB_DATABASE: " + (typeof process !== 'undefined' ? process.env.MONGO_INITDB_DATABASE : 'undefined'));
+print("process.env.MONGO_INITDB_DATABASE: " + (typeof process !== 'undefined' && process.env ? process.env.MONGO_INITDB_DATABASE : 'undefined'));
+print("Injected DB_NAME: " + (typeof DB_NAME !== 'undefined' ? DB_NAME : 'undefined'));
 print("Selected dbName: " + dbName);
+
 db = db.getSiblingDB(dbName);
 
 print("=== Base de données utilisée: " + dbName + " ===");
-
-print("=== Initialisation de la base de données MongoDB ===");
 
 // ============================================================
 // COLLECTION : avis
@@ -568,4 +574,4 @@ print("// 5. Avis en attente de modération");
 print('db.avis.find({ statut_validation: "EN_ATTENTE" }).sort({ date_avis: -1 })\n');
 
 print("\n=== CONFIGURATION TERMINÉE ===");
-print("Base de données 'vite_et_gourmand' prête à l'emploi !");
+print("Base de données 'vite_gourmand_test' prête à l'emploi !");

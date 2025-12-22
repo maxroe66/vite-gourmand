@@ -123,6 +123,35 @@ jobs:
           MONGO_USER: root
           MONGO_PASS: root
 
+      - name: Run backend tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: vite_gourmand_test
+          DB_USER: root
+          DB_PASS: root
+          MONGO_HOST: 127.0.0.1
+          MONGO_PORT: 27017
+          MONGO_DB: vite_gourmand_test
+          MONGO_USER: root
+          MONGO_PASS: root
+        run: |
+          # Run PHPUnit tests if available
+          cd backend
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit --colors=always
+          fi
+          cd ..
+          
+          # Run Postman/Newman tests
+          if [ -f backend/tests/postman/inscription.postman_collection.json ]; then
+            newman run backend/tests/postman/inscription.postman_collection.json \
+              --env-var "base_url=http://localhost:8000" \
+              --env-var "db_host=127.0.0.1" \
+              --env-var "db_port=3306" \
+              --timeout-request 10000 \
+              --delay-request 1000
+          fi
 
       - name: Stop PHP server
         if: always()
