@@ -36,7 +36,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd="mongo --quiet --eval 'db.adminCommand({ping:1})' --authenticationDatabase admin -u root -p root"
+          --health-cmd="mongo --quiet 127.0.0.1:27017 --eval 'db.adminCommand({ping:1})' --authenticationDatabase admin -u root -p root"
           --health-interval=10s
           --health-timeout=10s
           --health-retries=10
@@ -56,11 +56,6 @@ jobs:
       - name: Install Newman (Postman CLI)
         run: npm install -g newman
 
-      - name: Install Mongo shell (client)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mongodb-clients
-
       - name: Wait for MySQL to be ready
         run: |
           for i in {1..30}; do
@@ -68,11 +63,12 @@ jobs:
             sleep 2
           done
 
-      - name: Wait for MongoDB to be ready
+      - name: Wait for MongoDB to be ready (inside container)
         run: |
+          MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
           for i in {1..30}; do
-            mongo --host 127.0.0.1 --port 27017 \
-              --authenticationDatabase admin -u root -p root \
+            docker exec "$MONGO_CID" \
+              mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
               --eval "db.adminCommand({ping:1})" && break
             sleep 2
           done
@@ -84,10 +80,18 @@ jobs:
           mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_creation.sql
           mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_fixtures.sql
 
-          # Setup MongoDB test database (force DB_NAME)
+          # Setup MongoDB test database
           if [ -f backend/database/mongoDB/database_mongodb_setup.js ]; then
-            mongo --host 127.0.0.1 --port 27017 \
-              --authenticationDatabase admin -u root -p root \
+            MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
+
+            # Drop test DB first (clean slate)
+            docker exec "$MONGO_CID" \
+              mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
+              --eval "db.getSiblingDB('vite_gourmand_test').dropDatabase();"
+
+            # Run setup script, forcing DB_NAME
+            docker exec -i "$MONGO_CID" \
+              mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
               --eval "var DB_NAME='vite_gourmand_test';" \
               /dev/stdin < backend/database/mongoDB/database_mongodb_setup.js
           fi
