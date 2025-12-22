@@ -96,8 +96,8 @@ jobs:
       - name: Start PHP built-in server for tests
         run: |
           cd backend
-          # Copy test environment file
-          cp .env.test .env
+          # Copy test environment file to project root (where config.php expects it)
+          cp .env.test ../.env
           # Start PHP server in background
           php -S localhost:8000 -t ../public &
           echo $! > php_server.pid
