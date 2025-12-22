@@ -53,12 +53,7 @@ jobs:
           extensions: mysqli, pdo, pdo_mysql, mongodb
           coverage: none
 
-      - name: Install MongoDB Shell
-        run: |
-          wget -qO - https://pgp.mongodb.com/server-4.4.asc | sudo apt-key add -
-          echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-org-shell
+
 
       - name: Install Newman (Postman CLI)
         run: npm install -g newman
@@ -73,7 +68,8 @@ jobs:
       - name: Wait for MongoDB to be ready
         run: |
           for i in {1..30}; do
-            mongo --host 127.0.0.1:27017 --authenticationDatabase admin -u root -p root --eval "db.adminCommand({ping:1})" && break
+            docker exec $(docker ps -q --filter ancestor=mongo:4.4) \
+              mongo --host 127.0.0.1:27017 --authenticationDatabase admin -u root -p root --eval "db.adminCommand({ping:1})" && break
             sleep 2
           done
 
@@ -84,8 +80,11 @@ jobs:
           mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_creation.sql
           mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_fixtures.sql
           
-          # Setup MongoDB test database
-          mongo --host 127.0.0.1:27017 --authenticationDatabase admin -u root -p root backend/database/mongoDB/database_mongodb_setup.js
+          # Setup MongoDB test database using the container shell
+          if [ -f backend/database/mongoDB/database_mongodb_setup.js ]; then
+            docker exec -i $(docker ps -q --filter ancestor=mongo:4.4) \
+              mongo --host 127.0.0.1:27017 --authenticationDatabase admin -u root -p root < backend/database/mongoDB/database_mongodb_setup.js
+          fi
 
       - name: Install PHP dependencies
         run: |
