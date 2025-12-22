@@ -6,7 +6,11 @@
 // ============================================================
 
 // Connexion à la base de données
-db = db.getSiblingDB("vite_et_gourmand");
+// Utilise la variable d'environnement MONGO_INITDB_DATABASE ou "vite_et_gourmand" par défaut
+var dbName = typeof process !== 'undefined' && process.env.MONGO_INITDB_DATABASE ? process.env.MONGO_INITDB_DATABASE : "vite_et_gourmand";
+db = db.getSiblingDB(dbName);
+
+print("=== Base de données utilisée: " + dbName + " ===");
 
 print("=== Initialisation de la base de données MongoDB ===");
 
@@ -22,7 +26,7 @@ db.createCollection("avis", {
             required: ["note", "commentaire", "statut_validation", "date_avis", "id_utilisateur", "id_commande", "id_menu"],
             properties: {
                 note: {
-                    bsonType: "int",
+                    bsonType: ["int", "double"],
                     minimum: 1,
                     maximum: 5,
                     description: "Note de 1 à 5 étoiles - obligatoire"
@@ -34,6 +38,7 @@ db.createCollection("avis", {
                     description: "Commentaire du client (10-1000 caractères) - obligatoire"
                 },
                 statut_validation: {
+                    bsonType: "string",
                     enum: ["EN_ATTENTE", "VALIDE", "REFUSE"],
                     description: "Statut de modération - obligatoire"
                 },
@@ -42,19 +47,19 @@ db.createCollection("avis", {
                     description: "Date de création de l'avis - obligatoire"
                 },
                 id_utilisateur: {
-                    bsonType: "int",
+                    bsonType: ["int", "double"],
                     description: "ID de l'utilisateur (référence MySQL) - obligatoire"
                 },
                 id_commande: {
-                    bsonType: "int",
+                    bsonType: ["int", "double"],
                     description: "ID de la commande (référence MySQL) - obligatoire"
                 },
                 id_menu: {
-                    bsonType: "int",
+                    bsonType: ["int", "double"],
                     description: "ID du menu (référence MySQL) - obligatoire"
                 },
                 modere_par: {
-                    bsonType: ["int", "null"],
+                    bsonType: ["int", "double", "null"],
                     description: "ID de l'employé modérateur (référence MySQL)"
                 },
                 date_validation: {
@@ -66,7 +71,7 @@ db.createCollection("avis", {
                     description: "Indique si l'avis est synchronisé avec MySQL (fallback)"
                 },
                 mysql_id: {
-                    bsonType: ["int", "null"],
+                    bsonType: ["int", "double", "null"],
                     description: "ID dans la table AVIS_FALLBACK de MySQL"
                 }
             }
@@ -199,92 +204,92 @@ print("Insertion des avis clients...");
 
 db.avis.insertMany([
     {
-        note: 5,
+        note: NumberInt(5),
         commentaire: "Prestation exceptionnelle ! Les plats étaient délicieux et la présentation soignée. Je recommande vivement pour vos événements.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-10-06T10:30:00Z"),
-        id_utilisateur: 7,
-        id_commande: 5,
-        id_menu: 6,
-        modere_par: 2,
+        id_utilisateur: NumberInt(7),
+        id_commande: NumberInt(5),
+        id_menu: NumberInt(6),
+        modere_par: NumberInt(2),
         date_validation: new Date("2024-10-06T14:00:00Z"),
         mysql_synced: true,
-        mysql_id: 1
+        mysql_id: NumberInt(1)
     },
     {
-        note: 5,
+        note: NumberInt(5),
         commentaire: "Menu estival parfait pour notre réception. Produits frais, saveurs au rendez-vous. La livraison à Arcachon s'est très bien passée.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-08-16T09:15:00Z"),
-        id_utilisateur: 3,
-        id_commande: 6,
-        id_menu: 5,
-        modere_par: 2,
+        id_utilisateur: NumberInt(3),
+        id_commande: NumberInt(6),
+        id_menu: NumberInt(5),
+        modere_par: NumberInt(2),
         date_validation: new Date("2024-08-16T15:30:00Z"),
         mysql_synced: true,
-        mysql_id: 2
+        mysql_id: NumberInt(2)
     },
     {
-        note: 4,
+        note: NumberInt(4),
         commentaire: "Très bon rapport qualité-prix. Quelques petits détails à améliorer sur la présentation mais les saveurs étaient au top !",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-09-10T16:20:00Z"),
-        id_utilisateur: 6,
-        id_commande: 4,
-        id_menu: 2,
-        modere_par: 2,
+        id_utilisateur: NumberInt(6),
+        id_commande: NumberInt(4),
+        id_menu: NumberInt(2),
+        modere_par: NumberInt(2),
         date_validation: new Date("2024-09-11T09:00:00Z"),
         mysql_synced: true,
-        mysql_id: 3
+        mysql_id: NumberInt(3)
     },
     {
-        note: 5,
+        note: NumberInt(5),
         commentaire: "Commande pour Noël en cours mais contact très professionnel et réactif. Hâte de goûter !",
         statut_validation: "EN_ATTENTE",
         date_avis: new Date("2024-12-06T11:00:00Z"),
-        id_utilisateur: 3,
-        id_commande: 1,
-        id_menu: 1,
+        id_utilisateur: NumberInt(3),
+        id_commande: NumberInt(1),
+        id_menu: NumberInt(1),
         modere_par: null,
         date_validation: null,
         mysql_synced: true,
-        mysql_id: 4
+        mysql_id: NumberInt(4)
     },
     {
-        note: 5,
+        note: NumberInt(5),
         commentaire: "Équipe au top ! Le menu de Noël était succulent. Les convives ont adoré le chapon farci aux marrons.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-12-02T20:30:00Z"),
-        id_utilisateur: 4,
-        id_commande: 7,
-        id_menu: 1,
-        modere_par: 2,
+        id_utilisateur: NumberInt(4),
+        id_commande: NumberInt(7),
+        id_menu: NumberInt(1),
+        modere_par: NumberInt(2),
         date_validation: new Date("2024-12-03T09:00:00Z"),
         mysql_synced: false,
         mysql_id: null
     },
     {
-        note: 4,
+        note: NumberInt(4),
         commentaire: "Menu végétarien très créatif et savoureux. Seul bémol : le délai de livraison un peu long.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-11-20T14:15:00Z"),
-        id_utilisateur: 5,
-        id_commande: 3,
-        id_menu: 3,
-        modere_par: 2,
+        id_utilisateur: NumberInt(5),
+        id_commande: NumberInt(3),
+        id_menu: NumberInt(3),
+        modere_par: NumberInt(2),
         date_validation: new Date("2024-11-21T10:00:00Z"),
         mysql_synced: false,
         mysql_id: null
     },
     {
-        note: 2,
+        note: NumberInt(2),
         commentaire: "Déçu par la qualité des produits. Le poisson n'était pas assez frais à mon goût.",
         statut_validation: "REFUSE",
         date_avis: new Date("2024-10-25T18:45:00Z"),
-        id_utilisateur: 4,
-        id_commande: 2,
-        id_menu: 4,
-        modere_par: 2,
+        id_utilisateur: NumberInt(4),
+        id_commande: NumberInt(2),
+        id_menu: NumberInt(4),
+        modere_par: NumberInt(2),
         date_validation: new Date("2024-10-26T09:30:00Z"),
         mysql_synced: false,
         mysql_id: null
@@ -300,149 +305,149 @@ print("Insertion des statistiques de commandes...");
 db.statistiques_commandes.insertMany([
     // Menu de Noël - Novembre 2024
     {
-        id_menu: 1,
+        id_menu: NumberInt(1),
         titre_menu: "Menu de Noël Traditionnel",
-        periode: { annee: 2024, mois: 11 },
-        nb_commandes: 3,
+        periode: { annee: NumberInt(2024), mois: NumberInt(11) },
+        nb_commandes: NumberInt(3),
         chiffre_affaires: 460.00,
-        nb_personnes_total: 24,
+        nb_personnes_total: NumberInt(24),
         panier_moyen: 153.33,
         date_maj: new Date("2024-11-30T23:59:00Z"),
         details_statuts: {
-            EN_ATTENTE: 1,
-            ACCEPTE: 0,
-            EN_PREPARATION: 0,
-            EN_LIVRAISON: 0,
-            LIVRE: 1,
-            EN_ATTENTE_RETOUR: 1,
-            TERMINEE: 0,
-            ANNULEE: 0
+            EN_ATTENTE: NumberInt(1),
+            ACCEPTE: NumberInt(0),
+            EN_PREPARATION: NumberInt(0),
+            EN_LIVRAISON: NumberInt(0),
+            LIVRE: NumberInt(1),
+            EN_ATTENTE_RETOUR: NumberInt(1),
+            TERMINEE: NumberInt(0),
+            ANNULEE: NumberInt(0)
         }
     },
     // Menu de Noël - Décembre 2024
     {
-        id_menu: 1,
+        id_menu: NumberInt(1),
         titre_menu: "Menu de Noël Traditionnel",
-        periode: { annee: 2024, mois: 12 },
-        nb_commandes: 1,
+        periode: { annee: NumberInt(2024), mois: NumberInt(12) },
+        nb_commandes: NumberInt(1),
         chiffre_affaires: 155.00,
-        nb_personnes_total: 6,
+        nb_personnes_total: NumberInt(6),
         panier_moyen: 155.00,
         date_maj: new Date("2024-12-10T23:59:00Z"),
         details_statuts: {
-            EN_ATTENTE: 1,
-            ACCEPTE: 0,
-            EN_PREPARATION: 0,
-            EN_LIVRAISON: 0,
-            LIVRE: 0,
-            EN_ATTENTE_RETOUR: 0,
-            TERMINEE: 0,
-            ANNULEE: 0
+            EN_ATTENTE: NumberInt(1),
+            ACCEPTE: NumberInt(0),
+            EN_PREPARATION: NumberInt(0),
+            EN_LIVRAISON: NumberInt(0),
+            LIVRE: NumberInt(0),
+            EN_ATTENTE_RETOUR: NumberInt(0),
+            TERMINEE: NumberInt(0),
+            ANNULEE: NumberInt(0)
         }
     },
     // Menu de Pâques - Octobre 2024
     {
-        id_menu: 2,
+        id_menu: NumberInt(2),
         titre_menu: "Menu de Pâques Gourmand",
-        periode: { annee: 2024, mois: 10 },
-        nb_commandes: 1,
+        periode: { annee: NumberInt(2024), mois: NumberInt(10) },
+        nb_commandes: NumberInt(1),
         chiffre_affaires: 245.00,
-        nb_personnes_total: 8,
+        nb_personnes_total: NumberInt(8),
         panier_moyen: 245.00,
         date_maj: new Date("2024-10-31T23:59:00Z"),
         details_statuts: {
-            EN_ATTENTE: 0,
-            ACCEPTE: 0,
-            EN_PREPARATION: 0,
-            EN_LIVRAISON: 0,
-            LIVRE: 1,
-            EN_ATTENTE_RETOUR: 0,
-            TERMINEE: 0,
-            ANNULEE: 0
+            EN_ATTENTE: NumberInt(0),
+            ACCEPTE: NumberInt(0),
+            EN_PREPARATION: NumberInt(0),
+            EN_LIVRAISON: NumberInt(0),
+            LIVRE: NumberInt(1),
+            EN_ATTENTE_RETOUR: NumberInt(0),
+            TERMINEE: NumberInt(0),
+            ANNULEE: NumberInt(0)
         }
     },
     // Menu Végétarien - Novembre 2024
     {
-        id_menu: 3,
+        id_menu: NumberInt(3),
         titre_menu: "Menu Végétarien Raffiné",
-        periode: { annee: 2024, mois: 11 },
-        nb_commandes: 1,
+        periode: { annee: NumberInt(2024), mois: NumberInt(11) },
+        nb_commandes: NumberInt(1),
         chiffre_affaires: 151.75,
-        nb_personnes_total: 6,
+        nb_personnes_total: NumberInt(6),
         panier_moyen: 151.75,
         date_maj: new Date("2024-11-30T23:59:00Z"),
         details_statuts: {
-            EN_ATTENTE: 0,
-            ACCEPTE: 0,
-            EN_PREPARATION: 1,
-            EN_LIVRAISON: 0,
-            LIVRE: 0,
-            EN_ATTENTE_RETOUR: 0,
-            TERMINEE: 0,
-            ANNULEE: 0
+            EN_ATTENTE: NumberInt(0),
+            ACCEPTE: NumberInt(0),
+            EN_PREPARATION: NumberInt(1),
+            EN_LIVRAISON: NumberInt(0),
+            LIVRE: NumberInt(0),
+            EN_ATTENTE_RETOUR: NumberInt(0),
+            TERMINEE: NumberInt(0),
+            ANNULEE: NumberInt(0)
         }
     },
     // Menu Classique - Novembre 2024
     {
-        id_menu: 4,
+        id_menu: NumberInt(4),
         titre_menu: "Menu Classique 4 Saisons",
-        periode: { annee: 2024, mois: 11 },
-        nb_commandes: 1,
+        periode: { annee: NumberInt(2024), mois: NumberInt(11) },
+        nb_commandes: NumberInt(1),
         chiffre_affaires: 225.00,
-        nb_personnes_total: 8,
+        nb_personnes_total: NumberInt(8),
         panier_moyen: 225.00,
         date_maj: new Date("2024-11-30T23:59:00Z"),
         details_statuts: {
-            EN_ATTENTE: 0,
-            ACCEPTE: 1,
-            EN_PREPARATION: 0,
-            EN_LIVRAISON: 0,
-            LIVRE: 0,
-            EN_ATTENTE_RETOUR: 0,
-            TERMINEE: 0,
-            ANNULEE: 0
+            EN_ATTENTE: NumberInt(0),
+            ACCEPTE: NumberInt(1),
+            EN_PREPARATION: NumberInt(0),
+            EN_LIVRAISON: NumberInt(0),
+            LIVRE: NumberInt(0),
+            EN_ATTENTE_RETOUR: NumberInt(0),
+            TERMINEE: NumberInt(0),
+            ANNULEE: NumberInt(0)
         }
     },
     // Menu Estival - Août 2024
     {
-        id_menu: 5,
+        id_menu: NumberInt(5),
         titre_menu: "Menu Estival Léger",
-        periode: { annee: 2024, mois: 8 },
-        nb_commandes: 1,
+        periode: { annee: NumberInt(2024), mois: NumberInt(8) },
+        nb_commandes: NumberInt(1),
         chiffre_affaires: 251.70,
-        nb_personnes_total: 10,
+        nb_personnes_total: NumberInt(10),
         panier_moyen: 251.70,
         date_maj: new Date("2024-08-31T23:59:00Z"),
         details_statuts: {
-            EN_ATTENTE: 0,
-            ACCEPTE: 0,
-            EN_PREPARATION: 0,
-            EN_LIVRAISON: 0,
-            LIVRE: 0,
-            EN_ATTENTE_RETOUR: 0,
-            TERMINEE: 1,
-            ANNULEE: 0
+            EN_ATTENTE: NumberInt(0),
+            ACCEPTE: NumberInt(0),
+            EN_PREPARATION: NumberInt(0),
+            EN_LIVRAISON: NumberInt(0),
+            LIVRE: NumberInt(0),
+            EN_ATTENTE_RETOUR: NumberInt(0),
+            TERMINEE: NumberInt(1),
+            ANNULEE: NumberInt(0)
         }
     },
     // Menu Vegan - Septembre 2024
     {
-        id_menu: 6,
+        id_menu: NumberInt(6),
         titre_menu: "Menu Vegan Créatif",
-        periode: { annee: 2024, mois: 9 },
-        nb_commandes: 1,
+        periode: { annee: NumberInt(2024), mois: NumberInt(9) },
+        nb_commandes: NumberInt(1),
         chiffre_affaires: 110.00,
-        nb_personnes_total: 4,
+        nb_personnes_total: NumberInt(4),
         panier_moyen: 110.00,
         date_maj: new Date("2024-09-30T23:59:00Z"),
         details_statuts: {
-            EN_ATTENTE: 0,
-            ACCEPTE: 0,
-            EN_PREPARATION: 0,
-            EN_LIVRAISON: 0,
-            LIVRE: 0,
-            EN_ATTENTE_RETOUR: 0,
-            TERMINEE: 1,
-            ANNULEE: 0
+            EN_ATTENTE: NumberInt(0),
+            ACCEPTE: NumberInt(0),
+            EN_PREPARATION: NumberInt(0),
+            EN_LIVRAISON: NumberInt(0),
+            LIVRE: NumberInt(0),
+            EN_ATTENTE_RETOUR: NumberInt(0),
+            TERMINEE: NumberInt(1),
+            ANNULEE: NumberInt(0)
         }
     }
 ]);
