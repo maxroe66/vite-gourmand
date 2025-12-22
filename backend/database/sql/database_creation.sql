@@ -6,10 +6,11 @@
 -- ============================================================
 
 -- Création de la base de données
-DROP DATABASE IF EXISTS vite_et_gourmand;
-CREATE DATABASE vite_et_gourmand CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE vite_et_gourmand;
-
+-- DROP DATABASE IF EXISTS vite_et_gourmand;
+-- CREATE DATABASE vite_et_gourmand CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- USE vite_et_gourmand;
+-- a decommenter en prod?
+-- USE vite_et_gourmand_test;
 -- ============================================================
 -- UTILISATEURS & AUTHENTIFICATION
 -- ============================================================
@@ -21,6 +22,8 @@ CREATE TABLE UTILISATEUR (
     gsm VARCHAR(20) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     adresse_postale VARCHAR(255) NOT NULL,
+    ville VARCHAR(100) NOT NULL,
+    code_postal VARCHAR(20) NOT NULL,
     mot_de_passe VARCHAR(255) NOT NULL,
     role ENUM('UTILISATEUR', 'EMPLOYE', 'ADMINISTRATEUR') NOT NULL DEFAULT 'UTILISATEUR',
     actif BOOLEAN NOT NULL DEFAULT TRUE,

@@ -1,0 +1,184 @@
+name: Tests backend automatisés
+
+on:
+  push:
+    branches: [ main, master, develop, feat/* ]
+  pull_request:
+    branches: [ main, master, develop, feat/* ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: vite_gourmand_test
+          MYSQL_USER: vite_user
+          MYSQL_PASSWORD: vite_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot --silent"
+          --health-interval=10s
+          --health-timeout=10s
+          --health-retries=15
+          --health-start-period=30s
+
+      mongodb:
+        image: mongo:4.4
+        env:
+          MONGO_INITDB_DATABASE: vite_gourmand_test
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: root
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongo --quiet 127.0.0.1:27017 --eval 'db.adminCommand({ping:1})' --authenticationDatabase admin -u root -p root"
+          --health-interval=10s
+          --health-timeout=10s
+          --health-retries=10
+          --health-start-period=30s
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli, pdo, pdo_mysql, mongodb
+          coverage: none
+
+      - name: Install Newman (Postman CLI)
+        run: npm install -g newman
+
+      - name: Wait for MySQL to be ready
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h127.0.0.1 -P3306 -uroot -proot && break
+            sleep 2
+          done
+
+      - name: Wait for MongoDB to be ready (inside container)
+        run: |
+          MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
+          for i in {1..30}; do
+            docker exec "$MONGO_CID" \
+              mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
+              --eval "db.adminCommand({ping:1})" && break
+            sleep 2
+          done
+
+      - name: Setup test databases
+        run: |
+          # Setup MySQL test database
+          mysql -h127.0.0.1 -P3306 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS vite_gourmand_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_creation.sql
+          mysql -h127.0.0.1 -P3306 -uroot -proot vite_gourmand_test < backend/database/sql/database_fixtures.sql
+
+          # Setup MongoDB test database
+          if [ -f backend/database/mongoDB/database_mongodb_setup.js ]; then
+            MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
+
+            # Drop test DB first (clean slate)
+            docker exec "$MONGO_CID" \
+              mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
+              --eval "db.getSiblingDB('vite_gourmand_test').dropDatabase();"
+
+            # Run setup script, forcing DB_NAME
+            docker exec -i "$MONGO_CID" \
+              mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
+              --eval "var DB_NAME='vite_gourmand_test';" \
+              /dev/stdin < backend/database/mongoDB/database_mongodb_setup.js
+          fi
+
+      - name: Install PHP dependencies
+        run: |
+          cd backend
+          composer install --no-interaction --prefer-dist
+
+      - name: Start PHP built-in server for tests
+        run: |
+          php -S 127.0.0.1:8000 -t public public/index.php &
+          echo $! > php_server.pid
+          sleep 2
+
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              echo "Server is ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+        env:
+          APP_ENV: test
+          APP_DEBUG: "false"
+          ENV: test
+          DEBUG: "false"
+
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: vite_gourmand_test
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_PASS: root
+
+          MONGO_HOST: 127.0.0.1
+          MONGO_PORT: 27017
+          MONGO_DB: vite_gourmand_test
+          MONGO_USERNAME: root
+          MONGO_PASSWORD: root
+          MONGO_USER: root
+          MONGO_PASS: root
+          MONGO_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
+
+          JWT_SECRET: jwt-secret-for-tests-only
+
+      - name: Run backend tests
+        env:
+          APP_ENV: test
+          APP_DEBUG: "false"
+          ENV: test
+          DEBUG: "false"
+
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: vite_gourmand_test
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_PASS: root
+
+          MONGO_HOST: 127.0.0.1
+          MONGO_PORT: 27017
+          MONGO_DB: vite_gourmand_test
+          MONGO_USERNAME: root
+          MONGO_PASSWORD: root
+          MONGO_USER: root
+          MONGO_PASS: root
+          MONGO_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
+
+          JWT_SECRET: jwt-secret-for-tests-only
+        run: |
+          cd backend
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit --colors=always
+          fi
+          cd ..
+
+          newman run backend/tests/postman/inscription.postman_collection.json \
+            --env-var "base_url=http://127.0.0.1:8000" \
+            --timeout-request 10000 \
+            --delay-request 200
+
+      - name: Stop PHP server
+        if: always()
+        run: |
+          if [ -f php_server.pid ]; then
+            kill "$(cat php_server.pid)" || true
+            rm php_server.pid
+          fi
