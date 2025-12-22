@@ -7,6 +7,18 @@
 		"_exporter_id": "50957939",
 		"_collection_link": "https://maxroe66300-8951494.postman.co/workspace/max-roe's-Workspace~9e483d7c-0845-4224-878d-731e26bc2e27/collection/50957939-57e97f7c-a986-4e32-b0cb-137d55a495cf?action=share&source=collection_link&creator=50957939"
 	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "api_path",
+			"value": "/api/auth/register",
+			"type": "string"
+		}
+	],
 	"item": [
 		{
 			"name": "tout valide",
@@ -14,10 +26,17 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.variables.set(\"timestamp\", Date.now());"
-						]
+						"type": "text/javascript",					"exec": [
+						"// Generate unique data for this test run",
+						"const timestamp = Date.now();",
+						"const randomId = Math.floor(Math.random() * 10000);",
+						"pm.variables.set(\"timestamp\", timestamp);",
+						"pm.variables.set(\"randomId\", randomId);",
+						"pm.variables.set(\"uniqueEmail\", `testuser_${timestamp}_${randomId}@example.com`);",
+						"pm.variables.set(\"uniquePhone\", `060${String(randomId).padStart(7, '0')}`);",
+						"pm.variables.set(\"uniqueFirstName\", `Test${randomId}`);",
+						"pm.variables.set(\"uniqueLastName\", `User${randomId}`);"
+					]
 					}
 				},
 				{
@@ -44,7 +63,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"testuser_{{timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}",
+					"raw": "{\r\n  \"email\": \"{{uniqueEmail}}\",\r\n  \"firstName\": \"{{uniqueFirstName}}\",\r\n  \"lastName\": \"{{uniqueLastName}}\",\r\n  \"phone\": \"{{uniquePhone}}\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -70,6 +89,16 @@
 		{
 			"name": "email déjà utilisé",
 			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Use the same email as the first test to simulate duplicate",
+							"pm.variables.set(\"duplicateEmail\", \"testuser_\" + pm.variables.get(\"timestamp\") + \"@example.com\");"
+						]
+					}
+				},
 				{
 					"listen": "test",
 					"script": {
@@ -188,7 +217,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"weakpass@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"abc\"\r\n}"
+					"raw": "{\r\n  \"email\": \"weakpass_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"abc\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8000/api/auth/register",
@@ -235,7 +264,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"phonefail@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"abc123\",           \r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+					"raw": "{\r\n  \"email\": \"phonefail_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"abc123\",           \r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8000/api/auth/register",
@@ -275,7 +304,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"email\": \"longname@example.com\",\r\n  \"firstName\": \"A\".repeat(300),\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+					"raw": "{\r\n  \"email\": \"longname_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"A\".repeat(300),\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8000/api/auth/register",

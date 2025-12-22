@@ -58,21 +58,9 @@ class UserService
 
     private function getConnection(): \PDO
     {
-        if ($this->pdo !== null) {
-            return $this->pdo;
+        if ($this->pdo === null) {
+            throw new \RuntimeException('Aucune connexion PDO n\'a été fournie à UserService.');
         }
-        // À adapter selon ta config
-        $host = 'mysql';
-        $db   = 'vite_gourmand';
-        $user = 'vite_user';
-        $pass = 'vite_pass';
-        $charset = 'utf8mb4';
-        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-        $options = [
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_EMULATE_PREPARES   => false,
-        ];
-        return new \PDO($dsn, $user, $pass, $options);
+        return $this->pdo;
     }
 }
