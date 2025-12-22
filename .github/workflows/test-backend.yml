@@ -67,7 +67,8 @@ jobs:
         run: |
           for i in {1..30}; do
             docker exec "$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)" \
-              mongo --host 127.0.0.1:27017 --authenticationDatabase admin -u root -p root --eval "db.adminCommand({ping:1})" && break
+              mongo --host 127.0.0.1 --port 27017 --authenticationDatabase admin -u root -p root \
+              --eval "db.adminCommand({ping:1})" && break
             sleep 2
           done
 
@@ -81,7 +82,7 @@ jobs:
           # Setup MongoDB test database (inject DB_NAME so the script always targets the test DB)
           if [ -f backend/database/mongoDB/database_mongodb_setup.js ]; then
             docker exec -i "$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)" \
-              mongo --host 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
+              mongo --host 127.0.0.1 --port 27017 --authenticationDatabase admin -u root -p root \
               --eval "var DB_NAME='vite_gourmand_test';" \
               /dev/stdin < backend/database/mongoDB/database_mongodb_setup.js
           fi
@@ -90,20 +91,17 @@ jobs:
         run: |
           cd backend
           if [ -f composer.json ]; then
-            # Needed for PHPUnit in CI (usually in require-dev)
             composer install --no-interaction --prefer-dist
           fi
 
       - name: Start PHP built-in server for tests
         run: |
-          # Start PHP server in background (project entrypoint)
           php -S 127.0.0.1:8000 -t public public/index.php &
           echo $! > php_server.pid
           sleep 2
 
-          # Wait for server to be ready with retries
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:8000/api/health >/dev/null 2>&1 || curl -fsS http://127.0.0.1:8000/ >/dev/null 2>&1; then
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null 2>&1; then
               echo "Server is ready"
               break
             fi
@@ -159,14 +157,12 @@ jobs:
 
           JWT_SECRET: jwt-secret-for-tests-only
         run: |
-          # Run PHPUnit tests if available
           cd backend
           if [ -f vendor/bin/phpunit ]; then
             vendor/bin/phpunit --colors=always
           fi
           cd ..
 
-          # Run Postman/Newman tests
           if [ -f backend/tests/postman/inscription.postman_collection.json ]; then
             newman run backend/tests/postman/inscription.postman_collection.json \
               --env-var "base_url=http://127.0.0.1:8000" \
