@@ -18,4 +18,8 @@ cd ..
 # 3. Tests d’intégration API (Newman)
 newman run backend/tests/postman/inscription.postman_collection.json
 
-echo "\n✅ Tous les tests backend exécutés (reset, unitaires, API)."
+echo ""
+echo "✅ Tous les tests backend exécutés avec succès !"
+echo "   - Reset des bases de données : ✓"
+echo "   - Tests unitaires PHPUnit : ✓"
+echo "   - Tests d'intégration API : ✓"
