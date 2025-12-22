@@ -2,11 +2,25 @@
 <phpunit bootstrap="vendor/autoload.php"
          colors="true"
          verbose="true">
+    <php>
+        <!-- Force l'environnement TEST pour que config.php charge .env.test -->
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="false"/>
+
+        <!-- Compat si une partie du code utilise encore les anciens noms -->
+        <env name="ENV" value="test"/>
+        <env name="DEBUG" value="false"/>
+
+        <!-- Valeur de test (non sensible) pour éviter les crashes si JWT est requis -->
+        <env name="JWT_SECRET" value="jwt-secret-for-tests-only"/>
+    </php>
+
     <testsuites>
         <testsuite name="Application Test Suite">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>
+
     <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">./src</directory>
