@@ -102,8 +102,15 @@ jobs:
           php -S localhost:8000 -t ../public &
           echo $! > php_server.pid
           sleep 5
-          # Test if server is running
-          curl -f http://localhost:8000 || echo "Server not ready yet"
+          # Wait for server to be ready with retries
+          for i in {1..30}; do
+            if curl -f http://localhost:8000/api/health 2>/dev/null || curl -f http://localhost:8000 2>/dev/null; then
+              echo "Server is ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
         env:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
