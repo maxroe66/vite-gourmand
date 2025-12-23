@@ -46,6 +46,32 @@ if ($method === 'GET' && ($path === '/' || $path === '/health')) {
     exit;
 }
 
+/**
+ * 6bis) Debug logs (temporaire)
+ * Permet de lire le fichier de logs défini par LOG_FILE (par défaut /tmp/app.log).
+ * À supprimer avant une vraie mise en prod.
+ */
+if ($method === 'GET' && $path === '/_logs') {
+    $file = getenv('LOG_FILE') ?: '/tmp/app.log';
+
+    if (!is_readable($file)) {
+        http_response_code(404);
+        echo json_encode([
+            'error' => 'Log file not readable',
+            'file' => $file,
+        ]);
+        exit;
+    }
+
+    $content = file_get_contents($file);
+    http_response_code(200);
+    echo json_encode([
+        'file' => $file,
+        'content' => $content,
+    ]);
+    exit;
+}
+
 // 7) Routeur + routes
 $router = new Router($config);
 require __DIR__ . '/../backend/api/routes.php';
