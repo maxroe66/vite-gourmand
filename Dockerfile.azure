@@ -6,14 +6,13 @@ WORKDIR /var/www/html
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Installer les extensions PHP nécessaires
-RUN apt-get update && \
-	apt-get install -y \
-		unzip \
-		libzip-dev && \
-	docker-php-ext-install pdo pdo_mysql mysqli && \
-	pecl install mongodb && \
-	docker-php-ext-enable mongodb && \
-	rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    unzip \
+    libzip-dev \
+  && docker-php-ext-install pdo pdo_mysql mysqli \
+  && pecl install mongodb \
+  && docker-php-ext-enable mongodb \
+  && rm -rf /var/lib/apt/lists/*
 
 # Activer les modules Apache nécessaires
 RUN a2enmod rewrite headers
@@ -24,19 +23,22 @@ RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available
 # Copier le code de l'application
 COPY . /var/www/html
 
-# Installer Composer et les dépendances PHP si composer.json est présent
+# Créer le dossier de logs et donner les droits à Apache (Monolog écrit dans /var/www/html/logs/app.log)
+RUN mkdir -p /var/www/html/logs \
+ && chown -R www-data:www-data /var/www/html/logs \
+ && chmod -R 775 /var/www/html/logs
+
+# Installer Composer et les dépendances PHP si composer.json est présent (version "propre", sans mode debug)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN if [ -f backend/composer.json ]; then \
-set -eux; \
-cd backend; \
-composer install --no-interaction --prefer-dist --no-dev -vvv; \
-else \
-echo "No backend/composer.json, skipping composer install"; \
-fi
+      cd backend && composer install --no-interaction --prefer-dist --no-dev; \
+    else \
+      echo "No backend/composer.json, skipping composer install"; \
+    fi
 
 # Configurer Apache pour écouter sur le port 8080
 ENV PORT=8080
-RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf && \
-	sed -i 's/:80/:8080/' /etc/apache2/sites-available/000-default.conf
+RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf \
+ && sed -i 's/:80/:8080/' /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 8080
