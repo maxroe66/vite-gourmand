@@ -103,13 +103,16 @@ $mailFrom = $env('MAIL_FROM_ADDRESS') ?? $env('MAIL_FROM') ?? '';
 
 return [
     'db' => [
-        // DSN sans ssl-mode (on force SSL via options PDO)
+        // DSN (TLS est forcé via options PDO ci-dessous)
         'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
         'user' => $dbUser,
         'pass' => $dbPass,
+
+        // Azure MySQL: TLS obligatoire (require_secure_transport=ON)
+        // Le CA est ajouté dans l'image Docker (Dockerfile.azure) à cet emplacement.
         'options' => [
-        // Force SSL (Azure MySQL require_secure_transport=ON)
-        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem',
+            \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
         ],
     ],
     'mongo' => [

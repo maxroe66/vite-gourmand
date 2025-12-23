@@ -5,14 +5,22 @@ WORKDIR /var/www/html
 # Configuration du serveur Apache
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Installer les extensions PHP nécessaires
+# Installer dépendances + extensions PHP nécessaires
+# (On ajoute ca-certificates + curl pour récupérer le CA utilisé par Azure MySQL)
 RUN apt-get update && apt-get install -y \
     unzip \
     libzip-dev \
+    ca-certificates \
+    curl \
   && docker-php-ext-install pdo pdo_mysql mysqli \
   && pecl install mongodb \
   && docker-php-ext-enable mongodb \
   && rm -rf /var/lib/apt/lists/*
+
+# CA pour Azure MySQL (TLS)
+RUN mkdir -p /etc/ssl/azure \
+ && curl -fsSL "https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem" \
+    -o /etc/ssl/azure/DigiCertGlobalRootCA.crt.pem
 
 # Activer les modules Apache nécessaires
 RUN a2enmod rewrite headers
@@ -31,7 +39,8 @@ RUN printf '%s\n' \
 # Copier le code de l'application
 COPY . /var/www/html
 
-# Créer le dossier de logs et donner les droits à Apache (Monolog écrivait dans /var/www/html/logs/app.log)
+# Créer le dossier de logs et donner les droits à Apache
+# (sur Azure tu loggues en pratique dans /tmp via LOG_FILE, mais ça ne gêne pas)
 RUN mkdir -p /var/www/html/logs \
  && chown -R www-data:www-data /var/www/html/logs \
  && chmod -R 775 /var/www/html/logs
