@@ -20,15 +20,23 @@ RUN a2enmod rewrite headers
 # Configurer le DocumentRoot vers le dossier public
 RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
 
+# IMPORTANT: s'assurer que Apache sert index.php par défaut sur /
+RUN printf '%s\n' \
+  '<Directory /var/www/html/public>' \
+  '  DirectoryIndex index.php index.html' \
+  '</Directory>' \
+  > /etc/apache2/conf-available/zz-directoryindex.conf \
+ && a2enconf zz-directoryindex
+
 # Copier le code de l'application
 COPY . /var/www/html
 
-# Créer le dossier de logs et donner les droits à Apache (Monolog écrit dans /var/www/html/logs/app.log)
+# Créer le dossier de logs et donner les droits à Apache (Monolog écrivait dans /var/www/html/logs/app.log)
 RUN mkdir -p /var/www/html/logs \
  && chown -R www-data:www-data /var/www/html/logs \
  && chmod -R 775 /var/www/html/logs
 
-# Installer Composer et les dépendances PHP si composer.json est présent (version "propre", sans mode debug)
+# Installer Composer et les dépendances PHP si composer.json est présent
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN if [ -f backend/composer.json ]; then \
       cd backend && composer install --no-interaction --prefer-dist --no-dev; \
