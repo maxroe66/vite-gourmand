@@ -571,3 +571,7 @@
 [2025-12-22T23:21:16.034928+01:00] ViteEtGourmand.INFO: Requête reçue : POST /auth/register [] []
 [2025-12-22T23:21:16.093440+01:00] ViteEtGourmand.INFO: Requête reçue : POST /auth/register [] []
 [2025-12-22T23:21:16.096299+01:00] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} []
+[2025-12-23T18:14:14.793519+01:00] ViteEtGourmand.INFO: Requête reçue : GET / [] []
+[2025-12-23T18:14:37.773154+01:00] ViteEtGourmand.INFO: Requête reçue : GET / [] []
+[2025-12-23T18:14:47.581556+01:00] ViteEtGourmand.INFO: Requête reçue : GET /loginMsg.js [] []
+[2025-12-23T18:14:47.592648+01:00] ViteEtGourmand.INFO: Requête reçue : GET /cgi/get.cgi [] []
