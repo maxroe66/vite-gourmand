@@ -104,7 +104,7 @@ $mailFrom = $env('MAIL_FROM_ADDRESS') ?? $env('MAIL_FROM') ?? '';
 return [
     'db' => [
         // IMPORTANT : inclure le port, sinon PDO utilise 3306 par défaut
-        'dsn'  => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
+        'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4;ssl-mode=REQUIRED",
         'user' => $dbUser,
         'pass' => $dbPass,
     ],
