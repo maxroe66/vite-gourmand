@@ -103,10 +103,14 @@ $mailFrom = $env('MAIL_FROM_ADDRESS') ?? $env('MAIL_FROM') ?? '';
 
 return [
     'db' => [
-        // IMPORTANT : inclure le port, sinon PDO utilise 3306 par défaut
-        'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4;ssl-mode=REQUIRED",
+        // DSN sans ssl-mode (on force SSL via options PDO)
+        'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
         'user' => $dbUser,
         'pass' => $dbPass,
+        'options' => [
+        // Force SSL (Azure MySQL require_secure_transport=ON)
+        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+        ],
     ],
     'mongo' => [
         'uri'      => $mongoUri,
