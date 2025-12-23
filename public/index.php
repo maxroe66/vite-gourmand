@@ -72,6 +72,23 @@ if ($method === 'GET' && $path === '/_logs') {
     exit;
 }
 
+/**
+ * 6ter) Debug CA TLS (temporaire)
+ * Vérifie la présence du fichier CA utilisé pour MySQL SSL.
+ * À supprimer avant une vraie mise en prod.
+ */
+if ($method === 'GET' && $path === '/_check_ca') {
+    $ca = getenv('DB_SSL_CA') ?: '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem';
+
+    http_response_code(200);
+    echo json_encode([
+        'ca' => $ca,
+        'exists' => file_exists($ca),
+        'readable' => is_readable($ca),
+    ]);
+    exit;
+}
+
 // 7) Routeur + routes
 $router = new Router($config);
 require __DIR__ . '/../backend/api/routes.php';
@@ -87,7 +104,7 @@ try {
         if (is_array($result) || is_object($result)) {
             Response::json($result, 200);
         } else {
-            echo (string) $result;
+            echo (string)$result;
         }
     }
 } catch (Throwable $e) {
