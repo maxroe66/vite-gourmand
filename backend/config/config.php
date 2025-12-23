@@ -79,6 +79,23 @@ $dbUser = $env('DB_USER', '');
 $dbPass = $env('DB_PASSWORD') ?? $env('DB_PASS') ?? '';
 
 /**
+ * SSL MySQL (optionnel)
+ * - DB_SSL=1/true/yes/on => active TLS
+ * - DB_SSL_CA => chemin du CA (par défaut celui ajouté dans Dockerfile.azure)
+ */
+$dbSslRaw = $env('DB_SSL', '0') ?? '0';
+$dbSslEnabled = in_array(strtolower((string)$dbSslRaw), ['1', 'true', 'yes', 'on'], true);
+$dbSslCa = $env('DB_SSL_CA', '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem') ?: '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem';
+
+$dbPdoOptions = [];
+if ($dbSslEnabled) {
+    $dbPdoOptions = [
+        \PDO::MYSQL_ATTR_SSL_CA => $dbSslCa,
+        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
+    ];
+}
+
+/**
  * MongoDB
  * - Standard: MONGO_DB + (MONGO_URI ou MONGO_HOST/MONGO_PORT)
  */
@@ -103,17 +120,10 @@ $mailFrom = $env('MAIL_FROM_ADDRESS') ?? $env('MAIL_FROM') ?? '';
 
 return [
     'db' => [
-        // DSN (TLS est forcé via options PDO ci-dessous)
         'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
         'user' => $dbUser,
         'pass' => $dbPass,
-
-        // Azure MySQL: TLS obligatoire (require_secure_transport=ON)
-        // Le CA est ajouté dans l'image Docker (Dockerfile.azure) à cet emplacement.
-        'options' => [
-            \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem',
-            \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
-        ],
+        'options' => $dbPdoOptions, // vide en CI/DEV, rempli en Azure si DB_SSL=true
     ],
     'mongo' => [
         'uri'      => $mongoUri,
