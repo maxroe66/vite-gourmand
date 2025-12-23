@@ -27,7 +27,11 @@ COPY . /var/www/html
 # Installer Composer et les dépendances PHP si composer.json est présent
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN if [ -f backend/composer.json ]; then \
-	cd backend && composer install --no-interaction --prefer-dist --no-dev; \
+set -eux; \
+cd backend; \
+composer install --no-interaction --prefer-dist --no-dev -vvv; \
+else \
+echo "No backend/composer.json, skipping composer install"; \
 fi
 
 # Configurer Apache pour écouter sur le port 8080
