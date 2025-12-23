@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Laisser Apache servir les fichiers/dossiers existants (images, css, js, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Sinon, tout passe par le front controller
+RewriteRule ^ index.php [L]
