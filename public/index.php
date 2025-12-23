@@ -1,29 +1,41 @@
 <?php
 
-use App\Utils\MonologLogger;
-use App\Core\Router;
+declare(strict_types=1);
 
-// 1. Autoload et config
+use App\Core\Response;
+use App\Core\Router;
+use App\Utils\MonologLogger;
+
+// 1) Autoload + config
 require_once __DIR__ . '/../backend/vendor/autoload.php';
 $config = require __DIR__ . '/../backend/config/config.php';
 
-// 2. Headers globaux (CORS + JSON)
+// 2) Headers globaux (CORS + JSON)
 header('Access-Control-Allow-Origin: *'); // À adapter selon l'URL du front
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json; charset=utf-8');
 
-// 3. Gestion des requêtes OPTIONS (préflight CORS)
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+// 3) OPTIONS (préflight CORS)
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
-// 4. Récupère la méthode et le chemin de la requête
-$method = $_SERVER['REQUEST_METHOD'];
-$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+// 4) Méthode + chemin
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// 5. Petit endpoint de healthcheck (utile sur Azure pour vérifier que ça tourne)
+// 5) Enlève le préfixe /api si besoin (ex: /api/auth/test → /auth/test)
+$apiPrefix = '/api';
+if (strncmp($path, $apiPrefix, strlen($apiPrefix)) === 0) {
+    $path = substr($path, strlen($apiPrefix));
+    if ($path === '') {
+        $path = '/';
+    }
+}
+
+// 6) Healthcheck (utile sur Azure)
 if ($method === 'GET' && ($path === '/' || $path === '/health')) {
     http_response_code(200);
     echo json_encode([
@@ -34,30 +46,31 @@ if ($method === 'GET' && ($path === '/' || $path === '/health')) {
     exit;
 }
 
-// 6. Instancie le routeur
+// 7) Routeur + routes
 $router = new Router($config);
-
-// 7. Inclut toutes les routes (auth, menus, etc.)
 require __DIR__ . '/../backend/api/routes.php';
 
-// 8. Enlève le préfixe /api si besoin (ex: /api/auth/test → /auth/test)
-$apiPrefix = '/api';
-if (str_starts_with($path, $apiPrefix)) {
-    $path = substr($path, strlen($apiPrefix));
-    if ($path === '') {
-        $path = '/';
-    }
-}
-
-// 9. Gestion d'erreur globale + logs
+// 8) Exécution + logs + fallback JSON
 try {
-    MonologLogger::getLogger()->info("Requête reçue : $method $path");
-    $router->dispatch($method, $path);
+    MonologLogger::getLogger()->info("Requête reçue : {$method} {$path}");
+
+    $result = $router->dispatch($method, $path);
+
+    // Si ton Router "return" quelque chose (ex: route /auth/test), on renvoie du JSON
+    if ($result !== null) {
+        if (is_array($result) || is_object($result)) {
+            Response::json($result, 200);
+        } else {
+            echo (string) $result;
+        }
+    }
 } catch (Throwable $e) {
-    MonologLogger::getLogger()->error("Erreur serveur : " . $e->getMessage());
+    MonologLogger::getLogger()->error('Erreur serveur : ' . $e->getMessage());
+
     http_response_code(500);
     echo json_encode([
         'error' => 'Erreur serveur',
-        'details' => $e->getMessage(),
+        // En prod, évite d'exposer les détails ; si tu veux garder, décommente :
+        // 'details' => $e->getMessage(),
     ]);
 }
