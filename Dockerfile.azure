@@ -1,0 +1,38 @@
+FROM php:8.1-apache
+
+WORKDIR /var/www/html
+
+# Configuration du serveur Apache
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+# Installer les extensions PHP nécessaires
+RUN apt-get update && \
+	apt-get install -y \
+		unzip \
+		libzip-dev && \
+	docker-php-ext-install pdo pdo_mysql mysqli && \
+	pecl install mongodb && \
+	docker-php-ext-enable mongodb && \
+	rm -rf /var/lib/apt/lists/*
+
+# Activer les modules Apache nécessaires
+RUN a2enmod rewrite headers
+
+# Configurer le DocumentRoot vers le dossier public
+RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
+
+# Copier le code de l'application
+COPY . /var/www/html
+
+# Installer Composer et les dépendances PHP si composer.json est présent
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN if [ -f backend/composer.json ]; then \
+	cd backend && composer install --no-interaction --prefer-dist --no-dev; \
+fi
+
+# Configurer Apache pour écouter sur le port 8080
+ENV PORT=8080
+RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf && \
+	sed -i 's/:80/:8080/' /etc/apache2/sites-available/000-default.conf
+
+EXPOSE 8080
