@@ -18,9 +18,10 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # CA pour Azure MySQL (TLS)
-RUN mkdir -p /etc/ssl/azure \
+RUN update-ca-certificates \
+ && mkdir -p /etc/ssl/azure \
  && curl -fsSL "https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem" \
-    -o /etc/ssl/azure/DigiCertGlobalRootCA.crt.pem
+   -o /etc/ssl/azure/DigiCertGlobalRootCA.crt.pem
 
 # Activer les modules Apache nécessaires
 RUN a2enmod rewrite headers
