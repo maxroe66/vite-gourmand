@@ -115,7 +115,6 @@ try {
     http_response_code(500);
     echo json_encode([
         'error' => 'Erreur serveur',
-        // En prod, évite d'exposer les détails ; si tu veux garder, décommente :
-        // 'details' => $e->getMessage(),
+        'details' => $e->getMessage(),
     ]);
 }
