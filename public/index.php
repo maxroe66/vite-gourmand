@@ -1,5 +1,15 @@
 <?php
 declare(strict_types=1);
+// Chargement automatique du .env (local/dev)
+if (file_exists(__DIR__ . '/../.env.azure')) {
+    // Utilise le .env.azure si présent
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.azure');
+    $dotenv->load();
+} elseif (file_exists(__DIR__ . '/../.env')) {
+    // Sinon fallback sur .env classique
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+    $dotenv->load();
+}
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -48,48 +58,6 @@ if ($method === 'GET' && ($path === '/' || $path === '/health')) {
     exit;
 }
 
-/**
- * 6bis) Debug logs (temporaire)
- * Permet de lire le fichier de logs défini par LOG_FILE (par défaut /tmp/app.log).
- * À supprimer avant une vraie mise en prod.
- */
-if ($method === 'GET' && $path === '/_logs') {
-    $file = getenv('LOG_FILE') ?: '/tmp/app.log';
-
-    if (!is_readable($file)) {
-        http_response_code(404);
-        echo json_encode([
-            'error' => 'Log file not readable',
-            'file' => $file,
-        ]);
-        exit;
-    }
-
-    $content = file_get_contents($file);
-    http_response_code(200);
-    echo json_encode([
-        'file' => $file,
-        'content' => $content,
-    ]);
-    exit;
-}
-
-/**
- * 6ter) Debug CA TLS (temporaire)
- * Vérifie la présence du fichier CA utilisé pour MySQL SSL.
- * À supprimer avant une vraie mise en prod.
- */
-if ($method === 'GET' && $path === '/_check_ca') {
-    $ca = getenv('DB_SSL_CA') ?: '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem';
-
-    http_response_code(200);
-    echo json_encode([
-        'ca' => $ca,
-        'exists' => file_exists($ca),
-        'readable' => is_readable($ca),
-    ]);
-    exit;
-}
 
 // 7) Routeur + routes
 $router = new Router($config);

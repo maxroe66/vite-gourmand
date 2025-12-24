@@ -1,3 +1,7 @@
+.env
+.env.*
+DigiCertGlobalRootCA.crt.pem
+test_mysql_connexion.php
 # Dossiers ignorés
 fichiers_perso/
 plugins/
@@ -8,6 +12,7 @@ frontend/
 package-lock.json
 .env
 .env.compose
+.env.test
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
 
