@@ -36,6 +36,14 @@ RUN printf '%s\n' \
   > /etc/apache2/conf-available/zz-directoryindex.conf \
  && a2enconf zz-directoryindex
 
+# IMPORTANT: autoriser l'utilisation du .htaccess dans /public (rewrite vers index.php)
+RUN printf '%s\n' \
+  '<Directory /var/www/html/public>' \
+  '  AllowOverride All' \
+  '</Directory>' \
+  > /etc/apache2/conf-available/zz-allowoverride.conf \
+ && a2enconf zz-allowoverride
+
 # Copier le code de l'application
 COPY . /var/www/html
 
