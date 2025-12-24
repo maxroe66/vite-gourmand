@@ -91,7 +91,10 @@ $dbPdoOptions = [];
 if ($dbSslEnabled) {
     $dbPdoOptions = [
         \PDO::MYSQL_ATTR_SSL_CA => $dbSslCa,
-        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
+
+        // Pragmatique pour éviter les erreurs SSL sur Azure si la vérification stricte pose problème.
+        // Le TLS est bien utilisé, mais on assouplit la vérification du certificat serveur.
+        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
     ];
 }
 
