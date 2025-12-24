@@ -1,0 +1,62 @@
+name: Deploy to Azure App Service (Container) - SHA tag
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compute image tag from current commit
+        id: vars
+        run: echo "IMAGE_TAG=ghcr.io/maxroe66/vite-gourmand:${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure Web App to use GHCR image (immutable SHA)
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            IMAGE="${{ steps.vars.outputs.IMAGE_TAG }}"
+            az webapp config container set \
+              --name "${{ secrets.AZURE_WEBAPP_NAME }}" \
+              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+              --docker-custom-image-name "$IMAGE" \
+              --docker-registry-server-url "https://ghcr.io"
+
+      - name: Restart Web App
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az webapp restart \
+              --name "${{ secrets.AZURE_WEBAPP_NAME }}" \
+              --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}"
+
+  post-deploy-check:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Wait for app warm-up
+        run: sleep 20
+
+      - name: Health check HTTP (optional)
+        if: ${{ secrets.APP_BASE_URL != '' }}
+        run: |
+          curl -fsSL "${{ secrets.APP_BASE_URL }}/" || (echo "Health check failed" && exit 1)
+
+      - name: Install mysql client
+        run: sudo apt-get update && sudo apt-get install -y mysql-client
+
+      - name: Verify Azure MySQL connectivity (SSL REQUIRED)
+        env:
+          DB_HOST: ${{ secrets.AZURE_MYSQL_HOST }}
+          DB_NAME: ${{ secrets.AZURE_MYSQL_DB }}
+          DB_USER: ${{ secrets.AZURE_MYSQL_USER }}
+          DB_PASS: ${{ secrets.AZURE_MYSQL_PASS }}
+        run: |
+          mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
+            -e "USE \`$DB_NAME\`; SELECT 'CD_OK' AS status, NOW() AS server_time, @@version AS version;"
