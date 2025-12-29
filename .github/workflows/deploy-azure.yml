@@ -44,7 +44,7 @@ jobs:
       - name: Wait for app warm-up
         run: sleep 20
 
-      - name: Health check HTTP (optional)
+      - name: Health check HTTP (retry, optional)
         # On injecte le secret dans env, puis on teste env.APP_BASE_URL
         env:
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
@@ -63,7 +63,7 @@ jobs:
       - name: Install mysql client
         run: sudo apt-get update && sudo apt-get install -y mysql-client
 
-      - name: Verify Azure MySQL connectivity (SSL REQUIRED)
+      - name: Run MySQL migrations on Azure (schema)
         env:
           DB_HOST: ${{ secrets.AZURE_MYSQL_HOST }}
           DB_NAME: ${{ secrets.AZURE_MYSQL_DB }}
@@ -71,4 +71,15 @@ jobs:
           DB_PASS: ${{ secrets.AZURE_MYSQL_PASS }}
         run: |
           mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
-            -e "USE \`$DB_NAME\`; SELECT 'CD_OK' AS status, NOW() AS server_time, @@version AS version;"
+            "$DB_NAME" < backend/database/sql/database_creation.sql
+
+      - name: Seed minimal (admin / données de référence)
+        env:
+          DB_HOST: ${{ secrets.AZURE_MYSQL_HOST }}
+          DB_NAME: ${{ secrets.AZURE_MYSQL_DB }}
+          DB_USER: ${{ secrets.AZURE_MYSQL_USER }}
+          DB_PASS: ${{ secrets.AZURE_MYSQL_PASS }}
+        run: |
+          # Le seed doit être idempotent (INSERT IGNORE / ON DUPLICATE KEY UPDATE)
+          mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
+            "$DB_NAME" < backend/database/sql/database_seed.sql
