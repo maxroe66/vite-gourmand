@@ -94,4 +94,4 @@ jobs:
         run: |
           # Le seed doit être idempotent (INSERT IGNORE / ON DUPLICATE KEY UPDATE)
           mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
-            "$DB_NAME" < backend/database/sql/database_seed.sql
+            "$DB_NAME" < backend/database/sql/database_fixtures.sql
