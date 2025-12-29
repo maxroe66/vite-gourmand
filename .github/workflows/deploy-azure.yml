@@ -44,7 +44,7 @@ jobs:
         run: sleep 20
 
       - name: Health check HTTP (optional)
-        if: ${{ secrets.APP_BASE_URL != '' }}
+        if: ${{ secrets.APP_BASE_URL }}
         run: |
           curl -fsSL "${{ secrets.APP_BASE_URL }}/" || (echo "Health check failed" && exit 1)
 
