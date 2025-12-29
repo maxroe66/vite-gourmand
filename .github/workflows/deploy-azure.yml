@@ -1,3 +1,4 @@
+
 name: Deploy to Azure App Service (Container) - SHA tag
 
 on:
@@ -44,9 +45,20 @@ jobs:
         run: sleep 20
 
       - name: Health check HTTP (optional)
-        if: ${{ secrets.APP_BASE_URL }}
+        # On injecte le secret dans env, puis on teste env.APP_BASE_URL
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+        if: ${{ env.APP_BASE_URL }}
         run: |
-          curl -fsSL "${{ secrets.APP_BASE_URL }}/" || (echo "Health check failed" && exit 1)
+          for i in {1..10}; do
+            if curl -fsSL "${APP_BASE_URL}/"; then
+              echo "Health check OK"
+              exit 0
+            fi
+            echo "Waiting app warm-up... ($i/10)"
+            sleep 5
+          done
+          echo "Health check failed after retries" && exit 1
 
       - name: Install mysql client
         run: sudo apt-get update && sudo apt-get install -y mysql-client
