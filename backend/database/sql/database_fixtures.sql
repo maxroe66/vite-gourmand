@@ -15,7 +15,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Mot de passe pour tous les comptes de test : "Password123!"
 -- Hash bcrypt : $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 
-INSERT INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_postal, mot_de_passe, role, actif, date_creation) VALUES
+INSERT IGNORE INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_postal, mot_de_passe, role, actif, date_creation) VALUES
 ('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMINISTRATEUR', TRUE, '2024-01-15 10:00:00'),
 ('Employe', 'Julie', '0556789012', 'julie@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'EMPLOYE', TRUE, '2024-01-15 10:30:00'),
 ('Dupont', 'Marie', '0601020304', 'marie.dupont@email.fr', '25 cours de l''Intendance', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-02-10 14:30:00'),
@@ -28,14 +28,14 @@ INSERT INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_p
 -- THÈMES & RÉGIMES
 -- ============================================================
 
-INSERT INTO THEME (libelle) VALUES
+INSERT IGNORE INTO THEME (libelle) VALUES
 ('Noël'),
 ('Pâques'),
 ('Classique'),
 ('Événement'),
 ('Estival');
 
-INSERT INTO REGIME (libelle) VALUES
+INSERT IGNORE INTO REGIME (libelle) VALUES
 ('Classique'),
 ('Végétarien'),
 ('Vegan'),
@@ -45,7 +45,7 @@ INSERT INTO REGIME (libelle) VALUES
 -- ALLERGÈNES
 -- ============================================================
 
-INSERT INTO ALLERGENE (libelle) VALUES
+INSERT IGNORE INTO ALLERGENE (libelle) VALUES
 ('Gluten'),
 ('Crustacés'),
 ('Œufs'),
@@ -66,7 +66,7 @@ INSERT INTO ALLERGENE (libelle) VALUES
 -- ============================================================
 
 -- ENTRÉES
-INSERT INTO PLAT (libelle, type, description) VALUES
+INSERT IGNORE INTO PLAT (libelle, type, description) VALUES
 ('Foie gras maison sur toast', 'ENTREE', 'Foie gras de canard mi-cuit, pain d\'épices et confiture de figues'),
 ('Velouté de châtaignes', 'ENTREE', 'Crème de châtaignes, éclats de marrons et crème fraîche'),
 ('Salade de chèvre chaud', 'ENTREE', 'Mesclun, fromage de chèvre rôti, noix et miel'),
@@ -74,7 +74,7 @@ INSERT INTO PLAT (libelle, type, description) VALUES
 ('Tartare de légumes', 'ENTREE', 'Légumes crus marinés, avocat et vinaigrette balsamique');
 
 -- PLATS
-INSERT INTO PLAT (libelle, type, description) VALUES
+INSERT IGNORE INTO PLAT (libelle, type, description) VALUES
 ('Chapon farci aux marrons', 'PLAT', 'Chapon rôti, farce aux marrons et champignons, jus corsé'),
 ('Gigot d\'agneau aux herbes', 'PLAT', 'Gigot d\'agneau rôti sept heures, gratin dauphinois'),
 ('Pavé de saumon grillé', 'PLAT', 'Saumon grillé, purée de patates douces et légumes de saison'),
@@ -83,7 +83,7 @@ INSERT INTO PLAT (libelle, type, description) VALUES
 ('Magret de canard au miel', 'PLAT', 'Magret de canard rôti, sauce au miel et thym');
 
 -- DESSERTS
-INSERT INTO PLAT (libelle, type, description) VALUES
+INSERT IGNORE INTO PLAT (libelle, type, description) VALUES
 ('Bûche de Noël chocolat', 'DESSERT', 'Biscuit roulé au chocolat, crème au beurre pralinée'),
 ('Tarte tatin aux pommes', 'DESSERT', 'Pommes caramélisées sur pâte feuilletée, crème fraîche'),
 ('Mousse au chocolat maison', 'DESSERT', 'Mousse au chocolat noir 70%, éclats de nougatine'),
@@ -95,7 +95,7 @@ INSERT INTO PLAT (libelle, type, description) VALUES
 -- ASSOCIATIONS PLATS - ALLERGÈNES
 -- ============================================================
 
-INSERT INTO PLAT_ALLERGENE (id_plat, id_allergene) VALUES
+INSERT IGNORE INTO PLAT_ALLERGENE (id_plat, id_allergene) VALUES
 -- Foie gras sur toast
 (1, 1), (1, 7),
 -- Velouté de châtaignes
@@ -131,7 +131,7 @@ INSERT INTO PLAT_ALLERGENE (id_plat, id_allergene) VALUES
 -- MENUS
 -- ============================================================
 
-INSERT INTO MENU (id_menu, titre, description, nombre_personne_min, prix, stock_disponible, conditions, id_theme, id_regime, actif, date_publication) VALUES
+INSERT IGNORE INTO MENU (id_menu, titre, description, nombre_personne_min, prix, stock_disponible, conditions, id_theme, id_regime, actif, date_publication) VALUES
 (1, 'Menu de Noël Traditionnel', 'Un repas festif pour célébrer Noël en famille avec des mets traditionnels et raffinés. Parfait pour vos réunions familiales.', 6, 150.00, 10, 'Commande à passer au minimum 7 jours avant la prestation. Matériel de service disponible en prêt.', 1, 1, TRUE, '2024-11-01 10:00:00'),
 (2, 'Menu de Pâques Gourmand', 'Célébrez Pâques avec ce menu printanier à base d\'agneau et de légumes de saison.', 4, 120.00, 15, 'Commande à passer au minimum 5 jours avant la prestation.', 2, 1, TRUE, '2024-03-01 10:00:00'),
 (3, 'Menu Végétarien Raffiné', 'Un menu 100% végétarien qui ravira vos convives soucieux de l\'environnement.', 4, 95.00, 20, 'Commande à passer au minimum 3 jours avant la prestation.', 3, 2, TRUE, '2024-01-20 10:00:00'),
@@ -143,7 +143,7 @@ INSERT INTO MENU (id_menu, titre, description, nombre_personne_min, prix, stock_
 -- IMAGES MENUS
 -- ============================================================
 
-INSERT INTO IMAGE_MENU (id_image, id_menu, url, alt_text, position) VALUES
+INSERT IGNORE INTO IMAGE_MENU (id_image, id_menu, url, alt_text, position) VALUES
 -- Menu de Noël
 (1, 1, '/images/menus/noel-1.jpg', 'Foie gras et champagne', 1),
 (2, 1, '/images/menus/noel-2.jpg', 'Chapon farci aux marrons', 2),
@@ -168,7 +168,7 @@ INSERT INTO IMAGE_MENU (id_image, id_menu, url, alt_text, position) VALUES
 -- ============================================================
 
 -- Menu de Noël Traditionnel
-INSERT INTO PROPOSE (id_menu, id_plat, position) VALUES
+INSERT IGNORE INTO PROPOSE (id_menu, id_plat, position) VALUES
 (1, 1, 1),  -- Foie gras
 (1, 6, 2),  -- Chapon farci
 (1, 12, 3); -- Bûche chocolat
@@ -207,7 +207,7 @@ INSERT INTO PROPOSE (id_menu, id_plat, position) VALUES
 -- HORAIRES
 -- ============================================================
 
-INSERT INTO HORAIRE (id_horaire, jour, heure_ouverture, heure_fermeture, ferme) VALUES
+INSERT IGNORE INTO HORAIRE (id_horaire, jour, heure_ouverture, heure_fermeture, ferme) VALUES
 (1, 'LUNDI', '09:00:00', '18:00:00', FALSE),
 (2, 'MARDI', '09:00:00', '18:00:00', FALSE),
 (3, 'MERCREDI', '09:00:00', '18:00:00', FALSE),
@@ -220,7 +220,7 @@ INSERT INTO HORAIRE (id_horaire, jour, heure_ouverture, heure_fermeture, ferme) 
 -- MATÉRIEL
 -- ============================================================
 
-INSERT INTO MATERIEL (id_materiel, libelle, description, valeur_unitaire, stock_disponible) VALUES
+INSERT IGNORE INTO MATERIEL (id_materiel, libelle, description, valeur_unitaire, stock_disponible) VALUES
 (1, 'Assiettes en porcelaine (lot de 12)', 'Service complet d\'assiettes blanches en porcelaine', 180.00, 10),
 (2, 'Couverts en inox (lot de 12)', 'Service complet de couverts (couteau, fourchette, cuillère)', 150.00, 10),
 (3, 'Verres à vin (lot de 12)', 'Verres à vin rouge et blanc', 120.00, 8),
@@ -233,7 +233,7 @@ INSERT INTO MATERIEL (id_materiel, libelle, description, valeur_unitaire, stock_
 -- ============================================================
 
 -- Commande 1 : Marie Dupont - Menu de Noël - EN_ATTENTE
-INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret) VALUES
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret) VALUES
 (1, 3, 1, '2024-12-05 14:30:00', '2024-12-24', '18:00:00', '25 cours de l\'Intendance', 'Bordeaux', '33000', '0601020304', 6, 6, 25.00, 0.00, FALSE, 5.00, 155.00, FALSE, 0.00, 'EN_ATTENTE', FALSE, TRUE);
 
 -- Commande 2 : Pierre Martin - Menu Classique - ACCEPTE
@@ -245,7 +245,7 @@ INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_
 (3, 5, 3, '2024-11-25 16:45:00', '2024-12-10', '12:00:00', '15 place de la Victoire', 'Bordeaux', '33000', '0623456789', 6, 4, 23.75, 14.25, TRUE, 5.00, 151.75, FALSE, 0.00, 'EN_PREPARATION', FALSE, TRUE);
 
 -- Commande 4 : Thomas Lefebvre - Menu de Pâques - LIVRE (avec avis à donner)
-INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
 (4, 6, 2, '2024-10-15 09:30:00', '2024-11-10', '13:00:00', '8 avenue Victor Hugo', 'Bordeaux', '33200', '0634567890', 8, 4, 30.00, 24.00, TRUE, 5.00, 245.00, FALSE, 0.00, 'LIVRE', FALSE, FALSE, '2024-11-10 12:45:00');
 
 -- Commande 5 : Claire Moreau - Menu Vegan - TERMINEE (avec avis donné)
@@ -265,7 +265,7 @@ INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_
 -- ============================================================
 
 -- Commande 1 : Marie (Menu Noël) - matériel prêté non retourné
-INSERT INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, quantite, date_pret, date_retour_prevu, date_retour_effectif, retourne) VALUES
+INSERT IGNORE INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, quantite, date_pret, date_retour_prevu, date_retour_effectif, retourne) VALUES
 (1, 1, 1, 1, '2024-12-24 18:00:00', '2024-12-26 14:00:00', NULL, FALSE),
 (2, 1, 2, 1, '2024-12-24 18:00:00', '2024-12-26 14:00:00', NULL, FALSE);
 
@@ -286,7 +286,7 @@ INSERT INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, q
 
 -- Historique Commande 1 (EN_ATTENTE)
 
-INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
 (1, 'EN_ATTENTE', '2024-12-05 14:30:00', 3, 'Commande créée');
 
 -- Historique Commande 2 (ACCEPTE)
@@ -340,7 +340,7 @@ INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, 
 -- ============================================================
 
 -- Avis validés (page d'accueil)
-INSERT INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
+INSERT IGNORE INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
 (1, 5, 'Prestation exceptionnelle ! Les plats étaient délicieux et la présentation soignée. Je recommande vivement pour vos événements.', 'VALIDE', '2024-10-06 10:30:00', 7, 5, 6, 2, '2024-10-06 14:00:00'),
 (2, 5, 'Menu estival parfait pour notre réception. Produits frais, saveurs au rendez-vous. La livraison à Arcachon s\'est très bien passée.', 'VALIDE', '2024-08-16 09:15:00', 3, 6, 5, 2, '2024-08-16 15:30:00'),
 (3, 4, 'Très bon rapport qualité-prix. Quelques petits détails à améliorer sur la présentation mais les saveurs étaient au top !', 'VALIDE', '2024-09-10 16:20:00', 6, 4, 2, 2, '2024-09-11 09:00:00');
@@ -353,7 +353,7 @@ INSERT INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validatio
 -- CONTACTS
 -- ============================================================
 
-INSERT INTO CONTACT (id_contact, titre, description, email, date_envoi, traite) VALUES
+INSERT IGNORE INTO CONTACT (id_contact, titre, description, email, date_envoi, traite) VALUES
 (1, 'Question sur les allergènes', 'Bonjour, je voudrais savoir si vous pouvez adapter le menu de Noël pour une personne allergique aux fruits à coque ? Merci', 'marc.durand@email.fr', '2024-11-28 14:30:00', TRUE),
 (2, 'Demande de devis pour mariage', 'Bonjour, nous organisons notre mariage le 15 juin 2025 pour 80 personnes. Pouvez-vous nous proposer un devis ?', 'julie.robert@email.fr', '2024-12-01 10:15:00', FALSE),
 (3, 'Disponibilité Menu Pâques', 'Le menu de Pâques sera-t-il disponible pour avril 2025 ? Combien de personnes maximum ?', 'pierre.blanc@email.fr', '2024-12-03 16:45:00', FALSE);
