@@ -1,7 +1,8 @@
+
 [![Tests backend automatisés](https://github.com/maxroe66/vite-gourmand/actions/workflows/test-backend.yml/badge.svg?branch=develop)](https://github.com/maxroe66/vite-gourmand/actions/workflows/test-backend.yml?query=branch%3Adevelop)
+[![Déploiement Azure](https://github.com/maxroe66/vite-gourmand/actions/workflows/deploy-azure.yml/badge.svg?branch=develop)](https://github.com/maxroe66/vite-gourmand/actions/workflows/deploy-azure.yml?query=branch%3Adevelop)
 
 # Vite & Gourmand
-
 Application web de gestion de menus, commandes et avis.
 
 - **Backend** : PHP (MySQL + MongoDB)
@@ -10,9 +11,7 @@ Application web de gestion de menus, commandes et avis.
 ---
 
 ## 🚀 Vue d’ensemble
-
 Vite & Gourmand permet :
-
 - aux visiteurs de consulter les menus et s’inscrire
 - aux utilisateurs de commander et laisser un avis
 - aux employés de gérer les menus, commandes et avis
@@ -21,12 +20,11 @@ Vite & Gourmand permet :
 ---
 
 ## ⚡ Démarrage rapide (DEV)
-
 **Prérequis** : Docker + Docker Compose
-
 ```bash
 # Lancer tous les services (backend, BDD, outils)
 docker compose up -d
+
 ```
 
 - Application : http://localhost:8000
@@ -68,22 +66,40 @@ Lance tout (reset DB test + PHPUnit + Newman) :
   - `ghcr.io/maxroe66/vite-gourmand:develop`
   - `ghcr.io/maxroe66/vite-gourmand:<sha>`
 
+
+### CD (déploiement Azure App Service)
+
+- **Workflow** : `.github/workflows/deploy-azure.yml`
+- Configure l’App Service pour utiliser l’image SHA immuable depuis GHCR
+- Redémarre l’application
+- **Post-checks** :
+  - Health-check HTTP (`APP_BASE_URL`)
+  - Test DB Azure : `SELECT NOW()` avec SSL (`--ssl-mode=REQUIRED`)
+
 ---
 
-## ☁️ Déploiement (Azure App Service — Container)
+## 🚢 Déploiement (Azure App Service — Container)
 
-### Image Docker
-- `ghcr.io/maxroe66/vite-gourmand:develop`
+- **Image Docker** :
+  - `ghcr.io/maxroe66/vite-gourmand:<sha>` (image immuable)
 
-### Variables d’environnement Azure
-À définir dans Azure → Web App → Variables d’environnement :
+- **Variables d’environnement Azure**
+  À définir dans Azure → Web App → Variables d’environnement :
+  ```env
+  WEBSITES_PORT=8080
+  LOG_FILE=/tmp/app.log
+  DB_HOST=vite-gourmand-mysql-dev.mysql.database.azure.com
+  DB_NAME=vite_et_gourmand
+  DB_USER=vgadmin (sans suffixe @server)
+  DB_PASSWORD=********
+  DB_SSL=true
+  ```
 
-- `WEBSITES_PORT=8080`
-- `LOG_FILE=/tmp/app.log`
-
-### Endpoints de vérification
-- `GET /health`
-- `GET /api/auth/test`
+- **Endpoints de vérification**
+  ```http
+  GET /health
+  GET /api/auth/test
+  ```
 
 ---
 
@@ -92,5 +108,3 @@ Lance tout (reset DB test + PHPUnit + Newman) :
 - `.env.example` : template (à copier vers `.env`)
 - `.env` : configuration DEV (base réelle)
 - `.env.test` : configuration TEST (base test)
-
-> ⚠️ Ne versionnez pas les fichiers `.env` contenant des secrets.
