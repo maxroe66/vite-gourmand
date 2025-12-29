@@ -15,7 +15,7 @@
 -- UTILISATEURS & AUTHENTIFICATION
 -- ============================================================
 
-CREATE TABLE UTILISATEUR (
+CREATE TABLE IF NOT EXISTS UTILISATEUR (
     id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE UTILISATEUR (
     INDEX idx_actif (actif)
 ) ENGINE=InnoDB COMMENT='Table des utilisateurs (clients, employés, administrateurs)';
 
-CREATE TABLE RESET_TOKEN (
+CREATE TABLE IF NOT EXISTS RESET_TOKEN (
     id_token INT AUTO_INCREMENT PRIMARY KEY,
     token VARCHAR(255) NOT NULL UNIQUE,
     id_utilisateur INT NOT NULL,
@@ -56,21 +56,21 @@ CREATE TABLE RESET_TOKEN (
 -- RÉFÉRENTIELS & MENU
 -- ============================================================
 
-CREATE TABLE THEME (
+CREATE TABLE IF NOT EXISTS THEME (
     id_theme INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(100) NOT NULL UNIQUE,
     
     INDEX idx_libelle (libelle)
 ) ENGINE=InnoDB COMMENT='Thèmes des menus (Noël, Pâques, classique, événement)';
 
-CREATE TABLE REGIME (
+CREATE TABLE IF NOT EXISTS REGIME (
     id_regime INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(100) NOT NULL UNIQUE,
     
     INDEX idx_libelle (libelle)
 ) ENGINE=InnoDB COMMENT='Régimes alimentaires (végétarien, vegan, classique)';
 
-CREATE TABLE MENU (
+CREATE TABLE IF NOT EXISTS MENU (
     id_menu INT AUTO_INCREMENT PRIMARY KEY,
     titre VARCHAR(120) NOT NULL,
     description TEXT NOT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE MENU (
     INDEX idx_date_publication (date_publication)
 ) ENGINE=InnoDB COMMENT='Menus proposés par l\'entreprise';
 
-CREATE TABLE IMAGE_MENU (
+CREATE TABLE IF NOT EXISTS IMAGE_MENU (
     id_image INT AUTO_INCREMENT PRIMARY KEY,
     id_menu INT NOT NULL,
     url VARCHAR(255) NOT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE IMAGE_MENU (
 -- PLATS & ALLERGÈNES
 -- ============================================================
 
-CREATE TABLE PLAT (
+CREATE TABLE IF NOT EXISTS PLAT (
     id_plat INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(150) NOT NULL UNIQUE,
     type ENUM('ENTREE', 'PLAT', 'DESSERT') NOT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE PLAT (
     INDEX idx_libelle (libelle)
 ) ENGINE=InnoDB COMMENT='Plats disponibles (entrée, plat, dessert)';
 
-CREATE TABLE PROPOSE (
+CREATE TABLE IF NOT EXISTS PROPOSE (
     id_menu INT NOT NULL,
     id_plat INT NOT NULL,
     position INT NOT NULL,
@@ -156,14 +156,14 @@ CREATE TABLE PROPOSE (
     INDEX idx_position (position)
 ) ENGINE=InnoDB COMMENT='Association many-to-many entre menus et plats';
 
-CREATE TABLE ALLERGENE (
+CREATE TABLE IF NOT EXISTS ALLERGENE (
     id_allergene INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(100) NOT NULL UNIQUE,
     
     INDEX idx_libelle (libelle)
 ) ENGINE=InnoDB COMMENT='Liste des allergènes possibles';
 
-CREATE TABLE PLAT_ALLERGENE (
+CREATE TABLE IF NOT EXISTS PLAT_ALLERGENE (
     id_plat INT NOT NULL,
     id_allergene INT NOT NULL,
     
@@ -186,7 +186,7 @@ CREATE TABLE PLAT_ALLERGENE (
 -- HORAIRES & CONTACT
 -- ============================================================
 
-CREATE TABLE HORAIRE (
+CREATE TABLE IF NOT EXISTS HORAIRE (
     id_horaire INT AUTO_INCREMENT PRIMARY KEY,
     jour ENUM('LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI', 'DIMANCHE') NOT NULL UNIQUE,
     heure_ouverture TIME,
@@ -196,7 +196,7 @@ CREATE TABLE HORAIRE (
     INDEX idx_jour (jour)
 ) ENGINE=InnoDB COMMENT='Horaires d\'ouverture de l\'entreprise';
 
-CREATE TABLE CONTACT (
+CREATE TABLE IF NOT EXISTS CONTACT (
     id_contact INT AUTO_INCREMENT PRIMARY KEY,
     titre VARCHAR(150) NOT NULL,
     description TEXT NOT NULL,
@@ -212,7 +212,7 @@ CREATE TABLE CONTACT (
 -- MATÉRIEL PRÊTÉ
 -- ============================================================
 
-CREATE TABLE MATERIEL (
+CREATE TABLE IF NOT EXISTS MATERIEL (
     id_materiel INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(100) NOT NULL,
     description TEXT,
@@ -227,7 +227,7 @@ CREATE TABLE MATERIEL (
 -- COMMANDES
 -- ============================================================
 
-CREATE TABLE COMMANDE (
+CREATE TABLE IF NOT EXISTS COMMANDE (
     id_commande INT AUTO_INCREMENT PRIMARY KEY,
     id_utilisateur INT NOT NULL,
     id_menu INT NOT NULL,
@@ -284,7 +284,7 @@ CREATE TABLE COMMANDE (
     INDEX idx_ville (ville)
 ) ENGINE=InnoDB COMMENT='Commandes passées par les clients';
 
-CREATE TABLE COMMANDE_MATERIEL (
+CREATE TABLE IF NOT EXISTS COMMANDE_MATERIEL (
     id_commande_materiel INT AUTO_INCREMENT PRIMARY KEY,
     id_commande INT NOT NULL,
     id_materiel INT NOT NULL,
@@ -316,7 +316,7 @@ CREATE TABLE COMMANDE_MATERIEL (
 -- TRAÇABILITÉ (HISTORIQUE & MODIFICATIONS)
 -- ============================================================
 
-CREATE TABLE COMMANDE_STATUT (
+CREATE TABLE IF NOT EXISTS COMMANDE_STATUT (
     id_statut INT AUTO_INCREMENT PRIMARY KEY,
     id_commande INT NOT NULL,
     statut ENUM('EN_ATTENTE', 'ACCEPTE', 'EN_PREPARATION', 'EN_LIVRAISON', 'LIVRE', 'EN_ATTENTE_RETOUR', 'TERMINEE', 'ANNULEE') NOT NULL,
@@ -341,7 +341,7 @@ CREATE TABLE COMMANDE_STATUT (
     INDEX idx_date_changement (date_changement)
 ) ENGINE=InnoDB COMMENT='Historique des changements de statut des commandes';
 
-CREATE TABLE COMMANDE_ANNULATION (
+CREATE TABLE IF NOT EXISTS COMMANDE_ANNULATION (
     id_annulation INT AUTO_INCREMENT PRIMARY KEY,
     id_commande INT NOT NULL,
     annule_par INT NOT NULL,
@@ -365,7 +365,7 @@ CREATE TABLE COMMANDE_ANNULATION (
     INDEX idx_date_annulation (date_annulation)
 ) ENGINE=InnoDB COMMENT='Historique des annulations de commandes avec motif';
 
-CREATE TABLE COMMANDE_MODIFICATION (
+CREATE TABLE IF NOT EXISTS COMMANDE_MODIFICATION (
     id_modif INT AUTO_INCREMENT PRIMARY KEY,
     id_commande INT NOT NULL,
     modifie_par INT NOT NULL,
@@ -392,7 +392,7 @@ CREATE TABLE COMMANDE_MODIFICATION (
 -- AVIS (FALLBACK MySQL pour panne MongoDB)
 -- ============================================================
 
-CREATE TABLE AVIS_FALLBACK (
+CREATE TABLE IF NOT EXISTS AVIS_FALLBACK (
     id_avis_fallback INT AUTO_INCREMENT PRIMARY KEY,
     note TINYINT NOT NULL CHECK(note BETWEEN 1 AND 5),
     commentaire TEXT NOT NULL,
@@ -440,7 +440,8 @@ CREATE TABLE AVIS_FALLBACK (
 -- TRIGGERS & ÉVÉNEMENTS
 -- ============================================================
 
--- Trigger pour créer automatiquement l'historique de statut lors d'une nouvelle commande
+-- Suppression du trigger s'il existe déjà
+DROP TRIGGER IF EXISTS after_commande_insert;
 DELIMITER //
 CREATE TRIGGER after_commande_insert
 AFTER INSERT ON COMMANDE
@@ -451,7 +452,8 @@ BEGIN
 END//
 DELIMITER ;
 
--- Trigger pour mettre à jour l'historique de statut lors de la modification d'une commande
+-- Suppression du trigger s'il existe déjà
+DROP TRIGGER IF EXISTS after_commande_update_statut;
 DELIMITER //
 CREATE TRIGGER after_commande_update_statut
 AFTER UPDATE ON COMMANDE
@@ -468,8 +470,7 @@ DELIMITER ;
 -- VUES UTILES
 -- ============================================================
 
--- Vue pour les menus actifs avec leurs informations complètes
-CREATE VIEW v_menus_actifs AS
+CREATE OR REPLACE VIEW v_menus_actifs AS
 SELECT 
     m.id_menu,
     m.titre,
@@ -491,8 +492,7 @@ LEFT JOIN IMAGE_MENU im ON m.id_menu = im.id_menu
 WHERE m.actif = TRUE
 GROUP BY m.id_menu;
 
--- Vue pour les commandes en cours avec détails client
-CREATE VIEW v_commandes_en_cours AS
+CREATE OR REPLACE VIEW v_commandes_en_cours AS
 SELECT 
     c.id_commande,
     c.date_commande,
@@ -513,8 +513,7 @@ JOIN MENU m ON c.id_menu = m.id_menu
 WHERE c.statut NOT IN ('TERMINEE', 'ANNULEE')
 ORDER BY c.date_prestation ASC;
 
--- Vue pour les avis validés (page d'accueil)
-CREATE VIEW v_avis_valides AS
+CREATE OR REPLACE VIEW v_avis_valides AS
 SELECT 
     a.id_avis_fallback,
     a.note,
