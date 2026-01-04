@@ -1,5 +1,9 @@
 <?php
 declare(strict_types=1);
+
+// Chargement de l'autoloader Composer
+require_once __DIR__ . '/../backend/vendor/autoload.php';
+
 // Chargement automatique du .env (local/dev)
 if (file_exists(__DIR__ . '/../.env.azure')) {
     // Utilise le .env.azure si présent
@@ -22,11 +26,11 @@ use App\Utils\MonologLogger;
 require_once __DIR__ . '/../backend/vendor/autoload.php';
 $config = require __DIR__ . '/../backend/config/config.php';
 
-// 2) Headers globaux (CORS + JSON)
+// 2) Headers globaux (CORS)
 header('Access-Control-Allow-Origin: *'); // À adapter selon l'URL du front
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json; charset=utf-8');
+// Note: Content-Type sera défini selon le contexte (JSON pour API, HTML pour pages)
 
 // 3) OPTIONS (préflight CORS)
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
@@ -38,7 +42,37 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// 5) Enlève le préfixe /api si besoin (ex: /api/auth/test → /auth/test)
+// 5) Fichiers statiques (CSS, JS, images, fonts, HTML composants) - laisser passer sans traitement
+$staticExtensions = ['.css', '.js', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.html'];
+foreach ($staticExtensions as $ext) {
+    if (str_ends_with($path, $ext)) {
+        // Laisser Apache servir le fichier directement
+        return false;
+    }
+}
+
+// 6) Routes frontend (pages HTML principales uniquement)
+if ($method === 'GET' && !str_starts_with($path, '/api') && !str_contains($path, '/components/')) {
+    // Route d'accueil
+    if ($path === '/' || $path === '/home' || $path === '/accueil') {
+        require __DIR__ . '/../frontend/frontend/pages/home.html';
+        exit;
+    }
+    
+    // Route inscription
+    if ($path === '/inscription') {
+        require __DIR__ . '/../frontend/frontend/pages/inscription.html';
+        exit;
+    }
+    
+    // Route connexion
+    if ($path === '/connexion') {
+        require __DIR__ . '/../frontend/frontend/pages/connexion.html';
+        exit;
+    }
+}
+
+// 7) Enlève le préfixe /api si besoin (ex: /api/auth/test → /auth/test)
 $apiPrefix = '/api';
 if (strncmp($path, $apiPrefix, strlen($apiPrefix)) === 0) {
     $path = substr($path, strlen($apiPrefix));
@@ -47,7 +81,7 @@ if (strncmp($path, $apiPrefix, strlen($apiPrefix)) === 0) {
     }
 }
 
-// 6) Healthcheck (utile sur Azure)
+// 8) Healthcheck API (utile sur Azure)
 if ($method === 'GET' && ($path === '/' || $path === '/health')) {
     http_response_code(200);
     echo json_encode([
@@ -59,13 +93,16 @@ if ($method === 'GET' && ($path === '/' || $path === '/health')) {
 }
 
 
-// 7) Routeur + routes
+// 9) Routeur + routes
 $router = new Router($config);
 require __DIR__ . '/../backend/api/routes.php';
 
-// 8) Exécution + logs + fallback JSON
+// 10) Exécution + logs + fallback JSON
 try {
     MonologLogger::getLogger()->info("Requête reçue : {$method} {$path}");
+    
+    // Content-Type JSON pour l'API
+    header('Content-Type: application/json; charset=utf-8');
 
     $result = $router->dispatch($method, $path);
 
