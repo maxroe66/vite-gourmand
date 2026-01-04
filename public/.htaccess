@@ -1,8 +1,11 @@
 RewriteEngine On
 
 # Laisser Apache servir les fichiers/dossiers existants (images, css, js, etc.)
+# depuis public/ ou les chemins absolus depuis la racine du projet
 RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_FILENAME} -d [OR]
+RewriteCond %{DOCUMENT_ROOT}/../%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/../%{REQUEST_URI} -d
 RewriteRule ^ - [L]
 
 # Sinon, tout passe par le front controller

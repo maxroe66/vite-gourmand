@@ -1,0 +1,27 @@
+/* =========================================
+   — Component: Hero Section
+   ========================================= */
+
+@layer components {
+  .hero {
+    text-align: center;
+    padding: var(--space-10, 80px) var(--space-4, 16px);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hero h1 {
+    font-size: var(--font-xxl, 48px);
+    color: var(--color-title-primary);
+    margin-bottom: var(--space-4, 16px);
+  }
+
+  .hero p {
+    font-size: var(--font-500, 20px);
+    color: var(--color-text);
+  }
+}

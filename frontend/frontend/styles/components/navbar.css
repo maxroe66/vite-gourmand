@@ -1,0 +1,128 @@
+
+/* =========================================
+   — Component: Navbar
+   ========================================= */
+
+@layer components {
+  
+/* Navbar wrapper */
+   .navbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--navbar-bg, #2F3E4D);          /* dark blue/gray */
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: var(--shadow-100);
+    }
+
+    /* Inner bar */
+    .navbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    height: 56px;                                    /* matches your ~52px */
+    max-width: var(--container-xl);
+    margin-inline: auto;
+    padding-inline: 24px;                            /* desktop breathing */
+    }
+
+    /* Brand */
+    .navbar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    text-decoration: none;
+    }
+    .navbar__logo { width: 28px; height: 28px; }
+    .navbar__brand-text {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+    }
+
+    /* Menu (desktop) */
+    .navbar__menu {
+    display: flex;
+    align-items: center;
+    gap: 24px;                                       /* spacing between links */
+    margin: 0; padding: 0; list-style: none;
+    }
+    .navbar__link {
+    color: #E6EDF5;                                  /* light text on dark */
+    text-decoration: none;
+    padding: 8px 10px;                               /* hit area */
+    border-radius: var(--radius-xs, 4px);
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+    }
+    .navbar__link:hover { background: rgba(255,255,255,0.08); }
+    .navbar__link:focus-visible {
+    outline: 2px solid var(--color-primary, #FC7200);
+    outline-offset: 2px;
+    }
+
+    /* Actions (desktop) */
+    .navbar__actions { display: flex; align-items: center; gap: var(--space-3); }
+    .navbar .button--primary {
+    background: var(--color-primary, #FC7200);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;                              /* slightly smaller than card CTA */
+    }
+    .navbar .button--primary:hover { background: #E56600; } /* darker hover */
+
+    /* Mobile toggle button — hidden on desktop */
+    .navbar__toggle {
+    display: none;
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.24);
+    border-radius: var(--radius-xs, 4px);
+    padding: 8px 10px;
+    }
+
+    /* Collapsible area (mobile) */
+
+}
+/*html example*/
+/*
+
+<header class="navbar">
+  <div class="navbar__inner">
+    <!-- Brand -->
+    /
+      /img/logo-vg.svg
+      <span class="navbar__brand-text">Vite &amp; Gourmand</span>
+    </a>
+
+    <!-- Menu -->
+    <nav class="navbar__nav" aria-label="Navigation principale">
+      <ul class="navbar__menu">
+        <li>/Accueil</a></li>
+        <li>/menusMenu</a></li>
+        <li>/contactContact</a></li>
+      </ul>
+    </nav>
+
+    <!-- Actions -->
+    <div class="navbar__actions">
+      /connexion      /connexionConnexion</a>
+    </div>
+
+    <!-- Mobile toggle -->
+    <button class="navbar__toggle" aria-controls="navMenu" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
+  </div>
+
+  <!-- Collapsible menu for mobile -->
+  <div id="navMenu" class="navbar__collapse" hidden>
+    <ul class="navbar__menu navbar__menu--mobile">
+      <li>/Accueil</a></li>
+      <li>/menusMenu</a></li>
+      <li>/contactContact</a></li>
+      <li class="navbar__mobile-action">
+        /connexionConnexion</a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+*/
