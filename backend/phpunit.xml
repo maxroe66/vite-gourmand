@@ -11,8 +11,8 @@
         <env name="ENV" value="test"/>
         <env name="DEBUG" value="false"/>
 
-        <!-- Valeur de test (non sensible) pour éviter les crashes si JWT est requis -->
-        <env name="JWT_SECRET" value="jwt-secret-for-tests-only"/>
+        <!-- JWT Secret de test (doit être >= 256 bits pour HS256 avec firebase/php-jwt v7) -->
+        <env name="JWT_SECRET" value="dGVzdC1qd3Qtc2VjcmV0LWtleS1taW5pbXVtLTMyLWNoYXJhY3RlcnMtbG9uZy1mb3ItSFMyNTYtYWxnb3JpdGhtLXRlc3Rpbmc="/>
     </php>
 
     <testsuites>
