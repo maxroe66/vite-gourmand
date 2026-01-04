@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Vite & Gourmand</title>
+    <link rel="stylesheet" href="/frontend/frontend/styles/_tokens.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/base.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/navbar.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/footer.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/button.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/inscription.css">
+</head>
+<body>
+    <header id="header-placeholder"></header>
+
+    <main class="signup-section">
+        <div class="signup-container">
+            <div class="signup-form-wrapper">
+                <h1 class="h1">Créez votre compte</h1>
+                <form id="inscriptionForm" class="signup-form">
+                    <div class="form-group">
+                        <label for="prenom">Prénom *</label>
+                        <input type="text" id="prenom" name="prenom" placeholder="Jean" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nom">Nom *</label>
+                        <input type="text" id="nom" name="nom" placeholder="Dupont" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" placeholder="jean.dupont@email.fr" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Mot de passe *</label>
+                        <input type="password" id="password" name="password" placeholder="********" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gsm">GSM *</label>
+                        <input type="tel" id="gsm" name="gsm" placeholder="06 12 34 56 78" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adresse">Adresse *</label>
+                        <input type="text" id="adresse" name="adresse" placeholder="123 Rue de la Liberté" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ville">Ville *</label>
+                        <input type="text" id="ville" name="ville" placeholder="Bordeaux" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="code-postal">Code postal *</label>
+                        <input type="text" id="code-postal" name="code_postal" placeholder="33000" required>
+                    </div>
+                    <button type="submit" class="button button--primary">Créer mon compte</button>
+                </form>
+            </div>
+            <div class="signup-image-wrapper">
+                <div class="signup-image-overlay">
+                    <h2 class="h1">Vite & Gourmand</h2>
+                    <p>Menus Catering pour vos moments</p>
+                    <a href="#" class="button button--primary">Découvrir nos menus</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+    <script src="/frontend/js/components.js"></script>
+</body>
+</html>

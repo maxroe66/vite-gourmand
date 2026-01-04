@@ -1,0 +1,121 @@
+/* =========================================
+   Styles pour la page d'inscription
+   ========================================= */
+
+.signup-section {
+    display: flex;
+    flex-grow: 1;
+    min-height: 100%;
+}
+
+.signup-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg);
+    overflow: hidden;
+}
+
+.signup-form-wrapper {
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.signup-form-wrapper .h1 {
+    color: var(--color-title-primary);
+    margin-bottom: var(--space-6);
+}
+
+.signup-form {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    padding: var(--space-3);
+    border: 1px solid #CBD5E1;
+    border-radius: var(--radius-sm);
+    background-color: #F8FAFC;
+    color: var(--color-text);
+}
+
+.form-group input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(252, 114, 0, 0.2);
+}
+
+.signup-form .button--primary {
+    width: 100%;
+    margin-top: var(--space-4);
+}
+
+.signup-image-wrapper {
+    position: relative;
+    background-image: url('/assets/images/hero-inscritpion.png');
+    background-size: cover;
+    background-position: center;
+    color: var(--color-text-secondary);
+}
+
+.signup-image-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-6);
+}
+
+.signup-image-overlay .h1 {
+    color: var(--color-title-secondary);
+    font-size: var(--font-800);
+}
+
+.signup-image-overlay p {
+    font-size: var(--font-500);
+    margin-bottom: var(--space-6);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .signup-container {
+        grid-template-columns: 1fr;
+    }
+
+    .signup-image-wrapper {
+        display: none; /* On cache l'image sur les écrans plus petits pour se concentrer sur le formulaire */
+    }
+
+    .signup-form-wrapper {
+        padding: var(--space-6);
+    }
+}
+
+@media (max-width: 768px) {
+    .signup-form-wrapper {
+        padding: var(--space-4);
+    }
+}
