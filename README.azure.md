@@ -37,7 +37,7 @@ SHOW DATABASES;
 
 ### Utiliser une base (ex. `vite_gourmand`)
 ```sql
-USE vite_gourmand;
+USE vite_et_gourmand;
 ```
 
 ### Lister les tables de la base courante
@@ -239,5 +239,3 @@ mysql> SELECT * FROM produits LIMIT 10;
 - **SSL** : activé / `REQUIRED`
 
 ---
-
-Bon dev !

@@ -137,7 +137,7 @@ jobs:
           MONGO_PASS: root
           MONGO_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
 
-          JWT_SECRET: jwt-secret-for-tests-only
+          JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1taW5pbXVtLTMyLWNoYXJhY3RlcnMtbG9uZy1mb3ItSFMyNTYtYWxnb3JpdGhtLXRlc3Rpbmc=
 
       - name: Run backend tests
         env:
@@ -162,7 +162,7 @@ jobs:
           MONGO_PASS: root
           MONGO_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
 
-          JWT_SECRET: jwt-secret-for-tests-only
+          JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1taW5pbXVtLTMyLWNoYXJhY3RlcnMtbG9uZy1mb3ItSFMyNTYtYWxnb3JpdGhtLXRlc3Rpbmc=
         run: |
           cd backend
           if [ -f vendor/bin/phpunit ]; then

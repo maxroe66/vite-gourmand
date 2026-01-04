@@ -34,7 +34,18 @@ class AuthService
      */
     public function generateToken(int $userId, string $role): string
     {
-        // Génération du JWT
-        return '';
+        $config = require __DIR__ . '/../../config/config.php';
+        $secret = $config['jwt']['secret'];
+        $expire = $config['jwt']['expire'];
+
+        $payload = [
+            'iss' => 'vite-gourmand',  // émetteur
+            'sub' => $userId,           // sujet (user ID)
+            'role' => $role,
+            'iat' => time(),            // émis à
+            'exp' => time() + $expire   // expire à
+        ];
+
+        return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
     }
 }
