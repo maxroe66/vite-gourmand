@@ -1,0 +1,72 @@
+@layer components {
+  .button {
+    font-family: var(--font-family, "Roboto", sans-serif);
+    font-weight: 600;
+    font-size: 16px; /* Desktop */
+    line-height: 1; /* Meilleur pour centrer le texte */
+    border-radius: var(--radius-sm);
+    padding: 14px 32px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* si icône */
+    
+    /* Transitions cohérentes avec tokens */
+    transition:
+      background-color var(--transition-normal),
+      box-shadow var(--transition-normal),
+      transform var(--transition-normal);
+    will-change: transform, box-shadow;
+    
+    /* État initial */
+    transform: translateY(0);
+  }
+
+  /* Bouton primaire */
+  .button--primary {
+    background: var(--color-primary);
+    color: var(--color-text-secondary);
+    box-shadow: var(--shadow-100);
+  }
+  .button--primary:hover {
+    background: var(--color-primary-600);
+  }
+
+  /* Bouton ghost */
+  .button--ghost {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+  .button--ghost:hover {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  }
+
+  /* Active (clic) */
+  .button:active {
+    transform: translateY(1px);
+    box-shadow: none; /* effet d’appui */
+  }
+
+  /* Focus visible (accessibilité) */
+  .button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Désactivé */
+  .button[disabled],
+  .button.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Réduction des animations si l’utilisateur préfère moins de mouvement */
+  @media (prefers-reduced-motion: reduce) {
+    .button {
+      transition: none;
+    }
+  }
+}
