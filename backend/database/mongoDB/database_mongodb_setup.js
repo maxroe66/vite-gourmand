@@ -56,19 +56,19 @@ db.createCollection("avis", {
                     description: "Date de création de l'avis - obligatoire"
                 },
                 id_utilisateur: {
-                    bsonType: ["int", "double"],
+                    bsonType: "int",
                     description: "ID de l'utilisateur (référence MySQL) - obligatoire"
                 },
                 id_commande: {
-                    bsonType: ["int", "double"],
+                    bsonType: "int",
                     description: "ID de la commande (référence MySQL) - obligatoire"
                 },
                 id_menu: {
-                    bsonType: ["int", "double"],
+                    bsonType: "int",
                     description: "ID du menu (référence MySQL) - obligatoire"
                 },
                 modere_par: {
-                    bsonType: ["int", "double", "null"],
+                    bsonType: ["int", "null"],
                     description: "ID de l'employé modérateur (référence MySQL)"
                 },
                 date_validation: {
@@ -80,7 +80,7 @@ db.createCollection("avis", {
                     description: "Indique si l'avis est synchronisé avec MySQL (fallback)"
                 },
                 mysql_id: {
-                    bsonType: ["int", "double", "null"],
+                    bsonType: ["int", "null"],
                     description: "ID dans la table AVIS_FALLBACK de MySQL"
                 }
             }
@@ -217,10 +217,10 @@ db.avis.insertMany([
         commentaire: "Prestation exceptionnelle ! Les plats étaient délicieux et la présentation soignée. Je recommande vivement pour vos événements.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-10-06T10:30:00Z"),
-        id_utilisateur: NumberInt(7),
-        id_commande: NumberInt(5),
-        id_menu: NumberInt(6),
-        modere_par: NumberInt(2),
+        id_utilisateur: NumberInt(7),  // Claire Moreau
+        id_commande: NumberInt(5),     // Commande Menu Vegan TERMINEE
+        id_menu: NumberInt(6),          // Menu Vegan Créatif
+        modere_par: NumberInt(2),       // Julie (Employée)
         date_validation: new Date("2024-10-06T14:00:00Z"),
         mysql_synced: true,
         mysql_id: NumberInt(1)
@@ -230,10 +230,10 @@ db.avis.insertMany([
         commentaire: "Menu estival parfait pour notre réception. Produits frais, saveurs au rendez-vous. La livraison à Arcachon s'est très bien passée.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-08-16T09:15:00Z"),
-        id_utilisateur: NumberInt(3),
-        id_commande: NumberInt(6),
-        id_menu: NumberInt(5),
-        modere_par: NumberInt(2),
+        id_utilisateur: NumberInt(3),  // Marie Dupont
+        id_commande: NumberInt(6),     // Commande Menu Estival TERMINEE (Arcachon)
+        id_menu: NumberInt(5),          // Menu Estival Léger
+        modere_par: NumberInt(2),       // Julie (Employée)
         date_validation: new Date("2024-08-16T15:30:00Z"),
         mysql_synced: true,
         mysql_id: NumberInt(2)
@@ -242,12 +242,12 @@ db.avis.insertMany([
         note: NumberInt(4),
         commentaire: "Très bon rapport qualité-prix. Quelques petits détails à améliorer sur la présentation mais les saveurs étaient au top !",
         statut_validation: "VALIDE",
-        date_avis: new Date("2024-09-10T16:20:00Z"),
-        id_utilisateur: NumberInt(6),
-        id_commande: NumberInt(4),
-        id_menu: NumberInt(2),
-        modere_par: NumberInt(2),
-        date_validation: new Date("2024-09-11T09:00:00Z"),
+        date_avis: new Date("2024-11-11T16:20:00Z"),
+        id_utilisateur: NumberInt(6),  // Thomas Lefebvre
+        id_commande: NumberInt(4),     // Commande Menu Pâques LIVRE
+        id_menu: NumberInt(2),          // Menu de Pâques Gourmand
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-11-12T09:00:00Z"),
         mysql_synced: true,
         mysql_id: NumberInt(3)
     },
@@ -256,9 +256,9 @@ db.avis.insertMany([
         commentaire: "Commande pour Noël en cours mais contact très professionnel et réactif. Hâte de goûter !",
         statut_validation: "EN_ATTENTE",
         date_avis: new Date("2024-12-06T11:00:00Z"),
-        id_utilisateur: NumberInt(3),
-        id_commande: NumberInt(1),
-        id_menu: NumberInt(1),
+        id_utilisateur: NumberInt(3),  // Marie Dupont
+        id_commande: NumberInt(1),     // Commande Menu Noël EN_ATTENTE
+        id_menu: NumberInt(1),          // Menu de Noël Traditionnel
         modere_par: null,
         date_validation: null,
         mysql_synced: true,
@@ -269,10 +269,10 @@ db.avis.insertMany([
         commentaire: "Équipe au top ! Le menu de Noël était succulent. Les convives ont adoré le chapon farci aux marrons.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-12-02T20:30:00Z"),
-        id_utilisateur: NumberInt(4),
-        id_commande: NumberInt(7),
-        id_menu: NumberInt(1),
-        modere_par: NumberInt(2),
+        id_utilisateur: NumberInt(4),  // Pierre Martin
+        id_commande: NumberInt(7),     // Commande Menu Noël EN_ATTENTE_RETOUR
+        id_menu: NumberInt(1),          // Menu de Noël Traditionnel
+        modere_par: NumberInt(2),       // Julie (Employée)
         date_validation: new Date("2024-12-03T09:00:00Z"),
         mysql_synced: false,
         mysql_id: null
@@ -282,10 +282,10 @@ db.avis.insertMany([
         commentaire: "Menu végétarien très créatif et savoureux. Seul bémol : le délai de livraison un peu long.",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-11-20T14:15:00Z"),
-        id_utilisateur: NumberInt(5),
-        id_commande: NumberInt(3),
-        id_menu: NumberInt(3),
-        modere_par: NumberInt(2),
+        id_utilisateur: NumberInt(5),  // Sophie Bernard
+        id_commande: NumberInt(3),     // Commande Menu Végétarien EN_PREPARATION
+        id_menu: NumberInt(3),          // Menu Végétarien Raffiné
+        modere_par: NumberInt(2),       // Julie (Employée)
         date_validation: new Date("2024-11-21T10:00:00Z"),
         mysql_synced: false,
         mysql_id: null
@@ -294,12 +294,12 @@ db.avis.insertMany([
         note: NumberInt(2),
         commentaire: "Déçu par la qualité des produits. Le poisson n'était pas assez frais à mon goût.",
         statut_validation: "REFUSE",
-        date_avis: new Date("2024-10-25T18:45:00Z"),
-        id_utilisateur: NumberInt(4),
-        id_commande: NumberInt(2),
-        id_menu: NumberInt(4),
-        modere_par: NumberInt(2),
-        date_validation: new Date("2024-10-26T09:30:00Z"),
+        date_avis: new Date("2024-11-25T18:45:00Z"),
+        id_utilisateur: NumberInt(4),  // Pierre Martin
+        id_commande: NumberInt(2),     // Commande Menu Classique ACCEPTE
+        id_menu: NumberInt(4),          // Menu Classique 4 Saisons
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-11-26T09:30:00Z"),
         mysql_synced: false,
         mysql_id: null
     }
