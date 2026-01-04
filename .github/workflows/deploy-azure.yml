@@ -46,22 +46,33 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Wait for app warm-up
-        run: sleep 60
+        run: sleep 120
 
-      - name: Health check HTTP (retry, optional)
+      - name: Health check HTTP (retry with diagnostics)
         env:
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
         if: ${{ env.APP_BASE_URL }}
         run: |
-          for i in {1..10}; do
-            if curl -fsSL "${APP_BASE_URL}/"; then
-              echo "Health check OK"
+          echo "🔍 Starting health check for: ${APP_BASE_URL}"
+          for i in {1..20}; do
+            echo "Attempt $i/20..."
+            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${APP_BASE_URL}/" || echo "000")
+            echo "  HTTP Status: $STATUS_CODE"
+            
+            if [ "$STATUS_CODE" = "200" ]; then
+              echo "✅ Health check OK - App is responding!"
               exit 0
+            elif [ "$STATUS_CODE" = "503" ]; then
+              echo "  ⏳ Service Unavailable (503) - Container still starting..."
+            elif [ "$STATUS_CODE" = "000" ]; then
+              echo "  ❌ Connection failed - DNS or network issue"
+            else
+              echo "  ⚠️  Unexpected status code"
             fi
-            echo "Waiting app warm-up... ($i/10)"
-            sleep 5
+            
+            sleep 10
           done
-          echo "Health check failed after retries" && exit 1
+          echo "❌ Health check failed after 20 attempts (~200s)" && exit 1
 
       - name: Install MySQL client
         run: sudo apt-get update && sudo apt-get install -y mysql-client
