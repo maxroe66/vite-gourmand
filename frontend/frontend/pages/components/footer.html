@@ -1,0 +1,32 @@
+<!-- Footer Component -->
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__section">
+            <h3>Vite & Gourmand</h3>
+            <p>Restaurant rapide et gourmand</p>
+        </div>
+        <div class="footer__section">
+            <h4>Navigation</h4>
+            <ul>
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/menus">Menu</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+        <div class="footer__section">
+            <h4>Légal</h4>
+            <ul>
+                <li><a href="/mentions-legales">Mentions légales</a></li>
+                <li><a href="/cgv">CGV</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer__bottom">
+        <p>&copy; <span id="currentYear"></span> Vite & Gourmand. Tous droits réservés.</p>
+    </div>
+</footer>
+
+<script>
+    // Mise à jour de l'année dynamiquement
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+</script>
