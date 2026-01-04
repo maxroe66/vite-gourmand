@@ -174,31 +174,31 @@ INSERT IGNORE INTO PROPOSE (id_menu, id_plat, position) VALUES
 (1, 12, 3); -- Bûche chocolat
 
 -- Menu de Pâques Gourmand
-INSERT INTO PROPOSE (id_menu, id_plat, position) VALUES
+INSERT IGNORE INTO PROPOSE (id_menu, id_plat, position) VALUES
 (2, 4, 1),  -- Saumon fumé
 (2, 7, 2),  -- Gigot d'agneau
 (2, 13, 3); -- Tarte tatin
 
 -- Menu Végétarien Raffiné
-INSERT INTO PROPOSE (id_menu, id_plat, position) VALUES
+INSERT IGNORE INTO PROPOSE (id_menu, id_plat, position) VALUES
 (3, 3, 1),  -- Salade chèvre chaud
 (3, 10, 2), -- Risotto champignons
 (3, 16, 3); -- Salade de fruits
 
 -- Menu Classique 4 Saisons
-INSERT INTO PROPOSE (id_menu, id_plat, position) VALUES
+INSERT IGNORE INTO PROPOSE (id_menu, id_plat, position) VALUES
 (4, 2, 1),  -- Velouté châtaignes
 (4, 11, 2), -- Magret de canard
 (4, 15, 3); -- Tiramisu
 
 -- Menu Estival Léger
-INSERT INTO PROPOSE (id_menu, id_plat, position) VALUES
+INSERT IGNORE INTO PROPOSE (id_menu, id_plat, position) VALUES
 (5, 4, 1),  -- Saumon fumé
 (5, 8, 2),  -- Pavé de saumon
 (5, 16, 3); -- Salade de fruits
 
 -- Menu Vegan Créatif
-INSERT INTO PROPOSE (id_menu, id_plat, position) VALUES
+INSERT IGNORE INTO PROPOSE (id_menu, id_plat, position) VALUES
 (6, 5, 1),  -- Tartare de légumes
 (6, 9, 2),  -- Lasagnes végétariennes
 (6, 16, 3); -- Salade de fruits
@@ -237,11 +237,11 @@ INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande
 (1, 3, 1, '2024-12-05 14:30:00', '2024-12-24', '18:00:00', '25 cours de l\'Intendance', 'Bordeaux', '33000', '0601020304', 6, 6, 25.00, 0.00, FALSE, 5.00, 155.00, FALSE, 0.00, 'EN_ATTENTE', FALSE, TRUE);
 
 -- Commande 2 : Pierre Martin - Menu Classique - ACCEPTE
-INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret) VALUES
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret) VALUES
 (2, 4, 4, '2024-11-20 10:15:00', '2024-12-15', '19:00:00', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '0612345678', 8, 4, 27.50, 22.00, TRUE, 5.00, 225.00, FALSE, 0.00, 'ACCEPTE', FALSE, FALSE);
 
 -- Commande 3 : Sophie Bernard - Menu Végétarien - EN_PREPARATION
-INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret) VALUES
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret) VALUES
 (3, 5, 3, '2024-11-25 16:45:00', '2024-12-10', '12:00:00', '15 place de la Victoire', 'Bordeaux', '33000', '0623456789', 6, 4, 23.75, 14.25, TRUE, 5.00, 151.75, FALSE, 0.00, 'EN_PREPARATION', FALSE, TRUE);
 
 -- Commande 4 : Thomas Lefebvre - Menu de Pâques - LIVRE (avec avis à donner)
@@ -249,15 +249,15 @@ INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande
 (4, 6, 2, '2024-10-15 09:30:00', '2024-11-10', '13:00:00', '8 avenue Victor Hugo', 'Bordeaux', '33200', '0634567890', 8, 4, 30.00, 24.00, TRUE, 5.00, 245.00, FALSE, 0.00, 'LIVRE', FALSE, FALSE, '2024-11-10 12:45:00');
 
 -- Commande 5 : Claire Moreau - Menu Vegan - TERMINEE (avec avis donné)
-INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
 (5, 7, 6, '2024-09-20 11:20:00', '2024-10-05', '19:30:00', '22 rue de la Devise', 'Bordeaux', '33000', '0645678901', 4, 4, 26.25, 0.00, FALSE, 5.00, 110.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-10-05 19:15:00');
 
 -- Commande 6 : Marie Dupont - Menu Estival - TERMINEE (hors Bordeaux avec avis)
-INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
 (6, 3, 5, '2024-07-10 14:00:00', '2024-08-15', '18:00:00', '45 avenue de la Plage', 'Arcachon', '33120', '0601020304', 10, 6, 21.67, 21.70, TRUE, 35.00, 251.70, TRUE, 50.85, 'TERMINEE', TRUE, FALSE, '2024-08-15 17:50:00');
 
 -- Commande 7 : Pierre Martin - Menu de Noël - EN_ATTENTE_RETOUR (matériel prêté)
-INSERT INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
 (7, 4, 1, '2024-11-15 15:30:00', '2024-12-01', '17:00:00', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '0612345678', 10, 6, 25.00, 25.00, TRUE, 5.00, 255.00, FALSE, 0.00, 'EN_ATTENTE_RETOUR', FALSE, TRUE, '2024-12-01 16:50:00');
 
 -- ============================================================
@@ -270,12 +270,12 @@ INSERT IGNORE INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_mate
 (2, 1, 2, 1, '2024-12-24 18:00:00', '2024-12-26 14:00:00', NULL, FALSE);
 
 -- Commande 3 : Sophie (Menu Végétarien) - matériel prêté non retourné
-INSERT INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, quantite, date_pret, date_retour_prevu, date_retour_effectif, retourne) VALUES
+INSERT IGNORE INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, quantite, date_pret, date_retour_prevu, date_retour_effectif, retourne) VALUES
 (3, 3, 4, 1, '2024-12-10 12:00:00', '2024-12-12 14:00:00', NULL, FALSE),
 (4, 3, 5, 1, '2024-12-10 12:00:00', '2024-12-12 14:00:00', NULL, FALSE);
 
 -- Commande 7 : Pierre (Menu Noël) - matériel prêté en attente de retour
-INSERT INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, quantite, date_pret, date_retour_prevu, date_retour_effectif, retourne) VALUES
+INSERT IGNORE INTO COMMANDE_MATERIEL (id_commande_materiel, id_commande, id_materiel, quantite, date_pret, date_retour_prevu, date_retour_effectif, retourne) VALUES
 (5, 7, 1, 1, '2024-12-01 17:00:00', '2024-12-03 14:00:00', NULL, FALSE),
 (6, 7, 2, 1, '2024-12-01 17:00:00', '2024-12-03 14:00:00', NULL, FALSE),
 (7, 7, 3, 1, '2024-12-01 17:00:00', '2024-12-03 14:00:00', NULL, FALSE);
@@ -290,18 +290,18 @@ INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifi
 (1, 'EN_ATTENTE', '2024-12-05 14:30:00', 3, 'Commande créée');
 
 -- Historique Commande 2 (ACCEPTE)
-INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
 (2, 'EN_ATTENTE', '2024-11-20 10:15:00', 4, 'Commande créée'),
 (2, 'ACCEPTE', '2024-11-21 09:00:00', 2, 'Commande validée par Julie');
 
 -- Historique Commande 3 (EN_PREPARATION)
-INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
 (3, 'EN_ATTENTE', '2024-11-25 16:45:00', 5, 'Commande créée'),
 (3, 'ACCEPTE', '2024-11-26 10:30:00', 2, 'Commande validée'),
 (3, 'EN_PREPARATION', '2024-12-08 08:00:00', 2, 'Préparation en cuisine');
 
 -- Historique Commande 4 (LIVRE)
-INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
 (4, 'EN_ATTENTE', '2024-10-15 09:30:00', 6, 'Commande créée'),
 (4, 'ACCEPTE', '2024-10-16 11:00:00', 2, 'Commande validée'),
 (4, 'EN_PREPARATION', '2024-11-08 07:00:00', 2, 'Préparation démarrée'),
@@ -309,7 +309,7 @@ INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, 
 (4, 'LIVRE', '2024-11-10 12:45:00', 2, 'Livraison effectuée');
 
 -- Historique Commande 5 (TERMINEE)
-INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
 (5, 'EN_ATTENTE', '2024-09-20 11:20:00', 7, 'Commande créée'),
 (5, 'ACCEPTE', '2024-09-21 09:00:00', 2, 'Commande validée'),
 (5, 'EN_PREPARATION', '2024-10-03 08:00:00', 2, 'Préparation cuisine'),
@@ -318,7 +318,7 @@ INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, 
 (5, 'TERMINEE', '2024-10-05 19:30:00', 2, 'Prestation terminée');
 
 -- Historique Commande 6 (TERMINEE - hors Bordeaux)
-INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
 (6, 'EN_ATTENTE', '2024-07-10 14:00:00', 3, 'Commande créée'),
 (6, 'ACCEPTE', '2024-07-11 10:00:00', 2, 'Commande validée'),
 (6, 'EN_PREPARATION', '2024-08-13 09:00:00', 2, 'Préparation démarrée'),
@@ -327,7 +327,7 @@ INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, 
 (6, 'TERMINEE', '2024-08-15 18:00:00', 2, 'Prestation terminée');
 
 -- Historique Commande 7 (EN_ATTENTE_RETOUR)
-INSERT INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
 (7, 'EN_ATTENTE', '2024-11-15 15:30:00', 4, 'Commande créée'),
 (7, 'ACCEPTE', '2024-11-16 09:30:00', 2, 'Commande validée'),
 (7, 'EN_PREPARATION', '2024-11-29 08:00:00', 2, 'Préparation cuisine'),
@@ -346,7 +346,7 @@ INSERT IGNORE INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_va
 (3, 4, 'Très bon rapport qualité-prix. Quelques petits détails à améliorer sur la présentation mais les saveurs étaient au top !', 'VALIDE', '2024-09-10 16:20:00', 6, 4, 2, 2, '2024-09-11 09:00:00');
 
 -- Avis en attente de modération
-INSERT INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
+INSERT IGNORE INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
 (4, 5, 'Commande pour Noël en cours mais contact très professionnel et réactif.', 'EN_ATTENTE', '2024-12-06 11:00:00', 3, 1, 1, NULL, NULL);
 
 -- ============================================================
