@@ -4,10 +4,14 @@
  */
 
 async function loadComponent(elementId, componentPath) {
+    // Utilise un chemin absolu depuis la racine du projet
+    const basePath = '/frontend/frontend/pages/components/';
+    const fullPath = basePath + componentPath;
+    
     try {
-        const response = await fetch(componentPath);
+        const response = await fetch(fullPath);
         if (!response.ok) {
-            throw new Error(`Failed to load ${componentPath}: ${response.status}`);
+            throw new Error(`Failed to load ${fullPath}: ${response.status}`);
         }
         const html = await response.text();
         const element = document.getElementById(elementId);
@@ -22,10 +26,10 @@ async function loadComponent(elementId, componentPath) {
 // Charger les composants au chargement de la page
 document.addEventListener('DOMContentLoaded', async () => {
     // Charger le header
-    await loadComponent('header-placeholder', '/frontend/frontend/pages/components/navbar.html');
+    await loadComponent('header-placeholder', 'navbar.html');
     
     // Charger le footer
-    await loadComponent('footer-placeholder', '/frontend/frontend/pages/components/footer.html');
+    await loadComponent('footer-placeholder', 'footer.html');
     
     // Initialiser le menu mobile après le chargement du header
     initMobileMenu();
