@@ -22,16 +22,18 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
 }
 
 .signup-form-wrapper .h1 {
     color: var(--color-title-primary);
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-5);
 }
 
 .signup-form {
     display: grid;
     gap: var(--space-4);
+    width: 401px;
 }
 
 .form-group {
@@ -43,7 +45,7 @@
     font-weight: 600;
     color: var(--color-text);
     margin-bottom: var(--space-2);
-    font-size: 0.9rem;
+    font-size: 14px;
 }
 
 .form-group input {
@@ -58,15 +60,29 @@
     color: var(--color-text-muted);
 }
 
+/* Désactiver les styles par défaut du navigateur pour :invalid */
+.form-group input:invalid {
+    box-shadow: none;
+    border-color: #CBD5E1; /* Garde la bordure normale */
+}
+
+/* Afficher la bordure rouge seulement après interaction (pas pendant la saisie) */
+.form-group input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: #dc3545;
+}
+
+/* IMPORTANT : Le focus garde la bordure normale, juste un léger effet */
 .form-group input:focus {
     outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(252, 114, 0, 0.2);
+    border-color: #CBD5E1; /* Garde la même couleur grise */
+    box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.3); /* Léger halo gris */
 }
+
 
 .signup-form .button--primary {
     width: 100%;
-    margin-top: var(--space-4);
+    height: 53px;
+    margin-top: var(--space-1);
 }
 
 .signup-image-wrapper {
@@ -91,12 +107,52 @@
 
 .signup-image-overlay .h1 {
     color: var(--color-title-secondary);
-    font-size: var(--font-800);
+    font-size: var(--font-xxl);
 }
 
 .signup-image-overlay p {
-    font-size: var(--font-500);
-    margin-bottom: var(--space-6);
+    font-size: var(--font-600);
+    margin-bottom: var(--space-5);
+    margin-top: var(--space-3);
+}
+.signup-image-overlay .button--primary {
+    height: 53px;
+}
+
+/* Bordure rouge pour les champs invalides */
+input.error {
+    border: 2px solid #dc3545 !important;
+}
+
+/* Message de succès */
+.success-message {
+    background-color: #28a745; /* Vert */
+    color: white;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Message d'erreur sous les champs */
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Message d'erreur général en haut du formulaire */
+.general-error {
+    background-color: #dc3545 !important;
+    color: white !important;
+    padding: 2rem !important;
+    margin: 1rem 0 !important;
+    border: 5px solid red !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 9999 !important;
 }
 
 /* Responsive */
