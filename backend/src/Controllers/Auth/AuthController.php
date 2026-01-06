@@ -68,7 +68,25 @@ class AuthController
             ];
         }
 
-        // 4. Envoi de l'email de bienvenue
+        // 4. Génération du token JWT
+        $role = $data['role'] ?? 'UTILISATEUR';
+        $token = $this->authService->generateToken($userId, $role);
+
+        // 5. Envoi du JWT dans un cookie httpOnly (sécurisé)
+        $config = require __DIR__ . '/../../config/config.php';
+        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+        $expire = time() + ($config['jwt']['expire'] ?? 3600);
+        
+        setcookie('authToken', $token, [
+            'expires' => $expire,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $isSecure,      // HTTPS uniquement en production
+            'httponly' => true,         // Inaccessible en JavaScript
+            'samesite' => 'Lax'        // Protection CSRF
+        ]);
+
+        // 6. Envoi de l'email de bienvenue
         $emailSent = $this->mailerService->sendWelcomeEmail($data['email'], $data['firstName']);
         if (!$emailSent) {
             $this->logger->error('Échec envoi email bienvenue', ['email' => $data['email']]);
@@ -81,8 +99,8 @@ class AuthController
             ];
         }
 
-        // 5. Gestion des erreurs et logs (déjà fait)
-        // 6. Retourne la réponse (succès)
+        // 7. Gestion des erreurs et logs (déjà fait)
+        // 8. Retourne la réponse (succès) - le token est dans le cookie
         return [
             'success' => true,
             'userId' => $userId,
