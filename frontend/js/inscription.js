@@ -9,20 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const errorFields = document.querySelectorAll('.error');
         errorFields.forEach(function(field) {
             field.classList.remove('error');
+            field.removeAttribute('aria-invalid');
         });
     }
 
     function showError(fieldId, message) {
         const field = document.getElementById(fieldId);
         field.classList.add('error');
-        const errordiv = document.createElement('div');
-        errordiv.className = 'error-message';
-        errordiv.textContent = message;
-        field.parentNode.appendChild(errordiv);
+        field.setAttribute('aria-invalid', 'true');
+        const errorId = fieldId + '-error';
+        field.setAttribute('aria-describedby', errorId);
+        const errorDiv = document.createElement('div');
+        errorDiv.id = errorId;
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
     }
 
     function showGeneralError(message) {
-        console.log('🚨 showGeneralError appelée avec:', message);
         // Supprimer les anciens messages généraux
         const oldError = document.querySelector('.general-error');
         if (oldError) oldError.remove();
@@ -53,16 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (event) => {
         event.preventDefault();
         const formData = {
-            firstName: document.getElementById('firstName').value,
-            lastName: document.getElementById('lastName').value,
-            email: document.getElementById('email').value,
+            firstName: document.getElementById('firstName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            email: document.getElementById('email').value.trim(),
             password: document.getElementById('password').value,
-            phone: document.getElementById('phone').value,
-            address: document.getElementById('address').value,
-            city: document.getElementById('city').value,
-            postalCode: document.getElementById('postalCode').value
+            phone: document.getElementById('phone').value.trim(),
+            address: document.getElementById('address').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            postalCode: document.getElementById('postalCode').value.trim()
         };
-        console.log('Données du formulaire:', formData);
         fetch('/api/auth/register', {
             method: 'POST',
             headers: {
@@ -70,9 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify(formData)
         })
-        .then(response => {
-            console.log('📡 Status HTTP:', response.status);
-            
+        .then(response => {           
             // Vérifier si la réponse est bien du JSON
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
@@ -87,11 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
         })
         .then(result => {
-            console.log('Réponse du serveur:', result);
-            
             if(result.ok && result.data.success) {
                 // Succès (201)
-                // TODO: Créer la page connexion.html et rediriger vers /connexion
                 showSuccessMessage('Inscription réussie ! Redirection en cours...');
                 setTimeout(() => {
                     window.location.href = '/home';
