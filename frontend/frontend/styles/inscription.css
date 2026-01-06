@@ -187,7 +187,7 @@ input.error {
     }
 
     .signup-form-wrapper {
-        padding: var(--space-3);
+        padding: var(--space-4);
     }
 
     .signup-form-wrapper .h1 {
