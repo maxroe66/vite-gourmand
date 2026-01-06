@@ -71,7 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
+            credentials: 'include'  // Envoie et reçoit les cookies automatiquement
         })
         .then(response => {           
             // Vérifier si la réponse est bien du JSON
@@ -90,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(result => {
             if(result.ok && result.data.success) {
                 // Succès (201)
+                // Le token JWT est automatiquement stocké dans un cookie httpOnly
+                // Pas besoin de manipulation JavaScript
                 showSuccessMessage('Inscription réussie ! Redirection en cours...');
                 setTimeout(() => {
                     window.location.href = '/home';
