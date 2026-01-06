@@ -8,15 +8,22 @@ class AuthMiddleware
 {
     public static function check()
     {
-        $headers = getallheaders();
-        if (!isset($headers['Authorization'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Token manquant']);
-            exit;
+        // Vérifier le cookie authToken en priorité
+        if (!isset($_COOKIE['authToken'])) {
+            // Fallback: vérifier le header Authorization (pour compatibilité API)
+            $headers = getallheaders();
+            if (!isset($headers['Authorization'])) {
+                http_response_code(401);
+                echo json_encode(['error' => 'Token manquant']);
+                exit;
+            }
+            $token = str_replace('Bearer ', '', $headers['Authorization']);
+        } else {
+            $token = $_COOKIE['authToken'];
         }
 
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
-        $secret = $_ENV['JWT_SECRET']; // ou depuis la config
+        $config = require __DIR__ . '/../../config/config.php';
+        $secret = $config['jwt']['secret'];
 
         try {
             $decoded = JWT::decode($token, new Key($secret, 'HS256'));
