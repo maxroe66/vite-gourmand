@@ -83,7 +83,7 @@
   .footer__bottom p {
     margin: 0;
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--color-text-secondary);
     line-height: 1.2;
   }
 
