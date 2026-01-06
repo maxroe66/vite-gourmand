@@ -19,7 +19,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
-    height: 56px;                                    /* matches your ~52px */
+    height: 80px;                                    /* matches your ~52px */
     max-width: var(--container-xl);
     margin-inline: auto;
     padding-inline: 24px;                            /* desktop breathing */
@@ -33,11 +33,22 @@
     color: #fff;
     text-decoration: none;
     }
-    .navbar__logo { width: 28px; height: 28px; }
+    .navbar__brand-logo { 
+    width: auto;
+    height: 48px;
+    object-fit: contain;
+    }
     .navbar__brand-text {
     font-weight: 700;
     letter-spacing: 0.02em;
     color: #fff;
+    }
+
+    /* Groupement navigation + actions à droite */
+    .navbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6, 32px);                       /* espace entre menu et boutons */
     }
 
     /* Menu (desktop) */
@@ -70,59 +81,265 @@
     }
     .navbar .button--primary:hover { background: #E56600; } /* darker hover */
 
+    .navbar .button--ghost {
+      padding: 10px 20px;
+    }
+
     /* Mobile toggle button — hidden on desktop */
     .navbar__toggle {
     display: none;
     background: transparent;
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.24);
-    border-radius: var(--radius-xs, 4px);
-    padding: 8px 10px;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 1.75rem;
+    line-height: 1;
+    transition: all var(--transition-fast);
+    }
+    
+    .navbar__toggle:hover {
+    background: rgba(252, 114, 0, 0.1);
+    }
+    
+    .navbar__toggle:active {
+    background: rgba(252, 114, 0, 0.2);
     }
 
-    /* Collapsible area (mobile) */
+    /* Collapsible area (mobile) - Dropdown à droite */
+    .navbar__collapse {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background: var(--navbar-bg, #2F3E4D);
+    border-radius: 0 0 0 var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    animation: slideDown 0.25s ease-out;
+    overflow: hidden;
+    }
+
+    @keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    }
+
+    .navbar__menu--mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding: var(--space-2) 0;
+    list-style: none;
+    }
+
+    .navbar__menu--mobile > li:not(.navbar__mobile-action) {
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    width: 100%;
+    }
+
+    .navbar__menu--mobile .navbar__link {
+    display: block;
+    width: 100%;
+    padding: 16px var(--space-5);
+    text-align: left;
+    font-size: 1rem;
+    color: #E6EDF5;
+    transition: color var(--transition-fast);
+    box-sizing: border-box;
+    }
+
+    .navbar__menu--mobile .navbar__link:hover {
+    color: var(--color-primary);
+    }
+
+    /* Séparateur avant les actions */
+    .navbar__mobile-action:first-of-type {
+    margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .navbar__mobile-action {
+    padding: 0 var(--space-4);
+    margin-bottom: var(--space-3);
+    }
+
+    .navbar__mobile-action:last-child {
+    margin-bottom: var(--space-4);
+    }
+
+    .navbar__mobile-action .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 14px var(--space-4);
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    min-height: 48px;
+    }
+
+    .navbar__mobile-action .button--ghost {
+    background: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    }
+
+    .navbar__mobile-action .button--ghost:hover {
+    background: rgba(252, 114, 0, 0.15);
+    border-color: var(--color-primary);
+    }
+
+    .navbar__mobile-action .button--primary {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 6px rgba(252, 114, 0, 0.35);
+    font-weight: 700;
+    }
+
+    .navbar__mobile-action .button--primary:hover {
+    background: var(--color-primary-600);
+    box-shadow: 0 4px 10px rgba(252, 114, 0, 0.45);
+    transform: translateY(-2px);
+    }
+
+    /* ========================================= */
+    /* RESPONSIVE - Mobile et Tablette */
+    /* ========================================= */
+
+    /* Tablette (jusqu'à 1024px) */
+    @media (max-width: 1024px) {
+    .navbar__inner {
+        padding-inline: var(--space-4);
+    }
+
+    .navbar__right {
+        gap: var(--space-4, 16px);
+    }
+
+    .navbar__menu {
+        gap: var(--space-3);
+    }
+
+    .navbar__link {
+        padding: 6px 8px;
+        font-size: 0.9rem;
+    }
+
+    .navbar .button--primary,
+    .navbar .button--ghost {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+    }
+
+    /* Mobile (jusqu'à 768px) */
+    @media (max-width: 768px) {
+    .navbar {
+        position: relative; /* Pour le positionnement du dropdown */
+    }
+
+    .navbar__inner {
+        height: 64px;
+        padding-inline: var(--space-3);
+        position: relative;
+    }
+
+    .navbar__brand-logo {
+        height: 44px;
+        width: auto;
+    }
+
+    /* Cacher le menu desktop et les actions */
+    .navbar__right {
+        display: none;
+    }
+
+    /* Afficher le bouton toggle */
+    .navbar__toggle {
+        display: block;
+    }
+
+    /* Menu mobile visible quand ouvert */
+    .navbar__collapse:not([hidden]) {
+        display: block;
+    }
+    }
+
+    /* Très petit mobile (jusqu'à 480px) */
+    @media (max-width: 480px) {
+    .navbar__inner {
+        height: 56px;
+        padding-inline: var(--space-2);
+    }
+
+    .navbar__brand-logo {
+        height: 48px;
+        width: auto;
+        max-width: 125px;
+    }
+
+    .navbar__brand-text {
+        font-size: 0.95rem;
+    }
+
+    /* Dropdown plus étroit sur très petit écran */
+    .navbar__collapse {
+        width: 260px;
+    }
+    }
+
+    /* Très petit écran (320px) */
+    @media (max-width: 320px) {
+    .navbar__inner {
+        padding-inline: var(--space-2);
+        gap: var(--space-3);
+    }
+
+    .navbar__brand-logo {
+        height: 48px;
+        width: auto;
+        max-width: 125px;
+    }
+
+    .navbar__brand-text {
+        font-size: 0.875rem;
+    }
+
+    .navbar__toggle {
+        padding: 10px 14px;
+        font-size: 1.5rem;
+    }
+
+    /* Dropdown encore plus compact */
+    .navbar__collapse {
+        width: 240px;
+    }
+
+    .navbar__menu--mobile .navbar__link {
+        padding: 14px var(--space-4);
+        font-size: 0.95rem;
+    }
+
+    .navbar__mobile-action {
+        padding-inline: var(--space-3);
+    }
+
+    .navbar__mobile-action .button {
+        padding: 12px var(--space-3);
+        font-size: 0.95rem;
+    }
+    }
 
 }
-/*html example*/
-/*
-
-<header class="navbar">
-  <div class="navbar__inner">
-    <!-- Brand -->
-    /
-      /img/logo-vg.svg
-      <span class="navbar__brand-text">Vite &amp; Gourmand</span>
-    </a>
-
-    <!-- Menu -->
-    <nav class="navbar__nav" aria-label="Navigation principale">
-      <ul class="navbar__menu">
-        <li>/Accueil</a></li>
-        <li>/menusMenu</a></li>
-        <li>/contactContact</a></li>
-      </ul>
-    </nav>
-
-    <!-- Actions -->
-    <div class="navbar__actions">
-      /connexion      /connexionConnexion</a>
-    </div>
-
-    <!-- Mobile toggle -->
-    <button class="navbar__toggle" aria-controls="navMenu" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
-  </div>
-
-  <!-- Collapsible menu for mobile -->
-  <div id="navMenu" class="navbar__collapse" hidden>
-    <ul class="navbar__menu navbar__menu--mobile">
-      <li>/Accueil</a></li>
-      <li>/menusMenu</a></li>
-      <li>/contactContact</a></li>
-      <li class="navbar__mobile-action">
-        /connexionConnexion</a>
-      </li>
-    </ul>
-  </div>
-</header>
-
-*/

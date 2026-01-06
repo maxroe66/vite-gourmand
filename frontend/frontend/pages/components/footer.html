@@ -1,28 +1,28 @@
 <!-- Footer Component -->
 <footer class="footer">
     <div class="footer__inner">
-        <div class="footer__section">
-            <h3>Vite & Gourmand</h3>
-            <p>Restaurant rapide et gourmand</p>
+        <!-- Logo à gauche -->
+        <div class="footer__brand">
+            <a href="/">
+                <img src="/assets/logos/logo.png" alt="Logo Vite & Gourmand" class="footer__logo">
+            </a>
         </div>
-        <div class="footer__section">
-            <h4>Navigation</h4>
-            <ul>
-                <li><a href="/">Accueil</a></li>
-                <li><a href="/menus">Menu</a></li>
-                <li><a href="/contact">Contact</a></li>
-            </ul>
+
+        <!-- Infos au centre -->
+        <div class="footer__center">
+            <p class="footer__info">Horaires: Lun-Dim 9h-19h</p>
+            <p class="footer__info">Contact: <a href="mailto:contact@vite-gourmand.fr" class="footer__link">contact@vite-gourmand.fr</a></p>
         </div>
-        <div class="footer__section">
-            <h4>Légal</h4>
-            <ul>
-                <li><a href="/mentions-legales">Mentions légales</a></li>
-                <li><a href="/cgv">CGV</a></li>
-            </ul>
+
+        <!-- Mentions légales à droite -->
+        <div class="footer__legal">
+            <a href="/mentions-legales" class="footer__link">Mentions légales</a>
         </div>
     </div>
+
+    <!-- Copyright en bas -->
     <div class="footer__bottom">
-        <p>&copy; <span id="currentYear"></span> Vite & Gourmand. Tous droits réservés.</p>
+        <p>&copy; <span id="currentYear"></span> Vite & Gourmand. Tous droits réservés</p>
     </div>
 </footer>
 

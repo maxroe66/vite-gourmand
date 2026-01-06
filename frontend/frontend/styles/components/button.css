@@ -29,6 +29,7 @@
     background: var(--color-primary);
     color: var(--color-text-secondary);
     box-shadow: var(--shadow-100);
+    text-decoration: none;
   }
   .button--primary:hover {
     background: var(--color-primary-600);
@@ -39,6 +40,7 @@
     background: transparent;
     color: var(--color-primary);
     border-color: var(--color-primary);
+    text-decoration: none;
   }
   .button--ghost:hover {
     background: color-mix(in srgb, var(--color-primary) 10%, transparent);
