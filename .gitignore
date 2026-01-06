@@ -4,10 +4,10 @@ DigiCertGlobalRootCA.crt.pem
 test_mysql_connexion.php
 AZURE_CONFIG_CHECKLIST.md
 readme-correction-test.md
+README.env.md
 # Dossiers ignorés
 fichiers_perso/
 plugins/
-images/
 
 # Fichiers ignorés
 package-lock.json

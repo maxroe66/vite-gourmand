@@ -121,7 +121,7 @@
 
 /* Bordure rouge pour les champs invalides */
 input.error {
-    border: 2px solid #dc3545 !important;
+    border: 2px solid #dc3545;
 }
 
 /* Message de succès */
@@ -145,14 +145,14 @@ input.error {
 
 /* Message d'erreur général en haut du formulaire */
 .general-error {
-    background-color: #dc3545 !important;
-    color: white !important;
-    padding: 2rem !important;
-    margin: 1rem 0 !important;
-    border: 5px solid red !important;
-    display: block !important;
-    position: relative !important;
-    z-index: 9999 !important;
+    background-color: #dc3545;
+    color: white;
+    padding: 2rem;
+    margin: 1rem 0;
+    border: 5px solid red;
+    display: block;
+    position: relative;
+    z-index: 9999;
 }
 
 /* Responsive */
@@ -173,5 +173,25 @@ input.error {
 @media (max-width: 768px) {
     .signup-form-wrapper {
         padding: var(--space-4);
+    }
+}
+
+@media (max-width: 480px) {
+    .signup-form {
+        width: 100%;
+    }
+
+    .form-group input {
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .signup-form-wrapper {
+        padding: var(--space-4);
+    }
+
+    .signup-form-wrapper .h1 {
+        font-size: var(--font-500); /* 20px */
+        text-align: center;
     }
 }
