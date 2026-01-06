@@ -31,30 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Charger le footer
     await loadComponent('footer-placeholder', 'footer.html');
     
-    // Initialiser le menu mobile après le chargement du header
-    initMobileMenu();
+    // Dispatcher un event pour signaler que les composants sont chargés
+    document.dispatchEvent(new Event('componentsLoaded'));
 });
-
-// Initialisation du menu mobile
-function initMobileMenu() {
-    const toggle = document.querySelector('.navbar__toggle');
-    const menu = document.getElementById('navMenu');
-
-    if (toggle && menu) {
-        toggle.addEventListener('click', () => {
-            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-            
-            toggle.setAttribute('aria-expanded', !isExpanded);
-            menu.hidden = isExpanded;
-        });
-    }
-
-    // Fermer le menu mobile au clic sur un lien
-    const mobileLinks = menu?.querySelectorAll('a');
-    mobileLinks?.forEach(link => {
-        link.addEventListener('click', () => {
-            menu.hidden = true;
-            toggle?.setAttribute('aria-expanded', 'false');
-        });
-    });
-}
