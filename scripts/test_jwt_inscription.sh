@@ -43,7 +43,7 @@ echo "$BODY" | jq '.' 2>/dev/null || echo "$BODY"
 
 # --- Vérification de l'inscription ---
 if [ "$HTTP_CODE" -ne 201 ]; then
-  echo -e "\n❌ Échec de l'inscription: Le code HTTP attendu était 201, mais reçu $HTTP_CODE."
+  echo -e "\n❌ Échec de l'inscription: Pour l'endpoint /api/auth/register, le code HTTP attendu était 201, mais reçu $HTTP_CODE."
   exit 1
 fi
 echo -e "\n✅ Inscription réussie (Code 201)."
