@@ -3,6 +3,13 @@ namespace App\Services;
 
 class AuthService
 {
+    private $config;
+
+    public function __construct(array $config)
+    {
+        $this->config = $config;
+    }
+
     /**
      * Hash le mot de passe
      * @param string $password
@@ -34,9 +41,8 @@ class AuthService
      */
     public function generateToken(int $userId, string $role): string
     {
-        $config = require __DIR__ . '/../../config/config.php';
-        $secret = $config['jwt']['secret'];
-        $expire = $config['jwt']['expire'];
+        $secret = $this->config['jwt']['secret'];
+        $expire = $this->config['jwt']['expire'];
 
         $payload = [
             'iss' => 'vite-gourmand',  // émetteur

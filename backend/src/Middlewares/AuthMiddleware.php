@@ -6,7 +6,9 @@ use Firebase\JWT\Key;
 
 class AuthMiddleware
 {
-    public static function check()
+    private static $decodedToken = null;
+
+    public static function check(array $config)
     {
         // Vérifier le cookie authToken en priorité
         if (!isset($_COOKIE['authToken'])) {
@@ -22,17 +24,21 @@ class AuthMiddleware
             $token = $_COOKIE['authToken'];
         }
 
-        $config = require __DIR__ . '/../../config/config.php';
         $secret = $config['jwt']['secret'];
 
         try {
             $decoded = JWT::decode($token, new Key($secret, 'HS256'));
-            // stocker l'utilisateur dans une variable globale ou session si besoin
+            self::$decodedToken = $decoded; // Stocker le token décodé
             return $decoded;
         } catch (\Exception $e) {
             http_response_code(401);
             echo json_encode(['error' => 'Token invalide', 'details' => $e->getMessage()]);
             exit;
         }
+    }
+
+    public static function getDecodedToken()
+    {
+        return self::$decodedToken;
     }
 }
