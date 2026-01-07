@@ -29,7 +29,8 @@ $router->post('/auth/register', function ($config) {
         $pdoOptions
     );
 
-    $userService = new \App\Services\UserService($pdo);
+    $userRepository = new \App\Repositories\UserRepository($pdo);
+    $userService = new \App\Services\UserService($userRepository);
     $authService = new \App\Services\AuthService($config);
     $mailerService = new \App\Services\MailerService();
     $logger = \App\Utils\MonologLogger::getLogger();
@@ -85,7 +86,8 @@ $router->get('/auth/check', function ($config) {
 
     // 2. Exécuter la logique du contrôleur si le middleware passe
     $pdo = new \PDO($config['db']['dsn'], $config['db']['user'], $config['db']['pass']);
-    $userService = new \App\Services\UserService($pdo);
+    $userRepository = new \App\Repositories\UserRepository($pdo);
+    $userService = new \App\Services\UserService($userRepository);
     $authService = new \App\Services\AuthService($config);
     $mailerService = new \App\Services\MailerService();
     $logger = \App\Utils\MonologLogger::getLogger();
