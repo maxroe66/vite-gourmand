@@ -1,62 +1,39 @@
 <?php
 // routes.auth.php : routes liées à l'authentification
 
-$router->post('/auth/register', function ($config) {
+use App\Controllers\Auth\AuthController;
+use App\Core\Response;
+use App\Middlewares\AuthMiddleware;
+use Psr\Container\ContainerInterface;
+
+$router->post('/auth/register', function (ContainerInterface $container) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if (!$input) {
-        \App\Core\Response::json([
-            'success' => false,
-            'message' => 'Données invalides'
-        ], 400);
+        Response::json(['success' => false, 'message' => 'Données invalides'], 400);
+        return;
     }
 
-    // Création de la connexion PDO à partir de la config (+ options SSL éventuelles)
-    $pdoOptions = [
-        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-    ];
-
-    if (isset($config['db']['options']) && is_array($config['db']['options'])) {
-        // Les options de config (ex: SSL) prennent le dessus si même clé
-        $pdoOptions = $config['db']['options'] + $pdoOptions;
-    }
-
-    $pdo = new \PDO(
-        $config['db']['dsn'],
-        $config['db']['user'],
-        $config['db']['pass'],
-        $pdoOptions
-    );
-
-    $userRepository = new \App\Repositories\UserRepository($pdo);
-    $userService = new \App\Services\UserService($userRepository);
-    $authService = new \App\Services\AuthService($config);
-    $mailerService = new \App\Services\MailerService();
-    $logger = \App\Utils\MonologLogger::getLogger();
-    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
+    // On récupère le contrôleur directement depuis le conteneur
+    $authController = $container->get(AuthController::class);
 
     $response = $authController->register($input);
-    \App\Core\Response::json($response, $response['success'] ? 201 : 400);
+    Response::json($response, $response['success'] ? 201 : 400);
 });
 
-$router->post('/auth/login', function ($config) {
+$router->post('/auth/login', function (ContainerInterface $container) {
     $input = json_decode(file_get_contents('php://input'), true);
 
     if (!$input) {
-        \App\Core\Response::json([
-            'success' => false,
-            'message' => 'Données invalides'
-        ], 400);
+        Response::json(['success' => false, 'message' => 'Données invalides'], 400);
+        return;
     }
 
     // Fonctionnalité de connexion non encore disponible / non implémentée
-    \App\Core\Response::json([
+    Response::json([
         'success' => false,
         'message' => 'Fonctionnalité de connexion non disponible'
     ], 501); // 501 Not Implemented
-
-    return;
 });
 
 $router->post('/auth/logout', function () {
@@ -74,29 +51,25 @@ $router->post('/auth/logout', function () {
     ]);
 
     // 2. Répondre avec succès
-    \App\Core\Response::json([
+    Response::json([
         'success' => true,
         'message' => 'Déconnexion réussie.'
     ]);
 });
 
-$router->get('/auth/check', function ($config) {
+$router->get('/auth/check', function (ContainerInterface $container) {
     // 1. Appliquer le middleware d'authentification
-    \App\Middlewares\AuthMiddleware::check($config);
+    // Le middleware a besoin de la config, on la récupère depuis le conteneur
+    AuthMiddleware::check($container->get('config'));
 
     // 2. Exécuter la logique du contrôleur si le middleware passe
-    $pdo = new \PDO($config['db']['dsn'], $config['db']['user'], $config['db']['pass']);
-    $userRepository = new \App\Repositories\UserRepository($pdo);
-    $userService = new \App\Services\UserService($userRepository);
-    $authService = new \App\Services\AuthService($config);
-    $mailerService = new \App\Services\MailerService();
-    $logger = \App\Utils\MonologLogger::getLogger();
-    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
+    $authController = $container->get(AuthController::class);
 
     $response = $authController->checkAuth();
-    \App\Core\Response::json($response); // Envoyer la réponse JSON
+    Response::json($response); // Envoyer la réponse JSON
 });
 
 $router->get('/auth/test', function () {
     return ['message' => 'API Auth OK'];
 });
+
