@@ -30,13 +30,62 @@ $router->post('/auth/register', function ($config) {
     );
 
     $userService = new \App\Services\UserService($pdo);
-    $authService = new \App\Services\AuthService();
+    $authService = new \App\Services\AuthService($config);
     $mailerService = new \App\Services\MailerService();
     $logger = \App\Utils\MonologLogger::getLogger();
-    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger);
+    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
 
     $response = $authController->register($input);
     \App\Core\Response::json($response, $response['success'] ? 201 : 400);
+});
+
+$router->post('/auth/login', function ($config) {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (!$input) {
+        \App\Core\Response::json([
+            'success' => false,
+            'message' => 'Données invalides'
+        ], 400);
+    }
+
+    // Dépendances
+    $pdo = new \PDO($config['db']['dsn'], $config['db']['user'], $config['db']['pass']);
+    $userService = new \App\Services\UserService($pdo);
+    $authService = new \App\Services\AuthService($config);
+    $mailerService = new \App\Services\MailerService();
+    $logger = \App\Utils\MonologLogger::getLogger();
+    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
+
+    return $authController->login($input);
+});
+
+$router->post('/auth/logout', function ($config) {
+    // Dépendances
+    $pdo = new \PDO($config['db']['dsn'], $config['db']['user'], $config['db']['pass']);
+    $userService = new \App\Services\UserService($pdo);
+    $authService = new \App\Services\AuthService($config);
+    $mailerService = new \App\Services\MailerService();
+    $logger = \App\Utils\MonologLogger::getLogger();
+    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
+
+    return $authController->logout();
+});
+
+$router->get('/auth/check', function ($config) {
+    // 1. Appliquer le middleware d'authentification
+    \App\Middlewares\AuthMiddleware::check($config);
+
+    // 2. Exécuter la logique du contrôleur si le middleware passe
+    $pdo = new \PDO($config['db']['dsn'], $config['db']['user'], $config['db']['pass']);
+    $userService = new \App\Services\UserService($pdo);
+    $authService = new \App\Services\AuthService($config);
+    $mailerService = new \App\Services\MailerService();
+    $logger = \App\Utils\MonologLogger::getLogger();
+    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
+
+    $response = $authController->checkAuth();
+    \App\Core\Response::json($response); // Envoyer la réponse JSON
 });
 
 $router->get('/auth/test', function () {
