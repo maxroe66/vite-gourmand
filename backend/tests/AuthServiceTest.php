@@ -11,7 +11,8 @@ class AuthServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->authService = new AuthService();
+        $config = require __DIR__ . '/../config/config.php';
+        $this->authService = new AuthService($config);
     }
 
     public function testGenerateToken(): void
