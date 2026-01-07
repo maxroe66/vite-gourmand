@@ -175,6 +175,9 @@ jobs:
             --timeout-request 10000 \
             --delay-request 200
 
+      - name: Run JWT end-to-end test
+        run: bash scripts/test_jwt_inscription.sh
+
       - name: Stop PHP server
         if: always()
         run: |

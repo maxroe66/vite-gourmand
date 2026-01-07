@@ -13,17 +13,20 @@ class AuthController
     private $authService;
     private $mailerService;
     private $logger;
+    private $config;
 
     public function __construct(
         UserService $userService,
         AuthService $authService,
         MailerService $mailerService,
-        Logger $logger
+        Logger $logger,
+        array $config
     ) {
         $this->userService = $userService;
         $this->authService = $authService;
         $this->mailerService = $mailerService;
         $this->logger = $logger;
+        $this->config = $config;
     }
 
     /**
@@ -73,14 +76,12 @@ class AuthController
         $token = $this->authService->generateToken($userId, $role);
 
         // 5. Envoi du JWT dans un cookie httpOnly (sécurisé)
-        $config = require __DIR__ . '/../../../config/config.php';
         $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
-        $expire = time() + ($config['jwt']['expire'] ?? 3600);
+        $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
         
         setcookie('authToken', $token, [
             'expires' => $expire,
             'path' => '/',
-            'domain' => '',
             'secure' => $isSecure,      // HTTPS uniquement en production
             'httponly' => true,         // Inaccessible en JavaScript
             'samesite' => 'Lax'        // Protection CSRF
@@ -105,9 +106,52 @@ class AuthController
             'success' => true,
             'userId' => $userId,
             'emailSent' => true,
-            'message' => 'Inscription réussie. Email de bienvenue envoyé.'
+            'message' => 'Inscription réussie et email de bienvenue envoyé.'
         ];
     }
 
-    // D'autres méthodes (login, logout...) pourront être ajoutées ici
+    public function login(array $data): array
+    {
+        // ... (logique de connexion existante)
+    }
+
+    public function logout(): array
+    {
+        // 1. Invalider le cookie en le supprimant
+        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+
+        setcookie('authToken', '', [
+            'expires' => time() - 3600, // Expiré dans le passé
+            'path' => '/',
+            'secure' => $isSecure,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+
+        // 2. Répondre avec succès
+        return [
+            'success' => true,
+            'message' => 'Déconnexion réussie.'
+        ];
+    }
+
+    public function checkAuth(): array
+    {
+        // Le middleware a déjà fait la vérification. Si on arrive ici, le token est valide.
+        // On récupère les données du token décodé par le middleware.
+        $decodedToken = \App\Middlewares\AuthMiddleware::getDecodedToken();
+
+        if ($decodedToken) {
+            return [
+                'isAuthenticated' => true,
+                'user' => [
+                    'id' => $decodedToken->sub, // 'sub' est le standard pour l'ID utilisateur
+                    'role' => $decodedToken->role
+                ]
+            ];
+        }
+
+        // Ce cas ne devrait pas arriver si le middleware est bien configuré sur la route
+        return ['isAuthenticated' => false];
+    }
 }

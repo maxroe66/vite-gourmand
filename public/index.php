@@ -27,7 +27,8 @@ require_once __DIR__ . '/../backend/vendor/autoload.php';
 $config = require __DIR__ . '/../backend/config/config.php';
 
 // 2) Headers globaux (CORS)
-header('Access-Control-Allow-Origin: *'); // À adapter selon l'URL du front
+header('Access-Control-Allow-Origin: http://localhost:8000'); // URL du frontend via Docker
+header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 // Note: Content-Type sera défini selon le contexte (JSON pour API, HTML pour pages)

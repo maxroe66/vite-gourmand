@@ -9,14 +9,19 @@ const AuthService = {
      */
     async logout() {
         try {
-            await fetch('/api/auth/logout', {
+            const response = await fetch('/api/auth/logout', {
                 method: 'POST',
-                credentials: 'include'  // Envoie le cookie
+                credentials: 'include' // Envoie le cookie
             });
-            // Redirection après déconnexion
-            window.location.href = '/';
+            if (!response.ok) {
+                throw new Error(`Le serveur a répondu avec le statut ${response.status}`);
+            }
         } catch (error) {
             console.error('Erreur lors de la déconnexion:', error);
+            alert("Une erreur est survenue lors de la déconnexion. Votre session n'a peut-être pas été correctement terminée côté serveur. Vous allez être redirigé.");
+        } finally {
+            // Dans tous les cas, on redirige l'utilisateur pour qu'il quitte la zone authentifiée
+            window.location.href = '/';
         }
     },
 
@@ -52,7 +57,4 @@ const AuthService = {
     }
 };
 
-// Export pour utilisation dans d'autres fichiers
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AuthService;
-}
+// L'objet AuthService est directement disponible pour les autres scripts inclus dans la page.
