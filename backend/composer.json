@@ -25,7 +25,7 @@
         "friendsofphp/php-cs-fixer": "^3.58"
     },
     "scripts": {
-        "lint": "php-cs-fixer fix --dry-run --diff",
-        "fix": "php-cs-fixer fix"
+        "lint": "php-cs-fixer fix --dry-run --diff --allow-risky=yes",
+        "fix": "php-cs-fixer fix --allow-risky=yes"
     }
 }
