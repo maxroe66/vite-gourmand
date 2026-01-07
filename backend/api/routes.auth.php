@@ -58,16 +58,25 @@ $router->post('/auth/login', function ($config) {
     return;
 });
 
-$router->post('/auth/logout', function ($config) {
-    // Dépendances
-    $pdo = new \PDO($config['db']['dsn'], $config['db']['user'], $config['db']['pass']);
-    $userService = new \App\Services\UserService($pdo);
-    $authService = new \App\Services\AuthService($config);
-    $mailerService = new \App\Services\MailerService();
-    $logger = \App\Utils\MonologLogger::getLogger();
-    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
+$router->post('/auth/logout', function () {
+    // La déconnexion ne nécessite aucune dépendance, juste la manipulation du cookie.
+    
+    // 1. Invalider le cookie en le supprimant
+    $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
-    return $authController->logout();
+    setcookie('authToken', '', [
+        'expires' => time() - 3600, // Expiré dans le passé
+        'path' => '/',
+        'secure' => $isSecure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
+    // 2. Répondre avec succès
+    \App\Core\Response::json([
+        'success' => true,
+        'message' => 'Déconnexion réussie.'
+    ]);
 });
 
 $router->get('/auth/check', function ($config) {
