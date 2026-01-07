@@ -20,12 +20,13 @@ error_reporting(E_ALL);
 
 use App\Core\Response;
 use App\Core\Router;
-use App\Utils\MonologLogger;
+use Psr\Log\LoggerInterface;
 
-// 4) Conteneur d'injection de dépendances (DI)
-// La variable $config est requise dans le scope global pour être accessible par le conteneur
+// 4) Configuration et Conteneur d'injection de dépendances (DI)
 $config = require __DIR__ . '/../backend/config/config.php';
-$container = require __DIR__ . '/../backend/config/container.php';
+// On récupère la fonction de création du conteneur et on l'appelle avec la config.
+$createContainer = require __DIR__ . '/../backend/config/container.php';
+$container = $createContainer($config);
 
 // 5) Headers globaux (CORS)
 $allowedOrigin = $_ENV['FRONTEND_ORIGIN'] ?? getenv('FRONTEND_ORIGIN') ?? 'http://localhost:8000';
@@ -78,7 +79,8 @@ try {
 
 } catch (\Exception $e) {
     // Gestion centralisée des erreurs non capturées
-    $logger = MonologLogger::getLogger();
+    // On récupère le logger depuis le conteneur pour logger l'erreur.
+    $logger = $container->get(LoggerInterface::class);
     $logger->error("Erreur non capturée: " . $e->getMessage(), [
         'exception' => $e,
         'trace' => $e->getTraceAsString()

@@ -2,80 +2,73 @@
 
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
-// Import des classes nécessaires
-use App\Repositories\UserRepository;
-use App\Services\UserService;
-use App\Services\AuthService;
-use App\Services\MailerService;
-use App\Controllers\Auth\AuthController;
-use App\Utils\MonologLogger;
+use Psr\Log\LoggerInterface;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
-$containerBuilder = new ContainerBuilder();
+// Ce fichier retourne une FONCTION qui prend la config en paramètre.
+// Cela supprime le besoin d'une variable globale.
+return function (array $config): ContainerInterface {
+    $containerBuilder = new ContainerBuilder();
 
-// Ajout des définitions de dépendances
-$containerBuilder->addDefinitions([
+    // Active l'autowiring (recommandé).
+    // PHP-DI va automatiquement instancier les classes et leurs dépendances.
+    $containerBuilder->useAutowiring(true);
 
-    // 1. Définition pour la configuration globale
-    'config' => function () {
-        // La variable $config est injectée depuis index.php
-        global $config;
-        return $config;
-    },
+    $containerBuilder->addDefinitions([
+        // 1. On définit comment le conteneur peut accéder à la configuration.
+        // N'importe quelle classe qui type-hint "array $config" dans son constructeur
+        // ne le recevra PAS automatiquement. L'injection doit être explicite.
+        'config' => $config,
 
-    // 2. Définition pour la connexion PDO
-    PDO::class => function (ContainerInterface $c) {
-        $config = $c->get('config')['db'];
+        // 2. Définitions explicites pour les classes qui dépendent du tableau $config.
+        // Sans cela, PHP-DI ne sait pas comment injecter un scalaire comme un tableau.
+        App\Controllers\Auth\AuthController::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
 
-        $pdoOptions = [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-        ];
+        App\Middlewares\AuthMiddleware::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
 
-        if (isset($config['options']) && is_array($config['options'])) {
-            $pdoOptions = $config['options'] + $pdoOptions;
-        }
+        App\Services\AuthService::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
 
-        return new \PDO(
-            $config['dsn'],
-            $config['user'],
-            $config['pass'],
-            $pdoOptions
-        );
-    },
+        // 3. Définition pour la connexion PDO (nécessite une configuration manuelle).
+        PDO::class => function (ContainerInterface $c) {
+            $dbConfig = $c->get('config')['db'];
 
-    // 3. Définitions pour les Repositories (dépend de PDO)
-    UserRepository::class => function (ContainerInterface $c) {
-        return new UserRepository($c->get(PDO::class));
-    },
+            $pdoOptions = [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            ];
 
-    // 4. Définitions pour les Services
-    UserService::class => function (ContainerInterface $c) {
-        return new UserService($c->get(UserRepository::class));
-    },
-    AuthService::class => function (ContainerInterface $c) {
-        return new AuthService($c->get('config'));
-    },
-    MailerService::class => function () {
-        // MailerService n'a pas de dépendance dans son constructeur
-        return new MailerService();
-    },
-    MonologLogger::class => function () {
-        // Le logger est obtenu via une méthode statique
-        return MonologLogger::getLogger();
-    },
+            if (isset($dbConfig['options']) && is_array($dbConfig['options'])) {
+                $pdoOptions = $dbConfig['options'] + $pdoOptions;
+            }
 
-    // 5. Définition pour le Contrôleur (dépend des services)
-    AuthController::class => function (ContainerInterface $c) {
-        return new AuthController(
-            $c->get(UserService::class),
-            $c->get(AuthService::class),
-            $c->get(MailerService::class),
-            $c->get(MonologLogger::class), // Utilise la définition du logger
-            $c->get('config')
-        );
-    },
+            return new \PDO(
+                $dbConfig['dsn'],
+                $dbConfig['user'],
+                $dbConfig['pass'],
+                $pdoOptions
+            );
+        },
 
-]);
+        // 4. Définition pour le Logger (PSR-3).
+        // On lie l'interface standard à notre implémentation Monolog.
+        LoggerInterface::class => function (ContainerInterface $c) {
+            $logFile = getenv('LOG_FILE');
+            if ($logFile === false || trim($logFile) === '') {
+                $logFile = '/tmp/app.log';
+            }
+            
+            $logger = new Logger('ViteEtGourmand');
+            $logger->pushHandler(new StreamHandler($logFile, Logger::DEBUG));
+            return $logger;
+        },
 
-// Construire le conteneur
-return $containerBuilder->build();
+        // Les autres classes sont autowirées sans problème car elles dépendent
+        // d'interfaces (LoggerInterface) ou d'autres classes (UserRepository, etc.).
+    ]);
+
+    return $containerBuilder->build();
+};

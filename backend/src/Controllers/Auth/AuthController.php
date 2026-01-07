@@ -5,22 +5,22 @@ namespace App\Controllers\Auth;
 use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\MailerService;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use App\Validators\UserValidator;
 
 class AuthController
 {
-    private $userService;
-    private $authService;
-    private $mailerService;
-    private $logger;
-    private $config;
+    private UserService $userService;
+    private AuthService $authService;
+    private MailerService $mailerService;
+    private LoggerInterface $logger;
+    private array $config;
 
     public function __construct(
         UserService $userService,
         AuthService $authService,
         MailerService $mailerService,
-        Logger $logger,
+        LoggerInterface $logger,
         array $config
     ) {
         $this->userService = $userService;
