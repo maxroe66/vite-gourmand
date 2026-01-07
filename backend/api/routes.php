@@ -1,4 +1,5 @@
 <?php
+
 require __DIR__ . '/routes.auth.php';
 require __DIR__ . '/routes.menus.php';
 require __DIR__ . '/routes.commandes.php';

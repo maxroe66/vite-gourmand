@@ -1,14 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
-MYSQL_USER="root"
-MYSQL_PASS="root"
-MYSQL_DB_NAME="vite_gourmand_test"
+# Utilise les variables d'environnement si elles existent, sinon valeurs par défaut
+MYSQL_USER="${DB_USER:-root}"
+MYSQL_PASS="${DB_PASSWORD:-root}"
+MYSQL_DB_NAME="${DB_NAME:-vite_gourmand_test}"
 MYSQL_CONTAINER="vite-mysql-test"
 
-MONGO_USER="root"
-MONGO_PASS="root"
-MONGO_DB_NAME="vite_gourmand_test"
+MONGO_USER="${MONGO_USER:-root}"
+MONGO_PASS="${MONGO_PASSWORD:-root}"
+MONGO_DB_NAME="${MONGO_DB:-vite_gourmand_test}"
 MONGO_CONTAINER="vite-mongodb-test"
 
 echo "=== Reset des bases de données de test ==="

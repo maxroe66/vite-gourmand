@@ -22,3 +22,7 @@ docker-up.sh
 
 # Composer
 backend/vendor/
+
+# Caches d'outils
+backend/.php-cs-fixer.cache
+backend/.phpunit.result.cache

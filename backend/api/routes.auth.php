@@ -1,4 +1,5 @@
 <?php
+
 // routes.auth.php : routes liées à l'authentification
 
 use App\Controllers\Auth\AuthController;
@@ -38,7 +39,7 @@ $router->post('/auth/login', function (ContainerInterface $container) {
 
 $router->post('/auth/logout', function () {
     // La déconnexion ne nécessite aucune dépendance, juste la manipulation du cookie.
-    
+
     // 1. Invalider le cookie en le supprimant
     $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
@@ -72,4 +73,3 @@ $router->get('/auth/check', function (ContainerInterface $container) {
 $router->get('/auth/test', function () {
     return ['message' => 'API Auth OK'];
 });
-
