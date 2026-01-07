@@ -18,10 +18,9 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # CA pour Azure MySQL (TLS)
-# On utilise --insecure uniquement pour le téléchargement initial du CA, puis update-ca-certificates
+# On copie le certificat localement pour éviter les problèmes de handshake TLS avec curl
+COPY docker/certs/DigiCertGlobalRootCA.crt.pem /etc/ssl/azure/DigiCertGlobalRootCA.crt.pem
 RUN mkdir -p /etc/ssl/azure \
- && curl -fsSL --insecure "https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem" \
-   -o /etc/ssl/azure/DigiCertGlobalRootCA.crt.pem \
  && update-ca-certificates
 
 # Activer les modules Apache nécessaires
