@@ -121,6 +121,19 @@ $mailUser = $env('MAIL_USERNAME') ?? $env('MAIL_USER') ?? '';
 $mailPass = $env('MAIL_PASSWORD') ?? $env('MAIL_PASS') ?? '';
 $mailFrom = $env('MAIL_FROM_ADDRESS') ?? $env('MAIL_FROM') ?? '';
 
+/**
+ * JWT
+ * - JWT_SECRET: secret for signing tokens
+ */
+$jwtSecret = $env('JWT_SECRET');
+if (empty($jwtSecret) || $jwtSecret === '<placeholder>') {
+    if ($appEnv === 'production') {
+        throw new \RuntimeException('FATAL: JWT_SECRET is not defined in the environment.');
+    }
+    // For non-production environments, use a default insecure key.
+    $jwtSecret = 'default-dev-secret-do-not-use-in-prod';
+}
+
 return [
     'db' => [
         'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
@@ -133,7 +146,7 @@ return [
         'database' => $mongoDb,
     ],
     'jwt' => [
-        'secret' => $env('JWT_SECRET', '<placeholder>') ?? '<placeholder>',
+        'secret' => $jwtSecret,
         'algo'   => 'HS256',
         'expire' => 3600,
     ],
