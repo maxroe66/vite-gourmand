@@ -51,10 +51,6 @@ $router = new Router();
 // Les routes API sont préfixées par /api
 $router->addGroup('/api', function ($router) use ($container) {
     require __DIR__ . '/../backend/api/routes.php';
-    require __DIR__ . '/../backend/api/routes.auth.php';
-    require __DIR__ . '/../backend/api/routes.menus.php';
-    require __DIR__ . '/../backend/api/routes.commandes.php';
-    require __DIR__ . '/../backend/api/routes.avis.php';
 });
 
 // Les routes "pages" qui servent du HTML statique
