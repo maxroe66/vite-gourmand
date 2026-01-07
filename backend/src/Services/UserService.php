@@ -1,18 +1,19 @@
 <?php
 namespace App\Services;
 
-use App\Models\User;
 use App\Exceptions\UserServiceException;
-require_once __DIR__ . '/../Models/User.php';
+use App\Repositories\UserRepository;
+use PDOException;
 
 class UserService
 {
-    private ?\PDO $pdo = null;
+    private UserRepository $userRepository;
 
-    public function __construct(?\PDO $pdo = null)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->pdo = $pdo;
+        $this->userRepository = $userRepository;
     }
+
     /**
      * Crée un nouvel utilisateur
      * @param array $data
@@ -21,46 +22,21 @@ class UserService
      */
     public function createUser(array $data): int
     {
-        $user = new User($data);
         try {
-            $pdo = $this->getConnection();
-            // Vérifier si l'email existe déjà
-            $stmt = $pdo->prepare('SELECT id_utilisateur FROM UTILISATEUR WHERE email = :email');
-            $stmt->execute(['email' => $user->email]);
-            if ($stmt->fetch()) {
+            // Vérifier si l'email existe déjà en utilisant le Repository
+            if ($this->userRepository->findByEmail($data['email'])) {
                 throw UserServiceException::emailExists();
             }
-            // Insertion
-            $stmt = $pdo->prepare('INSERT INTO UTILISATEUR (email, prenom, nom, gsm, adresse_postale, ville, code_postal, mot_de_passe, role) VALUES (:email, :prenom, :nom, :gsm, :adresse_postale, :ville, :code_postal, :mot_de_passe, :role)');
-            $stmt->execute([
-                'email' => $user->email,
-                'prenom' => $user->prenom,
-                'nom' => $user->nom,
-                'gsm' => $user->gsm,
-                'adresse_postale' => $user->adresse_postale,
-                'ville' => $user->ville,
-                'code_postal' => $user->code_postal,
-                'mot_de_passe' => $user->mot_de_passe,
-                'role' => $user->role
-            ]);
-            return (int)$pdo->lastInsertId();
-        } catch (UserServiceException $e) {
-            throw $e;
-        } catch (\PDOException $e) {
-            \App\Utils\MonologLogger::getLogger()->error('Erreur PDO lors de la création utilisateur', [
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw UserServiceException::dbError();
-        }
-    }
 
-    private function getConnection(): \PDO
-    {
-        if ($this->pdo === null) {
-            throw new \RuntimeException('Aucune connexion PDO n\'a été fournie à UserService.');
+            // Appeler le Repository pour créer l'utilisateur
+            return $this->userRepository->create($data);
+
+        } catch (PDOException $e) {
+            // Log l'erreur PDO et relance une exception de service
+            \App\Utils\MonologLogger::getLogger()->error('Erreur PDO lors de la création utilisateur', [
+                'error' => $e->getMessage()
+            ]);
+            throw new UserServiceException('Erreur de base de données lors de la création de l\'utilisateur.');
         }
-        return $this->pdo;
     }
 }

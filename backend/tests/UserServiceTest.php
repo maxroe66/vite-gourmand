@@ -1,56 +1,39 @@
 <?php
 use PHPUnit\Framework\TestCase;
 use App\Services\UserService;
+use App\Repositories\UserRepository;
 use App\Exceptions\UserServiceException;
 
 class UserServiceTest extends TestCase
 {
-    private $userService;
-
-    protected function setUp(): void
-    {
-        // L'instance sera créée dans chaque test avec le mock PDO
-    }
-
     public function testCreateUserReturnsUserIdOnSuccess()
     {
         $userData = [
             'email' => 'test@example.com',
-            'firstName' => 'Test',
-            'lastName' => 'User',
-            'phone' => '0600000000',
-            'address' => '1 rue du test',
-            'city' => 'Testville',
-            'postalCode' => '12345',
             'passwordHash' => 'hashedpassword',
-            'role' => 'client'
+            // ... autres données utilisateur
         ];
 
-        $pdo = $this->createMock(\PDO::class);
-        $stmt1 = $this->createMock(\PDOStatement::class);
-        $stmt2 = $this->createMock(\PDOStatement::class);
+        // 1. Créer un mock du UserRepository
+        $userRepositoryMock = $this->createMock(UserRepository::class);
 
-        // Premier prepare : vérification email
-        $stmt1->method('execute')->with(['email' => $userData['email']])->willReturn(true);
-        $stmt1->method('fetch')->willReturn(false);
+        // 2. Définir le comportement attendu du mock
+        // On s'attend à ce que findByEmail soit appelé avec le bon email et retourne `false` (l'utilisateur n'existe pas)
+        $userRepositoryMock->expects($this->once())
+            ->method('findByEmail')
+            ->with($this->equalTo('test@example.com'))
+            ->willReturn(false);
 
-        // Second prepare : insertion
-        $stmt2->method('execute')->with([
-            'email' => $userData['email'],
-            'prenom' => $userData['firstName'],
-            'nom' => $userData['lastName'],
-            'gsm' => $userData['phone'],
-            'adresse_postale' => $userData['address'],
-            'ville' => $userData['city'],
-            'code_postal' => $userData['postalCode'],
-            'mot_de_passe' => $userData['passwordHash'],
-            'role' => $userData['role']
-        ])->willReturn(true);
+        // On s'attend à ce que `create` soit appelé avec les données utilisateur et retourne un ID
+        $userRepositoryMock->expects($this->once())
+            ->method('create')
+            ->with($this->equalTo($userData))
+            ->willReturn(42);
 
-        $pdo->method('prepare')->willReturnOnConsecutiveCalls($stmt1, $stmt2);
-        $pdo->method('lastInsertId')->willReturn('42');
+        // 3. Instancier le service avec le mock
+        $userService = new UserService($userRepositoryMock);
 
-        $userService = new \App\Services\UserService($pdo);
+        // 4. Appeler la méthode à tester et vérifier le résultat
         $userId = $userService->createUser($userData);
         $this->assertEquals(42, $userId);
     }
@@ -59,36 +42,30 @@ class UserServiceTest extends TestCase
     {
         $userData = [
             'email' => 'exists@example.com',
-            'firstName' => 'Test',
-            'lastName' => 'User',
-            'phone' => '0600000000',
-            'address' => '1 rue du test',
-            'city' => 'Testville',
-            'postalCode' => '12345',
             'passwordHash' => 'hashedpassword',
-            'role' => 'client'
+            // ... autres données utilisateur
         ];
 
-        $pdo = $this->createMock(\PDO::class);
-        $stmt = $this->createMock(\PDOStatement::class);
+        // 1. Créer un mock du UserRepository
+        $userRepositoryMock = $this->createMock(UserRepository::class);
 
-        $stmt->method('execute')->with(['email' => $userData['email']])->willReturn(true);
-        $stmt->method('fetch')->willReturn([
-            'id_utilisateur' => 1,
-            'email' => $userData['email'],
-            'prenom' => $userData['firstName'],
-            'nom' => $userData['lastName'],
-            'gsm' => $userData['phone'],
-            'adresse_postale' => $userData['address'],
-            'ville' => $userData['city'],
-            'code_postal' => $userData['postalCode'],
-            'mot_de_passe' => $userData['passwordHash'],
-            'role' => $userData['role']
-        ]);
+        // 2. Définir le comportement attendu du mock
+        // On s'attend à ce que findByEmail retourne une valeur "vraie" (ex: un tableau)
+        $userRepositoryMock->expects($this->once())
+            ->method('findByEmail')
+            ->with($this->equalTo('exists@example.com'))
+            ->willReturn(['id_utilisateur' => 1]); // Simule un utilisateur trouvé
 
-        $pdo->method('prepare')->willReturn($stmt);
-        $userService = new \App\Services\UserService($pdo);
+        // On s'attend à ce que la méthode `create` ne soit JAMAIS appelée
+        $userRepositoryMock->expects($this->never())
+            ->method('create');
+
+        // 3. S'attendre à une exception
         $this->expectException(UserServiceException::class);
+        $this->expectExceptionMessage('Cet email est déjà utilisé.');
+
+        // 4. Instancier le service et appeler la méthode
+        $userService = new UserService($userRepositoryMock);
         $userService->createUser($userData);
     }
 }
