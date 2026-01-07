@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Auth;
 
 use App\Services\UserService;
@@ -78,7 +79,7 @@ class AuthController
         // 5. Envoi du JWT dans un cookie httpOnly (sécurisé)
         $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
         $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
-        
+
         setcookie('authToken', $token, [
             'expires' => $expire,
             'path' => '/',

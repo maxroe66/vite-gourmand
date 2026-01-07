@@ -1,4 +1,5 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 use App\Services\UserService;
 use App\Repositories\UserRepository;

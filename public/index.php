@@ -44,45 +44,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// 8) Service des fichiers statiques
-$staticExtensions = ['.css', '.js', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.html'];
-foreach ($staticExtensions as $ext) {
-    if (str_ends_with($path, $ext)) {
-        $filePath = __DIR__ . $path;
-        if (file_exists($filePath)) {
-            $contentType = match(pathinfo($filePath, PATHINFO_EXTENSION)) {
-                'css' => 'text/css',
-                'js' => 'application/javascript',
-                'jpg', 'jpeg' => 'image/jpeg',
-                'png' => 'image/png',
-                'gif' => 'image/gif',
-                'svg' => 'image/svg+xml',
-                'ico' => 'image/x-icon',
-                'woff' => 'font/woff',
-                'woff2' => 'font/woff2',
-                'ttf' => 'font/ttf',
-                'eot' => 'application/vnd.ms-fontobject',
-                'html' => 'text/html',
-                default => 'application/octet-stream',
-            };
-            header('Content-Type: ' . $contentType);
-            readfile($filePath);
-            exit;
-        }
-    }
-}
-
-// 9) Initialisation du routeur
+// 8) Initialisation du routeur
 $router = new Router();
 
-// 10) Chargement des définitions de routes
+// 9) Chargement des définitions de routes
 // Les routes API sont préfixées par /api
 $router->addGroup('/api', function ($router) use ($container) {
     require __DIR__ . '/../backend/api/routes.php';
-    require __DIR__ . '/../backend/api/routes.auth.php';
-    require __DIR__ . '/../backend/api/routes.menus.php';
-    require __DIR__ . '/../backend/api/routes.commandes.php';
-    require __DIR__ . '/../backend/api/routes.avis.php';
 });
 
 // Les routes "pages" qui servent du HTML statique
@@ -103,7 +71,7 @@ if ($method === 'GET') {
 }
 
 
-// 11) Dispatching de la requête
+// 10) Dispatching de la requête
 try {
     // Le routeur trouve la bonne route et exécute le handler associé
     $router->dispatch($method, $path, $container);
