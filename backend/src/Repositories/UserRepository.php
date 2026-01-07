@@ -36,7 +36,7 @@ class UserRepository
             'INSERT INTO UTILISATEUR (email, prenom, nom, gsm, adresse_postale, ville, code_postal, mot_de_passe, role) 
              VALUES (:email, :prenom, :nom, :gsm, :adresse_postale, :ville, :code_postal, :mot_de_passe, :role)'
         );
-        
+
         $stmt->execute([
             'email' => $data['email'],
             'prenom' => $data['firstName'],

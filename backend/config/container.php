@@ -2,7 +2,6 @@
 
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
-
 // Import des classes nécessaires
 use App\Repositories\UserRepository;
 use App\Services\UserService;
