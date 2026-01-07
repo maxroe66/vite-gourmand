@@ -49,15 +49,13 @@ $router->post('/auth/login', function ($config) {
         ], 400);
     }
 
-    // Dépendances
-    $pdo = new \PDO($config['db']['dsn'], $config['db']['user'], $config['db']['pass']);
-    $userService = new \App\Services\UserService($pdo);
-    $authService = new \App\Services\AuthService($config);
-    $mailerService = new \App\Services\MailerService();
-    $logger = \App\Utils\MonologLogger::getLogger();
-    $authController = new \App\Controllers\Auth\AuthController($userService, $authService, $mailerService, $logger, $config);
+    // Fonctionnalité de connexion non encore disponible / non implémentée
+    \App\Core\Response::json([
+        'success' => false,
+        'message' => 'Fonctionnalité de connexion non disponible'
+    ], 501); // 501 Not Implemented
 
-    return $authController->login($input);
+    return;
 });
 
 $router->post('/auth/logout', function ($config) {
