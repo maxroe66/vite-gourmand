@@ -44,14 +44,17 @@ class Router
 
     public function dispatch(string $method, string $path, ContainerInterface $container): void
     {
-        $handler = $this->routes[$method][$path] ?? null;
-
-        if ($handler === null) {
-            Response::json(['success' => false, 'message' => 'Route non trouvée'], 404);
-            return;
+        foreach ($this->routes[$method] as $routePath => $handler) {
+            $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[a-zA-Z0-9_]+)', $routePath);
+            if (preg_match("#^$pattern$#", $path, $matches)) {
+                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                
+                // Le conteneur et les paramètres sont maintenant passés en argument au handler
+                $handler($container, $params);
+                return;
+            }
         }
 
-        // Le conteneur est maintenant passé en argument au handler de la route
-        $handler($container);
+        Response::json(['success' => false, 'message' => 'Route non trouvée'], 404);
     }
 }
