@@ -3,10 +3,7 @@
 # Usage : ./scripts/test_backend.sh
 set -euo pipefail
 
-# 1) Reset base de test
-./scripts/reset_test_db.sh
-
-# 2) Variables d'environnement TEST
+# 1) Variables d'environnement TEST
 export APP_ENV=test
 export APP_DEBUG=false
 export ENV=test
@@ -29,6 +26,9 @@ export MONGO_PASSWORD=root
 export MONGO_USER=root
 export MONGO_PASS=root
 export MONGO_URI="mongodb://root:root@127.0.0.1:27018/vite_gourmand_test?authSource=admin"
+
+# 2) Reset base de test
+./scripts/reset_test_db.sh
 
 # 3) Tests unitaires PHPUnit
 (
