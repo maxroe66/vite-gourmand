@@ -1,19 +1,19 @@
 <?php
 declare(strict_types=1);
 
-// Chargement de l'autoloader Composer
+// 1) Chargement de l'autoloader Composer (DOIT ÊTRE EN PREMIER)
 require_once __DIR__ . '/../backend/vendor/autoload.php';
 
-// Chargement automatique du .env (local/dev)
+// 2) Chargement des variables d'environnement
 if (file_exists(__DIR__ . '/../.env.azure')) {
-    // Utilise le .env.azure si présent
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.azure');
     $dotenv->load();
 } elseif (file_exists(__DIR__ . '/../.env')) {
-    // Sinon fallback sur .env classique
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
     $dotenv->load();
 }
+
+// 3) Configuration des erreurs pour le développement
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -22,106 +22,103 @@ use App\Core\Response;
 use App\Core\Router;
 use App\Utils\MonologLogger;
 
-// 1) Autoload + config
-require_once __DIR__ . '/../backend/vendor/autoload.php';
+// 4) Conteneur d'injection de dépendances (DI)
+// La variable $config est requise dans le scope global pour être accessible par le conteneur
 $config = require __DIR__ . '/../backend/config/config.php';
+$container = require __DIR__ . '/../backend/config/container.php';
 
-// 2) Headers globaux (CORS)
+// 5) Headers globaux (CORS)
 $allowedOrigin = $_ENV['FRONTEND_ORIGIN'] ?? getenv('FRONTEND_ORIGIN') ?? 'http://localhost:8000';
-header('Access-Control-Allow-Origin: ' . $allowedOrigin); // URL du frontend (configurable via FRONDEND_ORIGIN, défaut: localhost:8000)
+header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
-// Note: Content-Type sera défini selon le contexte (JSON pour API, HTML pour pages)
 
-// 3) OPTIONS (préflight CORS)
+// 6) Réponse pour les requêtes OPTIONS (pré-vérification CORS)
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     http_response_code(204);
     exit;
 }
 
-// 4) Méthode + chemin
+// 7) Détermination de la méthode et du chemin de la requête
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// 5) Fichiers statiques (CSS, JS, images, fonts, HTML composants) - laisser passer sans traitement
+// 8) Service des fichiers statiques
 $staticExtensions = ['.css', '.js', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.html'];
 foreach ($staticExtensions as $ext) {
     if (str_ends_with($path, $ext)) {
-        // Laisser Apache servir le fichier directement
-        return false;
+        $filePath = __DIR__ . $path;
+        if (file_exists($filePath)) {
+            $contentType = match(pathinfo($filePath, PATHINFO_EXTENSION)) {
+                'css' => 'text/css',
+                'js' => 'application/javascript',
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'svg' => 'image/svg+xml',
+                'ico' => 'image/x-icon',
+                'woff' => 'font/woff',
+                'woff2' => 'font/woff2',
+                'ttf' => 'font/ttf',
+                'eot' => 'application/vnd.ms-fontobject',
+                'html' => 'text/html',
+                default => 'application/octet-stream',
+            };
+            header('Content-Type: ' . $contentType);
+            readfile($filePath);
+            exit;
+        }
     }
 }
 
-// 6) Routes frontend (pages HTML principales uniquement)
-if ($method === 'GET' && !str_starts_with($path, '/api') && !str_contains($path, '/components/')) {
-    // Route d'accueil
+// 9) Initialisation du routeur
+$router = new Router();
+
+// 10) Chargement des définitions de routes
+// Les routes API sont préfixées par /api
+$router->addGroup('/api', function ($router) use ($container) {
+    require __DIR__ . '/../backend/api/routes.php';
+    require __DIR__ . '/../backend/api/routes.auth.php';
+    require __DIR__ . '/../backend/api/routes.menus.php';
+    require __DIR__ . '/../backend/api/routes.commandes.php';
+    require __DIR__ . '/../backend/api/routes.avis.php';
+});
+
+// Les routes "pages" qui servent du HTML statique
+if ($method === 'GET') {
+    // Page d'accueil
     if ($path === '/' || $path === '/home' || $path === '/accueil') {
         require __DIR__ . '/../frontend/frontend/pages/home.html';
         exit;
     }
     
-    // Route inscription
+    // Page d'inscription
     if ($path === '/inscription') {
         require __DIR__ . '/../frontend/frontend/pages/inscription.html';
         exit;
     }
-    
-    // Route connexion
-    if ($path === '/connexion') {
-        require __DIR__ . '/../frontend/frontend/pages/connexion.html';
-        exit;
-    }
-}
 
-// 7) Enlève le préfixe /api si besoin (ex: /api/auth/test → /auth/test)
-$apiPrefix = '/api';
-if (strncmp($path, $apiPrefix, strlen($apiPrefix)) === 0) {
-    $path = substr($path, strlen($apiPrefix));
-    if ($path === '') {
-        $path = '/';
-    }
-}
-
-// 8) Healthcheck API (utile sur Azure)
-if ($method === 'GET' && ($path === '/' || $path === '/health')) {
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'ok',
-        'message' => 'API is running',
-        'env' => getenv('APP_ENV') ?: 'unknown',
-    ]);
-    exit;
+    // Autres pages...
 }
 
 
-// 9) Routeur + routes
-$router = new Router($config);
-require __DIR__ . '/../backend/api/routes.php';
-
-// 10) Exécution + logs + fallback JSON
+// 11) Dispatching de la requête
 try {
-    MonologLogger::getLogger()->info("Requête reçue : {$method} {$path}");
-    
-    // Content-Type JSON pour l'API
-    header('Content-Type: application/json; charset=utf-8');
+    // Le routeur trouve la bonne route et exécute le handler associé
+    $router->dispatch($method, $path, $container);
 
-    $result = $router->dispatch($method, $path);
-
-    // Si ton Router "return" quelque chose (ex: route /auth/test), on renvoie du JSON
-    if ($result !== null) {
-        if (is_array($result) || is_object($result)) {
-            Response::json($result, 200);
-        } else {
-            echo (string)$result;
-        }
-    }
-} catch (Throwable $e) {
-    MonologLogger::getLogger()->error('Erreur serveur : ' . $e->getMessage());
-
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'Erreur serveur',
-        'details' => $e->getMessage(),
+} catch (\Exception $e) {
+    // Gestion centralisée des erreurs non capturées
+    $logger = MonologLogger::getLogger();
+    $logger->error("Erreur non capturée: " . $e->getMessage(), [
+        'exception' => $e,
+        'trace' => $e->getTraceAsString()
     ]);
+
+    Response::json([
+        'success' => false,
+        'message' => 'Une erreur interne est survenue.'
+    ], 500);
 }
+
