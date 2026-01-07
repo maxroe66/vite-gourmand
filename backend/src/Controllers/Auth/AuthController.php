@@ -35,8 +35,17 @@ class AuthController
      * @param array $data
      * @return array
      */
-    public function register(array $data): array
+    public function register(): array
     {
+        // 0. Récupération et validation de l'input
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data) {
+            return [
+                'success' => false,
+                'message' => 'Données invalides ou manquantes.'
+            ];
+        }
+
         // 1. Validation des données
         $validation = UserValidator::validate($data);
         if (!$validation['isValid']) {
