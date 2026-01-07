@@ -1,20 +1,56 @@
 <?php
 namespace App\Core;
 
-final class Router {
-    private array $routes = ['GET'=>[], 'POST'=>[], 'PUT'=>[], 'PATCH'=>[], 'DELETE'=>[]];
-    public function __construct(private array $config) {}
+use Psr\Container\ContainerInterface;
 
-    public function get(string $path, callable $h): void    { $this->routes['GET'][$path]    = $h; }
-    public function post(string $path, callable $h): void   { $this->routes['POST'][$path]   = $h; }
-    public function put(string $path, callable $h): void    { $this->routes['PUT'][$path]    = $h; }
-    public function patch(string $path, callable $h): void  { $this->routes['PATCH'][$path]  = $h; }
-    public function delete(string $path, callable $h): void { $this->routes['DELETE'][$path] = $h; }
+class Router
+{
+    private array $routes = [];
+    private string $currentGroupPrefix = '';
 
-    public function dispatch(string $method, string $path): void {
+    public function add(string $method, string $path, callable $handler): void
+    {
+        $this->routes[$method][$this->currentGroupPrefix . $path] = $handler;
+    }
+
+    public function get(string $path, callable $handler): void
+    {
+        $this->add('GET', $path, $handler);
+    }
+
+    public function post(string $path, callable $handler): void
+    {
+        $this->add('POST', $path, $handler);
+    }
+
+    public function put(string $path, callable $handler): void
+    {
+        $this->add('PUT', $path, $handler);
+    }
+
+    public function delete(string $path, callable $handler): void
+    {
+        $this->add('DELETE', $path, $handler);
+    }
+
+    public function addGroup(string $prefix, callable $callback): void
+    {
+        $previousGroupPrefix = $this->currentGroupPrefix;
+        $this->currentGroupPrefix = $previousGroupPrefix . $prefix;
+        $callback($this);
+        $this->currentGroupPrefix = $previousGroupPrefix;
+    }
+
+    public function dispatch(string $method, string $path, ContainerInterface $container): void
+    {
         $handler = $this->routes[$method][$path] ?? null;
-        if (!$handler) { Response::json(['error' => 'Not Found'], 404); }
-        $result = $handler($this->config);
-        if (is_array($result)) { Response::json($result); }
+
+        if ($handler === null) {
+            Response::json(['success' => false, 'message' => 'Route non trouvée'], 404);
+            return;
+        }
+
+        // Le conteneur est maintenant passé en argument au handler de la route
+        $handler($container);
     }
 }
