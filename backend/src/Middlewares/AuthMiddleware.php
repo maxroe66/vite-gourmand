@@ -2,27 +2,32 @@
 
 namespace App\Middlewares;
 
+use App\Core\Request;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 class AuthMiddleware
 {
     private array $config;
+    private LoggerInterface $logger;
 
     /**
-     * Le constructeur reçoit la configuration (sera injectée par le conteneur).
+     * Le constructeur reçoit la configuration et le logger (injectés par le conteneur).
      */
-    public function __construct(array $config)
+    public function __construct(array $config, LoggerInterface $logger)
     {
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
      * Exécute la logique du middleware.
+     * Enrichit l'objet Request avec les données utilisateur si le token est valide.
      * @throws Exception si l'authentification échoue.
      */
-    public function handle(): void
+    public function handle(Request $request): void
     {
         // 1. Récupérer le token (cookie ou header)
         $token = $this->getTokenFromRequest();
@@ -33,15 +38,19 @@ class AuthMiddleware
         // 2. Valider le token
         $secret = $this->config['jwt']['secret'];
         if (!$secret) {
-            throw new Exception('La clé secrète JWT n\'est pas configurée côté serveur.');
+            $this->logger->error("La clé secrète JWT n'est pas configurée côté serveur.");
+            throw new Exception('Erreur de configuration du serveur.');
         }
 
         try {
             // JWT::decode lèvera une exception si le token est invalide
-            JWT::decode($token, new Key($secret, 'HS256'));
-            // Si on arrive ici, le token est valide. On ne fait rien de plus.
-            // Le routeur continuera vers le contrôleur.
+            $decoded = JWT::decode($token, new Key($secret, 'HS256'));
+
+            // 3. Attacher les données utilisateur à l'objet Request
+            $request->setAttribute('user', $decoded);
+
         } catch (Exception $e) {
+            $this->logger->warning("Tentative d'accès avec un token invalide ou expiré.", ['error' => $e->getMessage()]);
             // On relance une exception générique pour que le routeur la capture.
             throw new Exception('Token invalide ou expiré.');
         }

@@ -3,6 +3,7 @@
 // routes.auth.php : routes liées à l'authentification
 
 use App\Controllers\Auth\AuthController;
+use App\Core\Request;
 use App\Core\Response;
 use App\Middlewares\AuthMiddleware;
 use Psr\Container\ContainerInterface;
@@ -49,14 +50,14 @@ $router->post('/auth/logout', function () {
     ]);
 });
 
-$router->get('/auth/check', function (ContainerInterface $container) {
-    // Le middleware a déjà été exécuté par le routeur à ce stade.
-    // On peut donc directement appeler le contrôleur.
+$router->get('/auth/check', function (ContainerInterface $container, array $params, Request $request) {
+    // Le middleware a déjà été exécuté et a enrichi l'objet $request.
+    // On passe cet objet au contrôleur.
     $authController = $container->get(AuthController::class);
-    $response = $authController->checkAuth();
+    $response = $authController->checkAuth($request);
     Response::json($response);
 })->middleware(AuthMiddleware::class); // On attache le middleware à la route.
 
 $router->get('/auth/test', function () {
-    return ['message' => 'API Auth OK'];
+    Response::json(['message' => 'API Auth OK']);
 });
