@@ -8,6 +8,7 @@ use App\Services\AuthService;
 use App\Services\MailerService;
 use Psr\Log\LoggerInterface;
 use App\Validators\UserValidator;
+use App\Validators\LoginValidator;
 use App\Exceptions\InvalidCredentialsException;
 
 class AuthController
@@ -137,25 +138,14 @@ class AuthController
             ];
         }
 
-        // 2. Validation des champs requis (email et password)
-        $errors = [];
-        
-        if (empty($data['email'])) {
-            $errors['email'] = 'L\'email est requis.';
-        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'L\'email n\'est pas valide.';
-        }
-        
-        if (empty($data['password'])) {
-            $errors['password'] = 'Le mot de passe est requis.';
-        }
-        
-        if (!empty($errors)) {
-            $this->logger->warning('Échec validation login', $errors);
+        // 2. Validation des données avec LoginValidator
+        $validation = LoginValidator::validate($data);
+        if (!$validation['isValid']) {
+            $this->logger->warning('Échec validation login', $validation['errors']);
             return [
                 'success' => false,
                 'message' => 'Des champs sont invalides.',
-                'errors' => $errors
+                'errors' => $validation['errors']
             ];
         }
 
