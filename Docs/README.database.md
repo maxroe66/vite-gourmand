@@ -163,7 +163,7 @@ mysql -h 127.0.0.1 -P 3307 -u root -proot_password_test vite_gourmand_test
 
 ```bash
 # Script automatique pour les tests
-./scripts/reset_test_db.sh
+./scripts/tests/reset_test_db.sh
 
 # Ou manuellement
 docker exec vite-mysql-test mysql -uroot -proot_password_test -e "DROP DATABASE IF EXISTS vite_gourmand_test; CREATE DATABASE vite_gourmand_test;"
