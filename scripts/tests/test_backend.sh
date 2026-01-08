@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script pro : reset + tests backend (unitaires + API)
-# Usage : ./scripts/test_backend.sh
+# Usage : ./scripts/tests/test_backend.sh
 set -euo pipefail
 
 # 1) Variables d'environnement TEST
