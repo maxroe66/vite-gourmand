@@ -56,13 +56,36 @@ return function (array $config): ContainerInterface {
         // 4. Définition pour le Logger (PSR-3).
         // On lie l'interface standard à notre implémentation Monolog.
         LoggerInterface::class => function (ContainerInterface $c) {
+            $config = $c->get('config');
+            $env = $config['env'] ?? 'development';
+            
             $logFile = getenv('LOG_FILE');
             if ($logFile === false || trim($logFile) === '') {
-                $logFile = '/tmp/app.log';
+                $logFile = __DIR__ . '/../logs/app.log';
             }
             
             $logger = new Logger('ViteEtGourmand');
-            $logger->pushHandler(new StreamHandler($logFile, Logger::DEBUG));
+            
+            // Niveau de log selon l'environnement
+            $logLevel = ($env === 'production') ? Logger::WARNING : Logger::DEBUG;
+            
+            // Handler avec rotation : 7 jours d'historique, max 10MB par fichier
+            $handler = new \Monolog\Handler\RotatingFileHandler(
+                $logFile,
+                7,           // 7 jours de rétention
+                $logLevel    // Niveau minimum
+            );
+            
+            // Format personnalisé pour meilleure lisibilité
+            $handler->setFormatter(new \Monolog\Formatter\LineFormatter(
+                "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n",
+                "Y-m-d H:i:s",
+                true,  // allowInlineLineBreaks
+                true   // ignoreEmptyContextAndExtra
+            ));
+            
+            $logger->pushHandler($handler);
+            
             return $logger;
         },
 
