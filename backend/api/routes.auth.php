@@ -3,22 +3,14 @@
 // routes.auth.php : routes liées à l'authentification
 
 use App\Controllers\Auth\AuthController;
+use App\Core\Request;
 use App\Core\Response;
 use App\Middlewares\AuthMiddleware;
 use Psr\Container\ContainerInterface;
 
 $router->post('/auth/register', function (ContainerInterface $container) {
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    if (!$input) {
-        Response::json(['success' => false, 'message' => 'Données invalides'], 400);
-        return;
-    }
-
-    // On récupère le contrôleur directement depuis le conteneur
     $authController = $container->get(AuthController::class);
-
-    $response = $authController->register($input);
+    $response = $authController->register();
     Response::json($response, $response['success'] ? 201 : 400);
 });
 
@@ -58,18 +50,14 @@ $router->post('/auth/logout', function () {
     ]);
 });
 
-$router->get('/auth/check', function (ContainerInterface $container) {
-    // 1. Appliquer le middleware d'authentification
-    // Le middleware a besoin de la config, on la récupère depuis le conteneur
-    AuthMiddleware::check($container->get('config'));
-
-    // 2. Exécuter la logique du contrôleur si le middleware passe
+$router->get('/auth/check', function (ContainerInterface $container, array $params, Request $request) {
+    // Le middleware a déjà été exécuté et a enrichi l'objet $request.
+    // On passe cet objet au contrôleur.
     $authController = $container->get(AuthController::class);
-
-    $response = $authController->checkAuth();
-    Response::json($response); // Envoyer la réponse JSON
-});
+    $response = $authController->checkAuth($request);
+    Response::json($response);
+})->middleware(AuthMiddleware::class); // On attache le middleware à la route.
 
 $router->get('/auth/test', function () {
-    return ['message' => 'API Auth OK'];
+    Response::json(['message' => 'API Auth OK']);
 });

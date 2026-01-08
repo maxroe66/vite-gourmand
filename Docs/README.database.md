@@ -55,7 +55,7 @@ MONGO_PASSWORD=mongo_root_password_dev
 
 ```bash
 # Démarrer tous les conteneurs (MySQL, MongoDB, phpMyAdmin, etc.)
-./docker-up.sh
+./scripts/docker/up.sh
 
 # Ou manuellement
 docker-compose --env-file .env.compose up -d
@@ -163,7 +163,7 @@ mysql -h 127.0.0.1 -P 3307 -u root -proot_password_test vite_gourmand_test
 
 ```bash
 # Script automatique pour les tests
-./scripts/reset_test_db.sh
+./scripts/tests/reset_test_db.sh
 
 # Ou manuellement
 docker exec vite-mysql-test mysql -uroot -proot_password_test -e "DROP DATABASE IF EXISTS vite_gourmand_test; CREATE DATABASE vite_gourmand_test;"
@@ -350,14 +350,14 @@ backend/database/
 
 ```bash
 # Démarrer
-./docker-up.sh
+./scripts/docker/up.sh
 
 # Arrêter
-./docker-down.sh
+./scripts/docker/down.sh
 
 # Recréer complètement (efface les données !)
 docker-compose --env-file .env.compose down -v
-./docker-up.sh
+./scripts/docker/up.sh
 ```
 
 ### Tests
@@ -404,7 +404,7 @@ docker logs vite-mysql
 
 # Recréer le conteneur
 docker-compose --env-file .env.compose down -v
-./docker-up.sh
+./scripts/docker/up.sh
 ```
 
 ### Problème : "Can't connect" sur Azure

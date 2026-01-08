@@ -15,8 +15,6 @@ package-lock.json
 .env.compose
 .env.test
 .env.azure
-docker-down.sh
-docker-up.sh
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
 
@@ -26,3 +24,7 @@ backend/vendor/
 # Caches d'outils
 backend/.php-cs-fixer.cache
 backend/.phpunit.result.cache
+
+# Logs
+backend/logs/*.log
+!backend/logs/.gitkeep

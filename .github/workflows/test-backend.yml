@@ -176,7 +176,7 @@ jobs:
             --delay-request 200
 
       - name: Run JWT end-to-end test
-        run: bash scripts/test_jwt_inscription.sh
+        run: bash scripts/tests/test_jwt_inscription.sh
 
       - name: Stop PHP server
         if: always()

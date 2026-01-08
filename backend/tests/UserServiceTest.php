@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 use App\Services\UserService;
 use App\Repositories\UserRepository;
 use App\Exceptions\UserServiceException;
+use Psr\Log\LoggerInterface;
 
 class UserServiceTest extends TestCase
 {
@@ -31,10 +32,13 @@ class UserServiceTest extends TestCase
             ->with($this->equalTo($userData))
             ->willReturn(42);
 
-        // 3. Instancier le service avec le mock
-        $userService = new UserService($userRepositoryMock);
+        // 3. Créer un mock du Logger
+        $loggerMock = $this->createMock(LoggerInterface::class);
 
-        // 4. Appeler la méthode à tester et vérifier le résultat
+        // 4. Instancier le service avec les mocks
+        $userService = new UserService($userRepositoryMock, $loggerMock);
+
+        // 5. Appeler la méthode à tester et vérifier le résultat
         $userId = $userService->createUser($userData);
         $this->assertEquals(42, $userId);
     }
@@ -65,8 +69,11 @@ class UserServiceTest extends TestCase
         $this->expectException(UserServiceException::class);
         $this->expectExceptionMessage('Cet email est déjà utilisé.');
 
+        // 3. Créer un mock du Logger
+        $loggerMock = $this->createMock(LoggerInterface::class);
+
         // 4. Instancier le service et appeler la méthode
-        $userService = new UserService($userRepositoryMock);
+        $userService = new UserService($userRepositoryMock, $loggerMock);
         $userService->createUser($userData);
     }
 }

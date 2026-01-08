@@ -42,7 +42,7 @@ docker compose up -d
 Lance tout (reset DB test + PHPUnit + Newman) :
 
 ```bash
-./scripts/test_backend.sh
+./scripts/tests/test_backend.sh
 ```
 
 **Bases utilisées en TEST :**

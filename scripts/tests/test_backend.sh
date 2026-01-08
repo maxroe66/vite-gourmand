@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script pro : reset + tests backend (unitaires + API)
-# Usage : ./scripts/test_backend.sh
+# Usage : ./scripts/tests/test_backend.sh
 set -euo pipefail
 
 # 1) Variables d'environnement TEST
@@ -28,7 +28,7 @@ export MONGO_PASS=mongo_root_password_test
 export MONGO_URI="mongodb://root:mongo_root_password_test@127.0.0.1:27018/vite_gourmand_test?authSource=admin"
 
 # 2) Reset base de test
-./scripts/reset_test_db.sh
+./scripts/tests/reset_test_db.sh
 
 # 3) Tests unitaires PHPUnit
 (

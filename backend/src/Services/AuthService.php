@@ -2,13 +2,17 @@
 
 namespace App\Services;
 
+use Psr\Log\LoggerInterface;
+
 class AuthService
 {
-    private $config;
+    private array $config;
+    private LoggerInterface $logger;
 
-    public function __construct(array $config)
+    public function __construct(array $config, LoggerInterface $logger)
     {
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
@@ -53,6 +57,9 @@ class AuthService
             'exp' => time() + $expire   // expire à
         ];
 
-        return \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
+        $token = \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
+        $this->logger->info('Token JWT généré', ['userId' => $userId, 'role' => $role]);
+
+        return $token;
     }
 }
