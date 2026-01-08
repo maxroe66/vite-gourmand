@@ -15,18 +15,9 @@ $router->post('/auth/register', function (ContainerInterface $container) {
 });
 
 $router->post('/auth/login', function (ContainerInterface $container) {
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    if (!$input) {
-        Response::json(['success' => false, 'message' => 'Données invalides'], 400);
-        return;
-    }
-
-    // Fonctionnalité de connexion non encore disponible / non implémentée
-    Response::json([
-        'success' => false,
-        'message' => 'Fonctionnalité de connexion non disponible'
-    ], 501); // 501 Not Implemented
+    $authController = $container->get(AuthController::class);
+    $response = $authController->login();
+    Response::json($response, $response['success'] ? 200 : 401);
 });
 
 $router->post('/auth/logout', function () {

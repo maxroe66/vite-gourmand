@@ -43,4 +43,16 @@ class UserService
             throw new UserServiceException('Erreur de base de données lors de la création de l\'utilisateur.');
         }
     }
+
+    /**
+     * Trouve un utilisateur par email
+     * @param string $email
+     * @return array|null Tableau associatif avec les données de l'utilisateur ou null si non trouvé
+     */
+    public function findByEmail(string $email): ?array
+    {
+        $result = $this->userRepository->findByEmail($email);
+        // PDO::fetch() retourne false si aucune ligne trouvée, on le convertit en null
+        return $result === false ? null : $result;
+    }
 }

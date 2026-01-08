@@ -8,6 +8,8 @@ use App\Services\AuthService;
 use App\Services\MailerService;
 use Psr\Log\LoggerInterface;
 use App\Validators\UserValidator;
+use App\Validators\LoginValidator;
+use App\Exceptions\InvalidCredentialsException;
 
 class AuthController
 {
@@ -121,10 +123,87 @@ class AuthController
         ];
     }
 
-    public function login(array $data): array
+    /**
+     * Connexion d'un utilisateur existant
+     * @return array
+     */
+    public function login(): array
     {
-        // ... (logique de connexion existante)
-        return []; // Placeholder
+        // 1. Récupération et validation de l'input
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data) {
+            return [
+                'success' => false,
+                'message' => 'Données invalides ou manquantes.'
+            ];
+        }
+
+        // 2. Validation des données avec LoginValidator
+        $validation = LoginValidator::validate($data);
+        if (!$validation['isValid']) {
+            $this->logger->warning('Échec validation login', $validation['errors']);
+            return [
+                'success' => false,
+                'message' => 'Des champs sont invalides.',
+                'errors' => $validation['errors']
+            ];
+        }
+
+        // 3. Récupération de l'utilisateur par email
+        try {
+            $user = $this->userService->findByEmail($data['email']);
+            
+            if (!$user) {
+                // L'email n'existe pas en base
+                $this->logger->warning('Tentative de connexion avec email inexistant', ['email' => $data['email']]);
+                throw InvalidCredentialsException::invalidCredentials();
+            }
+
+            // 4. Vérification du mot de passe
+            $this->authService->verifyPassword($data['password'], $user['passwordHash']);
+
+            // 5. Génération du token JWT
+            $token = $this->authService->generateToken((int)$user['id'], $user['role']);
+
+            // 6. Envoi du JWT dans un cookie httpOnly (sécurisé)
+            $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+            $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
+
+            setcookie('authToken', $token, [
+                'expires' => $expire,
+                'path' => '/',
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+
+            // 7. Retourne la réponse de succès
+            $this->logger->info('Connexion réussie', ['userId' => $user['id'], 'email' => $data['email']]);
+            
+            return [
+                'success' => true,
+                'userId' => $user['id'],
+                'message' => 'Connexion réussie.'
+            ];
+
+        } catch (InvalidCredentialsException $e) {
+            // Credentials invalides (email inexistant ou mot de passe incorrect)
+            $this->logger->warning('Échec de connexion: credentials invalides');
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        } catch (\Exception $e) {
+            // Erreur imprévue
+            $this->logger->error('Erreur lors de la connexion', [
+                'error' => $e->getMessage(),
+                'code' => $e->getCode()
+            ]);
+            return [
+                'success' => false,
+                'message' => 'Une erreur est survenue lors de la connexion.'
+            ];
+        }
     }
 
     public function logout(): array
