@@ -16,13 +16,19 @@ class UserRepository
     /**
      * Trouve un utilisateur par son email.
      * @param string $email
-     * @return mixed
+     * @return array|false Tableau associatif des données utilisateur ou false si non trouvé
      */
     public function findByEmail(string $email)
     {
-        $stmt = $this->pdo->prepare('SELECT id_utilisateur FROM UTILISATEUR WHERE email = :email');
+        $stmt = $this->pdo->prepare('
+            SELECT id_utilisateur AS id, email, prenom, nom, gsm, 
+                   adresse_postale, ville, code_postal, mot_de_passe AS passwordHash, 
+                   role, actif, date_creation 
+            FROM UTILISATEUR 
+            WHERE email = :email
+        ');
         $stmt->execute(['email' => $email]);
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
