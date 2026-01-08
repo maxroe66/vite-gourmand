@@ -3,15 +3,11 @@
     "name": "vite & gourmand - login",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "event": [
+  "variable": [
     {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "pm.variables.set('base_url', 'http://localhost:8001/api');"
-        ]
-      }
+      "key": "base_url",
+      "value": "http://localhost:8001/api",
+      "type": "string"
     }
   ],
   "item": [
@@ -40,6 +36,9 @@
             "  const json = pm.response.json();",
             "  pm.expect(json.success).to.be.true;",
             "  pm.expect(json.userId).to.exist;",
+            "});",
+            "pm.test('Cookie authToken présent', () => {",
+            "  pm.expect(pm.cookies.has('authToken')).to.be.true;",
             "});"
           ]
         }
