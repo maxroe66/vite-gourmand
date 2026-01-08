@@ -77,4 +77,31 @@ class AuthServiceTest extends TestCase
 
         echo "\n🔒 Password hashé: " . substr($hash, 0, 30) . "...\n";
     }
+
+    public function test_verifyPassword_success(): void
+    {
+        // Arrange
+        $password = 'SecurePass123!';
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+        // Act & Assert - Pas d'exception = succès
+        $this->authService->verifyPassword($password, $hash);
+        
+        // Si on arrive ici, c'est que aucune exception n'a été levée ✅
+        $this->assertTrue(true);
+    }
+
+    public function test_verifyPassword_throwsException_when_password_invalid(): void
+    {
+        // Arrange
+        $correctPassword = 'SecurePass123!';
+        $wrongPassword = 'WrongPassword';
+        $hash = password_hash($correctPassword, PASSWORD_DEFAULT);
+
+        // Assert - On s'attend à une exception
+        $this->expectException(\App\Exceptions\InvalidCredentialsException::class);
+        
+        // Act
+        $this->authService->verifyPassword($wrongPassword, $hash);
+    }
 }

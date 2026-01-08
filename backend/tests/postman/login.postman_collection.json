@@ -1,0 +1,260 @@
+{
+  "info": {
+    "name": "vite & gourmand - login",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8001/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "login réussi",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"password\"}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 200 attendu', () => pm.response.to.have.status(200));",
+            "pm.test('Réponse JSON succès', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.true;",
+            "  pm.expect(json.userId).to.exist;",
+            "});",
+            "pm.test('Cookie authToken présent', () => {",
+            "  pm.expect(pm.cookies.has('authToken')).to.be.true;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "email inexistant",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"inexistant@test.fr\", \"password\": \"password\"}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+            "pm.test('Message credentials invalides', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.false;",
+            "  pm.expect(json.message).to.include('mot de passe incorrect');",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "mot de passe incorrect",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"WrongPassword123\"}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+            "pm.test('Message credentials invalides', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.false;",
+            "  pm.expect(json.message).to.include('mot de passe incorrect');",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "email manquant",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"password\": \"password\"}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+            "pm.test('Erreur sur champ email', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.false;",
+            "  pm.expect(json.errors.email).to.exist;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "password manquant",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"marie.dupont@email.fr\"}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+            "pm.test('Erreur sur champ password', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.false;",
+            "  pm.expect(json.errors.password).to.exist;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "format email invalide",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"invalid-email\", \"password\": \"password\"}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+            "pm.test('Erreur validation format email', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.false;",
+            "  pm.expect(json.errors.email).to.exist;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "payload vide",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+            "pm.test('Réponse échec attendue', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.false;",
+            "  pm.expect(json.message).to.exist;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "JSON malformé",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "not a valid json"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 400 ou 401 attendu', () => {",
+            "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+            "});",
+            "pm.test('Message données invalides', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.false;",
+            "  pm.expect(json.message).to.include('invalide');",
+            "});"
+          ]
+        }
+      }]
+    }
+  ]
+}

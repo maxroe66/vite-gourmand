@@ -175,6 +175,11 @@ jobs:
             --timeout-request 10000 \
             --delay-request 200
 
+          newman run backend/tests/postman/login.postman_collection.json \
+            --env-var "base_url=http://127.0.0.1:8000/api" \
+            --timeout-request 10000 \
+            --delay-request 200
+
       - name: Run JWT end-to-end test
         run: bash scripts/tests/test_jwt_inscription.sh
 
