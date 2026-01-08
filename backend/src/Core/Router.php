@@ -4,6 +4,7 @@ namespace App\Core;
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Exceptions\AuthException;
 use Psr\Container\ContainerInterface;
 
 class Router
@@ -85,9 +86,13 @@ class Router
                         // On passe l'objet Request au middleware pour qu'il puisse l'enrichir
                         $middleware->handle($request);
                     }
-                } catch (\Exception $e) {
-                    // Si un middleware lève une exception, on arrête tout et on renvoie une erreur.
+                } catch (AuthException $e) {
+                    // Exception d'authentification : 401 Unauthorized
                     Response::json(['success' => false, 'message' => $e->getMessage()], 401);
+                    return;
+                } catch (\Exception $e) {
+                    // Autres exceptions : 500 Internal Server Error
+                    Response::json(['success' => false, 'message' => 'Erreur serveur interne'], 500);
                     return;
                 }
 
