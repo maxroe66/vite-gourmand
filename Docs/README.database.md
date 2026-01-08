@@ -55,7 +55,7 @@ MONGO_PASSWORD=mongo_root_password_dev
 
 ```bash
 # Démarrer tous les conteneurs (MySQL, MongoDB, phpMyAdmin, etc.)
-./docker-up.sh
+./scripts/docker/up.sh
 
 # Ou manuellement
 docker-compose --env-file .env.compose up -d
@@ -350,14 +350,14 @@ backend/database/
 
 ```bash
 # Démarrer
-./docker-up.sh
+./scripts/docker/up.sh
 
 # Arrêter
-./docker-down.sh
+./scripts/docker/down.sh
 
 # Recréer complètement (efface les données !)
 docker-compose --env-file .env.compose down -v
-./docker-up.sh
+./scripts/docker/up.sh
 ```
 
 ### Tests
@@ -404,7 +404,7 @@ docker logs vite-mysql
 
 # Recréer le conteneur
 docker-compose --env-file .env.compose down -v
-./docker-up.sh
+./scripts/docker/up.sh
 ```
 
 ### Problème : "Can't connect" sur Azure

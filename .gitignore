@@ -15,8 +15,6 @@ package-lock.json
 .env.compose
 .env.test
 .env.azure
-docker-down.sh
-docker-up.sh
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
 
