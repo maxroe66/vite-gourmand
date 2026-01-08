@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\InvalidCredentialsException;
 use Psr\Log\LoggerInterface;
 
 class AuthService
@@ -27,15 +28,21 @@ class AuthService
     }
 
     /**
-     * Vérifie le mot de passe
-     * @param string $password
-     * @param string $hash
-     * @return bool
+     * Vérifie le mot de passe et lève une exception si invalide.
+     * 
+     * @param string $password Le mot de passe en clair fourni par l'utilisateur
+     * @param string $hash Le hash stocké en base de données
+     * @return void
+     * @throws InvalidCredentialsException Si le mot de passe ne correspond pas au hash
      */
-    public function verifyPassword(string $password, string $hash): bool
+    public function verifyPassword(string $password, string $hash): void
     {
-        // Utiliser password_verify
-        return false;
+        if (!password_verify($password, $hash)) {
+            $this->logger->warning('Tentative de connexion avec mot de passe invalide');
+            throw InvalidCredentialsException::invalidCredentials();
+        }
+        
+        $this->logger->info('Mot de passe vérifié avec succès');
     }
 
     /**
