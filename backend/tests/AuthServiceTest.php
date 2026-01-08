@@ -4,15 +4,21 @@ use PHPUnit\Framework\TestCase;
 use App\Services\AuthService;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Psr\Log\LoggerInterface;
 
 class AuthServiceTest extends TestCase
 {
     private AuthService $authService;
+    private LoggerInterface $logger;
 
     protected function setUp(): void
     {
         $config = require __DIR__ . '/../config/config.php';
-        $this->authService = new AuthService($config);
+
+        // Mock du logger pour les tests
+        $this->logger = $this->createMock(LoggerInterface::class);
+
+        $this->authService = new AuthService($config, $this->logger);
     }
 
     public function testGenerateToken(): void

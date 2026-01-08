@@ -5,14 +5,17 @@ namespace App\Services;
 use App\Exceptions\UserServiceException;
 use App\Repositories\UserRepository;
 use PDOException;
+use Psr\Log\LoggerInterface;
 
 class UserService
 {
     private UserRepository $userRepository;
+    private LoggerInterface $logger;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, LoggerInterface $logger)
     {
         $this->userRepository = $userRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -34,7 +37,7 @@ class UserService
 
         } catch (PDOException $e) {
             // Log l'erreur PDO et relance une exception de service
-            \App\Utils\MonologLogger::getLogger()->error('Erreur PDO lors de la création utilisateur', [
+            $this->logger->error('Erreur PDO lors de la création utilisateur', [
                 'error' => $e->getMessage()
             ]);
             throw new UserServiceException('Erreur de base de données lors de la création de l\'utilisateur.');

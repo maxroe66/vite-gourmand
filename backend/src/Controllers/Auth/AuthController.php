@@ -2,25 +2,26 @@
 
 namespace App\Controllers\Auth;
 
+use App\Core\Request;
 use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\MailerService;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use App\Validators\UserValidator;
 
 class AuthController
 {
-    private $userService;
-    private $authService;
-    private $mailerService;
-    private $logger;
-    private $config;
+    private UserService $userService;
+    private AuthService $authService;
+    private MailerService $mailerService;
+    private LoggerInterface $logger;
+    private array $config;
 
     public function __construct(
         UserService $userService,
         AuthService $authService,
         MailerService $mailerService,
-        Logger $logger,
+        LoggerInterface $logger,
         array $config
     ) {
         $this->userService = $userService;
@@ -35,8 +36,17 @@ class AuthController
      * @param array $data
      * @return array
      */
-    public function register(array $data): array
+    public function register(): array
     {
+        // 0. Récupération et validation de l'input
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data) {
+            return [
+                'success' => false,
+                'message' => 'Données invalides ou manquantes.'
+            ];
+        }
+
         // 1. Validation des données
         $validation = UserValidator::validate($data);
         if (!$validation['isValid']) {
@@ -114,6 +124,7 @@ class AuthController
     public function login(array $data): array
     {
         // ... (logique de connexion existante)
+        return []; // Placeholder
     }
 
     public function logout(): array
@@ -136,11 +147,11 @@ class AuthController
         ];
     }
 
-    public function checkAuth(): array
+    public function checkAuth(Request $request): array
     {
-        // Le middleware a déjà fait la vérification. Si on arrive ici, le token est valide.
-        // On récupère les données du token décodé par le middleware.
-        $decodedToken = \App\Middlewares\AuthMiddleware::getDecodedToken();
+        // Le middleware a déjà fait la vérification et a enrichi l'objet Request.
+        // On récupère les données du token décodé depuis l'attribut 'user'.
+        $decodedToken = $request->getAttribute('user');
 
         if ($decodedToken) {
             return [
@@ -153,6 +164,7 @@ class AuthController
         }
 
         // Ce cas ne devrait pas arriver si le middleware est bien configuré sur la route
+        $this->logger->error("checkAuth atteint sans attribut 'user' dans la requête. Le middleware a-t-il échoué ?");
         return ['isAuthenticated' => false];
     }
 }
