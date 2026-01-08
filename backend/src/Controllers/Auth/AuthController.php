@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Auth;
 
+use App\Core\Request;
 use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\MailerService;
@@ -123,6 +124,7 @@ class AuthController
     public function login(array $data): array
     {
         // ... (logique de connexion existante)
+        return []; // Placeholder
     }
 
     public function logout(): array
@@ -145,11 +147,11 @@ class AuthController
         ];
     }
 
-    public function checkAuth(): array
+    public function checkAuth(Request $request): array
     {
-        // Le middleware a déjà fait la vérification. Si on arrive ici, le token est valide.
-        // On récupère les données du token décodé par le middleware.
-        $decodedToken = \App\Middlewares\AuthMiddleware::getDecodedToken();
+        // Le middleware a déjà fait la vérification et a enrichi l'objet Request.
+        // On récupère les données du token décodé depuis l'attribut 'user'.
+        $decodedToken = $request->getAttribute('user');
 
         if ($decodedToken) {
             return [
@@ -162,6 +164,7 @@ class AuthController
         }
 
         // Ce cas ne devrait pas arriver si le middleware est bien configuré sur la route
+        $this->logger->error("checkAuth atteint sans attribut 'user' dans la requête. Le middleware a-t-il échoué ?");
         return ['isAuthenticated' => false];
     }
 }

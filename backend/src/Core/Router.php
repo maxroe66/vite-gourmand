@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use App\Core\Request;
+use App\Core\Response;
 use Psr\Container\ContainerInterface;
 
 class Router
@@ -68,6 +70,9 @@ class Router
      */
     public function dispatch(string $method, string $path, ContainerInterface $container): void
     {
+        // Création de l'objet Request qui sera passé à travers les couches
+        $request = new Request();
+
         foreach ($this->routes[$method] as $routePath => $route) {
             $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[a-zA-Z0-9_]+)', $routePath);
             if (preg_match("#^$pattern$#", $path, $matches)) {
@@ -77,7 +82,8 @@ class Router
                 try {
                     foreach ($route['middlewares'] as $middlewareClass) {
                         $middleware = $container->get($middlewareClass);
-                        $middleware->handle(); // On exécute le middleware
+                        // On passe l'objet Request au middleware pour qu'il puisse l'enrichir
+                        $middleware->handle($request);
                     }
                 } catch (\Exception $e) {
                     // Si un middleware lève une exception, on arrête tout et on renvoie une erreur.
@@ -86,7 +92,8 @@ class Router
                 }
 
                 // Si tous les middlewares sont passés, on exécute le handler de la route
-                $route['handler']($container, $params);
+                // On passe également l'objet Request au contrôleur
+                $route['handler']($container, $params, $request);
                 return;
             }
         }
