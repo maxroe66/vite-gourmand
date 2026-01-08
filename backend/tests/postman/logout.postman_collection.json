@@ -1,0 +1,90 @@
+{
+  "info": {
+    "name": "vite & gourmand - logout",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8001/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "logout réussi",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/logout",
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 200 attendu', () => pm.response.to.have.status(200));",
+            "pm.test('Réponse JSON succès', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.true;",
+            "  pm.expect(json.message).to.include('Déconnexion réussie');",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "logout sans cookie (idempotent)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/logout",
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 200 attendu même sans cookie', () => pm.response.to.have.status(200));",
+            "pm.test('Réponse succès (logout idempotent)', () => {",
+            "  const json = pm.response.json();",
+            "  pm.expect(json.success).to.be.true;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "méthode GET refusée",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/auth/logout"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('Statut 404 pour méthode GET', () => pm.response.to.have.status(404));"
+          ]
+        }
+      }]
+    }
+  ]
+}

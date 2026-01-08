@@ -20,25 +20,10 @@ $router->post('/auth/login', function (ContainerInterface $container) {
     Response::json($response, $response['success'] ? 200 : 401);
 });
 
-$router->post('/auth/logout', function () {
-    // La déconnexion ne nécessite aucune dépendance, juste la manipulation du cookie.
-
-    // 1. Invalider le cookie en le supprimant
-    $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
-
-    setcookie('authToken', '', [
-        'expires' => time() - 3600, // Expiré dans le passé
-        'path' => '/',
-        'secure' => $isSecure,
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-
-    // 2. Répondre avec succès
-    Response::json([
-        'success' => true,
-        'message' => 'Déconnexion réussie.'
-    ]);
+$router->post('/auth/logout', function (ContainerInterface $container) {
+    $authController = $container->get(AuthController::class);
+    $response = $authController->logout();
+    Response::json($response, 200);
 });
 
 $router->get('/auth/check', function (ContainerInterface $container, array $params, Request $request) {
