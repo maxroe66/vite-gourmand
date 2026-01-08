@@ -219,6 +219,8 @@ class AuthController
             'samesite' => 'Lax'
         ]);
 
+        $this->logger->info('Utilisateur déconnecté avec succès');
+
         // 2. Répondre avec succès
         return [
             'success' => true,

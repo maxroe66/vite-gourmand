@@ -61,7 +61,7 @@ trap cleanup EXIT
 
 sleep 0.3
 
-# 5) Newman - Tests API (inscription + login)
+# 5) Newman - Tests API (inscription + login + logout)
 set +e
 newman run backend/tests/postman/inscription.postman_collection.json
 NEWMAN_EXIT_INSCRIPTION=$?
@@ -69,7 +69,10 @@ NEWMAN_EXIT_INSCRIPTION=$?
 newman run backend/tests/postman/login.postman_collection.json
 NEWMAN_EXIT_LOGIN=$?
 
-NEWMAN_EXIT=$((NEWMAN_EXIT_INSCRIPTION + NEWMAN_EXIT_LOGIN))
+newman run backend/tests/postman/logout.postman_collection.json
+NEWMAN_EXIT_LOGOUT=$?
+
+NEWMAN_EXIT=$((NEWMAN_EXIT_INSCRIPTION + NEWMAN_EXIT_LOGIN + NEWMAN_EXIT_LOGOUT))
 set -e
 
 if [ "$NEWMAN_EXIT" -ne 0 ]; then
