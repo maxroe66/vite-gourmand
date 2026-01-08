@@ -3,6 +3,7 @@
 namespace App\Middlewares;
 
 use App\Core\Request;
+use App\Exceptions\AuthException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Exception;
@@ -25,21 +26,21 @@ class AuthMiddleware
     /**
      * Exécute la logique du middleware.
      * Enrichit l'objet Request avec les données utilisateur si le token est valide.
-     * @throws Exception si l'authentification échoue.
+     * @throws AuthException si l'authentification échoue.
      */
     public function handle(Request $request): void
     {
         // 1. Récupérer le token (cookie ou header)
         $token = $this->getTokenFromRequest();
         if (!$token) {
-            throw new Exception('Token d\'authentification manquant.');
+            throw AuthException::tokenMissing();
         }
 
         // 2. Valider le token
         $secret = $this->config['jwt']['secret'];
         if (!$secret) {
             $this->logger->error("La clé secrète JWT n'est pas configurée côté serveur.");
-            throw new Exception('Erreur de configuration du serveur.');
+            throw AuthException::configError();
         }
 
         try {
@@ -51,8 +52,8 @@ class AuthMiddleware
 
         } catch (Exception $e) {
             $this->logger->warning("Tentative d'accès avec un token invalide ou expiré.", ['error' => $e->getMessage()]);
-            // On relance une exception générique pour que le routeur la capture.
-            throw new Exception('Token invalide ou expiré.');
+            // On relance une exception typée pour que le routeur la capture.
+            throw AuthException::tokenInvalid();
         }
     }
 
