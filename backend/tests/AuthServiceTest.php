@@ -14,10 +14,10 @@ class AuthServiceTest extends TestCase
     protected function setUp(): void
     {
         $config = require __DIR__ . '/../config/config.php';
-        
+
         // Mock du logger pour les tests
         $this->logger = $this->createMock(LoggerInterface::class);
-        
+
         $this->authService = new AuthService($config, $this->logger);
     }
 

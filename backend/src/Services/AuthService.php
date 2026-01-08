@@ -59,7 +59,7 @@ class AuthService
 
         $token = \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
         $this->logger->info('Token JWT généré', ['userId' => $userId, 'role' => $role]);
-        
+
         return $token;
     }
 }
