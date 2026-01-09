@@ -172,11 +172,18 @@ class AuthController
                 $dummyHash = '$2y$10$abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQR';
                 try {
                     $this->authService->verifyPassword($data['password'], $dummyHash);
-                } catch (\Exception $e) {
-                    // On ignore l'exception du hash factice
+                } catch (InvalidCredentialsException $e) {
+                    // L'exception est attendue et attrapée ici, mais on ne fait rien avec.
+                    // Le but est juste de simuler la vérification.
                 }
+                
                 $this->logger->warning('Tentative de connexion avec email inexistant', ['email' => $data['email']]);
-                throw InvalidCredentialsException::invalidCredentials();
+                
+                // On retourne directement le message d'erreur générique pour ne pas donner d'indice
+                return [
+                    'success' => false,
+                    'message' => 'Email ou mot de passe incorrect.'
+                ];
             }
             
             // Vérification du mot de passe réel
@@ -207,8 +214,8 @@ class AuthController
             ];
 
         } catch (InvalidCredentialsException $e) {
-            // Credentials invalides (email inexistant ou mot de passe incorrect)
-            $this->logger->warning('Échec de connexion: credentials invalides');
+            // Credentials invalides (mot de passe incorrect uniquement, l'email inexistant est géré au-dessus)
+            $this->logger->warning('Échec de connexion: mot de passe incorrect', ['email' => $data['email']]);
             return [
                 'success' => false,
                 'message' => $e->getMessage()
