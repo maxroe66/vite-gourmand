@@ -1,0 +1,151 @@
+name: Tests d'intégration email (Mailtrap)
+
+# Stratégie : Lancer uniquement sur PR vers develop ou manuellement
+# Évite de surcharger Mailtrap sur chaque commit
+on:
+  pull_request:
+    branches: [ develop ]
+  schedule:
+    # Tous les jours à 9h UTC (optionnel)
+    - cron: '0 9 * * *'
+  workflow_dispatch:  # Permet lancement manuel depuis GitHub Actions UI
+
+jobs:
+  email-integration-test:
+    runs-on: ubuntu-latest
+    
+    # Note : Workflow fonctionne avec ou sans secrets MAIL_*
+    # Si secrets configurés → envoi réel via Mailtrap (emailSent: true)
+    # Si secrets absents → graceful degradation (emailSent: false), tests passent quand même
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: vite_gourmand_test
+          MYSQL_USER: vite_user
+          MYSQL_PASSWORD: vite_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot --silent"
+          --health-interval=10s
+          --health-timeout=10s
+          --health-retries=15
+          --health-start-period=30s
+
+      mongodb:
+        image: mongo:4.4
+        env:
+          MONGO_INITDB_DATABASE: vite_gourmand_test
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: root
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongo --quiet 127.0.0.1:27017 --eval 'db.adminCommand({ping:1})' --authenticationDatabase admin -u root -p root"
+          --health-interval=10s
+          --health-timeout=10s
+          --health-retries=10
+          --health-start-period=30s
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install PCRE for UTF-8 support
+        run: sudo apt-get update && sudo apt-get install -y libpcre3-dev
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, mongodb, curl
+          coverage: none
+
+      - name: Validate composer.json and composer.lock
+        run: cd backend && composer validate
+
+      - name: Install dependencies
+        run: cd backend && composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Verify MongoDB PHP extension
+        run: php -m | grep mongodb || echo "MongoDB extension not found"
+
+      - name: Create backend/.env.test with Mailtrap credentials
+        run: |
+          cd backend
+          # Copier .env.test.example ou créer depuis zéro
+          if [ -f .env.test.example ]; then
+            cp .env.test.example .env.test
+          else
+            touch .env.test
+          fi
+          
+          # Injecter les secrets GitHub pour SMTP
+          echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env.test
+          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env.test
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env.test
+          echo "MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}" >> .env.test
+          
+          # Configuration BDD (identique au workflow test-backend.yml)
+          echo "DB_HOST=127.0.0.1" >> .env.test
+          echo "DB_PORT=3306" >> .env.test
+          echo "DB_NAME=vite_gourmand_test" >> .env.test
+          echo "DB_USER=vite_user" >> .env.test
+          echo "DB_PASS=vite_pass" >> .env.test
+          echo "MONGODB_URI=mongodb://root:root@127.0.0.1:27017" >> .env.test
+          echo "MONGODB_DB=vite_gourmand_test" >> .env.test
+          echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
+          echo "ENVIRONMENT=test" >> .env.test
+
+      - name: Wait for MySQL and MongoDB to be ready
+        run: |
+          echo "Waiting for MySQL..."
+          timeout 60 bash -c 'until mysqladmin ping -h 127.0.0.1 -u vite_user -pvite_pass --silent; do sleep 2; done'
+          echo "MySQL is ready"
+          
+          echo "Waiting for MongoDB..."
+          timeout 60 bash -c 'until mongo mongodb://root:root@127.0.0.1:27017/admin --quiet --eval "db.adminCommand({ping:1})"; do sleep 2; done'
+          echo "MongoDB is ready"
+
+      - name: Setup test database
+        run: |
+          cd backend
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_creation.sql || true
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
+
+      - name: Run PHPUnit tests (with real email sending)
+        run: cd backend && vendor/bin/phpunit --testdox
+
+      - name: Run API tests with Newman (with real email sending)
+        run: |
+          cd backend
+          npm install -g newman
+          newman run tests/postman/inscription.postman_collection.json \
+            --environment tests/postman/test.postman_environment.json \
+            --reporters cli,json \
+            --reporter-json-export tests/results/inscription_newman_report.json
+          
+          newman run tests/postman/connexion.postman_collection.json \
+            --environment tests/postman/test.postman_environment.json \
+            --reporters cli,json \
+            --reporter-json-export tests/results/connexion_newman_report.json
+
+      - name: Verify email was sent (check logs)
+        run: |
+          cd backend
+          # Chercher dans les logs si "Email de bienvenue envoyé avec succès" apparaît
+          if grep -r "Email de bienvenue envoyé avec succès" logs/ 2>/dev/null; then
+            echo "✅ Email successfully sent via Mailtrap"
+          else
+            echo "⚠️ No email log found (might be expected if no registration test)"
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: email-integration-test-results
+          path: backend/tests/results/

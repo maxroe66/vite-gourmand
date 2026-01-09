@@ -242,6 +242,84 @@ Configurer des alertes pour :
 - Credentials expirés
 - Quota dépassé
 
+## 🧪 Tests et CI/CD
+
+### Tests unitaires avec mock
+
+Les tests utilisent `createMock(PHPMailer::class)` pour valider la logique d'envoi **sans connexion SMTP réelle** :
+
+```bash
+# Lancer les tests unitaires (rapides, pas de dépendances externes)
+vendor/bin/phpunit tests/MailerServiceTest.php
+```
+
+**Avantages** :
+- Rapides (< 100ms)
+- Pas de dépendance externe
+- Testent la logique métier (validation, template, logging)
+- Fonctionnent toujours en CI/CD
+
+### Tests d'intégration avec Mailtrap (CI/CD)
+
+Pour tester l'envoi réel en GitHub Actions, configurez les **secrets GitHub** :
+
+#### Étape 1 : Ajouter les secrets GitHub
+
+1. Aller sur `Settings` → `Secrets and variables` → `Actions`
+2. Cliquer sur **New repository secret**
+3. Ajouter ces 4 secrets :
+
+| Secret Name | Value | Description |
+|-------------|-------|-------------|
+| `MAIL_HOST` | `sandbox.smtp.mailtrap.io` | Serveur SMTP Mailtrap |
+| `MAIL_USERNAME` | `votre_username` | Username Mailtrap |
+| `MAIL_PASSWORD` | `votre_password` | Password Mailtrap |
+| `MAIL_FROM_ADDRESS` | `noreply@vitegourmand.fr` | Adresse expéditeur |
+
+#### Étape 2 : Utiliser les secrets dans le workflow
+
+Les secrets sont injectés automatiquement dans `.env.test` via le workflow :
+
+```yaml
+# .github/workflows/email-integration.yml (exemple)
+- name: Setup environment variables
+  run: |
+    echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env.test
+    echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env.test
+    echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env.test
+    echo "MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}" >> .env.test
+```
+
+#### Étape 3 : Stratégie de test recommandée
+
+**Option A (Recommended) : Tests manuels périodiques**
+- Tests unitaires mock en CI/CD (à chaque commit)
+- Tests d'intégration manuels avec Mailtrap (avant chaque release)
+- Pas de secrets nécessaires en GitHub Actions
+
+**Option B : Tests d'intégration automatiques**
+- Ajouter les secrets GitHub Mailtrap
+- Créer workflow spécifique `email-integration.yml`
+- Lancer uniquement sur PR vers `main` ou quotidiennement (cron)
+
+```yaml
+# Exemple workflow quotidien
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Tous les jours à 9h
+  workflow_dispatch:  # Lancement manuel
+```
+
+### Graceful degradation (valeur par défaut)
+
+**Sans secrets GitHub** (configuration actuelle) :
+- `.env.test` contient des placeholders
+- `MailerService` détecte config manquante → log warning → retourne `false`
+- L'inscription réussit avec `emailSent: false`
+- Tous les tests API passent (ne vérifient pas `emailSent`)
+
+✅ **Aucune action requise si vous acceptez que les emails ne soient pas envoyés en CI/CD**
+
 ## 📚 Ressources
 
 - [PHPMailer GitHub](https://github.com/PHPMailer/PHPMailer)
