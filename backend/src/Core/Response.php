@@ -27,7 +27,7 @@ final class Response
     private ?string $content;
     private int $statusCode;
 
-    public function __construct(?string $content = '', int $statusCode = self::HTTP_OK, array $headers = [])
+    public function __construct(?string $content = null, int $statusCode = self::HTTP_OK, array $headers = [])
     {
         $this->content = $content;
         $this->statusCode = $statusCode;
