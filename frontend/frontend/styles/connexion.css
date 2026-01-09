@@ -1,27 +1,16 @@
-/* =========================================
-    Styles pour la page de réinitialisation du mot de passe
-    ========================================= */
-
-.forgot-password-section {
-    display: flex;
-    flex-grow: 1;
-    min-height: 100%;
-    flex: 1;
+/* Style pour le lien 'Mot de passe oublié ?' */
+.forgot-password-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--color-primary, #007bff);
+    text-decoration: none;
+    font-size: 0.98rem;
+    transition: color 0.2s;
 }
-
-/* Utilitaire accessible pour masquer visuellement mais garder l'élément lisible par les aides techniques */
-.visually-hidden {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
+.forgot-password-link:hover {
+    color: var(--color-primary-dark, #0056b3);
+    text-decoration: underline;
 }
-
 /* Password toggle button */
 .password-field {
     position: relative;
@@ -42,8 +31,60 @@
     outline: 2px solid rgba(0,123,255,0.25);
     border-radius: 4px;
 }
+/* Modal Mot de passe oublié */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.45);
+    align-items: center;
+    justify-content: center;
+}
+.modal[aria-hidden="false"] {
+    display: flex;
+}
+.modal-content {
+    background-color: #fff;
+    margin: 10vh auto;
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 2px 22px rgba(0,0,0,0.25);
+    position: relative;
+}
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 1.6rem;
+    color: #666;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+#forgotPasswordMessage {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-size: 0.98rem;
+}
+/* =========================================
+    Styles pour la page de connexion
+    ========================================= */
 
-.forgot-password-container {
+.login-section {
+    display: flex;
+    flex-grow: 1;
+    min-height: 100%;
+    flex: 1;
+}
+
+ .login-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     width: 100%;
@@ -52,7 +93,7 @@
     overflow: hidden;
 }
 
-.forgot-password-form-wrapper {
+ .login-form-wrapper {
     padding: var(--space-8);
     display: flex;
     flex-direction: column;
@@ -60,12 +101,12 @@
     align-items: center;
 }
 
-.forgot-password-form-wrapper .h1 {
+ .login-form-wrapper .h1 {
     color: var(--color-title-primary);
     margin-bottom: var(--space-5);
 }
 
-.forgot-password-form {
+ .login-form {
     display: grid;
     gap: var(--space-4);
     width: 401px;
@@ -114,13 +155,13 @@
 }
 
 
-.forgot-password-form .button--primary {
+ .login-form .button--primary {
     width: 100%;
     height: 53px;
     margin-top: var(--space-1);
 }
 
-.forgot-password-image-wrapper {
+ .login-image-wrapper {
     position: relative;
     background-image: url('/assets/images/hero-inscritpion.png');
     background-size: cover;
@@ -128,7 +169,7 @@
     color: var(--color-text-secondary);
 }
 
-.forgot-password-image-overlay {
+ .login-image-overlay {
     position: absolute;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.5);
@@ -140,17 +181,17 @@
     padding: var(--space-6);
 }
 
-.forgot-password-image-overlay .h1 {
+ .login-image-overlay .h1 {
     color: var(--color-title-secondary);
     font-size: var(--font-xxl);
 }
 
-.forgot-password-image-overlay p {
+ .login-image-overlay p {
     font-size: var(--font-600);
     margin-bottom: var(--space-5);
     margin-top: var(--space-3);
 }
-.forgot-password-image-overlay .button--primary {
+ .login-image-overlay .button--primary {
     height: 53px;
 }
 
@@ -192,21 +233,21 @@ input.error {
 
 /* Responsive */
 @media (max-width: 992px) {
-    .forgot-password-container {
+    .login-container {
         grid-template-columns: 1fr;
     }
 
-    .forgot-password-image-wrapper {
+    .login-image-wrapper {
         display: none; /* On cache l'image sur les écrans plus petits pour se concentrer sur le formulaire */
     }
 
-    .forgot-password-form-wrapper {
+    .login-form-wrapper {
         padding: var(--space-6);
     }
 }
 
 @media (max-width: 768px) {
-    .forgot-password-form-wrapper {
+    .login-form-wrapper {
         padding: var(--space-4);
         margin-bottom: var(--space-6);
         margin-top: var(--space-6);
@@ -214,7 +255,7 @@ input.error {
 }
 
 @media (max-width: 480px) {
-    .forgot-password-form {
+    .login-form {
         width: 100%;
     }
 
@@ -223,12 +264,12 @@ input.error {
         font-size: 14px;
     }
 
-    .forgot-password-form-wrapper {
+    .login-form-wrapper {
         padding: 24px var(--space-4) var(--space-4);
         justify-content: flex-start;
     }
 
-    .forgot-password-form-wrapper .h1 {
+    .login-form-wrapper .h1 {
         font-size: var(--font-500); /* 20px */
         text-align: center;
         margin-bottom: var(--space-6);

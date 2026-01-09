@@ -107,4 +107,73 @@ document.addEventListener('DOMContentLoaded', () => {
             showGeneralError('Impossible de contacter le serveur. Vérifiez votre connexion.');
         });
     });
+
+    // --- Modal Mot de passe oublié -------------------------------------------------
+    const forgotLink = document.querySelector('.forgot-password-link');
+    const modal = document.getElementById('forgotPasswordModal');
+    const closeModal = document.getElementById('closeForgotModal');
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    const forgotEmail = document.getElementById('forgotEmail');
+    const forgotMsg = document.getElementById('forgotPasswordMessage');
+
+    if (forgotLink && modal && closeModal && forgotForm && forgotEmail && forgotMsg) {
+        forgotLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            modal.setAttribute('aria-hidden', 'false');
+            forgotMsg.textContent = '';
+            forgotForm.reset();
+            forgotEmail.focus();
+        });
+        closeModal.addEventListener('click', function () {
+            modal.setAttribute('aria-hidden', 'true');
+        });
+        window.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') modal.setAttribute('aria-hidden', 'true');
+        });
+        window.addEventListener('click', function (e) {
+            if (e.target === modal) modal.setAttribute('aria-hidden', 'true');
+        });
+
+        forgotForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            forgotMsg.textContent = '';
+            const email = forgotEmail.value.trim();
+            if (!email) {
+                forgotMsg.textContent = 'Veuillez saisir votre email.';
+                forgotMsg.style.color = '#dc3545';
+                return;
+            }
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    forgotMsg.textContent = 'Si cet email existe, un lien de réinitialisation a été envoyé.';
+                    forgotMsg.style.color = '#28a745';
+                } else {
+                    forgotMsg.textContent = data.message || 'Erreur lors de la demande.';
+                    forgotMsg.style.color = '#dc3545';
+                }
+            } catch (err) {
+                forgotMsg.textContent = 'Erreur réseau. Veuillez réessayer.';
+                forgotMsg.style.color = '#dc3545';
+            }
+        });
+    }
+
+    // Password show/hide toggles (login page)
+    document.querySelectorAll('.password-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const input = btn.closest('.password-field').querySelector('input');
+            if (!input) return;
+            const isPwd = input.type === 'password';
+            input.type = isPwd ? 'text' : 'password';
+            btn.setAttribute('aria-pressed', isPwd ? 'true' : 'false');
+            const eye = btn.querySelector('.eye');
+            if (eye) eye.textContent = isPwd ? '🙈' : '👁️';
+        });
+    });
 });
