@@ -81,6 +81,17 @@ class UserValidatorTest extends TestCase
         $this->assertArrayNotHasKey('firstName', $errors);
     }
 
+    public function testFirstNameWithEmojis(): void
+    {
+        $data = $this->validData;
+        $data['firstName'] = '😀🚀✨漢字';
+
+        $result = $this->validator->validate($data);
+
+        $this->assertFalse($result['isValid'], 'Validation should fail for emojis');
+        $this->assertArrayHasKey('firstName', $result['errors'], 'Error key firstName missing');
+    }
+
     // Tests lastName
     public function testLastNameRequired(): void
     {
