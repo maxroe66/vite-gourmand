@@ -89,34 +89,15 @@ jobs:
           fi
 
       - name: Create backend/.env.test with Mailtrap credentials
+
         run: |
           cd backend
           # Copier .env.test.example ou créer depuis zéro
           if [ -f .env.test.example ]; then
-            - name: Start MySQL service (TCP)
-              run: |
-                sudo systemctl start mysql || true
-                sleep 10
-                sudo systemctl status mysql || true
-                # Attendre que MySQL soit prêt sur TCP
-                for i in {1..30}; do
-                  if mysqladmin ping -h 127.0.0.1 -u root -proot --silent; then
-                    echo "MySQL is ready"
-                    break
-                  fi
-                  echo "Waiting for MySQL... ($i/30)"
-                  sleep 2
-                done
-
-            - name: Allow function creators (avoid SUPER privilege error)
-              run: |
-                mysql -h 127.0.0.1 -u root -proot -e "SET GLOBAL log_bin_trust_function_creators = 1;"
-
             cp .env.test.example .env.test
           else
             touch .env.test
-                mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_creation.sql || true
-                mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
+          fi
           # Injecter les secrets GitHub pour SMTP (ou placeholders si absents)
           if [ "${{ steps.check_secrets.outputs.secrets_available }}" = "true" ]; then
             echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env.test
@@ -130,7 +111,6 @@ jobs:
             echo "MAIL_PASSWORD=placeholder" >> .env.test
             echo "MAIL_FROM_ADDRESS=noreply@example.com" >> .env.test
           fi
-          
           # Configuration BDD (identique au workflow test-backend.yml)
           echo "DB_HOST=127.0.0.1" >> .env.test
           echo "DB_PORT=3306" >> .env.test
@@ -141,6 +121,31 @@ jobs:
           echo "MONGODB_DB=vite_gourmand_test" >> .env.test
           echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
           echo "ENVIRONMENT=test" >> .env.test
+
+      - name: Start MySQL service (TCP)
+        run: |
+          sudo systemctl start mysql || true
+          sleep 10
+          sudo systemctl status mysql || true
+          # Attendre que MySQL soit prêt sur TCP
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -u root -proot --silent; then
+              echo "MySQL is ready"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+
+      - name: Allow function creators (avoid SUPER privilege error)
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "SET GLOBAL log_bin_trust_function_creators = 1;"
+
+      - name: Setup test database
+        run: |
+          cd backend
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_creation.sql || true
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
 
 
 
