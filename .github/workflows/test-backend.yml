@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, master, develop, feat/* ]
 
+permissions:
+  contents: read  # Lecture seule du code (sécurité)
+
 jobs:
   test-backend:
     runs-on: ubuntu-latest
@@ -106,7 +109,7 @@ jobs:
 
       - name: Start PHP built-in server for tests
         run: |
-          php -S 127.0.0.1:8000 -t public public/index.php &
+          APP_ENV=test php -S 127.0.0.1:8000 -t public public/index.php &
           echo $! > php_server.pid
           sleep 2
 
@@ -187,7 +190,10 @@ jobs:
             --env-var "base_url=http://127.0.0.1:8000/api" \
             --timeout-request 10000 \
             --delay-request 200
-
+          newman run backend/tests/postman/e2e_password_reset.postman_collection.json \
+            --env-var "base_url=http://127.0.0.1:8000" \
+            --timeout-request 10000 \
+            --delay-request 200
       - name: Run JWT end-to-end test
         run: bash scripts/tests/test_jwt_inscription.sh
 

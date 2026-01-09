@@ -26,6 +26,17 @@ $router->post('/auth/logout', function (ContainerInterface $container, array $pa
     return $authController->logout();
 });
 
+// Routes mot de passe oublié
+$router->post('/auth/forgot-password', function (ContainerInterface $container, array $params, Request $request) {
+    $authController = $container->get(AuthController::class);
+    return $authController->forgotPassword($request);
+});
+
+$router->post('/auth/reset-password', function (ContainerInterface $container, array $params, Request $request) {
+    $authController = $container->get(AuthController::class);
+    return $authController->resetPassword($request);
+});
+
 $router->get('/auth/check', function (ContainerInterface $container, array $params, Request $request) {
     // Le middleware a déjà été exécuté et a enrichi l'objet $request.
     $authController = $container->get(AuthController::class);

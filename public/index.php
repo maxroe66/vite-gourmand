@@ -42,8 +42,17 @@ $router = new Router();
 
 // 8) Chargement des définitions de routes
 // Les routes API sont préfixées par /api
-$router->addGroup('/api', function ($router) use ($container) {
+$router->addGroup('/api', function ($router) use ($container, $config) {
     require __DIR__ . '/../backend/api/routes.php';
+    require __DIR__ . '/../backend/api/routes.auth.php';
+    require __DIR__ . '/../backend/api/routes.menus.php';
+    require __DIR__ . '/../backend/api/routes.commandes.php';
+    require __DIR__ . '/../backend/api/routes.avis.php';
+
+    // Charger les routes de test uniquement si on est en environnement de test
+    if (($config['env'] ?? 'production') === 'test') {
+        require __DIR__ . '/../backend/api/routes.test.php';
+    }
 });
 
 // Les routes "pages" qui servent du HTML statique (simpliste)

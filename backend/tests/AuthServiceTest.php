@@ -2,6 +2,9 @@
 
 use PHPUnit\Framework\TestCase;
 use App\Services\AuthService;
+use App\Services\MailerService;
+use App\Repositories\UserRepository;
+use App\Repositories\ResetTokenRepository;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Psr\Log\LoggerInterface;
@@ -10,6 +13,9 @@ class AuthServiceTest extends TestCase
 {
     private AuthService $authService;
     private LoggerInterface $logger;
+    private UserRepository $userRepository;
+    private ResetTokenRepository $resetTokenRepository;
+    private MailerService $mailerService;
 
     protected function setUp(): void
     {
@@ -17,8 +23,17 @@ class AuthServiceTest extends TestCase
 
         // Mock du logger pour les tests
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->userRepository = $this->createMock(UserRepository::class);
+        $this->resetTokenRepository = $this->createMock(ResetTokenRepository::class);
+        $this->mailerService = $this->createMock(MailerService::class);
 
-        $this->authService = new AuthService($config, $this->logger);
+        $this->authService = new AuthService(
+            $config, 
+            $this->logger,
+            $this->userRepository,
+            $this->resetTokenRepository,
+            $this->mailerService
+        );
     }
 
     public function testGenerateToken(): void
@@ -64,6 +79,95 @@ class AuthServiceTest extends TestCase
         echo "   - Role: {$decoded->role}\n";
         echo "   - Émis à: " . date('Y-m-d H:i:s', $decoded->iat) . "\n";
         echo "   - Expire à: " . date('Y-m-d H:i:s', $decoded->exp) . "\n";
+    }
+
+    public function testRequestPasswordReset_Success(): void
+    {
+        $email = 'test@example.com';
+        $user = ['id' => 1, 'email' => $email, 'prenom' => 'Jean'];
+
+        // 1. Mock UserRepository : trouve l'utilisateur
+        $this->userRepository->expects($this->once())
+            ->method('findByEmail')
+            ->with($email)
+            ->willReturn($user);
+
+        // 2. Mock ResetTokenRepository : crée le token
+        $this->resetTokenRepository->expects($this->once())
+            ->method('create')
+            ->with($this->equalTo(1), $this->isType('string'), $this->isType('string'));
+
+        // 3. Mock MailerService : envoie l'email
+        $this->mailerService->expects($this->once())
+            ->method('sendPasswordResetEmail')
+            ->with($email, $this->isType('string'), 'Jean')
+            ->willReturn(true);
+
+        $result = $this->authService->requestPasswordReset($email);
+        $this->assertTrue($result);
+    }
+
+    public function testRequestPasswordReset_UserNotFound(): void
+    {
+        $email = 'unknown@example.com';
+
+        // Mock UserRepository : ne trouve pas l'utilisateur
+        $this->userRepository->expects($this->once())
+            ->method('findByEmail')
+            ->with($email)
+            ->willReturn(null);
+
+        // Les autres repositories ne doivent PAS être appelés
+        $this->resetTokenRepository->expects($this->never())->method('create');
+        $this->mailerService->expects($this->never())->method('sendPasswordResetEmail');
+
+        $result = $this->authService->requestPasswordReset($email);
+        
+        // Doit retourner true quand même (security by obscurity)
+        $this->assertTrue($result);
+    }
+
+    public function testResetPassword_Success(): void
+    {
+        $token = 'valid_token';
+        $newPassword = 'newPassword123';
+        $tokenData = ['id_token' => 10, 'id_utilisateur' => 1];
+
+        // 1. Mock ResetTokenRepository : trouve le token
+        $this->resetTokenRepository->expects($this->once())
+            ->method('findByToken')
+            ->with($token)
+            ->willReturn($tokenData);
+
+        // 2. Mock UserRepository : met à jour le mot de passe
+        $this->userRepository->expects($this->once())
+            ->method('updatePassword')
+            ->with($this->equalTo(1), $this->isType('string'));
+
+        // 3. Mock ResetTokenRepository : marque le token comme utilisé
+        $this->resetTokenRepository->expects($this->once())
+            ->method('markAsUsed')
+            ->with(10);
+
+        $result = $this->authService->resetPassword($token, $newPassword);
+        $this->assertTrue($result);
+    }
+
+    public function testResetPassword_InvalidToken(): void
+    {
+        $token = 'invalid_token';
+        $newPassword = 'newPassword123';
+
+        // Mock ResetTokenRepository : ne trouve pas le token
+        $this->resetTokenRepository->expects($this->once())
+            ->method('findByToken')
+            ->with($token)
+            ->willReturn(null);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Token invalide ou expiré');
+
+        $this->authService->resetPassword($token, $newPassword);
     }
 
     public function testHashPassword(): void

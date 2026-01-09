@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     libzip-dev \
     libonig-dev \
+    ca-certificates \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Installer les extensions PHP requises pour le projet
