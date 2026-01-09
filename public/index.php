@@ -62,7 +62,12 @@ if ($method === 'GET' && strpos($path, '/api') !== 0) {
         $staticPagePath = __DIR__ . '/../frontend/frontend/pages/home.html';
     } elseif ($path === '/inscription') {
         $staticPagePath = __DIR__ . '/../frontend/frontend/pages/inscription.html';
+    } elseif ($path === '/connexion') {
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/connexion.html';
+    } elseif ($path === '/reset-password') {
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/motdepasse-oublie.html';
     }
+
     
     if ($staticPagePath && file_exists($staticPagePath)) {
         require $staticPagePath;
