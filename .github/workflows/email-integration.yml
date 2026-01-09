@@ -1,6 +1,3 @@
-      - name: Configure MySQL for function creation
-        run: |
-          mysql --user=root --password=root -e "SET GLOBAL log_bin_trust_function_creators = 1;"
 name: Tests d'intégration email (Mailtrap)
 
 # Stratégie : Lancer uniquement sur PR vers develop ou manuellement
@@ -136,6 +133,11 @@ jobs:
           echo "Waiting for MongoDB..."
           timeout 60 bash -c 'until nc -z 127.0.0.1 27017; do sleep 2; done'
           echo "MongoDB is ready"
+
+      - name: Configure MySQL for function creation
+        run: |
+          echo "Configuring MySQL: SET GLOBAL log_bin_trust_function_creators = 1"
+          mysql --user=root --password=root -e "SET GLOBAL log_bin_trust_function_creators = 1;" || true
 
       - name: Setup test database
         run: |
