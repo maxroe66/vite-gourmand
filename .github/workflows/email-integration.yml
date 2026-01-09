@@ -123,6 +123,9 @@ jobs:
           echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
           echo "ENVIRONMENT=test" >> .env.test
 
+      - name: Install mongo client
+        run: sudo apt-get update && sudo apt-get install -y mongodb-clients
+
       - name: Wait for MySQL and MongoDB to be ready
         run: |
           echo "Waiting for MySQL..."
