@@ -54,7 +54,7 @@ class MailerService
             $mail->Subject = '🍽️ Bienvenue chez Vite & Gourmand !';
             
             // Charger le template HTML
-            $templatePath = __DIR__ . '/../templates/emails/welcome.html';
+            $templatePath = __DIR__ . '/../../templates/emails/welcome.html';
             if (!file_exists($templatePath)) {
                 $this->logger->error('Template email introuvable', ['path' => $templatePath]);
                 return false;
