@@ -140,6 +140,31 @@ jobs:
           mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_creation.sql || true
           mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
 
+
+      - name: Start PHP built-in server for tests
+        run: |
+          APP_ENV=test php -S 127.0.0.1:8000 -t public public/index.php &
+          echo $! > php_server.pid
+          sleep 2
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              echo "Server is ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+        env:
+          APP_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: vite_gourmand_test
+          DB_USER: vite_user
+          DB_PASS: vite_pass
+          MONGODB_URI: mongodb://root:root@127.0.0.1:27017
+          MONGODB_DB: vite_gourmand_test
+          JWT_SECRET: test_secret_key_for_ci
+
       - name: Run PHPUnit tests (with real email sending)
         run: cd backend && vendor/bin/phpunit --testdox
 
