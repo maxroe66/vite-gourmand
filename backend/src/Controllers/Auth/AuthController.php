@@ -153,13 +153,22 @@ class AuthController
         try {
             $user = $this->userService->findByEmail($data['email']);
             
+            // 4. Vérification du mot de passe avec protection contre les timing attacks
+            // On effectue toujours une vérification de hash, même si l'utilisateur n'existe pas
+            // Cela garantit un temps de réponse constant et empêche l'énumération d'emails
             if (!$user) {
-                // L'email n'existe pas en base
+                // Utilisation d'un hash factice pour maintenir un temps de traitement constant
+                $dummyHash = '$2y$10$abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQR';
+                try {
+                    $this->authService->verifyPassword($data['password'], $dummyHash);
+                } catch (\Exception $e) {
+                    // On ignore l'exception du hash factice
+                }
                 $this->logger->warning('Tentative de connexion avec email inexistant', ['email' => $data['email']]);
                 throw InvalidCredentialsException::invalidCredentials();
             }
-
-            // 4. Vérification du mot de passe
+            
+            // Vérification du mot de passe réel
             $this->authService->verifyPassword($data['password'], $user['passwordHash']);
 
             // 5. Génération du token JWT
