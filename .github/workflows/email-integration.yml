@@ -156,6 +156,10 @@ jobs:
           mysql -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'vite_user'@'localhost';"
           mysql -u root -proot -e "FLUSH PRIVILEGES;"
 
+      - name: Create test database
+        run: |
+          mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS vite_gourmand_test;"
+
       - name: Setup test database
         run: |
           cd backend
