@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, master, develop, feat/* ]
 
+permissions:
+  contents: read  # Lecture seule du code (sécurité)
+
 jobs:
   test-backend:
     runs-on: ubuntu-latest
