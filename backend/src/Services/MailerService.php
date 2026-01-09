@@ -55,6 +55,18 @@ class MailerService
             $mail->Port = 587;
             $mail->CharSet = 'UTF-8';
 
+            // WORKAROUND: Avast Antivirus intercepte le SSL en local, ce qui cause une erreur car il remplace le certificat par le sien qui n'est pas valide.
+            // On désactive la vérification uniquement pour Mailtrap en dev.
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = [
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    ]
+                ];
+            }
+
             // Destinataires
             $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand');
             $mail->addAddress($email, $firstName);
