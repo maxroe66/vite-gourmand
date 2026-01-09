@@ -13,7 +13,7 @@ $router->get('/test/latest-reset-token', function (ContainerInterface $container
     
     // Sécurité : vérifier qu'on est bien en environnement de test
     $config = $container->get('config');
-    if (($config['app_env'] ?? 'production') !== 'test') {
+    if (($config['env'] ?? 'production') !== 'test') {
         return (new Response())->setStatusCode(Response::HTTP_FORBIDDEN)
                               ->setJsonContent(['error' => 'Endpoint accessible en environnement de test uniquement.']);
     }
