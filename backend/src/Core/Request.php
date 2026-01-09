@@ -11,6 +11,7 @@ class Request
     private array $attributes = [];
     private ?array $parsedBody = null;
     private ?string $rawBody = null;
+    private ?array $queryParams = null;
 
     /**
      * Définit un attribut personnalisé (utilisé par les middlewares)
@@ -111,5 +112,25 @@ class Request
             $request->setParsedBody($jsonData);
         }
         return $request;
+    }
+
+    /**
+     * Récupère tous les paramètres de requête (query string)
+     */
+    public function getQueryParams(): array
+    {
+        if ($this->queryParams === null) {
+            $this->queryParams = $_GET ?? [];
+        }
+        return $this->queryParams;
+    }
+
+    /**
+     * Récupère un paramètre de requête individuel
+     */
+    public function getQueryParam(string $key, $default = null)
+    {
+        $params = $this->getQueryParams();
+        return $params[$key] ?? $default;
     }
 }
