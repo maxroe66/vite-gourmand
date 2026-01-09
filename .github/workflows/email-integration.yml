@@ -68,6 +68,18 @@ jobs:
             sleep 2
           done
 
+      - name: Debug MongoDB container & process
+        run: |
+          echo "--- docker ps -a ---"
+          docker ps -a
+          echo "--- docker logs MongoDB ---"
+          MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
+          docker logs "$MONGO_CID" || echo "Pas de logs MongoDB"
+          echo "--- netstat port 27017 ---"
+          netstat -lntp | grep 27017 || echo "Port 27017 non ouvert"
+          echo "--- ps aux | grep mongod ---"
+          ps aux | grep mongod || echo "Process mongod non trouvé"
+
       - name: Install PCRE for UTF-8 support
         run: sudo apt-get update && sudo apt-get install -y libpcre3-dev
 
@@ -127,7 +139,7 @@ jobs:
           echo "DB_NAME=vite_gourmand_test" >> .env.test
           echo "DB_USER=vite_user" >> .env.test
           echo "DB_PASS=vite_pass" >> .env.test
-          echo "MONGODB_URI=mongodb://root:root@127.0.0.1:27017" >> .env.test
+          echo "MONGODB_URI=mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin" >> .env.test
           echo "MONGODB_DB=vite_gourmand_test" >> .env.test
           echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
           echo "ENVIRONMENT=test" >> .env.test
@@ -223,7 +235,7 @@ jobs:
           DB_NAME: vite_gourmand_test
           DB_USER: vite_user
           DB_PASS: vite_pass
-          MONGODB_URI: mongodb://127.0.0.1:27017
+          MONGODB_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
           MONGODB_DB: vite_gourmand_test
           JWT_SECRET: test_secret_key_for_ci
 
