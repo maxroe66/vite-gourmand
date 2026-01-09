@@ -5,11 +5,12 @@ namespace App\Validators;
 class LoginValidator
 {
     /**
-     * Valide les données de connexion utilisateur
+     * Valide les données de connexion utilisateur.
+     * La méthode n'est plus statique.
      * @param array $data
      * @return array [isValid => bool, errors => array]
      */
-    public static function validate(array $data): array
+    public function validate(array $data): array
     {
         $errors = [];
 
@@ -23,8 +24,6 @@ class LoginValidator
         }
 
         // Mot de passe (obligatoire, type string)
-        // Note: Pas de validation de complexité pour le login, 
-        // on vérifie juste que le champ existe (le hash sera vérifié par AuthService)
         if (empty($data['password'])) {
             $errors['password'] = 'Le mot de passe est requis.';
         } elseif (!is_string($data['password'])) {

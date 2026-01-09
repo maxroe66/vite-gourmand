@@ -67,9 +67,9 @@ class Router
     }
 
     /**
-     * Traite la requête : exécute les middlewares puis le contrôleur.
+     * Traite la requête, exécute les middlewares, appelle le contrôleur et retourne un objet Response.
      */
-    public function dispatch(string $method, string $path, ContainerInterface $container): void
+    public function dispatch(string $method, string $path, ContainerInterface $container): Response
     {
         // Création de l'objet Request qui sera passé à travers les couches
         $request = new Request();
@@ -87,22 +87,38 @@ class Router
                         $middleware->handle($request);
                     }
                 } catch (AuthException $e) {
-                    // Exception d'authentification : 401 Unauthorized
-                    Response::json(['success' => false, 'message' => $e->getMessage()], 401);
-                    return;
+                    // Exception d'authentification : on retourne une réponse 401
+                    return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                                          ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
                 } catch (\Exception $e) {
-                    // Autres exceptions : 500 Internal Server Error
-                    Response::json(['success' => false, 'message' => 'Erreur serveur interne'], 500);
-                    return;
+                    // Autres exceptions : on retourne une réponse 500
+                    // On pourrait logguer l'erreur ici si nécessaire
+                    return (new Response())->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+                                          ->setJsonContent(['success' => false, 'message' => 'Erreur serveur interne.']);
                 }
 
-                // Si tous les middlewares sont passés, on exécute le handler de la route
-                // On passe également l'objet Request au contrôleur
-                $route['handler']($container, $params, $request);
-                return;
+                // Si tous les middlewares sont passés, on exécute le handler de la route.
+                // Le handler doit maintenant retourner un objet Response.
+                $response = $route['handler']($container, $params, $request);
+
+                // On s'assure que le handler a bien retourné une instance de Response
+                if (!$response instanceof Response) {
+                    // Log de l'erreur critique
+                    $logger = $container->get(\Psr\Log\LoggerInterface::class);
+                    $logger->critical('Le handler de la route n\'a pas retourné un objet Response.', ['route' => $routePath]);
+                    
+                    return new Response(
+                        'Erreur: Le contrôleur doit retourner une instance de App\Core\Response.',
+                        Response::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
+                
+                return $response;
             }
         }
 
-        Response::json(['success' => false, 'message' => 'Route non trouvée'], 404);
+        // Si aucune route n'est trouvée, on retourne une réponse 404
+        return (new Response())->setStatusCode(Response::HTTP_NOT_FOUND)
+                              ->setJsonContent(['success' => false, 'message' => 'Route non trouvée']);
     }
 }

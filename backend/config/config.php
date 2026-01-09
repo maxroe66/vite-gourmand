@@ -134,12 +134,24 @@ if (empty($jwtSecret) || $jwtSecret === '<placeholder>') {
     $jwtSecret = 'default-dev-secret-do-not-use-in-prod';
 }
 
+/**
+ * CORS
+ * - FRONTEND_ORIGIN: URL du frontend autorisée
+ */
+$frontendOrigin = $env('FRONTEND_ORIGIN', 'http://localhost:8000');
+
 return [
     'db' => [
         'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
         'user' => $dbUser,
         'pass' => $dbPass,
         'options' => $dbPdoOptions, // vide en CI/DEV, rempli en Azure si DB_SSL=true
+    ],
+    'cors' => [
+        'allowed_origins' => [$frontendOrigin], // On utilise un tableau pour le futur
+        'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        'allowed_headers' => ['Content-Type', 'Authorization'],
+        'allow_credentials' => true,
     ],
     'mongo' => [
         'uri'      => $mongoUri,
