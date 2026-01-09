@@ -140,6 +140,66 @@ class AuthController
     }
 
     /**
+     * Demande de réinitialisation de mot de passe (Mot de passe oublié)
+     */
+    public function forgotPassword(Request $request): Response
+    {
+        $data = $request->getJsonBody();
+        $email = $data['email'] ?? '';
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
+                ->setJsonContent(['success' => false, 'message' => 'Email invalide.']);
+        }
+
+        // On délègue au service
+        // Note: requestPasswordReset retourne toujours true (ou presque) pour ne pas leaker les emails
+        $this->authService->requestPasswordReset($email);
+
+        return (new Response())->setJsonContent([
+            'success' => true,
+            'message' => 'Si cet email existe, un lien de réinitialisation a été envoyé.'
+        ]);
+    }
+
+    /**
+     * Validation du nouveau mot de passe
+     */
+    public function resetPassword(Request $request): Response
+    {
+        $data = $request->getJsonBody();
+        $token = $data['token'] ?? '';
+        $password = $data['password'] ?? '';
+
+        if (empty($token) || empty($password)) {
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
+                ->setJsonContent(['success' => false, 'message' => 'Token et mot de passe requis.']);
+        }
+
+        // Validation basique mot de passe (min 8 chars, etc) - on pourrait réutiliser UserValidator
+        if (strlen($password) < 8) {
+             return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ->setJsonContent(['success' => false, 'message' => 'Le mot de passe doit faire au moins 8 caractères.']);
+        }
+
+        try {
+            $this->authService->resetPassword($token, $password);
+            
+            return (new Response())->setJsonContent([
+                'success' => true,
+                'message' => 'Mot de passe modifié avec succès. Vous pouvez vous connecter.'
+            ]);
+            
+        } catch (\Exception $e) {
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
+                ->setJsonContent([
+                    'success' => false, 
+                    'message' => $e->getMessage()
+                ]);
+        }
+    }
+
+    /**
      * Connexion d'un utilisateur existant
      * @param Request|null $request Objet Request (null pour créer depuis globals)
      * @return Response
