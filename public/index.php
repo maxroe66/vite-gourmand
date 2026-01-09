@@ -50,7 +50,7 @@ $router->addGroup('/api', function ($router) use ($container, $config) {
     require __DIR__ . '/../backend/api/routes.avis.php';
 
     // Charger les routes de test uniquement si on est en environnement de test
-    if (($config['app_env'] ?? 'production') === 'test') {
+    if (($config['env'] ?? 'production') === 'test') {
         require __DIR__ . '/../backend/api/routes.test.php';
     }
 });
