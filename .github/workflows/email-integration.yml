@@ -124,18 +124,14 @@ jobs:
           echo "ENVIRONMENT=test" >> .env.test
 
 
-      - name: Wait for MySQL and MongoDB to be ready
-        run: |
-          echo "Waiting for MySQL..."
-          timeout 60 bash -c 'until mysqladmin ping -h 127.0.0.1 -u vite_user -pvite_pass --silent; do sleep 2; done'
-          echo "MySQL is ready"
 
-          echo "Waiting for MongoDB..."
-          timeout 60 bash -c 'until nc -z 127.0.0.1 27017; do sleep 2; done'
-          echo "MongoDB is ready"
-
-      - name: Configure MySQL for function creation
+      - name: Start and configure MySQL for functions
         run: |
+          echo "Starting MySQL service (for socket access)..."
+          sudo service mysql start || true
+          echo "Waiting for MySQL (root)..."
+          timeout 60 bash -c 'until mysqladmin ping -h 127.0.0.1 -u root -proot --silent; do sleep 2; done'
+          echo "MySQL is ready (root)"
           echo "Configuring MySQL: SET GLOBAL log_bin_trust_function_creators = 1"
           mysql --user=root --password=root -e "SET GLOBAL log_bin_trust_function_creators = 1;" || true
 
