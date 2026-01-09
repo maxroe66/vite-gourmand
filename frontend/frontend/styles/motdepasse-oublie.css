@@ -26,6 +26,12 @@
 .password-field {
     position: relative;
 }
+.password-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 44px; /* laisser de la place pour le bouton */
+}
+
 .password-field .password-toggle {
     position: absolute;
     right: 10px;
@@ -42,6 +48,15 @@
     outline: 2px solid rgba(0,123,255,0.25);
     border-radius: 4px;
 }
+.password-field .password-toggle .icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    color: var(--color-text-muted);
+}
+.password-field .password-toggle .icon-eye-off { display: none; }
+.password-field .password-toggle[aria-pressed="true"] .icon-eye { display: none; }
+.password-field .password-toggle[aria-pressed="true"] .icon-eye-off { display: block; }
 
 .forgot-password-container {
     display: grid;
