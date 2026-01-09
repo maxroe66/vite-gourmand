@@ -299,6 +299,8 @@ class AuthControllerTest extends TestCase
             'password' => 'SomePassword123'
         ];
 
+        $request = Request::createFromJson($inputData);
+
         // Mock: findByEmail retourne null (utilisateur non trouvé)
         $this->userServiceMock
             ->expects($this->once())
@@ -307,10 +309,11 @@ class AuthControllerTest extends TestCase
             ->willReturn(null);
 
         // Mock: verifyPassword est appelé même si l'utilisateur n'existe pas (timing attack protection)
-        // Il devrait être appelé avec un hash factice
+        // Il devrait être appelé avec un hash factice. On simule l'exception qu'il lèverait.
         $this->authServiceMock
             ->expects($this->once())
             ->method('verifyPassword')
+            ->with($this->anything(), $this->stringContains('abcdef')) // S'assure que c'est le hash factice
             ->willThrowException(InvalidCredentialsException::invalidCredentials());
 
         // Le logger devrait enregistrer la tentative
@@ -323,7 +326,7 @@ class AuthControllerTest extends TestCase
             );
 
         // Act
-        $result = $this->authController->login();
+        $result = $this->authController->login($request);
 
         // Assert
         $this->assertFalse($result['success']);
@@ -376,6 +379,8 @@ class AuthControllerTest extends TestCase
             'password' => 'Password123'
         ];
 
+        $request = Request::createFromJson($inputData);
+
         // Mock: findByEmail lève une exception inattendue
         $this->userServiceMock
             ->expects($this->once())
@@ -392,7 +397,7 @@ class AuthControllerTest extends TestCase
             );
 
         // Act
-        $result = $this->authController->login();
+        $result = $this->authController->login($request);
 
         // Assert
         $this->assertFalse($result['success']);
