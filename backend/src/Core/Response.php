@@ -38,6 +38,8 @@ final class Response
      * Méthode statique pour envoyer une réponse JSON.
      * DÉPRÉCIÉ : L'appel à exit() est conservé pour la compatibilité avec l'ancien code.
      * L'approche moderne est de retourner un objet Response et de l'envoyer depuis l'index.
+     *
+     * @deprecated since 1.0.0 Use Response::setJsonContent() and Response::send() instead.
      */
     public static function json($data, int $status = 200): void
     {
