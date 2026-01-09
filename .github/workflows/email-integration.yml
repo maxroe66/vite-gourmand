@@ -213,7 +213,7 @@ jobs:
           echo "Contenu de backend/.env.test :"
           cat backend/.env.test || echo "(absent)"
           echo "\nVariables d'environnement :"
-          env | grep -E 'APP_ENV|DB_|MONGODB_|JWT_SECRET'
+          env | grep -E 'APP_ENV|DB_|MONGODB_|JWT_SECRET' || echo "Aucune variable correspondante trouvée"
 
       - name: Start PHP built-in server for tests
         run: |
@@ -240,7 +240,14 @@ jobs:
           JWT_SECRET: test_secret_key_for_ci
 
       - name: Run PHPUnit tests (with real email sending)
-        run: cd backend && vendor/bin/phpunit --testdox
+        run: |
+          cd backend
+          vendor/bin/phpunit --testdox --verbose --debug 2>&1 | tee phpunit_output.log
+          if [ $? -ne 0 ]; then
+            echo "--- PHPUnit output ---"
+            cat phpunit_output.log
+            exit 1
+          fi
 
       - name: Run API tests with Newman (with real email sending)
         run: |
@@ -249,12 +256,32 @@ jobs:
           newman run tests/postman/inscription.postman_collection.json \
             --environment tests/postman/test.postman_environment.json \
             --reporters cli,json \
-            --reporter-json-export tests/results/inscription_newman_report.json
+            --reporter-json-export tests/results/inscription_newman_report.json \
+            --verbose 2>&1 | tee newman_inscription.log
+          if [ $? -ne 0 ]; then
+            echo "--- Newman inscription output ---"
+            cat newman_inscription.log
+            exit 1
+          fi
           
           newman run tests/postman/connexion.postman_collection.json \
             --environment tests/postman/test.postman_environment.json \
             --reporters cli,json \
-            --reporter-json-export tests/results/connexion_newman_report.json
+            --reporter-json-export tests/results/connexion_newman_report.json \
+            --verbose 2>&1 | tee newman_connexion.log
+          if [ $? -ne 0 ]; then
+            echo "--- Newman connexion output ---"
+            cat newman_connexion.log
+            exit 1
+          fi
+
+      - name: Afficher les logs applicatifs en cas d'échec
+        if: failure()
+        run: |
+          echo "--- Logs applicatifs ---"
+          cat backend/logs/* || echo "Pas de logs applicatifs"
+          echo "--- Contenu .env.test ---"
+          cat backend/.env.test || echo "Pas de .env.test"
 
       - name: Verify email was sent (check logs)
         if: steps.check_secrets.outputs.secrets_available == 'true'
