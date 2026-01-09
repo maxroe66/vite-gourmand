@@ -168,6 +168,8 @@ return [
         'pass' => $mailPass,
         'from' => $mailFrom,
     ],
+    // URL frontend utilisée par les emails (fallback sur FRONTEND_ORIGIN)
+    'app_url' => $env('APP_URL', $frontendOrigin),
     'env' => $appEnv,
     'debug' => (string)$appDebugRaw === 'true',
 ];

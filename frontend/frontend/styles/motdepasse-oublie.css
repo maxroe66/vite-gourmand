@@ -1,0 +1,251 @@
+/* =========================================
+    Styles pour la page de réinitialisation du mot de passe
+    ========================================= */
+
+.forgot-password-section {
+    display: flex;
+    flex-grow: 1;
+    min-height: 100%;
+    flex: 1;
+}
+
+/* Utilitaire accessible pour masquer visuellement mais garder l'élément lisible par les aides techniques */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Password toggle button */
+.password-field {
+    position: relative;
+}
+.password-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 44px; /* laisser de la place pour le bouton */
+}
+
+.password-field .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+}
+.password-field .password-toggle:focus {
+    outline: 2px solid rgba(0,123,255,0.25);
+    border-radius: 4px;
+}
+.password-field .password-toggle .icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    color: var(--color-text-muted);
+}
+.password-field .password-toggle .icon-eye-off { display: none; }
+.password-field .password-toggle[aria-pressed="true"] .icon-eye { display: none; }
+.password-field .password-toggle[aria-pressed="true"] .icon-eye-off { display: block; }
+
+.forgot-password-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    min-height: 100%;
+    background-color: var(--color-bg);
+    overflow: hidden;
+}
+
+.forgot-password-form-wrapper {
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.forgot-password-form-wrapper .h1 {
+    color: var(--color-title-primary);
+    margin-bottom: var(--space-5);
+}
+
+.forgot-password-form {
+    display: grid;
+    gap: var(--space-4);
+    width: 401px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+    font-size: 14px;
+}
+
+.form-group input {
+    padding: var(--space-3);
+    border: 1px solid #CBD5E1;
+    border-radius: var(--radius-sm);
+    background-color: #F8FAFC;
+    color: var(--color-text);
+}
+
+.form-group input::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* Désactiver les styles par défaut du navigateur pour :invalid */
+.form-group input:invalid {
+    box-shadow: none;
+    border-color: #CBD5E1; /* Garde la bordure normale */
+}
+
+/* Afficher la bordure rouge seulement après interaction (pas pendant la saisie) */
+.form-group input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: #dc3545;
+}
+
+/* IMPORTANT : Le focus garde la bordure normale, juste un léger effet */
+.form-group input:focus {
+    outline: none;
+    border-color: #CBD5E1; /* Garde la même couleur grise */
+    box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.3); /* Léger halo gris */
+}
+
+
+.forgot-password-form .button--primary {
+    width: 100%;
+    height: 53px;
+    margin-top: var(--space-1);
+}
+
+.forgot-password-image-wrapper {
+    position: relative;
+    background-image: url('/assets/images/hero-inscritpion.png');
+    background-size: cover;
+    background-position: center;
+    color: var(--color-text-secondary);
+}
+
+.forgot-password-image-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-6);
+}
+
+.forgot-password-image-overlay .h1 {
+    color: var(--color-title-secondary);
+    font-size: var(--font-xxl);
+}
+
+.forgot-password-image-overlay p {
+    font-size: var(--font-600);
+    margin-bottom: var(--space-5);
+    margin-top: var(--space-3);
+}
+.forgot-password-image-overlay .button--primary {
+    height: 53px;
+}
+
+/* Bordure rouge pour les champs invalides */
+input.error {
+    border: 2px solid #dc3545;
+}
+
+/* Message de succès */
+.success-message {
+    background-color: #28a745; /* Vert */
+    color: white;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Message d'erreur sous les champs */
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Message d'erreur général en haut du formulaire */
+.general-error {
+    background-color: #dc3545;
+    color: white;
+    padding: 2rem;
+    margin: 1rem 0;
+    border: 5px solid red;
+    display: block;
+    position: relative;
+    z-index: 9999;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .forgot-password-container {
+        grid-template-columns: 1fr;
+    }
+
+    .forgot-password-image-wrapper {
+        display: none; /* On cache l'image sur les écrans plus petits pour se concentrer sur le formulaire */
+    }
+
+    .forgot-password-form-wrapper {
+        padding: var(--space-6);
+    }
+}
+
+@media (max-width: 768px) {
+    .forgot-password-form-wrapper {
+        padding: var(--space-4);
+        margin-bottom: var(--space-6);
+        margin-top: var(--space-6);
+    }
+}
+
+@media (max-width: 480px) {
+    .forgot-password-form {
+        width: 100%;
+    }
+
+    .form-group input {
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .forgot-password-form-wrapper {
+        padding: 24px var(--space-4) var(--space-4);
+        justify-content: flex-start;
+    }
+
+    .forgot-password-form-wrapper .h1 {
+        font-size: var(--font-500); /* 20px */
+        text-align: center;
+        margin-bottom: var(--space-6);
+    }
+}
