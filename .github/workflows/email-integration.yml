@@ -141,6 +141,14 @@ jobs:
           mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
 
 
+
+      - name: Debug .env.test et variables
+        run: |
+          echo "Contenu de backend/.env.test :"
+          cat backend/.env.test || echo "(absent)"
+          echo "\nVariables d'environnement :"
+          env | grep -E 'APP_ENV|DB_|MONGODB_|JWT_SECRET'
+
       - name: Start PHP built-in server for tests
         run: |
           APP_ENV=test php -S 127.0.0.1:8000 -t public public/index.php &
