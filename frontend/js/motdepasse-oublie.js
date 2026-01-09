@@ -79,8 +79,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const isPwd = input.type === 'password';
             input.type = isPwd ? 'text' : 'password';
             btn.setAttribute('aria-pressed', isPwd ? 'true' : 'false');
-            const eye = btn.querySelector('.eye');
-            if (eye) eye.textContent = isPwd ? '🙈' : '👁️';
         });
     });
 });
