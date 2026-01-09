@@ -20,19 +20,25 @@ class AuthController
     private MailerService $mailerService;
     private LoggerInterface $logger;
     private array $config;
+    private UserValidator $userValidator;
+    private LoginValidator $loginValidator;
 
     public function __construct(
         UserService $userService,
         AuthService $authService,
         MailerService $mailerService,
         LoggerInterface $logger,
-        array $config
+        array $config,
+        UserValidator $userValidator,
+        LoginValidator $loginValidator
     ) {
         $this->userService = $userService;
         $this->authService = $authService;
         $this->mailerService = $mailerService;
         $this->logger = $logger;
         $this->config = $config;
+        $this->userValidator = $userValidator;
+        $this->loginValidator = $loginValidator;
     }
 
     /**
@@ -57,16 +63,15 @@ class AuthController
         }
 
         // 1. Validation des données
-        $validation = UserValidator::validate($data);
+        $validation = $this->userValidator->validate($data);
         if (!$validation['isValid']) {
             $this->logger->warning('Échec validation inscription', $validation['errors']);
-            $mainError = is_array($validation['errors']) && count($validation['errors']) > 0 ? reset($validation['errors']) : 'Des champs sont invalides.';
-            return [
-                'success' => false,
-                'message' => 'Des champs sont invalides.',
-                'mainError' => $mainError,
-                'errors' => $validation['errors']
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                                  ->setJsonContent([
+                                      'success' => false,
+                                      'message' => 'Des champs sont invalides.',
+                                      'errors' => $validation['errors']
+                                  ]);
         }
 
         // 2. Hash du mot de passe
@@ -150,7 +155,7 @@ class AuthController
         }
 
         // 2. Validation des données avec LoginValidator
-        $validation = LoginValidator::validate($data);
+        $validation = $this->loginValidator->validate($data);
         if (!$validation['isValid']) {
             $this->logger->warning('Échec validation login', $validation['errors']);
             return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
