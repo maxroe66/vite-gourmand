@@ -48,6 +48,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
+          --memory=512m
           --health-cmd="mongo --quiet 127.0.0.1:27017 --eval 'db.adminCommand({ping:1})' --authenticationDatabase admin -u root -p root"
           --health-interval=10s
           --health-timeout=10s
