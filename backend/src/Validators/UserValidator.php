@@ -5,11 +5,12 @@ namespace App\Validators;
 class UserValidator
 {
     /**
-     * Valide les données d'inscription utilisateur
+     * Valide les données d'inscription utilisateur.
+     * La méthode n'est plus statique.
      * @param array $data
      * @return array [isValid => bool, errors => array]
      */
-    public static function validate(array $data): array
+    public function validate(array $data): array
     {
         $errors = [];
 

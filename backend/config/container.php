@@ -92,8 +92,9 @@ return function (array $config): ContainerInterface {
             return $logger;
         },
 
-        // Les autres classes sont autowirées sans problème car elles dépendent
-        // d'interfaces (LoggerInterface) ou d'autres classes (UserRepository, etc.).
+        // Les autres classes comme `UserValidator` et `LoginValidator` sont maintenant
+        // automatiquement instanciées et injectées grâce à l'autowiring car elles
+        // n'ont pas de dépendances scalaires ou complexes dans leur constructeur.
     ]);
 
     return $containerBuilder->build();
