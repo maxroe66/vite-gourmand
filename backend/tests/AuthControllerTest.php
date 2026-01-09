@@ -7,10 +7,13 @@ use App\Controllers\Auth\AuthController;
 use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\MailerService;
+use App\Validators\UserValidator;
+use App\Validators\LoginValidator;
 use App\Exceptions\UserServiceException;
 use App\Exceptions\InvalidCredentialsException;
 use Psr\Log\LoggerInterface;
 use App\Core\Request;
+use App\Core\Response;
 
 class AuthControllerTest extends TestCase
 {
@@ -18,6 +21,8 @@ class AuthControllerTest extends TestCase
     private UserService $userServiceMock;
     private AuthService $authServiceMock;
     private MailerService $mailerServiceMock;
+    private UserValidator $userValidatorMock;
+    private LoginValidator $loginValidatorMock;
     private LoggerInterface $loggerMock;
     private array $config;
 
@@ -28,6 +33,9 @@ class AuthControllerTest extends TestCase
             'jwt' => [
                 'secret' => 'test-secret-key-minimum-32-characters-long',
                 'expire' => 3600
+            ],
+            'app' => [
+                'dummy_hash' => '$2y$10$abcdefghijklmnopqrstuv' // 22 chars for salt
             ]
         ];
 
@@ -35,6 +43,8 @@ class AuthControllerTest extends TestCase
         $this->userServiceMock = $this->createMock(UserService::class);
         $this->authServiceMock = $this->createMock(AuthService::class);
         $this->mailerServiceMock = $this->createMock(MailerService::class);
+        $this->userValidatorMock = $this->createMock(UserValidator::class);
+        $this->loginValidatorMock = $this->createMock(LoginValidator::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
 
         // Instancier le contrôleur avec les mocks
@@ -43,7 +53,9 @@ class AuthControllerTest extends TestCase
             $this->authServiceMock,
             $this->mailerServiceMock,
             $this->loggerMock,
-            $this->config
+            $this->config,
+            $this->userValidatorMock,
+            $this->loginValidatorMock
         );
     }
 
@@ -66,6 +78,13 @@ class AuthControllerTest extends TestCase
         ];
 
         $request = Request::createFromJson($inputData);
+
+        // Mock: la validation réussit (pas d'erreurs)
+        $this->userValidatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->with($inputData)
+            ->willReturn(['isValid' => true, 'errors' => []]);
 
         // Mock: hashPassword retourne un hash
         $this->authServiceMock
@@ -95,9 +114,12 @@ class AuthControllerTest extends TestCase
             ->willReturn(true);
 
         // Act
-        $result = $this->authController->register($request);
+        $response = $this->authController->register($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertEquals(201, $response->getStatusCode());
         $this->assertTrue($result['success']);
         $this->assertEquals(42, $result['userId']);
         $this->assertTrue($result['emailSent']);
@@ -110,9 +132,11 @@ class AuthControllerTest extends TestCase
         $request = Request::createFromJson(null);
 
         // Act
-        $result = $this->authController->register($request);
+        $response = $this->authController->register($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(400, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('invalides', $result['message']);
     }
@@ -129,12 +153,22 @@ class AuthControllerTest extends TestCase
 
         $request = Request::createFromJson($inputData);
 
+        // Mock: la validation échoue
+        $this->userValidatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->with($inputData)
+            ->willReturn(['isValid' => false, 'errors' => ['email' => 'Le champ email est requis.']]);
+
         // Act
-        $result = $this->authController->register($request);
+        $response = $this->authController->register($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(422, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertArrayHasKey('errors', $result);
+        $this->assertArrayHasKey('email', $result['errors']);
     }
 
     public function test_register_fails_when_email_already_exists(): void
@@ -153,6 +187,12 @@ class AuthControllerTest extends TestCase
 
         $request = Request::createFromJson($inputData);
 
+        // Mock: la validation réussit
+        $this->userValidatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->willReturn(['isValid' => true, 'errors' => []]);
+
         // Mock: hashPassword
         $this->authServiceMock
             ->method('hashPassword')
@@ -165,9 +205,11 @@ class AuthControllerTest extends TestCase
             ->willThrowException(UserServiceException::emailExists());
 
         // Act
-        $result = $this->authController->register($request);
+        $response = $this->authController->register($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(409, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('déjà utilisé', $result['message']);
         $this->assertArrayHasKey('errors', $result);
@@ -190,6 +232,7 @@ class AuthControllerTest extends TestCase
 
         $request = Request::createFromJson($inputData);
 
+        $this->userValidatorMock->method('validate')->willReturn(['isValid' => true, 'errors' => []]);
         $this->authServiceMock->method('hashPassword')->willReturn('$2y$10$hash');
         $this->userServiceMock->method('createUser')->willReturn(42);
         $this->authServiceMock->method('generateToken')->willReturn('token');
@@ -201,9 +244,11 @@ class AuthControllerTest extends TestCase
             ->willReturn(false);
 
         // Act
-        $result = $this->authController->register($request);
+        $response = $this->authController->register($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(201, $response->getStatusCode());
         $this->assertTrue($result['success']);
         $this->assertEquals(42, $result['userId']);
         $this->assertFalse($result['emailSent']);
@@ -231,6 +276,13 @@ class AuthControllerTest extends TestCase
             'role' => 'CLIENT'
         ];
 
+        // Mock: la validation réussit
+        $this->loginValidatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->with($inputData)
+            ->willReturn(['isValid' => true, 'errors' => []]);
+
         // Mock: findByEmail retourne l'utilisateur
         $this->userServiceMock
             ->expects($this->once())
@@ -252,9 +304,11 @@ class AuthControllerTest extends TestCase
             ->willReturn('jwt-token');
 
         // Act
-        $result = $this->authController->login($request);
+        $response = $this->authController->login($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($result['success']);
         $this->assertEquals(10, $result['userId']);
         $this->assertStringContainsString('réussie', $result['message']);
@@ -266,9 +320,11 @@ class AuthControllerTest extends TestCase
         $request = Request::createFromJson(null);
 
         // Act
-        $result = $this->authController->login($request);
+        $response = $this->authController->login($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(400, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('invalides', $result['message']);
     }
@@ -283,10 +339,19 @@ class AuthControllerTest extends TestCase
 
         $request = Request::createFromJson($inputData);
 
+        // Mock: la validation échoue
+        $this->loginValidatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->with($inputData)
+            ->willReturn(['isValid' => false, 'errors' => ['email' => 'Le format de l\'email est invalide.']]);
+
         // Act
-        $result = $this->authController->login($request);
+        $response = $this->authController->login($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(422, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertArrayHasKey('errors', $result);
     }
@@ -301,6 +366,9 @@ class AuthControllerTest extends TestCase
 
         $request = Request::createFromJson($inputData);
 
+        // Mock: la validation réussit
+        $this->loginValidatorMock->method('validate')->willReturn(['isValid' => true, 'errors' => []]);
+
         // Mock: findByEmail retourne null (utilisateur non trouvé)
         $this->userServiceMock
             ->expects($this->once())
@@ -313,7 +381,7 @@ class AuthControllerTest extends TestCase
         $this->authServiceMock
             ->expects($this->once())
             ->method('verifyPassword')
-            ->with($this->anything(), $this->stringContains('abcdef')) // S'assure que c'est le hash factice
+            ->with($this->equalTo('SomePassword123'), $this->equalTo('$2y$10$abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQR'))
             ->willThrowException(InvalidCredentialsException::invalidCredentials());
 
         // Le logger devrait enregistrer la tentative
@@ -326,9 +394,11 @@ class AuthControllerTest extends TestCase
             );
 
         // Act
-        $result = $this->authController->login($request);
+        $response = $this->authController->login($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(401, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('incorrect', $result['message']);
     }
@@ -350,6 +420,9 @@ class AuthControllerTest extends TestCase
             'role' => 'CLIENT'
         ];
 
+        // Mock: la validation réussit
+        $this->loginValidatorMock->method('validate')->willReturn(['isValid' => true, 'errors' => []]);
+
         // Mock: findByEmail retourne l'utilisateur
         $this->userServiceMock
             ->expects($this->once())
@@ -364,9 +437,11 @@ class AuthControllerTest extends TestCase
             ->willThrowException(InvalidCredentialsException::invalidCredentials());
 
         // Act
-        $result = $this->authController->login($request);
+        $response = $this->authController->login($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(401, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('incorrect', $result['message']);
     }
@@ -380,6 +455,9 @@ class AuthControllerTest extends TestCase
         ];
 
         $request = Request::createFromJson($inputData);
+
+        // Mock: la validation réussit
+        $this->loginValidatorMock->method('validate')->willReturn(['isValid' => true, 'errors' => []]);
 
         // Mock: findByEmail lève une exception inattendue
         $this->userServiceMock
@@ -397,9 +475,11 @@ class AuthControllerTest extends TestCase
             );
 
         // Act
-        $result = $this->authController->login($request);
+        $response = $this->authController->login($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(500, $response->getStatusCode());
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('erreur est survenue', $result['message']);
     }
@@ -417,9 +497,11 @@ class AuthControllerTest extends TestCase
             ->with($this->equalTo('Utilisateur déconnecté avec succès'));
 
         // Act
-        $result = $this->authController->logout();
+        $response = $this->authController->logout();
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($result['success']);
         $this->assertStringContainsString('Déconnexion réussie', $result['message']);
     }
@@ -431,23 +513,21 @@ class AuthControllerTest extends TestCase
     public function test_checkAuth_returns_authenticated_when_user_present(): void
     {
         // Arrange
-        $requestMock = $this->createMock(Request::class);
+        $request = new Request();
         
         $tokenData = (object)[
             'sub' => 25,
             'role' => 'ADMIN'
         ];
 
-        $requestMock
-            ->expects($this->once())
-            ->method('getAttribute')
-            ->with($this->equalTo('user'))
-            ->willReturn($tokenData);
+        $request->setAttribute('user', $tokenData);
 
         // Act
-        $result = $this->authController->checkAuth($requestMock);
+        $response = $this->authController->checkAuth($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($result['isAuthenticated']);
         $this->assertEquals(25, $result['user']['id']);
         $this->assertEquals('ADMIN', $result['user']['role']);
@@ -456,13 +536,8 @@ class AuthControllerTest extends TestCase
     public function test_checkAuth_returns_not_authenticated_when_user_missing(): void
     {
         // Arrange
-        $requestMock = $this->createMock(Request::class);
-        
-        $requestMock
-            ->expects($this->once())
-            ->method('getAttribute')
-            ->with($this->equalTo('user'))
-            ->willReturn(null);
+        $request = new Request();
+        $request->setAttribute('user', null);
 
         // Le logger devrait enregistrer l'erreur
         $this->loggerMock
@@ -471,9 +546,11 @@ class AuthControllerTest extends TestCase
             ->with($this->stringContains("checkAuth atteint sans attribut 'user'"));
 
         // Act
-        $result = $this->authController->checkAuth($requestMock);
+        $response = $this->authController->checkAuth($request);
+        $result = json_decode($response->getContent(), true);
 
         // Assert
+        $this->assertEquals(401, $response->getStatusCode());
         $this->assertFalse($result['isAuthenticated']);
     }
 }

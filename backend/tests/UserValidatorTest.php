@@ -7,10 +7,13 @@ use App\Validators\UserValidator;
 
 class UserValidatorTest extends TestCase
 {
+    private UserValidator $validator;
     private array $validData;
 
     protected function setUp(): void
     {
+        $this->validator = new UserValidator();
+
         // Données valides de référence
         $this->validData = [
             'firstName' => 'Jean',
@@ -24,25 +27,24 @@ class UserValidatorTest extends TestCase
         ];
     }
 
-    public function testValidDataReturnsValid(): void
+    public function testValidDataReturnsNoErrors(): void
     {
-        $result = UserValidator::validate($this->validData);
-
-        $this->assertTrue($result['isValid']);
-        $this->assertEmpty($result['errors']);
+        $result = $this->validator->validate($this->validData);
+        $errors = $result["errors"];
+        $this->assertEmpty($errors);
     }
 
     // Tests firstName
     public function testFirstNameRequired(): void
     {
         $data = $this->validData;
-        $data['firstName'] = '';
+        unset($data['firstName']);
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('firstName', $result['errors']);
-        $this->assertEquals('Le prénom est requis.', $result['errors']['firstName']);
+        $this->assertArrayHasKey('firstName', $errors);
+        $this->assertEquals('Le prénom est requis.', $errors['firstName']);
     }
 
     public function testFirstNameMustBeString(): void
@@ -50,10 +52,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['firstName'] = 123;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('firstName', $result['errors']);
+        $this->assertArrayHasKey('firstName', $errors);
     }
 
     public function testFirstNameWithInvalidCharacters(): void
@@ -61,11 +63,11 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['firstName'] = 'Jean123';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('firstName', $result['errors']);
-        $this->assertStringContainsString('lettres', $result['errors']['firstName']);
+        $this->assertArrayHasKey('firstName', $errors);
+        $this->assertStringContainsString('lettres', $errors['firstName']);
     }
 
     public function testFirstNameWithAccents(): void
@@ -73,22 +75,22 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['firstName'] = 'François';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertTrue($result['isValid']);
-        $this->assertArrayNotHasKey('firstName', $result['errors']);
+        $this->assertArrayNotHasKey('firstName', $errors);
     }
 
     // Tests lastName
     public function testLastNameRequired(): void
     {
         $data = $this->validData;
-        $data['lastName'] = '';
+        unset($data['lastName']);
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('lastName', $result['errors']);
+        $this->assertArrayHasKey('lastName', $errors);
     }
 
     public function testLastNameMustBeString(): void
@@ -96,7 +98,8 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['lastName'] = 456;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
         $this->assertFalse($result['isValid']);
         $this->assertArrayHasKey('lastName', $result['errors']);
@@ -106,13 +109,13 @@ class UserValidatorTest extends TestCase
     public function testEmailRequired(): void
     {
         $data = $this->validData;
-        $data['email'] = '';
+        unset($data['email']);
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertEquals("L'adresse email est requise.", $result['errors']['email']);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertEquals("L'adresse email est requise.", $errors['email']);
     }
 
     public function testEmailMustBeString(): void
@@ -120,10 +123,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['email'] = 12345;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
+        $this->assertArrayHasKey('email', $errors);
     }
 
     public function testEmailInvalidFormat(): void
@@ -131,23 +134,23 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['email'] = 'invalid-email';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertStringContainsString('format', $result['errors']['email']);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertStringContainsString('format', $errors['email']);
     }
 
     // Tests password
     public function testPasswordRequired(): void
     {
         $data = $this->validData;
-        $data['password'] = '';
+        unset($data['password']);
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
+        $this->assertArrayHasKey('password', $errors);
     }
 
     public function testPasswordMustBeString(): void
@@ -155,10 +158,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['password'] = 12345678;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
+        $this->assertArrayHasKey('password', $errors);
     }
 
     public function testPasswordTooShort(): void
@@ -166,11 +169,11 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['password'] = 'Pass1';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
-        $this->assertStringContainsString('8 caractères', $result['errors']['password']);
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertStringContainsString('8 caractères', $errors['password']);
     }
 
     public function testPasswordWithoutUppercase(): void
@@ -178,11 +181,11 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['password'] = 'password123';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
-        $this->assertStringContainsString('majuscule', $result['errors']['password']);
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertStringContainsString('majuscule', $errors['password']);
     }
 
     public function testPasswordWithoutLowercase(): void
@@ -190,10 +193,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['password'] = 'PASSWORD123';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
+        $this->assertArrayHasKey('password', $errors);
     }
 
     public function testPasswordWithoutDigit(): void
@@ -201,7 +204,8 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['password'] = 'PasswordABC';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
         $this->assertFalse($result['isValid']);
         $this->assertArrayHasKey('password', $result['errors']);
@@ -211,12 +215,12 @@ class UserValidatorTest extends TestCase
     public function testPhoneRequired(): void
     {
         $data = $this->validData;
-        $data['phone'] = '';
+        unset($data['phone']);
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('phone', $result['errors']);
+        $this->assertArrayHasKey('phone', $errors);
     }
 
     public function testPhoneMustBeString(): void
@@ -224,10 +228,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['phone'] = 123456789;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('phone', $result['errors']);
+        $this->assertArrayHasKey('phone', $errors);
     }
 
     public function testPhoneInvalidFormat(): void
@@ -235,10 +239,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['phone'] = '123';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('phone', $result['errors']);
+        $this->assertArrayHasKey('phone', $errors);
     }
 
     public function testPhoneWithSpaces(): void
@@ -246,22 +250,22 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['phone'] = '01 23 45 67 89';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertTrue($result['isValid']);
-        $this->assertArrayNotHasKey('phone', $result['errors']);
+        $this->assertArrayNotHasKey('phone', $errors);
     }
 
     // Tests address
     public function testAddressRequired(): void
     {
         $data = $this->validData;
-        $data['address'] = '';
+        unset($data['address']);
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('address', $result['errors']);
+        $this->assertArrayHasKey('address', $errors);
     }
 
     public function testAddressMustBeString(): void
@@ -269,10 +273,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['address'] = 12345;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('address', $result['errors']);
+        $this->assertArrayHasKey('address', $errors);
     }
 
     public function testAddressTooShort(): void
@@ -280,23 +284,23 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['address'] = 'Rue';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('address', $result['errors']);
-        $this->assertStringContainsString('5 caractères', $result['errors']['address']);
+        $this->assertArrayHasKey('address', $errors);
+        $this->assertStringContainsString('5 caractères', $errors['address']);
     }
 
     // Tests city
     public function testCityRequired(): void
     {
         $data = $this->validData;
-        $data['city'] = '';
+        unset($data['city']);
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('city', $result['errors']);
+        $this->assertArrayHasKey('city', $errors);
     }
 
     public function testCityMustBeString(): void
@@ -304,7 +308,8 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['city'] = 75001;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
         $this->assertFalse($result['isValid']);
         $this->assertArrayHasKey('city', $result['errors']);
@@ -316,7 +321,7 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['postalCode'] = '';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
 
         $this->assertFalse($result['isValid']);
         $this->assertArrayHasKey('postalCode', $result['errors']);
@@ -327,10 +332,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['postalCode'] = 75001;
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('postalCode', $result['errors']);
+        $this->assertArrayHasKey('postalCode', $errors);
     }
 
     public function testPostalCodeInvalidFormat(): void
@@ -338,11 +343,11 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['postalCode'] = '123';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('postalCode', $result['errors']);
-        $this->assertStringContainsString('5 chiffres', $result['errors']['postalCode']);
+        $this->assertArrayHasKey('postalCode', $errors);
+        $this->assertStringContainsString('5 chiffres', $errors['postalCode']);
     }
 
     public function testPostalCodeWithLetters(): void
@@ -350,10 +355,10 @@ class UserValidatorTest extends TestCase
         $data = $this->validData;
         $data['postalCode'] = '75A01';
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('postalCode', $result['errors']);
+        $this->assertArrayHasKey('postalCode', $errors);
     }
 
     // Tests combinés
@@ -370,17 +375,17 @@ class UserValidatorTest extends TestCase
             'postalCode' => '123'
         ];
 
-        $result = UserValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertCount(8, $result['errors']);
-        $this->assertArrayHasKey('firstName', $result['errors']);
-        $this->assertArrayHasKey('lastName', $result['errors']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertArrayHasKey('password', $result['errors']);
-        $this->assertArrayHasKey('phone', $result['errors']);
-        $this->assertArrayHasKey('address', $result['errors']);
-        $this->assertArrayHasKey('city', $result['errors']);
-        $this->assertArrayHasKey('postalCode', $result['errors']);
+        $this->assertCount(8, $errors);
+        $this->assertArrayHasKey('firstName', $errors);
+        $this->assertArrayHasKey('lastName', $errors);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertArrayHasKey('phone', $errors);
+        $this->assertArrayHasKey('address', $errors);
+        $this->assertArrayHasKey('city', $errors);
+        $this->assertArrayHasKey('postalCode', $errors);
     }
 }

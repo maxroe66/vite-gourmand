@@ -84,6 +84,15 @@ final class Response
         return $this;
     }
 
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
 
     /**
      * Envoie la réponse HTTP au client.
