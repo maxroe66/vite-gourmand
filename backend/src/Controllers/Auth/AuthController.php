@@ -35,13 +35,18 @@ class AuthController
 
     /**
      * Inscription d'un nouvel utilisateur
-     * @param array $data
+     * @param Request|null $request Objet Request (null pour créer depuis globals)
      * @return array
      */
-    public function register(): array
+    public function register(?Request $request = null): array
     {
         // 0. Récupération et validation de l'input
-        $data = json_decode(file_get_contents('php://input'), true);
+        if ($request === null) {
+            $request = Request::createFromGlobals();
+        }
+        
+        $data = $request->getJsonBody();
+        
         if (!$data) {
             return [
                 'success' => false,
@@ -125,12 +130,18 @@ class AuthController
 
     /**
      * Connexion d'un utilisateur existant
+     * @param Request|null $request Objet Request (null pour créer depuis globals)
      * @return array
      */
-    public function login(): array
+    public function login(?Request $request = null): array
     {
         // 1. Récupération et validation de l'input
-        $data = json_decode(file_get_contents('php://input'), true);
+        if ($request === null) {
+            $request = Request::createFromGlobals();
+        }
+        
+        $data = $request->getJsonBody();
+        
         if (!$data) {
             return [
                 'success' => false,

@@ -32,6 +32,9 @@ return function (array $config): ContainerInterface {
         App\Services\AuthService::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
 
+        App\Middlewares\CorsMiddleware::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
+
         // 3. Définition pour la connexion PDO (nécessite une configuration manuelle).
         PDO::class => function (ContainerInterface $c) {
             $dbConfig = $c->get('config')['db'];
