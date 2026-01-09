@@ -46,6 +46,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install PCRE for UTF-8 support
+        run: sudo apt-get update && sudo apt-get install -y libpcre3-dev
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
