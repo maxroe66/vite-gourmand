@@ -1,3 +1,6 @@
+      - name: Configure MySQL for function creation
+        run: |
+          mysql --user=root --password=root -e "SET GLOBAL log_bin_trust_function_creators = 1;"
 name: Tests d'intégration email (Mailtrap)
 
 # Stratégie : Lancer uniquement sur PR vers develop ou manuellement
