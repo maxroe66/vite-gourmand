@@ -2,6 +2,9 @@
 
 use PHPUnit\Framework\TestCase;
 use App\Services\AuthService;
+use App\Services\MailerService;
+use App\Repositories\UserRepository;
+use App\Repositories\ResetTokenRepository;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Psr\Log\LoggerInterface;
@@ -10,6 +13,9 @@ class AuthServiceTest extends TestCase
 {
     private AuthService $authService;
     private LoggerInterface $logger;
+    private UserRepository $userRepository;
+    private ResetTokenRepository $resetTokenRepository;
+    private MailerService $mailerService;
 
     protected function setUp(): void
     {
@@ -17,8 +23,17 @@ class AuthServiceTest extends TestCase
 
         // Mock du logger pour les tests
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->userRepository = $this->createMock(UserRepository::class);
+        $this->resetTokenRepository = $this->createMock(ResetTokenRepository::class);
+        $this->mailerService = $this->createMock(MailerService::class);
 
-        $this->authService = new AuthService($config, $this->logger);
+        $this->authService = new AuthService(
+            $config, 
+            $this->logger,
+            $this->userRepository,
+            $this->resetTokenRepository,
+            $this->mailerService
+        );
     }
 
     public function testGenerateToken(): void
