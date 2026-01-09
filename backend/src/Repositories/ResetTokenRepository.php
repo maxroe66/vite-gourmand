@@ -88,7 +88,7 @@ class ResetTokenRepository
             SELECT * FROM RESET_TOKEN 
             WHERE id_utilisateur = :userId 
             AND utilise = 0 
-            ORDER BY expiration DESC
+            ORDER BY date_expiration DESC
             LIMIT 1
         ");
         $stmt->execute(['userId' => $userId]);
