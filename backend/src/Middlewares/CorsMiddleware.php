@@ -40,9 +40,9 @@ class CorsMiddleware
             if (!empty($origin)) {
                 $this->logger->debug("Origine CORS non autorisée bloquée : {$origin}");
             }
-            // Pour les requêtes OPTIONS, il faut quand même répondre, mais sans les headers.
+            // Pour les requêtes OPTIONS avec origine non autorisée, retourner 403 Forbidden
             if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
-                http_response_code(204); // No Content
+                http_response_code(403); // Forbidden pour origines non autorisées
                 exit;
             }
             return;
