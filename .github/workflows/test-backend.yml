@@ -109,7 +109,7 @@ jobs:
 
       - name: Start PHP built-in server for tests
         run: |
-          php -S 127.0.0.1:8000 -t public public/index.php &
+          APP_ENV=test php -S 127.0.0.1:8000 -t public public/index.php &
           echo $! > php_server.pid
           sleep 2
 
