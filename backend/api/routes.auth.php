@@ -8,32 +8,32 @@ use App\Core\Response;
 use App\Middlewares\AuthMiddleware;
 use Psr\Container\ContainerInterface;
 
-$router->post('/auth/register', function (ContainerInterface $container) {
+$router->post('/auth/register', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
-    $response = $authController->register();
-    Response::json($response, $response['success'] ? 201 : 400);
+    // Le contrôleur retourne directement un objet Response
+    return $authController->register($request);
 });
 
-$router->post('/auth/login', function (ContainerInterface $container) {
+$router->post('/auth/login', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
-    $response = $authController->login();
-    Response::json($response, $response['success'] ? 200 : 401);
+    // Le contrôleur retourne directement un objet Response
+    return $authController->login($request);
 });
 
-$router->post('/auth/logout', function (ContainerInterface $container) {
+$router->post('/auth/logout', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
-    $response = $authController->logout();
-    Response::json($response, 200);
+    // Le contrôleur retourne directement un objet Response
+    return $authController->logout();
 });
 
 $router->get('/auth/check', function (ContainerInterface $container, array $params, Request $request) {
     // Le middleware a déjà été exécuté et a enrichi l'objet $request.
-    // On passe cet objet au contrôleur.
     $authController = $container->get(AuthController::class);
-    $response = $authController->checkAuth($request);
-    Response::json($response);
+    // Le contrôleur retourne directement un objet Response
+    return $authController->checkAuth($request);
 })->middleware(AuthMiddleware::class); // On attache le middleware à la route.
 
 $router->get('/auth/test', function () {
-    Response::json(['message' => 'API Auth OK']);
+    // On retourne un nouvel objet Response pour le test
+    return (new Response())->setJsonContent(['message' => 'API Auth OK']);
 });

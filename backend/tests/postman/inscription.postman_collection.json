@@ -62,7 +62,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -84,8 +87,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 409 attendu\", function () {\r",
+              "    pm.response.to.have.status(409);\r",
               "});\r",
               "pm.test(\"Erreur email déjà utilisé\", function () {\r",
               "    var json = pm.response.json();\r",
@@ -102,7 +105,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -119,8 +125,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 422 attendu\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
               "});\r",
               "pm.test(\"Erreur de validation sur l'email\", function () {\r",
               "    var json = pm.response.json();\r",
@@ -139,7 +145,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -156,8 +165,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 422 attendu\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
               "});\r",
               "pm.test(\"Erreur de validation sur le mot de passe\", function () {\r",
               "    var json = pm.response.json();\r",
@@ -176,7 +185,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -193,8 +205,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 422 attendu\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
               "});\r",
               "pm.test(\"Erreur de validation sur le téléphone\", function () {\r",
               "    var json = pm.response.json();\r",
@@ -213,7 +225,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -243,7 +258,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -276,7 +294,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -293,8 +314,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu pour type inattendu\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 422 attendu pour type inattendu\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
               "});\r",
               "pm.test(\"Erreur de validation ou message explicite\", function () {\r",
               "    var json = pm.response.json();\r",
@@ -311,7 +332,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -328,8 +352,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu pour injection SQL\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 422 attendu pour injection SQL\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
               "});\r",
               "pm.test(\"Erreur de validation sur l'email (injection SQL)\", function () {\r",
               "    var json = pm.response.json();\r",
@@ -347,7 +371,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -377,7 +404,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -403,8 +433,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu pour encodage exotique\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 422 attendu pour encodage exotique\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
               "});\r",
               "pm.test(\"Réponse JSON échec attendu\", function () {\r",
               "    var json = pm.response.json();\r",
@@ -422,7 +452,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",

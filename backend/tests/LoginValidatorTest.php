@@ -7,10 +7,13 @@ use App\Validators\LoginValidator;
 
 class LoginValidatorTest extends TestCase
 {
+    private LoginValidator $validator;
     private array $validData;
 
     protected function setUp(): void
     {
+        $this->validator = new LoginValidator();
+
         // Données valides de référence pour le login
         $this->validData = [
             'email' => 'marie.dupont@email.fr',
@@ -18,25 +21,24 @@ class LoginValidatorTest extends TestCase
         ];
     }
 
-    public function testValidDataReturnsValid(): void
+    public function testValidDataReturnsNoErrors(): void
     {
-        $result = LoginValidator::validate($this->validData);
-
-        $this->assertTrue($result['isValid']);
-        $this->assertEmpty($result['errors']);
+        $result = $this->validator->validate($this->validData);
+        $errors = $result["errors"];
+        $this->assertEmpty($errors);
     }
 
     // Tests email
     public function testEmailRequired(): void
     {
         $data = $this->validData;
-        $data['email'] = '';
+        unset($data['email']);
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertEquals("L'email est requis.", $result['errors']['email']);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertEquals("L'email est requis.", $errors['email']);
     }
 
     public function testEmailMustBeString(): void
@@ -44,11 +46,11 @@ class LoginValidatorTest extends TestCase
         $data = $this->validData;
         $data['email'] = ['not', 'a', 'string'];
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertEquals("L'email doit être une chaîne de caractères.", $result['errors']['email']);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertEquals("L'email doit être une chaîne de caractères.", $errors['email']);
     }
 
     public function testEmailMustBeValidFormat(): void
@@ -56,11 +58,11 @@ class LoginValidatorTest extends TestCase
         $data = $this->validData;
         $data['email'] = 'invalid-email';
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertEquals("L'email n'est pas valide.", $result['errors']['email']);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertEquals("L'email n'est pas valide.", $errors['email']);
     }
 
     public function testEmailAcceptsValidFormats(): void
@@ -76,10 +78,10 @@ class LoginValidatorTest extends TestCase
             $data = $this->validData;
             $data['email'] = $email;
 
-            $result = LoginValidator::validate($data);
+            $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-            $this->assertTrue($result['isValid'], "Email $email devrait être valide");
-            $this->assertEmpty($result['errors']);
+            $this->assertEmpty($errors, "Email $email devrait être valide");
         }
     }
 
@@ -87,13 +89,13 @@ class LoginValidatorTest extends TestCase
     public function testPasswordRequired(): void
     {
         $data = $this->validData;
-        $data['password'] = '';
+        unset($data['password']);
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
-        $this->assertEquals('Le mot de passe est requis.', $result['errors']['password']);
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertEquals('Le mot de passe est requis.', $errors['password']);
     }
 
     public function testPasswordMustBeString(): void
@@ -101,11 +103,11 @@ class LoginValidatorTest extends TestCase
         $data = $this->validData;
         $data['password'] = 123456;
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
-        $this->assertEquals('Le mot de passe doit être une chaîne de caractères.', $result['errors']['password']);
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertEquals('Le mot de passe doit être une chaîne de caractères.', $errors['password']);
     }
 
     public function testPasswordNoComplexityValidation(): void
@@ -124,10 +126,10 @@ class LoginValidatorTest extends TestCase
             $data = $this->validData;
             $data['password'] = $password;
 
-            $result = LoginValidator::validate($data);
+            $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-            $this->assertTrue($result['isValid'], "Password '$password' devrait être accepté pour le login");
-            $this->assertEmpty($result['errors']);
+            $this->assertEmpty($errors, "Password '$password' devrait être accepté pour le login");
         }
     }
 
@@ -139,23 +141,23 @@ class LoginValidatorTest extends TestCase
             'password' => ''
         ];
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertArrayHasKey('password', $result['errors']);
-        $this->assertCount(2, $result['errors']);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertArrayHasKey('password', $errors);
+        $this->assertCount(2, $errors);
     }
 
     public function testMissingFieldsTreatedAsEmpty(): void
     {
         $data = []; // Aucun champ fourni
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('email', $result['errors']);
-        $this->assertArrayHasKey('password', $result['errors']);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertArrayHasKey('password', $errors);
     }
 
     public function testExtraFieldsIgnored(): void
@@ -164,9 +166,9 @@ class LoginValidatorTest extends TestCase
         $data['extraField'] = 'should be ignored';
         $data['anotherField'] = 'also ignored';
 
-        $result = LoginValidator::validate($data);
+        $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertTrue($result['isValid']);
-        $this->assertEmpty($result['errors']);
+        $this->assertEmpty($errors);
     }
 }
