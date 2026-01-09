@@ -131,8 +131,7 @@ jobs:
           echo "MySQL is ready"
 
           echo "Waiting for MongoDB..."
-          MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
-          timeout 60 bash -c 'until docker exec "$MONGO_CID" mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root --eval "db.adminCommand({ping:1})"; do sleep 2; done'
+          timeout 60 bash -c 'until nc -z 127.0.0.1 27017; do sleep 2; done'
           echo "MongoDB is ready"
 
       - name: Setup test database
