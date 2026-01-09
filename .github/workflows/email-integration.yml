@@ -39,31 +39,20 @@ jobs:
           --health-retries=15
           --health-start-period=30s
 
-      mongodb:
-        image: mongo:4.4
-        env:
-          MONGO_INITDB_DATABASE: vite_gourmand_test
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: root
-        ports:
-          - 27017:27017
-        options: >-
-          --memory=512m
-          --health-cmd="mongo --quiet 127.0.0.1:27017 --eval 'db.adminCommand({ping:1})' --authenticationDatabase admin -u root -p root"
-          --health-interval=10s
-          --health-timeout=10s
-          --health-retries=10
-          --health-start-period=30s
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@v1.10.0
+        with:
+          mongodb-version: '5.0'
+
       - name: Wait for MongoDB
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             nc -z localhost 27017 && echo "MongoDB is up" && exit 0
-            echo "Waiting for MongoDB... ($i/30)"
+            echo "Waiting for MongoDB... ($i/60)"
             sleep 2
           done
           echo "MongoDB did not start in time" && exit 1
@@ -127,7 +116,7 @@ jobs:
           echo "DB_NAME=vite_gourmand_test" >> .env.test
           echo "DB_USER=vite_user" >> .env.test
           echo "DB_PASS=vite_pass" >> .env.test
-          echo "MONGODB_URI=mongodb://root:root@127.0.0.1:27017" >> .env.test
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017" >> .env.test
           echo "MONGODB_DB=vite_gourmand_test" >> .env.test
           echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
           echo "ENVIRONMENT=test" >> .env.test
@@ -223,7 +212,7 @@ jobs:
           DB_NAME: vite_gourmand_test
           DB_USER: vite_user
           DB_PASS: vite_pass
-          MONGODB_URI: mongodb://root:root@127.0.0.1:27017
+          MONGODB_URI: mongodb://127.0.0.1:27017
           MONGODB_DB: vite_gourmand_test
           JWT_SECRET: test_secret_key_for_ci
 
