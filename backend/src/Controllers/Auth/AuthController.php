@@ -44,7 +44,7 @@ class AuthController
     /**
      * Inscription d'un nouvel utilisateur
      * @param Request|null $request Objet Request (null pour créer depuis globals)
-     * @return array
+     * @return Response
      */
     public function register(?Request $request = null): Response
     {
@@ -142,7 +142,7 @@ class AuthController
     /**
      * Connexion d'un utilisateur existant
      * @param Request|null $request Objet Request (null pour créer depuis globals)
-     * @return array
+     * @return Response
      */
     public function login(?Request $request = null): Response
     {
