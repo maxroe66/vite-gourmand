@@ -46,7 +46,7 @@ class AuthController
      * @param Request|null $request Objet Request (null pour créer depuis globals)
      * @return array
      */
-    public function register(?Request $request = null): array
+    public function register(?Request $request = null): Response
     {
         // 0. Récupération et validation de l'input
         if ($request === null) {
@@ -56,10 +56,11 @@ class AuthController
         $data = $request->getJsonBody();
         
         if (!$data) {
-            return [
-                'success' => false,
-                'message' => 'Données invalides ou manquantes.'
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
+                                  ->setJsonContent([
+                                      'success' => false,
+                                      'message' => 'Données invalides ou manquantes.'
+                                  ]);
         }
 
         // 1. Validation des données
@@ -89,11 +90,12 @@ class AuthController
             if ($e->getCode() === UserServiceException::EMAIL_EXISTS) {
                 $errors['email'] = $e->getMessage();
             }
-            return [
-                'success' => false,
-                'message' => $e->getMessage(),
-                'errors' => $errors
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_CONFLICT)
+                                  ->setJsonContent([
+                                      'success' => false,
+                                      'message' => $e->getMessage(),
+                                      'errors' => $errors
+                                  ]);
         }
 
         // 4. Génération du token JWT
@@ -117,22 +119,24 @@ class AuthController
         if (!$emailSent) {
             $this->logger->error('Échec envoi email bienvenue', ['email' => $data['email']]);
             // On peut choisir de ne pas bloquer l'inscription, mais d'informer le client
-            return [
-                'success' => true,
-                'userId' => $userId,
-                'emailSent' => false,
-                'message' => "Inscription réussie, mais l'email de bienvenue n'a pas pu être envoyé."
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_CREATED)
+                                  ->setJsonContent([
+                                      'success' => true,
+                                      'userId' => $userId,
+                                      'emailSent' => false,
+                                      'message' => "Inscription réussie, mais l'email de bienvenue n'a pas pu être envoyé."
+                                  ]);
         }
 
         // 7. Gestion des erreurs et logs (déjà fait)
         // 8. Retourne la réponse (succès) - le token est dans le cookie
-        return [
-            'success' => true,
-            'userId' => $userId,
-            'emailSent' => true,
-            'message' => 'Inscription réussie et email de bienvenue envoyé.'
-        ];
+        return (new Response())->setStatusCode(Response::HTTP_CREATED)
+                              ->setJsonContent([
+                                  'success' => true,
+                                  'userId' => $userId,
+                                  'emailSent' => true,
+                                  'message' => 'Inscription réussie et email de bienvenue envoyé.'
+                              ]);
     }
 
     /**
@@ -223,7 +227,7 @@ class AuthController
         }
     }
 
-    public function logout(): array
+    public function logout(): Response
     {
         // 1. Invalider le cookie en le supprimant
         $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
@@ -239,30 +243,33 @@ class AuthController
         $this->logger->info('Utilisateur déconnecté avec succès');
 
         // 2. Répondre avec succès
-        return [
-            'success' => true,
-            'message' => 'Déconnexion réussie.'
-        ];
+        return (new Response())->setStatusCode(Response::HTTP_OK)
+                              ->setJsonContent([
+                                  'success' => true,
+                                  'message' => 'Déconnexion réussie.'
+                              ]);
     }
 
-    public function checkAuth(Request $request): array
+    public function checkAuth(Request $request): Response
     {
         // Le middleware a déjà fait la vérification et a enrichi l'objet Request.
         // On récupère les données du token décodé depuis l'attribut 'user'.
         $decodedToken = $request->getAttribute('user');
 
         if ($decodedToken) {
-            return [
-                'isAuthenticated' => true,
-                'user' => [
-                    'id' => $decodedToken->sub, // 'sub' est le standard pour l'ID utilisateur
-                    'role' => $decodedToken->role
-                ]
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_OK)
+                                  ->setJsonContent([
+                                      'isAuthenticated' => true,
+                                      'user' => [
+                                          'id' => $decodedToken->sub, // 'sub' est le standard pour l'ID utilisateur
+                                          'role' => $decodedToken->role
+                                      ]
+                                  ]);
         }
 
         // Ce cas ne devrait pas arriver si le middleware est bien configuré sur la route
         $this->logger->error("checkAuth atteint sans attribut 'user' dans la requête. Le middleware a-t-il échoué ?");
-        return ['isAuthenticated' => false];
+        return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                              ->setJsonContent(['isAuthenticated' => false]);
     }
 }
