@@ -122,6 +122,15 @@ jobs:
           echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
           echo "ENVIRONMENT=test" >> .env.test
 
+
+      - name: Stop existing MySQL processes
+        run: |
+          sudo systemctl stop mysql || true
+          sudo killall mysqld || true
+
+      - name: Clean up MySQL socket
+        run: sudo rm -f /var/run/mysqld/mysqld.sock
+
       - name: Start MySQL service (TCP)
         run: |
           sudo systemctl start mysql || true
