@@ -32,6 +32,9 @@ return function (array $config): ContainerInterface {
         App\Services\AuthService::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
 
+        App\Services\MailerService::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
+
         // CorsMiddleware est instancié et exécuté globalement dans public/index.php
         App\Middlewares\CorsMiddleware::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
