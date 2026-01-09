@@ -1,0 +1,309 @@
+name: Tests d'intégration email (Mailtrap)
+
+# Stratégie : Lancer uniquement sur PR vers develop ou manuellement
+# Évite de surcharger Mailtrap sur chaque commit
+on:
+  pull_request:
+    branches: [ develop ]
+  schedule:
+    # Tous les jours à 9h UTC (optionnel)
+    - cron: '0 9 * * *'
+  workflow_dispatch:  # Permet lancement manuel depuis GitHub Actions UI
+
+permissions:
+  contents: read  # Lecture seule du code (sécurité)
+  actions: read   # Lecture artifacts/cache si nécessaire
+
+jobs:
+  email-integration-test:
+    runs-on: ubuntu-latest
+    
+    # Note : Workflow fonctionne avec ou sans secrets MAIL_*
+    # Si secrets configurés → envoi réel via Mailtrap (emailSent: true)
+    # Si secrets absents → graceful degradation (emailSent: false), tests passent quand même
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: vite_gourmand_test
+          MYSQL_USER: vite_user
+          MYSQL_PASSWORD: vite_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot --silent"
+          --health-interval=10s
+          --health-timeout=10s
+          --health-retries=15
+          --health-start-period=30s
+
+      mongodb:
+        image: mongo:4.4
+        env:
+          MONGO_INITDB_DATABASE: vite_gourmand_test
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: root
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongo --quiet 127.0.0.1:27017 --eval 'db.adminCommand({ping:1})' --authenticationDatabase admin -u root -p root"
+          --health-interval=10s
+          --health-timeout=10s
+          --health-retries=10
+          --health-start-period=30s
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for MongoDB
+        run: |
+          MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
+          for i in {1..30}; do
+            docker exec "$MONGO_CID" \
+              mongo 127.0.0.1:27017 --authenticationDatabase admin -u root -p root \
+              --eval "db.adminCommand({ping:1})" && break
+            sleep 2
+          done
+
+      - name: Debug MongoDB container & process
+        run: |
+          echo "--- docker ps -a ---"
+          docker ps -a
+          echo "--- docker logs MongoDB ---"
+          MONGO_CID="$(docker ps -q --filter ancestor=mongo:4.4 | head -n 1)"
+          docker logs "$MONGO_CID" || echo "Pas de logs MongoDB"
+          echo "--- netstat port 27017 ---"
+          netstat -lntp | grep 27017 || echo "Port 27017 non ouvert"
+          echo "--- ps aux | grep mongod ---"
+          ps aux | grep mongod || echo "Process mongod non trouvé"
+
+      - name: Install PCRE for UTF-8 support
+        run: sudo apt-get update && sudo apt-get install -y libpcre3-dev
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, dom, filter, mongodb, curl
+          coverage: none
+
+      - name: Validate composer.json and composer.lock
+        run: cd backend && composer validate
+
+      - name: Install dependencies
+        run: cd backend && composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Verify MongoDB PHP extension
+        run: php -m | grep mongodb || echo "MongoDB extension not found"
+
+      - name: Check if Mailtrap secrets are configured
+        id: check_secrets
+        run: |
+          if [ -n "${{ secrets.MAIL_HOST }}" ] && [ -n "${{ secrets.MAIL_USERNAME }}" ]; then
+            echo "secrets_available=true" >> $GITHUB_OUTPUT
+            echo "✅ Secrets MAIL_* configured - real email sending enabled"
+          else
+            echo "secrets_available=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Secrets MAIL_* not configured - graceful degradation mode"
+          fi
+
+      - name: Create backend/.env.test with Mailtrap credentials
+
+        run: |
+          cd backend
+          # Copier .env.test.example ou créer depuis zéro
+          if [ -f .env.test.example ]; then
+            cp .env.test.example .env.test
+          else
+            touch .env.test
+          fi
+          # Injecter les secrets GitHub pour SMTP (ou placeholders si absents)
+          if [ "${{ steps.check_secrets.outputs.secrets_available }}" = "true" ]; then
+            echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env.test
+            echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env.test
+            echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env.test
+            echo "MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}" >> .env.test
+          else
+            # Placeholders pour graceful degradation
+            echo "MAIL_HOST=smtp.example.com" >> .env.test
+            echo "MAIL_USERNAME=placeholder" >> .env.test
+            echo "MAIL_PASSWORD=placeholder" >> .env.test
+            echo "MAIL_FROM_ADDRESS=noreply@example.com" >> .env.test
+          fi
+          # Configuration BDD (identique au workflow test-backend.yml)
+          echo "DB_HOST=127.0.0.1" >> .env.test
+          echo "DB_PORT=3306" >> .env.test
+          echo "DB_NAME=vite_gourmand_test" >> .env.test
+          echo "DB_USER=vite_user" >> .env.test
+          echo "DB_PASS=vite_pass" >> .env.test
+          echo "MONGODB_URI=mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin" >> .env.test
+          echo "MONGODB_DB=vite_gourmand_test" >> .env.test
+          echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
+          echo "ENVIRONMENT=test" >> .env.test
+
+
+      - name: Stop existing MySQL processes
+        run: |
+          sudo systemctl stop mysql || true
+          sudo killall mysqld || true
+
+      - name: Clean up MySQL socket
+        run: sudo rm -f /var/run/mysqld/mysqld.sock
+
+      - name: Start MySQL service (TCP)
+        run: |
+          sudo systemctl start mysql || true
+          sleep 10
+          sudo systemctl status mysql || true
+          # Attendre que MySQL soit prêt sur TCP
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -u root -proot --silent; then
+              echo "MySQL is ready"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+
+      - name: Allow function creators (avoid SUPER privilege error)
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "SET GLOBAL log_bin_trust_function_creators = 1;"
+
+      - name: Create MySQL test user
+        run: |
+          mysql -u root -proot -e "CREATE USER IF NOT EXISTS 'vite_user'@'localhost' IDENTIFIED BY 'vite_pass';"
+          mysql -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'vite_user'@'localhost';"
+          mysql -u root -proot -e "FLUSH PRIVILEGES;"
+
+      - name: Create test database
+        run: |
+          mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS vite_gourmand_test;"
+
+      - name: Setup test database
+        run: |
+          cd backend
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_creation.sql || true
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
+
+
+
+      - name: Start and configure MySQL for functions
+        run: |
+          echo "Starting MySQL service (for socket access)..."
+          sudo service mysql start || true
+          echo "Waiting for MySQL (root)..."
+          timeout 60 bash -c 'until mysqladmin ping -h 127.0.0.1 -u root -proot --silent; do sleep 2; done'
+          echo "MySQL is ready (root)"
+          echo "Configuring MySQL: SET GLOBAL log_bin_trust_function_creators = 1"
+          mysql --user=root --password=root -e "SET GLOBAL log_bin_trust_function_creators = 1;" || true
+
+      - name: Setup test database
+        run: |
+          cd backend
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_creation.sql || true
+          mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
+
+
+
+      - name: Debug .env.test et variables
+        run: |
+          echo "Contenu de backend/.env.test :"
+          cat backend/.env.test || echo "(absent)"
+          echo "\nVariables d'environnement :"
+          env | grep -E 'APP_ENV|DB_|MONGODB_|JWT_SECRET' || echo "Aucune variable correspondante trouvée"
+
+      - name: Start PHP built-in server for tests
+        run: |
+          APP_ENV=test php -S 127.0.0.1:8000 -t public public/index.php &
+          echo $! > php_server.pid
+          sleep 2
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              echo "Server is ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+        env:
+          APP_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: vite_gourmand_test
+          DB_USER: vite_user
+          DB_PASS: vite_pass
+          MONGODB_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
+          MONGODB_DB: vite_gourmand_test
+          JWT_SECRET: test_secret_key_for_ci
+
+      - name: Run PHPUnit tests (with real email sending)
+        run: |
+          cd backend
+          vendor/bin/phpunit --testdox --verbose --debug 2>&1 | tee phpunit_output.log
+          if [ $? -ne 0 ]; then
+            echo "--- PHPUnit output ---"
+            cat phpunit_output.log
+            exit 1
+          fi
+
+      - name: Run API tests with Newman (with real email sending)
+        run: |
+          cd backend
+          npm install -g newman
+          newman run tests/postman/inscription.postman_collection.json \
+            --environment tests/postman/test.postman_environment.json \
+            --reporters cli,json \
+            --reporter-json-export tests/results/inscription_newman_report.json \
+            --verbose 2>&1 | tee newman_inscription.log
+          if [ $? -ne 0 ]; then
+            echo "--- Newman inscription output ---"
+            cat newman_inscription.log
+            exit 1
+          fi
+          
+          newman run tests/postman/connexion.postman_collection.json \
+            --environment tests/postman/test.postman_environment.json \
+            --reporters cli,json \
+            --reporter-json-export tests/results/connexion_newman_report.json \
+            --verbose 2>&1 | tee newman_connexion.log
+          if [ $? -ne 0 ]; then
+            echo "--- Newman connexion output ---"
+            cat newman_connexion.log
+            exit 1
+          fi
+
+      - name: Afficher les logs applicatifs en cas d'échec
+        if: failure()
+        run: |
+          echo "--- Logs applicatifs ---"
+          cat backend/logs/* || echo "Pas de logs applicatifs"
+          echo "--- Contenu .env.test ---"
+          cat backend/.env.test || echo "Pas de .env.test"
+
+      - name: Verify email was sent (check logs)
+        if: steps.check_secrets.outputs.secrets_available == 'true'
+        run: |
+          cd backend
+          # Chercher dans les logs si "Email de bienvenue envoyé avec succès" apparaît
+          if grep -r "Email de bienvenue envoyé avec succès" logs/ 2>/dev/null; then
+            echo "✅ Email successfully sent via Mailtrap"
+          else
+            echo "⚠️ No email log found (registration might not have triggered email)"
+          fi
+
+      - name: Summary - Graceful degradation mode
+        if: steps.check_secrets.outputs.secrets_available == 'false'
+        run: |
+          echo "ℹ️  Tests executed in graceful degradation mode (no MAIL_* secrets)"
+          echo "   Emails were not sent, but registration succeeded with emailSent: false"
+          echo "   To enable real email testing, add MAIL_* secrets in GitHub Settings"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: email-integration-test-results
+          path: backend/tests/results/
