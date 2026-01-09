@@ -104,8 +104,8 @@ class Router
                 // On s'assure que le handler a bien retourné une instance de Response
                 if (!$response instanceof Response) {
                     // Log de l'erreur critique
-                    // $logger = $container->get(\Psr\Log\LoggerInterface::class);
-                    // $logger->critical('Le handler de la route n'a pas retourné un objet Response.', ['route' => $routePath]);
+                    $logger = $container->get(\Psr\Log\LoggerInterface::class);
+                    $logger->critical('Le handler de la route n\'a pas retourné un objet Response.', ['route' => $routePath]);
                     
                     return new Response(
                         'Erreur: Le contrôleur doit retourner une instance de App\Core\Response.',
