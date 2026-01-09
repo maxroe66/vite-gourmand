@@ -14,6 +14,21 @@
 <body>
     <header id="header-placeholder"></header>
 
+    <!-- Modal Mot de passe oublié -->
+    <div id="forgotPasswordModal" class="modal" aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+            <button class="close-modal" id="closeForgotModal" aria-label="Fermer la fenêtre">×</button>
+            <h2 id="forgotTitle">Réinitialiser le mot de passe</h2>
+            <form id="forgotPasswordForm" class="forgot-password-modal-form">
+                <div class="form-group">
+                    <label for="forgotEmail">Adresse email</label>
+                    <input type="email" id="forgotEmail" name="email" placeholder="votre@email.fr" required aria-required="true" autocomplete="email">
+                </div>
+                <button type="submit" class="button button--primary">Envoyer le lien</button>
+                <div id="forgotPasswordMessage" role="status" aria-live="polite"></div>
+            </form>
+        </div>
+    </div>
     <main class="login-section">
         <div class="login-container">
             <div class="login-form-wrapper">
@@ -21,11 +36,17 @@
                 <form id="loginForm" class="login-form">
                     <div class="form-group">
                         <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" placeholder="jean.dupont@email.fr" required aria-required="true">
+                        <input type="email" id="email" name="email" placeholder="jean.dupont@email.fr" required aria-required="true" autocomplete="email">
                     </div>
                     <div class="form-group">
                         <label for="password">Mot de passe *</label>
-                        <input type="password" id="password" name="password" placeholder="********" required aria-required="true">
+                        <div class="password-field">
+                            <input type="password" id="password" name="password" placeholder="********" required aria-required="true" autocomplete="current-password">
+                            <button type="button" class="password-toggle" aria-label="Afficher le mot de passe" aria-pressed="false"><span class="eye">👁️</span></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a href="/frontend/frontend/pages/motdepasse-oublie.html" class="forgot-password-link">Mot de passe oublié&nbsp;?</a>
                     </div>
                     <button type="submit" class="button button--primary">Connexion</button>
                 </form>
