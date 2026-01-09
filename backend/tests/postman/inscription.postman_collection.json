@@ -51,7 +51,13 @@
               "    var json = pm.response.json();\r",
               "    pm.expect(json.success).to.eql(true);\r",
               "    pm.expect(json).to.have.property('userId');\r",
-              "});"
+              "});",
+              "",
+              "// Sauvegarder les données pour les tests suivants",
+              "const jsonData = pm.response.json();",
+              "pm.collectionVariables.set(\"created_user_email\", pm.variables.get(\"uniqueEmail\"));",
+              "pm.collectionVariables.set(\"created_user_password\", \"Password123\");",
+              "pm.collectionVariables.set(\"created_user_id\", jsonData.userId);"
             ],
             "type": "text/javascript",
             "packages": {},

@@ -75,4 +75,25 @@ class ResetTokenRepository
         $stmt = $this->pdo->prepare("UPDATE RESET_TOKEN SET utilise = 1 WHERE id_utilisateur = :userId AND utilise = 0");
         $stmt->execute(['userId' => $userId]);
     }
+
+    /**
+     * Trouve le dernier token non utilisé pour un utilisateur.
+     * Uniquement pour les tests automatisés.
+     * @param int $userId
+     * @return array|null
+     */
+    public function findLatestTokenForUser(int $userId): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM RESET_TOKEN 
+            WHERE id_utilisateur = :userId 
+            AND utilise = 0 
+            ORDER BY expiration DESC
+            LIMIT 1
+        ");
+        $stmt->execute(['userId' => $userId]);
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result === false ? null : $result;
+    }
 }
