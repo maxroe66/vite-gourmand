@@ -108,4 +108,80 @@ class MailerService
             return false;
         }
     }
+
+    /**
+     * Envoie l'email de réinitialisation de mot de passe
+     * @param string $email
+     * @param string $token
+     * @param string $firstName
+     * @return bool
+     */
+    public function sendPasswordResetEmail(string $email, string $token, string $firstName): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) {
+                return false;
+            }
+
+            $mail = $this->createMailer();
+
+            // Config SMTP (copié de sendWelcomeEmail, normalement on devrait factoriser)
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+
+            // Workaround SSL dev
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = [
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    ]
+                ];
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '🔒 Réinitialisation de votre mot de passe';
+
+            // Lien de réinitialisation (A adapter selon URL frontend)
+            // ex: http://localhost:5173/reset-password?token=XYZ
+            // On peut mettre une valeur par défaut ou la prendre de la config
+            $frontendUrl = $this->config['app_url'] ?? 'http://localhost:5173'; 
+            $resetLink = "{$frontendUrl}/reset-password?token={$token}";
+
+            // Charger le template HTML
+            $templatePath = __DIR__ . '/../../templates/emails/password_reset.html';
+            if (!file_exists($templatePath)) {
+                // Fallback si le template n'existe pas (pour éviter de bloquer l'envoi)
+                $this->logger->warning('Template password_reset introuvable, utilisation fallback', ['path' => $templatePath]);
+                $mail->Body = "Bonjour {$firstName},<br><br>Pour réinitialiser votre mot de passe, cliquez ici : <a href='{$resetLink}'>{$resetLink}</a>";
+            } else {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace('{firstName}', htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8'), $htmlBody);
+                $htmlBody = str_replace('{resetLink}', $resetLink, $htmlBody); // Le lien est sûr on peut l'injecter direct ou htmlspecialchars selon le cas
+                $mail->Body = $htmlBody;
+            }
+
+            $mail->AltBody = "Bonjour {$firstName},\n\n"
+                . "Pour réinitialiser votre mot de passe, visitez : {$resetLink}\n\n"
+                . "Ce lien expire dans 1 heure.";
+
+            $mail->send();
+            $this->logger->info('Email de reset envoyé', ['email' => $email]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error('Erreur envoi email reset', ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
 }

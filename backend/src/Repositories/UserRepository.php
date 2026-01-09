@@ -57,4 +57,18 @@ class UserRepository
 
         return (int)$this->pdo->lastInsertId();
     }
+
+    /**
+     * Met à jour le mot de passe d'un utilisateur
+     * @param int $userId
+     * @param string $passwordHash
+     */
+    public function updatePassword(int $userId, string $passwordHash): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE UTILISATEUR SET mot_de_passe = :password WHERE id_utilisateur = :id");
+        $stmt->execute([
+            'password' => $passwordHash,
+            'id' => $userId
+        ]);
+    }
 }
