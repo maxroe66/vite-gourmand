@@ -28,67 +28,60 @@ $config = require __DIR__ . '/../backend/config/config.php';
 $createContainer = require __DIR__ . '/../backend/config/container.php';
 $container = $createContainer($config);
 
-// 5) Headers globaux (CORS)
-$allowedOrigin = $_ENV['FRONTEND_ORIGIN'] ?? getenv('FRONTEND_ORIGIN') ?? 'http://localhost:8000';
-header('Access-Control-Allow-Origin: ' . $allowedOrigin);
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+// 5) Middleware CORS global
+// On instancie et exécute le middleware CORS avant toute autre chose.
+$corsMiddleware = $container->get(\App\Middlewares\CorsMiddleware::class);
+$corsMiddleware->handle();
 
-// 6) Réponse pour les requêtes OPTIONS (pré-vérification CORS)
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
-    http_response_code(204);
-    exit;
-}
-
-// 7) Détermination de la méthode et du chemin de la requête
+// 6) Détermination de la méthode et du chemin de la requête
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// 8) Initialisation du routeur
+// 7) Initialisation du routeur
 $router = new Router();
 
-// 9) Chargement des définitions de routes
+// 8) Chargement des définitions de routes
 // Les routes API sont préfixées par /api
 $router->addGroup('/api', function ($router) use ($container) {
     require __DIR__ . '/../backend/api/routes.php';
 });
 
-// Les routes "pages" qui servent du HTML statique
-if ($method === 'GET') {
-    // Page d'accueil
+// Les routes "pages" qui servent du HTML statique (simpliste)
+if ($method === 'GET' && strpos($path, '/api') !== 0) {
+    $staticPagePath = null;
     if ($path === '/' || $path === '/home' || $path === '/accueil') {
-        require __DIR__ . '/../frontend/frontend/pages/home.html';
-        exit;
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/home.html';
+    } elseif ($path === '/inscription') {
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/inscription.html';
     }
     
-    // Page d'inscription
-    if ($path === '/inscription') {
-        require __DIR__ . '/../frontend/frontend/pages/inscription.html';
+    if ($staticPagePath && file_exists($staticPagePath)) {
+        require $staticPagePath;
         exit;
     }
-
-    // Autres pages...
 }
 
-
-// 10) Dispatching de la requête
+// 9) Dispatching de la requête et envoi de la réponse
 try {
-    // Le routeur trouve la bonne route et exécute le handler associé
-    $router->dispatch($method, $path, $container);
+    // Le routeur trouve la bonne route, exécute le handler et retourne un objet Response
+    $response = $router->dispatch($method, $path, $container);
 
 } catch (\Exception $e) {
     // Gestion centralisée des erreurs non capturées
-    // On récupère le logger depuis le conteneur pour logger l'erreur.
     $logger = $container->get(LoggerInterface::class);
     $logger->error("Erreur non capturée: " . $e->getMessage(), [
         'exception' => $e,
         'trace' => $e->getTraceAsString()
     ]);
 
-    Response::json([
-        'success' => false,
-        'message' => 'Une erreur interne est survenue.'
-    ], 500);
+    // On crée une réponse d'erreur générique
+    $response = (new Response())->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+                               ->setJsonContent([
+                                   'success' => false,
+                                   'message' => 'Une erreur interne est survenue.'
+                               ]);
 }
+
+// 10) Envoi final de la réponse au client
+$response->send();
 
