@@ -19,6 +19,8 @@ final class Response
     public const HTTP_UNAUTHORIZED = 401;
     public const HTTP_FORBIDDEN = 403;
     public const HTTP_NOT_FOUND = 404;
+    public const HTTP_CONFLICT = 409;
+    public const HTTP_UNPROCESSABLE_ENTITY = 422;
     public const HTTP_INTERNAL_SERVER_ERROR = 500;
 
     private array $headers = [];
@@ -34,7 +36,7 @@ final class Response
 
     /**
      * Méthode statique pour envoyer une réponse JSON.
-     * NOTE : L'appel à exit() est conservé pour la compatibilité avec l'ancien code.
+     * DÉPRÉCIÉ : L'appel à exit() est conservé pour la compatibilité avec l'ancien code.
      * L'approche moderne est de retourner un objet Response et de l'envoyer depuis l'index.
      */
     public static function json($data, int $status = 200): void

@@ -3,6 +3,7 @@
 namespace App\Controllers\Auth;
 
 use App\Core\Request;
+use App\Core\Response;
 use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\MailerService;
@@ -10,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use App\Validators\UserValidator;
 use App\Validators\LoginValidator;
 use App\Exceptions\InvalidCredentialsException;
+use App\Exceptions\UserServiceException;
 
 class AuthController
 {
@@ -75,11 +77,11 @@ class AuthController
         // 3. Création de l'utilisateur en base
         try {
             $userId = $this->userService->createUser($data);
-        } catch (\App\Exceptions\UserServiceException $e) {
+        } catch (UserServiceException $e) {
             $this->logger->error('Échec création utilisateur', ['email' => $data['email'], 'code' => $e->getCode(), 'msg' => $e->getMessage()]);
             $errors = [];
             // Si c'est une collision d'email, on précise l'erreur sur le champ email
-            if ($e->getCode() === \App\Exceptions\UserServiceException::EMAIL_EXISTS) {
+            if ($e->getCode() === UserServiceException::EMAIL_EXISTS) {
                 $errors['email'] = $e->getMessage();
             }
             return [
@@ -133,7 +135,7 @@ class AuthController
      * @param Request|null $request Objet Request (null pour créer depuis globals)
      * @return array
      */
-    public function login(?Request $request = null): array
+    public function login(?Request $request = null): Response
     {
         // 1. Récupération et validation de l'input
         if ($request === null) {
@@ -143,21 +145,20 @@ class AuthController
         $data = $request->getJsonBody();
         
         if (!$data) {
-            return [
-                'success' => false,
-                'message' => 'Données invalides ou manquantes.'
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
+                                  ->setJsonContent(['success' => false, 'message' => 'Données invalides ou manquantes.']);
         }
 
         // 2. Validation des données avec LoginValidator
         $validation = LoginValidator::validate($data);
         if (!$validation['isValid']) {
             $this->logger->warning('Échec validation login', $validation['errors']);
-            return [
-                'success' => false,
-                'message' => 'Des champs sont invalides.',
-                'errors' => $validation['errors']
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                                  ->setJsonContent([
+                                      'success' => false,
+                                      'message' => 'Des champs sont invalides.',
+                                      'errors' => $validation['errors']
+                                  ]);
         }
 
         // 3. Récupération de l'utilisateur par email
@@ -165,25 +166,17 @@ class AuthController
             $user = $this->userService->findByEmail($data['email']);
             
             // 4. Vérification du mot de passe avec protection contre les timing attacks
-            // On effectue toujours une vérification de hash, même si l'utilisateur n'existe pas
-            // Cela garantit un temps de réponse constant et empêche l'énumération d'emails
             if (!$user) {
-                // Utilisation d'un hash factice pour maintenir un temps de traitement constant
                 $dummyHash = '$2y$10$abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQR';
                 try {
                     $this->authService->verifyPassword($data['password'], $dummyHash);
                 } catch (InvalidCredentialsException $e) {
-                    // L'exception est attendue et attrapée ici, mais on ne fait rien avec.
-                    // Le but est juste de simuler la vérification.
+                    // Attendu
                 }
-                
                 $this->logger->warning('Tentative de connexion avec email inexistant', ['email' => $data['email']]);
                 
-                // On retourne directement le message d'erreur générique pour ne pas donner d'indice
-                return [
-                    'success' => false,
-                    'message' => 'Email ou mot de passe incorrect.'
-                ];
+                return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                                      ->setJsonContent(['success' => false, 'message' => 'Email ou mot de passe incorrect.']);
             }
             
             // Vérification du mot de passe réel
@@ -207,29 +200,21 @@ class AuthController
             // 7. Retourne la réponse de succès
             $this->logger->info('Connexion réussie', ['userId' => $user['id'], 'email' => $data['email']]);
             
-            return [
-                'success' => true,
-                'userId' => $user['id'],
-                'message' => 'Connexion réussie.'
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_OK)
+                                  ->setJsonContent([
+                                      'success' => true,
+                                      'userId' => $user['id'],
+                                      'message' => 'Connexion réussie.'
+                                  ]);
 
         } catch (InvalidCredentialsException $e) {
-            // Credentials invalides (mot de passe incorrect uniquement, l'email inexistant est géré au-dessus)
             $this->logger->warning('Échec de connexion: mot de passe incorrect', ['email' => $data['email']]);
-            return [
-                'success' => false,
-                'message' => $e->getMessage()
-            ];
+            return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                                  ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
         } catch (\Exception $e) {
-            // Erreur imprévue
-            $this->logger->error('Erreur lors de la connexion', [
-                'error' => $e->getMessage(),
-                'code' => $e->getCode()
-            ]);
-            return [
-                'success' => false,
-                'message' => 'Une erreur est survenue lors de la connexion.'
-            ];
+            $this->logger->error('Erreur lors de la connexion', ['error' => $e->getMessage(), 'code' => $e->getCode()]);
+            return (new Response())->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+                                  ->setJsonContent(['success' => false, 'message' => 'Une erreur est survenue lors de la connexion.']);
         }
     }
 
