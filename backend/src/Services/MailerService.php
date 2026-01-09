@@ -19,6 +19,16 @@ class MailerService
     }
 
     /**
+     * Factory method pour créer une instance PHPMailer
+     * Permet l'injection de mock dans les tests
+     * @return PHPMailer
+     */
+    protected function createMailer(): PHPMailer
+    {
+        return new PHPMailer(true);
+    }
+
+    /**
      * Envoie l'email de bienvenue
      * @param string $email
      * @param string $firstName
@@ -33,7 +43,7 @@ class MailerService
                 return false;
             }
 
-            $mail = new PHPMailer(true);
+            $mail = $this->createMailer();
 
             // Configuration serveur SMTP
             $mail->isSMTP();
