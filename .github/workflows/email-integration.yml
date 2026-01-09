@@ -93,11 +93,30 @@ jobs:
           cd backend
           # Copier .env.test.example ou créer depuis zéro
           if [ -f .env.test.example ]; then
+            - name: Start MySQL service (TCP)
+              run: |
+                sudo systemctl start mysql || true
+                sleep 10
+                sudo systemctl status mysql || true
+                # Attendre que MySQL soit prêt sur TCP
+                for i in {1..30}; do
+                  if mysqladmin ping -h 127.0.0.1 -u root -proot --silent; then
+                    echo "MySQL is ready"
+                    break
+                  fi
+                  echo "Waiting for MySQL... ($i/30)"
+                  sleep 2
+                done
+
+            - name: Allow function creators (avoid SUPER privilege error)
+              run: |
+                mysql -h 127.0.0.1 -u root -proot -e "SET GLOBAL log_bin_trust_function_creators = 1;"
+
             cp .env.test.example .env.test
           else
             touch .env.test
-          fi
-          
+                mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_creation.sql || true
+                mysql -h 127.0.0.1 -u vite_user -pvite_pass vite_gourmand_test < database/sql/database_fixtures.sql || true
           # Injecter les secrets GitHub pour SMTP (ou placeholders si absents)
           if [ "${{ steps.check_secrets.outputs.secrets_available }}" = "true" ]; then
             echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env.test
