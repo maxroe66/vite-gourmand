@@ -5,6 +5,7 @@ test_mysql_connexion.php
 AZURE_CONFIG_CHECKLIST.md
 readme-correction-test.md
 README.env.md
+readme.correction.md
 # Dossiers ignorés
 fichiers_perso/
 plugins/

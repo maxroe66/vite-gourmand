@@ -176,7 +176,8 @@ class AuthController
             
             // 4. Vérification du mot de passe avec protection contre les timing attacks
             if (!$user) {
-                $dummyHash = '$2y$10$abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQR';
+                // Dummy bcrypt hash (60 caractères) utilisé pour atténuer les timing attacks
+                $dummyHash = '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
                 try {
                     $this->authService->verifyPassword($data['password'], $dummyHash);
                 } catch (InvalidCredentialsException $e) {
