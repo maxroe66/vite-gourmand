@@ -50,3 +50,278 @@
 [2026-01-08 16:51:00] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
 [2026-01-08 16:51:00] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
 [2026-01-08 16:51:00] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:25:30] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:25:30] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767893130637_3772@example.com","firstName":"Test"} 
+[2026-01-08 18:25:30] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767893130637_3772@example.com"} 
+[2026-01-08 18:25:31] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767893130637_3772@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:25:31] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:25:31] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:25:31] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:25:31] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:25:31] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:25:31] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:25:31] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:25:31] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:25:31] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:36:07] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:36:07] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767893767736_5155@example.com","firstName":"Test"} 
+[2026-01-08 18:36:07] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767893767736_5155@example.com"} 
+[2026-01-08 18:36:08] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767893767736_5155@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:36:08] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:36:08] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:36:08] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:36:08] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:36:08] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:36:08] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:36:08] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:36:08] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:36:08] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:39:12] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:39:12] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767893952541_4863@example.com","firstName":"Test"} 
+[2026-01-08 18:39:12] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767893952541_4863@example.com"} 
+[2026-01-08 18:39:12] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767893952541_4863@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:39:13] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:39:13] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:39:13] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:39:13] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:39:13] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:39:13] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:39:13] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:39:13] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:39:13] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:41:11] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:41:11] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767894071727_3774@example.com","firstName":"Test"} 
+[2026-01-08 18:41:11] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767894071727_3774@example.com"} 
+[2026-01-08 18:41:12] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767894071727_3774@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:41:12] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:41:12] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:41:12] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:41:13] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:41:13] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:41:13] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:41:14] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:41:14] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:41:14] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:41:54] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 18:41:54] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 18:41:54] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 18:45:49] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:45:49] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767894349689_7816@example.com","firstName":"Test"} 
+[2026-01-08 18:45:49] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767894349689_7816@example.com"} 
+[2026-01-08 18:45:49] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767894349689_7816@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:45:50] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:45:50] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:45:50] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:45:50] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:45:50] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:45:50] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:45:50] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:45:50] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:45:50] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:46:40] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 18:46:40] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 18:46:40] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 18:48:14] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767894493990_5798@example.com","firstName":"Test"} 
+[2026-01-08 18:48:14] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767894493990_5798@example.com"} 
+[2026-01-08 18:48:14] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767894493990_5798@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:48:14] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:48:14] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:48:14] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:49:02] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 18:49:02] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 18:49:02] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 18:49:02] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 18:49:02] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 18:49:02] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 18:49:02] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 18:54:13] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:54:13] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767894853284_1995@example.com","firstName":"Test"} 
+[2026-01-08 18:54:13] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767894853284_1995@example.com"} 
+[2026-01-08 18:54:13] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767894853284_1995@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:54:13] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:54:13] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:54:13] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:54:14] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:54:14] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:54:14] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:54:14] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:54:14] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:54:14] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:54:55] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 18:54:55] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 18:54:55] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 18:54:55] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 18:54:55] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 18:54:55] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 18:54:55] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 18:54:56] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 18:56:32] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:56:32] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767894992742_4587@example.com","firstName":"Test"} 
+[2026-01-08 18:56:32] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767894992742_4587@example.com"} 
+[2026-01-08 18:56:33] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767894992742_4587@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:56:33] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:56:33] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:56:33] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:56:33] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:56:33] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:56:33] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:56:33] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:56:33] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:56:33] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 18:57:15] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 18:57:15] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 18:57:15] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 18:57:16] ViteEtGourmand.WARNING: Tentative de connexion avec email inexistant {"email":"inexistant@test.fr"} 
+[2026-01-08 18:57:16] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 18:57:16] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 18:57:16] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 18:57:16] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 18:57:16] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 18:57:16] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 18:59:40] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 18:59:40] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767895180643_6906@example.com","firstName":"Test"} 
+[2026-01-08 18:59:40] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767895180643_6906@example.com"} 
+[2026-01-08 18:59:40] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767895180643_6906@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 18:59:41] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 18:59:41] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 18:59:41] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 18:59:41] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 18:59:41] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 18:59:41] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 18:59:41] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 18:59:41] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 18:59:41] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 19:00:24] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 19:00:24] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 19:00:24] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 19:00:24] ViteEtGourmand.WARNING: Tentative de connexion avec email inexistant {"email":"inexistant@test.fr"} 
+[2026-01-08 19:00:24] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:00:24] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 19:00:24] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:00:24] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 19:00:24] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 19:00:24] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 19:08:40] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767895719792_3235@example.com","firstName":"Test"} 
+[2026-01-08 19:08:40] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767895719792_3235@example.com"} 
+[2026-01-08 19:08:40] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767895719792_3235@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 19:08:40] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 19:08:40] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 19:08:40] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 19:09:23] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 19:09:23] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 19:09:23] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 19:09:23] ViteEtGourmand.WARNING: Tentative de connexion avec email inexistant {"email":"inexistant@test.fr"} 
+[2026-01-08 19:09:23] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:09:23] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 19:09:23] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:09:23] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 19:09:23] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 19:09:23] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 19:11:10] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 19:11:10] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767895870383_7701@example.com","firstName":"Test"} 
+[2026-01-08 19:11:10] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767895870383_7701@example.com"} 
+[2026-01-08 19:11:10] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767895870383_7701@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 19:11:10] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 19:11:10] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 19:11:10] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 19:11:10] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 19:11:10] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 19:11:10] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 19:11:11] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 19:11:11] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 19:11:11] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 19:11:54] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 19:11:54] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 19:11:54] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 19:11:54] ViteEtGourmand.WARNING: Tentative de connexion avec email inexistant {"email":"inexistant@test.fr"} 
+[2026-01-08 19:11:54] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:11:54] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 19:11:54] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:11:55] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 19:11:55] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 19:11:55] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 19:22:36] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 19:22:36] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767896556469_6747@example.com","firstName":"Test"} 
+[2026-01-08 19:22:36] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767896556469_6747@example.com"} 
+[2026-01-08 19:22:36] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767896556469_6747@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 19:22:36] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 19:22:36] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 19:22:36] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 19:22:37] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 19:22:37] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 19:22:37] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 19:22:37] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 19:22:37] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 19:22:37] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 19:23:22] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 19:23:22] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 19:23:22] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 19:23:22] ViteEtGourmand.WARNING: Tentative de connexion avec email inexistant {"email":"inexistant@test.fr"} 
+[2026-01-08 19:23:22] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:23:22] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 19:23:22] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:23:22] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 19:23:22] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 19:23:22] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 19:30:59] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 19:30:59] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767897058835_2831@example.com","firstName":"Test"} 
+[2026-01-08 19:30:59] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767897058835_2831@example.com"} 
+[2026-01-08 19:30:59] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767897058835_2831@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 19:31:00] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 19:31:00] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 19:31:00] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 19:31:00] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 19:31:00] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 19:31:00] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 19:31:00] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 19:31:00] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 19:31:00] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 19:31:42] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 19:31:42] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 19:31:42] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 19:31:42] ViteEtGourmand.WARNING: Tentative de connexion avec email inexistant {"email":"inexistant@test.fr"} 
+[2026-01-08 19:31:42] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:31:42] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 19:31:42] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 19:31:42] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 19:31:42] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 19:31:42] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 20:02:49] ViteEtGourmand.INFO: Token JWT généré {"userId":8,"role":"UTILISATEUR"} 
+[2026-01-08 20:02:49] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"testuser_1767898969287_3324@example.com","firstName":"Test"} 
+[2026-01-08 20:02:49] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"testuser_1767898969287_3324@example.com"} 
+[2026-01-08 20:02:49] ViteEtGourmand.ERROR: Échec création utilisateur {"email":"testuser_1767898969287_3324@example.com","code":1001,"msg":"Cet email est déjà utilisé."} 
+[2026-01-08 20:02:49] ViteEtGourmand.WARNING: Échec validation inscription {"email":"L'adresse email est requise."} 
+[2026-01-08 20:02:49] ViteEtGourmand.WARNING: Échec validation inscription {"password":"Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."} 
+[2026-01-08 20:02:49] ViteEtGourmand.WARNING: Échec validation inscription {"phone":"Le format du numéro de téléphone est invalide."} 
+[2026-01-08 20:02:50] ViteEtGourmand.INFO: Token JWT généré {"userId":9,"role":"UTILISATEUR"} 
+[2026-01-08 20:02:50] ViteEtGourmand.WARNING: Envoi email de bienvenue non implémenté {"email":"inattendu@example.com","firstName":"Test"} 
+[2026-01-08 20:02:50] ViteEtGourmand.ERROR: Échec envoi email bienvenue {"email":"inattendu@example.com"} 
+[2026-01-08 20:02:50] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom doit être une chaîne de caractères."} 
+[2026-01-08 20:02:50] ViteEtGourmand.WARNING: Échec validation inscription {"email":"Le format de l'adresse email est invalide."} 
+[2026-01-08 20:02:50] ViteEtGourmand.WARNING: Échec validation inscription {"firstName":"Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole)."} 
+[2026-01-08 20:03:33] ViteEtGourmand.INFO: Mot de passe vérifié avec succès  
+[2026-01-08 20:03:33] ViteEtGourmand.INFO: Token JWT généré {"userId":3,"role":"UTILISATEUR"} 
+[2026-01-08 20:03:33] ViteEtGourmand.INFO: Connexion réussie {"userId":3,"email":"marie.dupont@email.fr"} 
+[2026-01-08 20:03:33] ViteEtGourmand.WARNING: Tentative de connexion avec email inexistant {"email":"inexistant@test.fr"} 
+[2026-01-08 20:03:33] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 20:03:33] ViteEtGourmand.WARNING: Tentative de connexion avec mot de passe invalide  
+[2026-01-08 20:03:33] ViteEtGourmand.WARNING: Échec de connexion: credentials invalides  
+[2026-01-08 20:03:33] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email est requis."} 
+[2026-01-08 20:03:33] ViteEtGourmand.WARNING: Échec validation login {"password":"Le mot de passe est requis."} 
+[2026-01-08 20:03:33] ViteEtGourmand.WARNING: Échec validation login {"email":"L'email n'est pas valide."} 
+[2026-01-08 20:04:13] ViteEtGourmand.INFO: Utilisateur déconnecté avec succès  
+[2026-01-08 20:04:13] ViteEtGourmand.INFO: Utilisateur déconnecté avec succès  
