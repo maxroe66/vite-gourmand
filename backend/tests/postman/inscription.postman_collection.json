@@ -245,8 +245,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 422 attendu pour prénom trop long\", function () {\r",
-              "    pm.response.to.have.status(422);\r",
+              "pm.test(\"Statut 400 attendu pour prénom trop long\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
               "});"
             ],
             "type": "text/javascript",
@@ -433,8 +433,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Statut 400 attendu pour encodage exotique\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
+              "pm.test(\"Statut 422 attendu pour encodage exotique\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
               "});\r",
               "pm.test(\"Réponse JSON échec attendu\", function () {\r",
               "    var json = pm.response.json();\r",
