@@ -381,7 +381,7 @@ class AuthControllerTest extends TestCase
         $this->authServiceMock
             ->expects($this->once())
             ->method('verifyPassword')
-            ->with($this->equalTo('SomePassword123'), $this->equalTo('$2y$10$abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQR'))
+            ->with($this->equalTo('SomePassword123'), $this->equalTo('$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG'))
             ->willThrowException(InvalidCredentialsException::invalidCredentials());
 
         // Le logger devrait enregistrer la tentative
