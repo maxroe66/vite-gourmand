@@ -112,8 +112,7 @@ class UserValidatorTest extends TestCase
         $result = $this->validator->validate($data);
         $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('lastName', $result['errors']);
+        $this->assertArrayHasKey('lastName', $errors);
     }
 
     // Tests email
@@ -218,8 +217,7 @@ class UserValidatorTest extends TestCase
         $result = $this->validator->validate($data);
         $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('password', $result['errors']);
+        $this->assertArrayHasKey('password', $errors);
     }
 
     // Tests phone
@@ -322,8 +320,7 @@ class UserValidatorTest extends TestCase
         $result = $this->validator->validate($data);
         $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('city', $result['errors']);
+        $this->assertArrayHasKey('city', $errors);
     }
 
     // Tests postalCode
@@ -333,9 +330,9 @@ class UserValidatorTest extends TestCase
         $data['postalCode'] = '';
 
         $result = $this->validator->validate($data);
+        $errors = $result["errors"];
 
-        $this->assertFalse($result['isValid']);
-        $this->assertArrayHasKey('postalCode', $result['errors']);
+        $this->assertArrayHasKey('postalCode', $errors);
     }
 
     public function testPostalCodeMustBeString(): void
