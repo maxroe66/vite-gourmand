@@ -10,6 +10,10 @@ on:
     - cron: '0 9 * * *'
   workflow_dispatch:  # Permet lancement manuel depuis GitHub Actions UI
 
+permissions:
+  contents: read  # Lecture seule du code (sécurité)
+  actions: read   # Lecture artifacts/cache si nécessaire
+
 jobs:
   email-integration-test:
     runs-on: ubuntu-latest
@@ -73,6 +77,17 @@ jobs:
       - name: Verify MongoDB PHP extension
         run: php -m | grep mongodb || echo "MongoDB extension not found"
 
+      - name: Check if Mailtrap secrets are configured
+        id: check_secrets
+        run: |
+          if [ -n "${{ secrets.MAIL_HOST }}" ] && [ -n "${{ secrets.MAIL_USERNAME }}" ]; then
+            echo "secrets_available=true" >> $GITHUB_OUTPUT
+            echo "✅ Secrets MAIL_* configured - real email sending enabled"
+          else
+            echo "secrets_available=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Secrets MAIL_* not configured - graceful degradation mode"
+          fi
+
       - name: Create backend/.env.test with Mailtrap credentials
         run: |
           cd backend
@@ -83,11 +98,19 @@ jobs:
             touch .env.test
           fi
           
-          # Injecter les secrets GitHub pour SMTP
-          echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env.test
-          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env.test
-          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env.test
-          echo "MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}" >> .env.test
+          # Injecter les secrets GitHub pour SMTP (ou placeholders si absents)
+          if [ "${{ steps.check_secrets.outputs.secrets_available }}" = "true" ]; then
+            echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env.test
+            echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env.test
+            echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env.test
+            echo "MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}" >> .env.test
+          else
+            # Placeholders pour graceful degradation
+            echo "MAIL_HOST=smtp.example.com" >> .env.test
+            echo "MAIL_USERNAME=placeholder" >> .env.test
+            echo "MAIL_PASSWORD=placeholder" >> .env.test
+            echo "MAIL_FROM_ADDRESS=noreply@example.com" >> .env.test
+          fi
           
           # Configuration BDD (identique au workflow test-backend.yml)
           echo "DB_HOST=127.0.0.1" >> .env.test
@@ -134,14 +157,22 @@ jobs:
             --reporter-json-export tests/results/connexion_newman_report.json
 
       - name: Verify email was sent (check logs)
+        if: steps.check_secrets.outputs.secrets_available == 'true'
         run: |
           cd backend
           # Chercher dans les logs si "Email de bienvenue envoyé avec succès" apparaît
           if grep -r "Email de bienvenue envoyé avec succès" logs/ 2>/dev/null; then
             echo "✅ Email successfully sent via Mailtrap"
           else
-            echo "⚠️ No email log found (might be expected if no registration test)"
+            echo "⚠️ No email log found (registration might not have triggered email)"
           fi
+
+      - name: Summary - Graceful degradation mode
+        if: steps.check_secrets.outputs.secrets_available == 'false'
+        run: |
+          echo "ℹ️  Tests executed in graceful degradation mode (no MAIL_* secrets)"
+          echo "   Emails were not sent, but registration succeeded with emailSent: false"
+          echo "   To enable real email testing, add MAIL_* secrets in GitHub Settings"
 
       - name: Upload test results
         if: always()

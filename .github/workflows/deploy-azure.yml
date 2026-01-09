@@ -5,6 +5,11 @@ on:
   push:
     branches: [develop]
 
+permissions:
+  contents: read      # Lecture code
+  id-token: write     # Azure OIDC authentication
+  packages: write     # Push GHCR (si nécessaire)
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
