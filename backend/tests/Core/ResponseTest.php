@@ -10,7 +10,7 @@ class ResponseTest extends TestCase
     public function test_constructor_sets_default_values(): void
     {
         $response = new Response();
-        $this->assertSame('', $this->getPrivateProperty($response, 'content'));
+        $this->assertSame(null, $this->getPrivateProperty($response, 'content'));
         $this->assertSame(200, $this->getPrivateProperty($response, 'statusCode'));
         $this->assertSame([], $this->getPrivateProperty($response, 'headers'));
     }
