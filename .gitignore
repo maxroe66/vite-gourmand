@@ -29,3 +29,10 @@ backend/.phpunit.result.cache
 # Logs
 backend/logs/*.log
 !backend/logs/.gitkeep
+
+# Local Docker certs (mkcert) — do not commit
+docker/certs/
+docker/certs/*.pem
+docker/certs/*.key
+docker/certs/*.crt
+docker/certs/*.pfx
