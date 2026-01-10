@@ -17,8 +17,12 @@ fi
 # Installe le CA local si besoin
 mkcert -install
 
+
 # Génère les certificats pour localhost, 127.0.0.1 et ::1
 mkcert localhost 127.0.0.1 ::1
+
+# Sécurise la clé privée pour Docker (lecture pour tous, volume monté en lecture seule)
+chmod 644 localhost+2-key.pem
 
 echo "Certificats générés dans $CERT_DIR :"
 ls -l *.pem

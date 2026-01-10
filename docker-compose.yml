@@ -36,6 +36,8 @@ services:
     ports:
       - "8000:80"
       - "8443:443"
+    environment:
+      - ENABLE_HTTPS=${ENABLE_HTTPS:-false}
     volumes:
       - .:/var/www/vite_gourmand
       - ./docker/apache/vite.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf

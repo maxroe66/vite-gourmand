@@ -2,22 +2,25 @@
 # Utiliser l'image officielle d'Apache 2.4
 FROM httpd:2.4
 
-# Activer les modules Apache nécessaires pour le reverse proxy vers PHP-FPM et la réécriture d'URL
+
+# Activer les modules Apache nécessaires pour le reverse proxy vers PHP-FPM, la réécriture d'URL et SSL
 RUN sed -i \
     -e 's/^#\(LoadModule .*mod_proxy.so\)/\1/' \
     -e 's/^#\(LoadModule .*mod_proxy_fcgi.so\)/\1/' \
     -e 's/^#\(LoadModule .*mod_rewrite.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_ssl.so\)/\1/' \
     conf/httpd.conf
 
-# Copier les fichiers de configuration des Virtual Hosts
-COPY vite.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
-COPY vite-ssl.conf /usr/local/apache2/conf/extra/httpd-vhosts-ssl.conf
+
+# Copier les fichiers de configuration des Virtual Hosts (chemins relatifs depuis la racine du projet)
+COPY docker/apache/vite.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
+COPY docker/apache/vite-ssl.conf /usr/local/apache2/conf/extra/httpd-vhosts-ssl.conf
 
 # Inclure le fichier de configuration HTTP dans la conf principale
 RUN echo "Include conf/extra/httpd-vhosts.conf" >> /usr/local/apache2/conf/httpd.conf
 
 # Copier l'entrypoint custom
-COPY entrypoint.sh /entrypoint.sh
+COPY docker/apache/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Exposer les ports HTTP et HTTPS
