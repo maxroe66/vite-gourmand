@@ -9,12 +9,15 @@ document.addEventListener('componentsLoaded', () => {
         if (auth && auth.isAuthenticated) {
             // Desktop
             if (desktopActions) {
-                desktopActions.innerHTML = `<button class="button button--ghost" id="logoutBtn">Déconnexion</button>`;
+                desktopActions.innerHTML = `<button class="button button--primary" id="logoutBtn">Déconnexion</button>`;
             }
-            // Mobile
-            mobileActionSlots.forEach((slot, i) => {
-                slot.innerHTML = `<button class="button button--ghost" id="logoutBtnMobile${i}">Déconnexion</button>`;
-            });
+            // Mobile : un seul bouton Déconnexion dans le premier slot
+            if (mobileActionSlots[0]) {
+                mobileActionSlots[0].innerHTML = `<button class="button button--primary" id="logoutBtnMobile0">Déconnexion</button>`;
+            }
+            if (mobileActionSlots[1]) {
+                mobileActionSlots[1].innerHTML = "";
+            }
             // Ajoute le handler logout
             const addLogoutHandler = btn => {
                 if (btn) btn.addEventListener('click', async (e) => {
@@ -28,9 +31,7 @@ document.addEventListener('componentsLoaded', () => {
                 });
             };
             addLogoutHandler(document.getElementById('logoutBtn'));
-            mobileActionSlots.forEach((_, i) => {
-                addLogoutHandler(document.getElementById(`logoutBtnMobile${i}`));
-            });
+            addLogoutHandler(document.getElementById('logoutBtnMobile0'));
         } else {
             // Affichage pour utilisateur non connecté
             if (desktopActions) {
