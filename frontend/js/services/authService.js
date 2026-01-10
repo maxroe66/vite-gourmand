@@ -4,6 +4,26 @@
  */
 const AuthService = {
         /**
+         * Réinitialise le mot de passe avec le token et le nouveau mot de passe
+         * @param {string} token
+         * @param {string} password
+         * @returns {Promise<{ok: boolean, status: number, data: object}>}
+         */
+        async resetPassword(token, password) {
+            try {
+                const response = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, password }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                return { ok: response.ok, status: response.status, data };
+            } catch (error) {
+                throw error;
+            }
+        },
+        /**
          * Inscrit un nouvel utilisateur avec les données fournies
          * @param {Object} userData
          * @returns {Promise<{ok: boolean, status: number, data: object}>}

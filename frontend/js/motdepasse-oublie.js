@@ -45,26 +45,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const response = await fetch('/api/auth/reset-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    token: token,
-                    password: newPassword
-                })
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
+            const result = await AuthService.resetPassword(token, newPassword);
+            if (result.ok && result.data.success) {
                 showMessage('Mot de passe modifié avec succès. Vous pouvez vous connecter.', 'success');
                 form.reset();
-                // Optionnel : rediriger vers la page de connexion après quelques secondes
                 setTimeout(() => {
                     window.location.href = '/connexion';
                 }, 2500);
             } else {
-                showMessage(data.message || 'Erreur lors de la réinitialisation du mot de passe.');
+                showMessage(result.data.message || 'Erreur lors de la réinitialisation du mot de passe.');
             }
         } catch (error) {
             showMessage('Erreur réseau. Veuillez réessayer plus tard.');
