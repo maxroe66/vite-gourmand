@@ -4,6 +4,25 @@
  */
 const AuthService = {
         /**
+         * Inscrit un nouvel utilisateur avec les données fournies
+         * @param {Object} userData
+         * @returns {Promise<{ok: boolean, status: number, data: object}>}
+         */
+        async register(userData) {
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                return { ok: response.ok, status: response.status, data };
+            } catch (error) {
+                throw error;
+            }
+        },
+        /**
          * Tente de connecter l'utilisateur avec email et mot de passe
          * @param {string} email
          * @param {string} password
