@@ -35,9 +35,14 @@ services:
     container_name: vite-apache
     ports:
       - "8000:80"
+      - "8443:443"
+    environment:
+      - ENABLE_HTTPS=${ENABLE_HTTPS:-false}
     volumes:
       - .:/var/www/vite_gourmand
       - ./docker/apache/vite.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./docker/apache/vite-ssl.conf:/usr/local/apache2/conf/extra/httpd-vhosts-ssl.conf
+      - ./docker/certs:/etc/apache2/certs:ro
     depends_on:
       - php-app
     networks:

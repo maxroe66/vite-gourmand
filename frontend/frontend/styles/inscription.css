@@ -1,3 +1,74 @@
+/* Spinner pour bouton de chargement inscription */
+.spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid #fff;
+    border-top: 2.5px solid #28a745;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+    margin-bottom: 2px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* Message de succès spécifique à l'inscription (full CSS, pas de style inline) */
+.signup-success-message {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    background: #28a745;
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(40,167,69,0.08);
+    padding: 1.2rem 1.5rem;
+    font-size: 1.08rem;
+    margin-bottom: 1.5rem;
+    border: none;
+}
+.signup-success-icon {
+    vertical-align: middle;
+    margin-right: 8px;
+    min-width: 32px;
+    min-height: 32px;
+}
+.signup-success-icon circle {
+    fill: #28a745;
+}
+.signup-success-icon path {
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.signup-success-text {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+}
+.signup-success-secondary {
+    color: #e6ffe6;
+    font-size: 0.98em;
+}
+/* Message de succès spécifique à l'inscription */
+.signup-success-message {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    background: linear-gradient(90deg, #28a745 0%, #43e97b 100%);
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(40,167,69,0.08);
+    padding: 1.2rem 1.5rem;
+    font-size: 1.08rem;
+    margin-bottom: 1.5rem;
+    border: none;
+}
 /* =========================================
    Styles pour la page d'inscription
    ========================================= */

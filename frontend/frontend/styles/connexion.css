@@ -73,6 +73,11 @@
     box-shadow: 0 2px 22px rgba(0,0,0,0.25);
     position: relative;
 }
+/* Ajout d'un espace entre l'input et le bouton dans le popup mot de passe oublié */
+.modal-content form button,
+.modal-content form .button--primary {
+    margin-top: 18px;
+}
 .close-modal {
     position: absolute;
     top: 10px;

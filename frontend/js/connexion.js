@@ -54,45 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
         form.parentNode.insertBefore(successBanner, form);
     }
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const formData = {
-            email: document.getElementById('email').value.trim(),
-            password: document.getElementById('password').value
-        };
-        fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData),
-            credentials: 'include'  // Envoie et reçoit les cookies automatiquement
-        })
-        .then(response => {           
-            // Vérifier si la réponse est bien du JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Le serveur n\'a pas renvoyé de JSON (HTTP ' + response.status + ')');
-            }
-            
-            // Parser le JSON
-            return response.json().then(data => ({
-                status: response.status,
-                ok: response.ok,
-                data: data
-            }));
-        })
-        .then(result => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        try {
+            const result = await AuthService.login(email, password);
             if(result.ok && result.data.success) {
-                // Succès (201)
-                // Le token JWT est automatiquement stocké dans un cookie httpOnly
-                // Pas besoin de manipulation JavaScript
                 showSuccessMessage('Connexion réussie ! Redirection en cours...');
                 setTimeout(() => {
                     window.location.href = '/home';
                 }, 2000);
             } else {
-                // Erreur de validation (400) ou autre
                 clearErrors();
                 if(result.data.errors) {
                     for(let [fieldName, errorMessage] of Object.entries(result.data.errors)) {
@@ -100,12 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-        })
-        .catch(error => {
-            // Vraies erreurs réseau (pas de réponse du tout)
+        } catch (error) {
             console.error('❌ Erreur réseau:', error);
             showGeneralError('Impossible de contacter le serveur. Vérifiez votre connexion.');
-        });
+        }
     });
 
     // --- Modal Mot de passe oublié -------------------------------------------------
