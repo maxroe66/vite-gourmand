@@ -3,6 +3,26 @@
  * Utilise des cookies httpOnly gérés automatiquement par le navigateur
  */
 const AuthService = {
+        /**
+         * Tente de connecter l'utilisateur avec email et mot de passe
+         * @param {string} email
+         * @param {string} password
+         * @returns {Promise<{ok: boolean, status: number, data: object}>}
+         */
+        async login(email, password) {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                return { ok: response.ok, status: response.status, data };
+            } catch (error) {
+                throw error;
+            }
+        },
     /**
      * Déconnecte l'utilisateur en appelant l'endpoint de logout
      * qui supprimera le cookie côté serveur
@@ -11,17 +31,15 @@ const AuthService = {
         try {
             const response = await fetch('/api/auth/logout', {
                 method: 'POST',
-                credentials: 'include' // Envoie le cookie
+                credentials: 'include'
             });
             if (!response.ok) {
                 throw new Error(`Le serveur a répondu avec le statut ${response.status}`);
             }
+            return true; // succès
         } catch (error) {
             console.error('Erreur lors de la déconnexion:', error);
-            alert("Une erreur est survenue lors de la déconnexion. Votre session n'a peut-être pas été correctement terminée côté serveur. Vous allez être redirigé.");
-        } finally {
-            // Dans tous les cas, on redirige l'utilisateur pour qu'il quitte la zone authentifiée
-            window.location.href = '/';
+            throw error; // laisse l'appelant gérer l'erreur
         }
     },
 
@@ -50,10 +68,24 @@ const AuthService = {
             const response = await fetch('/api/auth/check', {
                 credentials: 'include'
             });
-            return response.ok;
+            if (!response.ok) return null;
+            const data = await response.json();
+            return data;
         } catch (error) {
-            return false;
+            return null;
         }
+    },
+
+    /**
+     * Récupère les infos utilisateur si connecté, sinon null
+     * @returns {Promise<Object|null>}
+     */
+    async getUser() {
+        const auth = await this.isAuthenticated();
+        if (auth && auth.isAuthenticated && auth.user) {
+            return auth.user;
+        }
+        return null;
     }
 };
 
