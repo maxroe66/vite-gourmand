@@ -44,18 +44,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // Supprimer les anciens messages généraux
         const oldMessage = document.querySelector('.success-message');
         if (oldMessage) oldMessage.remove();
-        
-        // Créer le bandeau
+
+        // Créer le bandeau avec un style amélioré (tout en CSS)
         const successBanner = document.createElement('div');
-        successBanner.className = 'success-message';
-        successBanner.textContent = message;
-        
-        // Insérer en haut du formulaire
+        successBanner.className = 'success-message signup-success-message';
+        successBanner.innerHTML = `
+            <svg class="signup-success-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12"/><path d="M7 13l3 3 7-7"/></svg>
+            <div class="signup-success-text">
+                <strong>Inscription réussie !</strong><br>
+                Vous allez être redirigé(e) vers l'accueil.<br>
+                <span class="signup-success-secondary">Un email de bienvenue vient de vous être envoyé.</span>
+            </div>
+        `;
         form.parentNode.insertBefore(successBanner, form);
     }
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Création en cours…';
+
         const formData = {
             firstName: document.getElementById('firstName').value.trim(),
             lastName: document.getElementById('lastName').value.trim(),
@@ -69,10 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await AuthService.register(formData);
             if(result.ok && result.data.success) {
-                showSuccessMessage('Inscription réussie ! Redirection en cours...');
+                showSuccessMessage();
                 setTimeout(() => {
                     window.location.href = '/home';
-                }, 2000);
+                }, 2500);
             } else {
                 clearErrors();
                 if(result.data.errors) {
@@ -84,6 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ Erreur réseau:', error);
             showGeneralError('Impossible de contacter le serveur. Vérifiez votre connexion.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
         }
     });
 });
