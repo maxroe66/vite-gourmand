@@ -9,7 +9,9 @@
 node_modules
 
 # Vendor
-vendor
+# Ignore top-level vendor but allow backend/vendor to be copied into the image context
+/vendor
+!backend/vendor
 
 # Logs
 *.log
