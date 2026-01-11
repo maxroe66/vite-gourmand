@@ -103,16 +103,39 @@ class AuthController
         $token = $this->authService->generateToken($userId, $role);
 
         // 5. Envoi du JWT dans un cookie httpOnly (sécurisé)
-        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
         $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
 
-        setcookie('authToken', $token, [
+        // Déterminer si la requête d'origine est en HTTPS (prise en compte des en-têtes proxy)
+        $isSecure = (
+            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
+            !empty($_SERVER['HTTP_X_ARR_SSL'])
+        );
+
+        // Déterminer le domaine du cookie : utiliser la config si fournie, sinon le host courant.
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $cookieDomain = $this->config['cookie_domain'] ?? null;
+        if (empty($cookieDomain) && $host !== '') {
+            // enlever le port si présent
+            $cookieDomain = '.' . preg_replace('/:\d+$/', '', $host);
+        }
+
+        // Choisir SameSite en fonction du secure : si on veut autoriser les requêtes cross-site
+        // via fetch credentials, il faut SameSite=None et Secure=true.
+        $sameSite = $isSecure ? 'None' : 'Lax';
+
+        $cookieOptions = [
             'expires' => $expire,
             'path' => '/',
-            'secure' => $isSecure,      // HTTPS uniquement en production
-            'httponly' => true,         // Inaccessible en JavaScript
-            'samesite' => 'Lax'        // Protection CSRF
-        ]);
+            'secure' => $isSecure,
+            'httponly' => true,
+            'samesite' => $sameSite,
+        ];
+        if (!empty($cookieDomain)) {
+            $cookieOptions['domain'] = $cookieDomain;
+        }
+
+        setcookie('authToken', $token, $cookieOptions);
 
         // 6. Envoi de l'email de bienvenue
         $emailSent = $this->mailerService->sendWelcomeEmail($data['email'], $data['firstName']);
@@ -291,15 +314,30 @@ class AuthController
     public function logout(): Response
     {
         // 1. Invalider le cookie en le supprimant
-        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+            $isSecure = (
+                (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+                (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
+                !empty($_SERVER['HTTP_X_ARR_SSL'])
+            );
 
-        setcookie('authToken', '', [
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $cookieDomain = $this->config['cookie_domain'] ?? null;
+        if (empty($cookieDomain) && $host !== '') {
+            $cookieDomain = '.' . preg_replace('/:\d+$/', '', $host);
+        }
+
+        $cookieOptions = [
             'expires' => time() - 3600, // Expiré dans le passé
             'path' => '/',
             'secure' => $isSecure,
             'httponly' => true,
             'samesite' => 'Lax'
-        ]);
+        ];
+        if (!empty($cookieDomain)) {
+            $cookieOptions['domain'] = $cookieDomain;
+        }
+
+        setcookie('authToken', '', $cookieOptions);
 
         $this->logger->info('Utilisateur déconnecté avec succès');
 
