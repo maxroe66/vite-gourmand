@@ -1,23 +1,54 @@
 
-name: Deploy to Azure App Service (Container) - SHA tag
+name: Build, Publish image to GHCR and Deploy to Azure App Service
 
 on:
   push:
     branches: [develop]
 
 permissions:
-  contents: read      # Lecture code
-  id-token: write     # Azure OIDC authentication
-  packages: write     # Push GHCR (si nécessaire)
+  contents: read
+  packages: write
+  id-token: write
 
 jobs:
-  deploy:
+  build-and-push:
+    name: Build & Push Docker image (GHCR)
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set_tag.outputs.IMAGE_TAG }}
     steps:
-      - name: Compute image tag from current commit
-        id: vars
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.azure
+          push: true
+          tags: |
+            ghcr.io/maxroe66/vite-gourmand:develop
+            ghcr.io/maxroe66/vite-gourmand:${{ github.sha }}
+
+      - name: Set IMAGE_TAG output
+        id: set_tag
         run: echo "IMAGE_TAG=ghcr.io/maxroe66/vite-gourmand:${GITHUB_SHA}" >> $GITHUB_OUTPUT
 
+  deploy:
+    name: Configure Azure App Service to use image
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -27,7 +58,7 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-            IMAGE="${{ steps.vars.outputs.IMAGE_TAG }}"
+            IMAGE="${{ needs.build-and-push.outputs.image_tag }}"
             az webapp config container set \
               --name "${{ secrets.AZURE_WEBAPP_NAME }}" \
               --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
@@ -43,10 +74,10 @@ jobs:
               --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}"
 
   post-deploy-check:
-    runs-on: ubuntu-latest
+    name: Post-deploy health checks and DB migrations
     needs: deploy
+    runs-on: ubuntu-latest
     steps:
-      # IMPORTANT : chaque job tourne sur une VM différente => refaire un checkout ici
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -82,15 +113,6 @@ jobs:
       - name: Install MySQL client
         run: sudo apt-get update && sudo apt-get install -y mysql-client
 
-      # (Optionnel) Debug : liste l'arborescence pour valider les chemins
-      # - name: Debug - list repository tree
-      #   run: |
-      #     pwd
-      #     ls -la
-      #     ls -la backend || true
-      #     ls -la backend/database || true
-      #     ls -la backend/database/sql || true
-
       - name: Run MySQL migrations on Azure (schema)
         env:
           DB_HOST: ${{ secrets.AZURE_MYSQL_HOST }}
@@ -108,6 +130,5 @@ jobs:
           DB_USER: ${{ secrets.AZURE_MYSQL_USER }}
           DB_PASS: ${{ secrets.AZURE_MYSQL_PASS }}
         run: |
-          # Le seed doit être idempotent (INSERT IGNORE / ON DUPLICATE KEY UPDATE)
           mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
             "$DB_NAME" < backend/database/sql/database_fixtures.sql
