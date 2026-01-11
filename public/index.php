@@ -22,6 +22,35 @@ use App\Core\Response;
 use App\Core\Router;
 use Psr\Log\LoggerInterface;
 
+// 3.1) Forcer HTTPS et ajouter HSTS
+function _is_request_secure(): bool
+{
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        return true;
+    }
+    if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
+        return true;
+    }
+    if (!empty($_SERVER['HTTP_X_ARR_SSL'])) { // Azure App Service
+        return true;
+    }
+    return false;
+}
+
+// Redirect to HTTPS if request is not secure
+// Only enforce in production to avoid breaking local dev / CI tests
+$appEnv = getenv('APP_ENV') ?: ($_SERVER['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'production'));
+if ($appEnv === 'production' && php_sapi_name() !== 'cli' && !empty($_SERVER['HTTP_HOST'])) {
+    if (!_is_request_secure()) {
+        $host = $_SERVER['HTTP_HOST'];
+        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        header('Location: https://' . $host . $uri, true, 301);
+        exit;
+    }
+    // Add HSTS header for secure requests
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+}
+
 // 4) Configuration et Conteneur d'injection de dépendances (DI)
 $config = require __DIR__ . '/../backend/config/config.php';
 // On récupère la fonction de création du conteneur et on l'appelle avec la config.
