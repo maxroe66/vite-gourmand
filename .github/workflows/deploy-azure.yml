@@ -27,6 +27,14 @@ jobs:
           mkdir -p public
           cp -a frontend public/frontend
 
+      - name: Install PHP dependencies (composer)
+        run: |
+          # Populate backend/vendor on the runner to include it in the Docker build context.
+          # We run Composer inside the official composer container to avoid installing PHP locally.
+          docker run --rm -v "${{ github.workspace }}/backend":/app -w /app composer:2 \
+            composer install --no-interaction --prefer-dist --no-dev --no-plugins --no-scripts || \
+          docker run --rm -v "${{ github.workspace }}/backend":/app -w /app composer:2 \
+            composer install --no-interaction --prefer-dist --no-dev
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
