@@ -38,7 +38,9 @@ function _is_request_secure(): bool
 }
 
 // Redirect to HTTPS if request is not secure
-if (php_sapi_name() !== 'cli' && !empty($_SERVER['HTTP_HOST'])) {
+// Only enforce in production to avoid breaking local dev / CI tests
+$appEnv = getenv('APP_ENV') ?: ($_SERVER['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'production'));
+if ($appEnv === 'production' && php_sapi_name() !== 'cli' && !empty($_SERVER['HTTP_HOST'])) {
     if (!_is_request_secure()) {
         $host = $_SERVER['HTTP_HOST'];
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
