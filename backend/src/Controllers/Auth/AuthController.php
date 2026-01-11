@@ -1,6 +1,4 @@
-    die('test');
 <?php
-
 namespace App\Controllers\Auth;
 
 use App\Core\Request;
