@@ -117,7 +117,12 @@ class AuthController
         $cookieDomain = $this->config['cookie_domain'] ?? null;
         if (empty($cookieDomain) && $host !== '') {
             // enlever le port si présent
-            $cookieDomain = '.' . preg_replace('/:\d+$/', '', $host);
+            $baseHost = preg_replace('/:\d+$/', '', $host);
+            // si le host commence par www., on préfère le domaine apex (.example.com)
+            if (stripos($baseHost, 'www.') === 0) {
+                $baseHost = substr($baseHost, 4);
+            }
+            $cookieDomain = '.' . $baseHost;
         }
 
         // Choisir SameSite en fonction du secure : si on veut autoriser les requêtes cross-site
@@ -135,7 +140,13 @@ class AuthController
             $cookieOptions['domain'] = $cookieDomain;
         }
 
-        setcookie('authToken', $token, $cookieOptions);
+        $cookieResult = setcookie('authToken', $token, $cookieOptions);
+        $this->logger->debug('Tentative setcookie sur register', [
+            'cookie_name' => 'authToken',
+            'cookie_result' => $cookieResult,
+            'headers_sent' => headers_sent() ? true : false,
+            'cookie_options' => $cookieOptions,
+        ]);
 
         // 6. Envoi de l'email de bienvenue
         $emailSent = $this->mailerService->sendWelcomeEmail($data['email'], $data['firstName']);
@@ -308,7 +319,14 @@ class AuthController
                 $cookieOptions['domain'] = $cookieDomain;
             }
 
-            setcookie('authToken', $token, $cookieOptions);
+            $cookieResult = setcookie('authToken', $token, $cookieOptions);
+            // Loguer le résultat de la tentative d'ajout du cookie pour faciliter le debug en prod
+            $this->logger->debug('Tentative setcookie sur login', [
+                'cookie_name' => 'authToken',
+                'cookie_result' => $cookieResult,
+                'headers_sent' => headers_sent() ? true : false,
+                'cookie_options' => $cookieOptions,
+            ]);
 
             // 7. Retourne la réponse de succès
             $this->logger->info('Connexion réussie', ['userId' => $user['id'], 'email' => $data['email']]);
@@ -357,7 +375,13 @@ class AuthController
             $cookieOptions['domain'] = $cookieDomain;
         }
 
-        setcookie('authToken', '', $cookieOptions);
+        $cookieResult = setcookie('authToken', '', $cookieOptions);
+        $this->logger->debug('Tentative setcookie sur logout', [
+            'cookie_name' => 'authToken',
+            'cookie_result' => $cookieResult,
+            'headers_sent' => headers_sent() ? true : false,
+            'cookie_options' => $cookieOptions,
+        ]);
 
         $this->logger->info('Utilisateur déconnecté avec succès');
 
