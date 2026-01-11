@@ -20,6 +20,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare frontend assets
+        run: |
+          # Ensure the frontend files are placed under public/frontend so Apache serves them
+          rm -rf public/frontend || true
+          mkdir -p public
+          cp -a frontend public/frontend
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
