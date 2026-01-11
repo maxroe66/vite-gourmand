@@ -141,6 +141,8 @@ class AuthController
         }
 
         $cookieResult = setcookie('authToken', $token, $cookieOptions);
+        // DEBUG: Logger tous les headers pour diagnostiquer la détection du HTTPS sur Azure
+        $this->logger->debug('Headers $_SERVER', $_SERVER);
         $this->logger->debug('Tentative setcookie sur register', [
             'cookie_name' => 'authToken',
             'cookie_result' => $cookieResult,
