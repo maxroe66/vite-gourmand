@@ -279,16 +279,36 @@ class AuthController
             $token = $this->authService->generateToken((int)$user['id'], $user['role']);
 
             // 6. Envoi du JWT dans un cookie httpOnly (sécurisé)
-            $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
             $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
 
-            setcookie('authToken', $token, [
+            // Déterminer si la requête d'origine est en HTTPS (prise en compte des en-têtes proxy)
+            $isSecure = (
+                (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+                (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
+                !empty($_SERVER['HTTP_X_ARR_SSL']) || !empty($_SERVER['HTTP_X_ARR_PROTO'])
+            );
+
+            // Déterminer le domaine du cookie : utiliser la config si fournie, sinon le host courant.
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            $cookieDomain = $this->config['cookie_domain'] ?? null;
+            if (empty($cookieDomain) && $host !== '') {
+                $cookieDomain = '.' . preg_replace('/:\\d+$/', '', $host);
+            }
+
+            $sameSite = $isSecure ? 'None' : 'Lax';
+
+            $cookieOptions = [
                 'expires' => $expire,
                 'path' => '/',
                 'secure' => $isSecure,
                 'httponly' => true,
-                'samesite' => 'Lax'
-            ]);
+                'samesite' => $sameSite,
+            ];
+            if (!empty($cookieDomain)) {
+                $cookieOptions['domain'] = $cookieDomain;
+            }
+
+            setcookie('authToken', $token, $cookieOptions);
 
             // 7. Retourne la réponse de succès
             $this->logger->info('Connexion réussie', ['userId' => $user['id'], 'email' => $data['email']]);
