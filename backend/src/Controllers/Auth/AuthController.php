@@ -141,6 +141,12 @@ class AuthController
         }
 
         $cookieResult = setcookie('authToken', $token, $cookieOptions);
+                // TEST: log WARNING pour vérifier l'écriture dans /tmp/app.log sur Azure
+                $this->logger->warning('TEST WARNING: écriture log Azure', [
+                    'env' => getenv('APP_ENV'),
+                    'log_file' => getenv('LOG_FILE'),
+                    'debug' => getenv('APP_DEBUG'),
+                ]);
         // DEBUG: Logger tous les headers pour diagnostiquer la détection du HTTPS sur Azure
         $this->logger->debug('Headers $_SERVER', $_SERVER);
         $this->logger->debug('Tentative setcookie sur register', [
