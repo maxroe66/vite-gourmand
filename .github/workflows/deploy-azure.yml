@@ -35,6 +35,15 @@ jobs:
             composer install --no-interaction --prefer-dist --no-dev --no-plugins --no-scripts || \
           docker run --rm -v "${{ github.workspace }}/backend":/app -w /app composer:2 \
             composer install --no-interaction --prefer-dist --no-dev
+
+      - name: Verify backend/vendor present (debug)
+        run: |
+          echo "== List backend directory =="
+          ls -la backend || true
+          echo "== backend/vendor contents (report) =="
+          if [ -d backend/vendor ]; then ls -la backend/vendor | head -n 200; else echo "backend/vendor not found"; fi
+          echo "== Check autoload.php presence =="
+          if [ -f backend/vendor/autoload.php ]; then echo "autoload exists"; head -n 5 backend/vendor/autoload.php; else echo "no autoload.php"; fi
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
