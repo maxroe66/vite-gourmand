@@ -90,3 +90,12 @@ Votre application démontre l'utilisation de :
 - ✅ **Base non-relationnelle** : Azure Cosmos DB (MongoDB API)
 - ✅ **Architecture hybride** : Fallback MySQL pour les avis
 - ✅ **Production ready** : Deux bases de données Azure
+
+## Remarque TLS & domaine
+
+Si votre application utilise un domaine personnalisé pour l'App Service, n'oubliez pas :
+
+- Ajouter le `hostname` dans App Service (après propagation DNS) et créer un certificat managé via `az webapp config ssl create`.
+- Activer `httpsOnly` sur l'App Service et s'assurer que `APP_ENV=production` dans les Application settings pour que la redirection HTTP→HTTPS et le HSTS côté application soient effectifs.
+
+Exemples de commandes et vérifications sont disponibles dans `Docs/README.azure.md`.

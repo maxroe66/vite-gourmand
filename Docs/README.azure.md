@@ -239,3 +239,106 @@ mysql> SELECT * FROM produits LIMIT 10;
 - **SSL** : activé / `REQUIRED`
 
 ---
+
+## 13) Domaine personnalisé (Custom hostname) et TLS
+
+Si vous souhaitez utiliser votre propre nom de domaine (ex. `www.votre-domaine.tld`) plutôt que le domaine par défaut `*.azurewebsites.net`, suivez ces étapes :
+
+1. DNS chez le registrar
+   - Pour `www` : créez un enregistrement **CNAME** pointant vers votre nom App Service (ex. `vite-gourmand-dev-max-e6erb8f3dzejdff8.francecentral-01.azurewebsites.net`).
+   - Pour l'apex (racine) : préférez rediriger l'apex vers `www` via le registrar, ou utilisez un enregistrement A/ALIAS si votre registrar le supporte.
+
+2. Ajouter le hostname dans App Service (après propagation DNS)
+```bash
+az webapp config hostname add \
+  --resource-group rg-vite-gourmand \
+  --webapp-name vite-gourmand-dev-max \
+  --hostname www.votre-domaine.tld
+```
+
+3. Créer un certificat managé App Service (gratuit pour un hostname validé)
+```bash
+az webapp config ssl create \
+  --resource-group rg-vite-gourmand \
+  --name vite-gourmand-dev-max \
+  --hostname www.votre-domaine.tld
+```
+
+4. (Optionnel) Uploader un PFX et binder (si vous utilisez un certificat acheté)
+```bash
+THUMB=$(az webapp config ssl upload \
+  --resource-group rg-vite-gourmand \
+  --name vite-gourmand-dev-max \
+  --certificate-file /path/to/cert.pfx \
+  --certificate-password 'PFX_PASSWORD' \
+  --query thumbprint -o tsv)
+
+az webapp config ssl bind \
+  --resource-group rg-vite-gourmand \
+  --name vite-gourmand-dev-max \
+  --certificate-thumbprint $THUMB \
+  --ssl-type SNI \
+  --hostname www.votre-domaine.tld
+```
+
+5. Activer `HTTPS Only` (déjà recommandé)
+```bash
+az webapp update --resource-group rg-vite-gourmand --name vite-gourmand-dev-max --set httpsOnly=true
+```
+
+Notes importantes :
+- L'achat d'un domaine via **App Service Domain** passe par le système de facturation Marketplace : votre profil de facturation doit être configuré et une méthode de paiement vérifiée. Les crédits (ex. offre étudiante) ne suffisent parfois pas pour autoriser l'achat via le portail ; dans ce cas achetez le domaine chez un registrar externe (OVH, Gandi, Namecheap, ...). 
+- Les **certificats managés App Service** ont des limitations (pas de wildcard, restrictions sur l'apex selon la configuration). Pour des besoins avancés, utilisez un certificat acheté stocké dans **Azure Key Vault** et liez‑le.
+- Azure demandera la validation DNS (CNAME/A) avant d'émettre le certificat : attendez la propagation DNS.
+
+Tests & vérifications :
+- Vérifier les hostnames configurés :
+```bash
+az webapp show --resource-group rg-vite-gourmand --name vite-gourmand-dev-max --query hostNames -o json
+```
+- Tester HTTP→HTTPS (devrait rediriger) :
+```bash
+curl -I http://vite-gourmand-dev-max-e6erb8f3dzejdff8.francecentral-01.azurewebsites.net
+curl -I https://vite-gourmand-dev-max-e6erb8f3dzejdff8.francecentral-01.azurewebsites.net
+```
+
+Recommandations :
+- Pour la production, utilisez `www.votre-domaine.tld` et redirigez l'apex vers `www`.
+- Automatisez la création et le binding (GitHub Actions + `az`) pour faciliter les mises à jour et la rotation.
+
+### Forcer HTTPS (application & plateforme)
+
+Pour une sécurité en profondeur, activez la protection TLS côté plateforme *et* côté application :
+
+- Activer `HTTPS Only` sur l'App Service :
+
+```bash
+az webapp update \
+  --resource-group rg-vite-gourmand \
+  --name vite-gourmand-dev-max \
+  --set httpsOnly=true
+```
+
+- Créer et binder un certificat managé (après avoir ajouté le hostname et vérifié la propagation DNS) :
+
+```bash
+az webapp config ssl create \
+  --resource-group rg-vite-gourmand \
+  --name vite-gourmand-dev-max \
+  --hostname www.votre-domaine.tld
+
+# puis binder (utiliser le thumbprint renvoyé)
+az webapp config ssl bind \
+  --resource-group rg-vite-gourmand \
+  --name vite-gourmand-dev-max \
+  --certificate-thumbprint <THUMBPRINT> \
+  --ssl-type SNI \
+  --hostname www.votre-domaine.tld
+```
+
+- Côté application, l'entrée principale (`public/index.php`) contient maintenant une redirection HTTP→HTTPS et un en-tête HSTS, mais cette logique est appliquée uniquement lorsque `APP_ENV=production` pour ne pas casser le développement local et les CI.
+
+Notes DNS rapides :
+- Enreg. `www` : CNAME → `vite-gourmand-dev-max-e6erb8f3dzejdff8.francecentral-01.azurewebsites.net`
+- Apex (`@`) : rediriger vers `https://www.votre-domaine.tld` via votre registrar ou utiliser un A/ALIAS si supporté.
+
