@@ -141,6 +141,8 @@ class AuthController
         }
 
         $cookieResult = setcookie('authToken', $token, $cookieOptions);
+                    // TEST: log natif PHP pour vérifier l'exécution sur Azure
+                    error_log('TEST ERROR_LOG: écriture log PHP natif');
                 // TEST: log WARNING pour vérifier l'écriture dans /tmp/app.log sur Azure
                 $this->logger->warning('TEST WARNING: écriture log Azure', [
                     'env' => getenv('APP_ENV'),
