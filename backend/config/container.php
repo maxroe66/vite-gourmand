@@ -66,9 +66,21 @@ return function (array $config): ContainerInterface {
             $config = $c->get('config');
             $env = $config['env'] ?? 'development';
 
-            $logFile = getenv('LOG_FILE');
-            if ($logFile === false || trim($logFile) === '') {
+            $logFileEnv = getenv('LOG_FILE');
+            $logFileEnv = ($logFileEnv === false) ? '' : trim($logFileEnv);
+
+            if ($logFileEnv === '') {
                 $logFile = __DIR__ . '/../logs/app.log';
+            } else {
+                $logFile = $logFileEnv;
+            }
+
+            // Si en production et que le chemin n'est pas accessible, utiliser stderr
+            if ($env === 'production') {
+                $dir = dirname($logFile);
+                if ($logFile !== 'php://stderr' && (!is_dir($dir) || !is_writable($dir))) {
+                    $logFile = 'php://stderr';
+                }
             }
 
             $logger = new Logger('ViteEtGourmand');
