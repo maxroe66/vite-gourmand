@@ -1,6 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('loginForm');
 
+    // --- Activation visuelle contrôlée des erreurs ---
+    // On ajoute une classe `touched` sur chaque input au 'blur' pour n'afficher
+    // l'état invalide que lorsque l'utilisateur quitte le champ. En cas de
+    // soumission sans interaction, on active `show-validation` sur tout le form.
+    if (form) {
+        form.addEventListener('blur', function(e) {
+            const target = e.target;
+            if (!target) return;
+            const tag = target.tagName && target.tagName.toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+                if (!target.classList.contains('touched')) {
+                    target.classList.add('touched');
+                }
+            }
+        }, true);
+
+        form.addEventListener('submit', function() {
+            form.classList.add('show-validation');
+        }, true);
+    }
+
     function clearErrors() {
         const errorElements = document.querySelectorAll('.error-message');
         errorElements.forEach(function(element) {

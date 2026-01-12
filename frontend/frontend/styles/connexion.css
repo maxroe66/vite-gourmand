@@ -157,14 +157,21 @@
 }
 
 /* Désactiver les styles par défaut du navigateur pour :invalid */
-.form-group input:invalid {
+.form-group input {
     box-shadow: none;
-    border-color: #CBD5E1; /* Garde la bordure normale */
 }
 
-/* Afficher la bordure rouge seulement après interaction (pas pendant la saisie) */
-.form-group input:invalid:not(:focus):not(:placeholder-shown) {
-    border-color: #dc3545;
+/* Ne pas afficher l'état :invalid par défaut pour les champs pré-remplis
+   (ex: autofill). On active l'affichage des erreurs seulement lorsque
+   le formulaire reçoit la classe `show-validation` via JS. */
+.login-form.show-validation .form-group input:invalid {
+    border-color: var(--color-error, #dc3545);
+}
+
+/* Afficher l'état d'erreur pour un champ seulement s'il a été touché (blur)
+   — évite d'afficher l'erreur dès la première frappe. */
+.form-group input.touched:invalid {
+    border-color: var(--color-error, #dc3545);
 }
 
 /* IMPORTANT : Le focus garde la bordure normale, juste un léger effet */
