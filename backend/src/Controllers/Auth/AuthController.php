@@ -375,23 +375,50 @@ class AuthController
 
         // Déterminer SameSite comme lors du login
         $sameSite = $isSecure ? 'None' : 'Lax';
-        $cookieOptions = [
-            'expires' => time() - 3600, // Expiré dans le passé
+        $baseDomains = [];
+        if (!empty($cookieDomain)) {
+            $baseDomains[] = $cookieDomain;
+            // Si le domaine commence par .www., ajouter aussi la version sans www
+            if (stripos($cookieDomain, '.www.') === 0) {
+                $baseDomains[] = str_ireplace('.www.', '.', $cookieDomain);
+            } elseif (stripos($cookieDomain, '.vite-et-gourmand.me') !== false) {
+                // Ajoute aussi la version .www.vite-et-gourmand.me si ce n'est pas déjà le cas
+                $baseDomains[] = '.www.vite-et-gourmand.me';
+                $baseDomains[] = '.vite-et-gourmand.me';
+            }
+        } else {
+            // fallback : tente les deux domaines principaux
+            $baseDomains = ['.vite-et-gourmand.me', '.www.vite-et-gourmand.me'];
+        }
+
+        $cookieResults = [];
+        foreach (array_unique($baseDomains) as $domain) {
+            $cookieOptions = [
+                'expires' => time() - 3600,
+                'path' => '/',
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => $sameSite,
+                'domain' => $domain
+            ];
+            $cookieResults[$domain] = setcookie('authToken', '', $cookieOptions);
+        }
+        // Pour le cas où le cookie aurait été créé sans domain explicite (host only)
+        $cookieOptionsHostOnly = [
+            'expires' => time() - 3600,
             'path' => '/',
             'secure' => $isSecure,
             'httponly' => true,
-            'samesite' => $sameSite,
+            'samesite' => $sameSite
         ];
-        if (!empty($cookieDomain)) {
-            $cookieOptions['domain'] = $cookieDomain;
-        }
+        $cookieResults['host_only'] = setcookie('authToken', '', $cookieOptionsHostOnly);
 
-        $cookieResult = setcookie('authToken', '', $cookieOptions);
-        $this->logger->debug('Tentative setcookie sur logout', [
+        $this->logger->debug('Tentative setcookie sur logout (multi-domaines)', [
             'cookie_name' => 'authToken',
-            'cookie_result' => $cookieResult,
+            'cookie_results' => $cookieResults,
             'headers_sent' => headers_sent() ? true : false,
-            'cookie_options' => $cookieOptions,
+            'cookie_domains' => $baseDomains,
+            'cookie_options_host_only' => $cookieOptionsHostOnly,
         ]);
 
         $this->logger->info('Utilisateur déconnecté avec succès');
