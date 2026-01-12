@@ -107,6 +107,8 @@ if ($method === 'GET' && strpos($path, '/api') !== 0) {
 // 9) Dispatching de la requête et envoi de la réponse
 try {
     // Le routeur trouve la bonne route, exécute le handler et retourne un objet Response
+    // DEBUG: log temporaire pour vérifier la valeur de LOG_FILE sur Azure
+    error_log('LOG_FILE=' . getenv('LOG_FILE'));
     $response = $router->dispatch($method, $path, $container);
 
 } catch (\Exception $e) {
