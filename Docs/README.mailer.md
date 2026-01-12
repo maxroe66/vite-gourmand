@@ -339,12 +339,46 @@ on:
 
 ✅ **Aucune action requise si vous acceptez que les emails ne soient pas envoyés en CI/CD**
 
-## 📚 Ressources
+## 🚀 Mise en place SendGrid en production (détail)
 
-- [PHPMailer GitHub](https://github.com/PHPMailer/PHPMailer)
-- [SendGrid PHP Integration](https://docs.sendgrid.com/for-developers/sending-email/php)
-- [Gmail SMTP Guide](https://support.google.com/mail/answer/7126229)
-- [Mailtrap Documentation](https://mailtrap.io/email-sandbox/)
+### 1. Authentification du domaine
+- Domaine utilisé : vite-et-gourmand.me
+- DNS gérés sur Namecheap, site hébergé sur Azure.
+- Enregistrements DNS ajoutés :
+  - CNAME : url7150.vite-et-gourmand.me → sendgrid.net
+  - CNAME : 58839168.vite-et-gourmand.me → sendgrid.net
+  - CNAME : em8670.vite-et-gourmand.me → u58839168.wl169.sendgrid.net
+  - CNAME : s1._domainkey.vite-et-gourmand.me → s1.domainkey.u58839168.wl169.sendgrid.net
+  - CNAME : s2._domainkey.vite-et-gourmand.me → s2.domainkey.u58839168.wl169.sendgrid.net
+  - TXT : _dmarc.vite-et-gourmand.me → v=DMARC1; p=none;
+- Vérification effectuée sur SendGrid : statut "Verified".
+
+### 2. Génération et stockage de l’API Key
+- Sur SendGrid : Settings → API Keys → Create API Key
+- Nom : "Production ViteEtGourmand"
+- Permissions : Restricted Access (Mail Send)
+- Stockage sécurisé :
+  - Azure App Service : Configuration → SENDGRID_API_KEY
+  - Local : fichier .env (jamais dans le code)
+
+### 3. Configuration du backend PHP
+- Lecture de la clé via getenv('SENDGRID_API_KEY')
+- Utilisation de la librairie officielle SendGrid ou cURL (exemple fourni dans le projet)
+- Expéditeur recommandé : no-reply@vite-et-gourmand.me
+
+### 4. Bonnes pratiques
+- SPF/DKIM/DMARC configurés
+- Jamais de clé en dur dans le code
+- Monitoring des bounces et délivrabilité
+- Envoi asynchrone recommandé
+
+### 5. Ressources
+- [Documentation SendGrid](https://docs.sendgrid.com/)
+- [Support Namecheap DNS](https://www.namecheap.com/support/knowledgebase/article.aspx/9777/2237/how-can-i-set-up-cname-records-for-my-domain/)
+- [Azure App Service - Configuration](https://learn.microsoft.com/en-us/azure/app-service/configure-common)
+
+---
+Pour toute modification, suivre ce guide et ne jamais exposer de clé API dans le code ou sur un dépôt public.
 
 ---
 

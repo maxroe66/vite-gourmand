@@ -112,14 +112,24 @@ if ($mongoUri === '') {
 }
 
 /**
- * Mail
- * - Standard: MAIL_USERNAME / MAIL_PASSWORD / MAIL_FROM_ADDRESS
- * - Compat: MAIL_USER / MAIL_PASS / MAIL_FROM
+ * Mail Provider (Mailtrap en dev, SendGrid en prod)
  */
+$mailProvider = 'mailtrap';
+$mailApiKey = $env('MAILTRAP_API_KEY') ?? '';
 $mailHost = $env('MAIL_HOST', '');
 $mailUser = $env('MAIL_USERNAME') ?? $env('MAIL_USER') ?? '';
 $mailPass = $env('MAIL_PASSWORD') ?? $env('MAIL_PASS') ?? '';
 $mailFrom = $env('MAIL_FROM_ADDRESS') ?? $env('MAIL_FROM') ?? '';
+
+if ($appEnv === 'production') {
+    $mailProvider = 'sendgrid';
+    $mailApiKey = $env('SENDGRID_API_KEY') ?? '';
+    // Optionnel : override host/user/pass si besoin pour SendGrid
+    $mailHost = 'smtp.sendgrid.net';
+    $mailUser = 'apikey';
+    $mailPass = $mailApiKey;
+    $mailFrom = $env('MAIL_FROM_ADDRESS') ?? 'no-reply@vite-et-gourmand.me';
+}
 
 /**
  * JWT
@@ -163,10 +173,12 @@ return [
         'expire' => 3600,
     ],
     'mail' => [
-        'host' => $mailHost,
-        'user' => $mailUser,
-        'pass' => $mailPass,
-        'from' => $mailFrom,
+        'provider' => $mailProvider,
+        'api_key'  => $mailApiKey,
+        'host'     => $mailHost,
+        'user'     => $mailUser,
+        'pass'     => $mailPass,
+        'from'     => $mailFrom,
     ],
     // URL frontend utilisée par les emails (fallback sur FRONTEND_ORIGIN)
     'app_url' => $env('APP_URL', $frontendOrigin),
