@@ -373,12 +373,14 @@ class AuthController
             $cookieDomain = '.' . preg_replace('/:\d+$/', '', $host);
         }
 
+        // Déterminer SameSite comme lors du login
+        $sameSite = $isSecure ? 'None' : 'Lax';
         $cookieOptions = [
             'expires' => time() - 3600, // Expiré dans le passé
             'path' => '/',
             'secure' => $isSecure,
             'httponly' => true,
-            'samesite' => 'Lax'
+            'samesite' => $sameSite,
         ];
         if (!empty($cookieDomain)) {
             $cookieOptions['domain'] = $cookieDomain;
