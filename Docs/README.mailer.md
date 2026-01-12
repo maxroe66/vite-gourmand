@@ -141,6 +141,25 @@ Les logs d'envoi sont dans `backend/logs/app.log` :
 [2026-01-09 11:20:15] ViteEtGourmand.ERROR: Échec envoi email de bienvenue {"email":"user@example.com","error":"..."}
 ```
 
+### LOG_FILE en production (Azure)
+
+En production (notamment sur Azure App Service ou dans des conteneurs), il est fréquent que le répertoire `backend/logs` ne soit pas accessible en écriture ou que la plateforme collecte les logs via `stdout`/`stderr`.
+
+- **Recommandation** : définir la variable d'environnement `LOG_FILE` sur `php://stderr` pour diriger les logs vers la sortie d'erreur standard, compatible avec les systèmes de logs d'Azure.
+- **Alternative** : si vous préférez un fichier, assurez-vous que le répertoire existe et est inscriptible par le processus PHP (permissions et propriétaire). Evitez les espaces en début/fin de la variable (`LOG_FILE`) — un espace final peut provoquer une erreur comme `/home/LogFiles `.
+
+Exemples :
+
+```env
+# utiliser stderr (recommandé pour Azure)
+LOG_FILE=php://stderr
+
+# ou, si vous créez un répertoire persisté et inscriptible
+LOG_FILE=/home/LogFiles/app.log
+```
+
+Si `LOG_FILE` pointe vers un chemin non accessible, l'application basculera automatiquement vers `php://stderr` en production pour éviter que Monolog ne lance une erreur fatale et n'émette du HTML dans les réponses API.
+
 ### Tests API
 
 Après inscription, vérifier la réponse JSON :
