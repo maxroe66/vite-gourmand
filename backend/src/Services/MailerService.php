@@ -118,6 +118,14 @@ class MailerService
      */
     public function sendPasswordResetEmail(string $email, string $token, string $firstName): bool
     {
+        // Log explicite pour debug
+        $this->logger->info('Tentative envoi email reset', [
+            'email' => $email,
+            'host' => $this->config['mail']['host'] ?? null,
+            'user' => $this->config['mail']['user'] ?? null,
+            'from' => $this->config['mail']['from'] ?? null,
+            'env' => $this->config['env'] ?? null,
+        ]);
         try {
             if (empty($this->config['mail']['host'])) {
                 return false;
