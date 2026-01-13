@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/frontend/frontend/styles/components/button.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/components/navbar.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/components/hero.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/home.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/components/footer.css">
 </head>
 <body>
@@ -18,9 +19,90 @@
 
     <!-- Main Content -->
     <main>
+        <!-- Section Hero -->
         <section class="hero">
-            <h1>Bienvenue chez Vite & Gourmand</h1>
-            <p>Découvrez nos délicieuses spécialités</p>
+            <div class="hero__content">
+                <h1>Vite &amp; Gourmand</h1>
+                <p>Menus Catering pour vos moments !</p>
+                <a href="#menus" class="hero__cta">Découvrir nos menus</a>
+            </div>
+        </section>
+
+        <!-- Section Présentation & Avis -->
+        <section class="presentation" id="presentation">
+            <h2>Qui sommes-nous ?</h2>
+            <div class="presentation__content">
+                <div class="presentation__histoire">
+                    <h3>Notre Histoire</h3>
+                    <p>Vite &amp; Gourmand, traiteur à Bordeaux depuis plus de 25 ans, c'est avant tout une aventure humaine et culinaire. Julie et Joël, deux passionnés de gastronomie, ont fondé cette entreprise avec une idée simple : offrir des repas savoureux qui transforment chaque événement en un moment unique.<br><br>
+                    Depuis nos débuts, nous avons accompagné des centaines de familles, entreprises et associations, en proposant des menus variés, créatifs et adaptés à chaque occasion.</p>
+                </div>
+                <div class="presentation__image">
+                    <img src="/frontend/assets/chef.jpg" alt="Photo du chef en cuisine">
+                </div>
+            </div>
+            <div class="avis-clients">
+                <h3>Avis Clients</h3>
+                <div class="avis-clients__note">4.8 ★ / 5 (148 avis)</div>
+                <div class="avis-clients__list">
+                    <div class="avis-clients__item">
+                        <div class="avis-clients__stars">★★★★★</div>
+                        <p>Excellent service ! Les menus sont délicieux et la livraison très rapide.</p>
+                        <span>- Marie D.</span>
+                    </div>
+                    <div class="avis-clients__item">
+                        <div class="avis-clients__stars">★★★★★</div>
+                        <p>Très satisfait ! Livraison ponctuelle et menus vraiment gourmands.</p>
+                        <span>- Marc D.</span>
+                    </div>
+                    <div class="avis-clients__item">
+                        <div class="avis-clients__stars">★★★★★</div>
+                        <p>Rapide et efficace ! Les repas sont frais et d'excellente qualité.</p>
+                        <span>- Marie D.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Menus -->
+        <section class="menus" id="menus">
+            <h2>Nos Menus</h2>
+            <div class="menus__filters">
+                <button>Prix max</button>
+                <button>Fourchette de prix</button>
+                <button>Thème</button>
+                <button>Régime</button>
+                <button>Nb pers.</button>
+            </div>
+            <div class="menus__list">
+                <div class="menu-card">
+                    <img src="/frontend/assets/menu-noel.jpg" alt="Menu Noël">
+                    <div class="menu-card__content">
+                        <h3>Menu Noël</h3>
+                        <div class="menu-card__price">120€ / 4 pers</div>
+                        <p>Un menu festif aux saveurs traditionnelles pour célébrer Noël.</p>
+                        <a href="#" class="menu-card__cta">Voir détails</a>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="/frontend/assets/menu-paques.jpg" alt="Menu Pâques">
+                    <div class="menu-card__content">
+                        <h3>Menu Pâques</h3>
+                        <div class="menu-card__price">80€ / 4 pers</div>
+                        <p>Un menu printanier aux saveurs délicates pour célébrer Pâques.</p>
+                        <a href="#" class="menu-card__cta">Voir détails</a>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="/frontend/assets/menu-gourmand.jpg" alt="Menu Gourmand">
+                    <div class="menu-card__content">
+                        <h3>Menu Gourmand</h3>
+                        <div class="menu-card__price">110€ / 4 pers</div>
+                        <p>Un menu généreux et raffiné pour les amateurs de saveurs authentiques.</p>
+                        <a href="#" class="menu-card__cta">Voir détails</a>
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
 
