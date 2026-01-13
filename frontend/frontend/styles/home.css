@@ -3,13 +3,24 @@
 	 ========================================= */
 
 main {
-	scroll-snap-type: y mandatory;
-	overflow-y: auto;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: var(--navbar-height, 80px);
+    scroll-behavior: smooth;
+    /* Empêche le contenu de passer sous le header sticky/fixed */
+    padding-top: var(--navbar-height, 80px);
+}
+.hero,
+.presentation,
+.menus {
+	/* Hauteur dynamique : toute la zone visible sous le header sticky/fixed */
+	height: calc(100vh - var(--navbar-height, 80px));
+    scroll-snap-align: start;
 }
 
 section {
 	scroll-snap-align: start;
-	min-height: calc(100vh - 80px); /* 80px = navbar */
 	width: 100%;
 	display: flex;
 	flex-direction: column;
@@ -20,7 +31,6 @@ section {
 /* HERO */
 .hero {
 	background: url('/assets/images/hero-bg.webp') center/cover no-repeat;
-	min-height: calc(100vh - 80px);
 	color: var(--color-title-secondary);
 	display: flex;
 	align-items: center;
@@ -70,7 +80,12 @@ section {
 .presentation {
 	background: var(--color-bg);
 	padding: var(--space-8) 0;
+	padding-bottom: 0;
 	justify-content: flex-start;
+	min-height: 0; /* Pour éviter les débordements et garantir le snap */
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 }
 .presentation h2 {
 	text-align: center;
@@ -78,48 +93,71 @@ section {
 	margin-bottom: var(--space-7);
 }
 .presentation__content {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--space-7);
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 	max-width: 1100px;
 	margin: 0 auto var(--space-8);
 	background: var(--color-bg-secondary);
 	border-radius: var(--radius-lg);
 	box-shadow: 0 2px 12px rgba(44,62,80,0.07);
 	overflow: hidden;
-	align-items: center;
-	padding: var(--space-7);
+	align-items: stretch;
+	/*padding: var(--space-7);*/
+	min-height: 320px;
 }
 .presentation__histoire {
-	flex: 2 1 320px;
+	flex: 1 1 50%;
+	padding: var(--space-4);
+	min-width: 260px;
 }
 .presentation__histoire h3 {
 	color: var(--color-title-primary);
 	margin-bottom: var(--space-4);
+    text-align: center;
 }
 .presentation__histoire p {
 	color: var(--color-text);
 	font-size: var(--font-400);
+    text-align: center;
 }
 .presentation__image {
-	flex: 1 1 220px;
+	flex: 1 1 50%;
 	display: flex;
+	align-items: stretch;
 	justify-content: center;
+	height: 100%;
+	min-width: 260px;
 }
 .presentation__image img {
-	max-width: 220px;
-	border-radius: var(--radius-md);
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	/* arrondir uniquement sur la droite pour s'aligner avec le parent */
+	border-radius: 0 var(--radius-md) var(--radius-md) 0;
 	box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+	display: block;
 }
 
 .avis-clients {
 	margin: 0 auto;
-	max-width: 1100px;
-	background: url('/frontend/assets/avis-bg.jpg') center/cover no-repeat;
-	border-radius: var(--radius-lg);
+	width: 100%;
+	background: url('/assets/images/avis.webp') center/cover no-repeat;
 	box-shadow: 0 2px 12px rgba(44,62,80,0.07);
 	padding: var(--space-7);
 	position: relative;
+		overflow: hidden;
+}
+
+.avis-clients::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,0.3); /* overlay noir 30% */
+	z-index: 1;
+}
+.avis-clients > * {
+	position: relative;
+	z-index: 2;
 }
 .avis-clients h3 {
 	color: var(--color-title-secondary);
@@ -159,6 +197,7 @@ section {
 .avis-clients__item p {
 	font-size: var(--font-400);
 	margin-bottom: var(--space-2);
+    margin-top: 0;
 }
 .avis-clients__item span {
 	color: var(--color-text-muted);
@@ -167,7 +206,7 @@ section {
 
 /* MENUS */
 .menus {
-	background: url('/frontend/assets/menus-bg.jpg') center/cover no-repeat;
+	background: url('/assets/images/menus-bg.webp') center/cover no-repeat;
 	padding: var(--space-8) 0;
 	justify-content: flex-start;
 }
@@ -255,8 +294,20 @@ section {
 		align-items: stretch;
 		padding: var(--space-5);
 	}
+	.presentation__histoire, .presentation__image {
+		flex: 1 1 100%;
+		min-width: 0;
+	}
+	.presentation__image {
+		height: 260px; /* hauteur raisonnable pour mobile */
+	}
+	.presentation__image img {
+		border-radius: var(--radius-md);
+		height: 100%;
+	}
 	.menus__list {
 		flex-direction: column;
 		align-items: center;
 	}
 }
+
