@@ -1,3 +1,10 @@
+/* Garantir le sticky de la navbar même avec injection dynamique */
+#header-placeholder {
+  position: static;
+  overflow: visible;
+  width: 100%;
+  z-index: auto;
+}
 
 /* =========================================
    Base styles
@@ -22,7 +29,12 @@
     flex-direction: column;
   }
   main {
-    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+
+    scroll-behavior: smooth;
+    /* On retire flex:1 ici pour éviter les conflits avec height:100vh */
     margin-bottom: 0;
   }
   img, svg { display: block; max-width: 100%; height: auto; }

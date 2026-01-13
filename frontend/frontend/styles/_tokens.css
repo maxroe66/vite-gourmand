@@ -25,6 +25,8 @@
   --color-info: #3498DB;
 
   /* Typographie */
+    /* Hauteur de la navbar (doit correspondre au header sticky/fixed) */
+    --navbar-height: 80px;
   --font-family: "Roboto", "Helvetica Neue", Helvetica, "Liberation Sans", "Segoe UI", sans-serif;
   /* https://fonts.googleapis.com <link rel="preconnect" href="https://fonts.gstatic.com" */
 

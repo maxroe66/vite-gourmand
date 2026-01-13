@@ -4,10 +4,12 @@
    ========================================= */
 
 @layer components {
+    /* Hauteur de la navbar utilisée par les sections pour le calcul viewport */
+    :root { --navbar-height: 80px; }
   
 /* Navbar wrapper */
    .navbar {
-    position: sticky; top: 0; z-index: 50;
+        position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 50;
     background: var(--navbar-bg, #2F3E4D);          /* dark blue/gray */
     border-bottom: 1px solid rgba(255,255,255,0.08);
     box-shadow: var(--shadow-100);
@@ -246,6 +248,7 @@
 
     /* Mobile (jusqu'à 768px) */
     @media (max-width: 768px) {
+    :root { --navbar-height: 64px; }
     .navbar {
         position: relative; /* Pour le positionnement du dropdown */
     }
@@ -279,6 +282,7 @@
 
     /* Très petit mobile (jusqu'à 480px) */
     @media (max-width: 480px) {
+    :root { --navbar-height: 56px; }
     .navbar__inner {
         height: 56px;
         padding-inline: var(--space-2);
@@ -302,6 +306,7 @@
 
     /* Très petit écran (320px) */
     @media (max-width: 320px) {
+    :root { --navbar-height: 56px; }
     .navbar__inner {
         padding-inline: var(--space-2);
         gap: var(--space-3);
