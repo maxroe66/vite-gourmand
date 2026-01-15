@@ -105,6 +105,23 @@ section {
 	/*padding: var(--space-7);*/
 	min-height: 320px;
 }
+
+/* Make presentation content fixed size and allow avis-clients to grow */
+.presentation__content {
+	flex: 0 0 auto; /* don't expand vertically */
+}
+
+.avis-clients {
+	flex: 1 1 auto; /* grow to take remaining vertical space */
+	display: flex;
+	flex-direction: column; /* Place title above the list */
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-6);
+	min-height: 220px; /* reasonable minimum for small screens */
+	overflow: auto; /* allow internal scroll if content exceeds space */
+	-webkit-overflow-scrolling: touch;
+}
 .presentation__histoire {
 	flex: 1 1 50%;
 	padding: var(--space-4);
@@ -208,6 +225,7 @@ section {
 .menus {
 	background: url('/assets/images/menus-bg.webp') center/cover no-repeat;
 	padding: var(--space-8) 0;
+	padding-top: 30px;
 	justify-content: flex-start;
 }
 .menus h2 {
@@ -254,6 +272,7 @@ section {
 	min-width: 240px;
 	display: flex;
 	flex-direction: column;
+	margin-bottom: var(--space-6);
 }
 .menu-card img {
 	width: 100%;
@@ -266,10 +285,16 @@ section {
 	flex-direction: column;
 	gap: var(--space-3);
 }
+.menu-card__content h3 {
+	margin: 0;
+}
+.menu-card__content p {
+	margin: 0;
+}
 .menu-card__price {
 	color: var(--color-primary);
 	font-weight: 700;
-	margin-bottom: var(--space-2);
+	margin-bottom: 0;
 }
 .menu-card__cta {
 	display: inline-block;
@@ -287,12 +312,56 @@ section {
 	background: var(--color-primary-600);
 }
 
+/* Footer section used for scroll-snap */
+.footer-section {
+	scroll-snap-align: start;
+	/* Allow footer to size naturally; user will adjust exact heights */
+	min-height: auto;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: var(--space-6);
+	padding-bottom: var(--space-6);
+}
+
+/* Ensure footer bar stretches full width and inner content is centered */
+.footer-section {
+	background: var(--color-secondary, #2C3E50);
+	padding-top: 18px;
+	padding-bottom: 18px;
+}
+
+.footer {
+	width: 100%;
+	box-sizing: border-box;
+	background: transparent; /* background moved to .footer-section so it spans full width */
+	padding: 0; /* handled by section padding */
+}
+
+.footer__inner {
+	max-width: var(--container-xl);
+	margin: 0 auto;
+	padding-left: var(--space-5);
+	padding-right: var(--space-5);
+}
+
+/* Remove any stray margin that could create white gap */
+body, html {
+	background-color: var(--color-bg, #ffffff);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
 	.presentation__content, .avis-clients {
 		flex-direction: column;
 		align-items: stretch;
 		padding: var(--space-5);
+	}
+
+	/* On small screens, avoid nested flex growth (keep natural flow) */
+	.avis-clients {
+		flex: none;
+		overflow: visible;
 	}
 	.presentation__histoire, .presentation__image {
 		flex: 1 1 100%;
