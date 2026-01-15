@@ -24,7 +24,7 @@
             <div class="hero__content">
                 <h1>Vite &amp; Gourmand</h1>
                 <p>Menus Catering pour vos moments !</p>
-                <a href="#menus" class="hero__cta">Découvrir nos menus</a>
+                <a href="/frontend/frontend/pages/home.html#menus" class="hero__cta">Découvrir nos menus</a>
             </div>
         </section>
 
@@ -100,11 +100,41 @@
                     </div>
                 </div>
             </div>
+            
+        </section>
+        
+        <!-- Footer as its own snap section -->
+        <section class="footer-section" id="footer-section">
+            <footer class="footer">
+                <div class="footer__inner">
+                    <div class="footer__brand">
+                        <a href="/">
+                            <img src="/assets/logos/logo.png" alt="Logo Vite & Gourmand" class="footer__logo">
+                        </a>
+                    </div>
+
+                    <div class="footer__center">
+                        <p class="footer__info">Horaires: Lun-Dim 9h-19h</p>
+                        <p class="footer__info">Contact: <a href="mailto:contact@vite-gourmand.fr" class="footer__link">contact@vite-gourmand.fr</a></p>
+                    </div>
+
+                    <div class="footer__legal">
+                        <a href="/mentions-legales" class="footer__link">Mentions légales</a>
+                    </div>
+                </div>
+
+                <div class="footer__bottom">
+                    <p>&copy; <span id="currentYear"></span> Vite & Gourmand. Tous droits réservés</p>
+                </div>
+            </footer>
+
+            <script>
+                document.getElementById('currentYear').textContent = new Date().getFullYear();
+            </script>
+        </section>
         </section>
     </main>
 
-    <!-- Footer Placeholder -->
-    <div id="footer-placeholder"></div>
 
     <!-- Scripts -->
     <script src="/frontend/js/components.js"></script>
