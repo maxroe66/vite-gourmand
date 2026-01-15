@@ -76,12 +76,44 @@ section {
 	background: var(--color-primary-600);
 }
 
-/* PRESENTATION & AVIS */
-/* Flèches Rubik's Cube */
+
+/* =============================
+   PRESENTATION & CUBE 3D SPLIT
+   ============================= */
+
+.presentation {
+	position: relative;
+	background: var(--color-bg);
+	padding: var(--space-8) 0 0 0;
+	justify-content: flex-start;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* Présentation : split cube 3D */
+.presentation__content {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	max-width: 1100px;
+	min-width: 1000px;
+	min-height: 370px;
+	background: var(--color-bg-secondary);
+	margin: 0 auto var(--space-7);
+	border-radius: var(--radius-lg);
+	box-shadow: 0 2px 12px rgba(44,62,80,0.07);
+	align-items: stretch;
+	perspective: 1200px;
+	position: relative;
+	flex: 0 0 auto;
+}
+
+/* Flèches navigation cube */
 .presentation__arrows {
 	position: absolute;
 	top: 50%;
-	right: -7%; 
+	right: -7%;
 	transform: translateY(-50%);
 	display: flex;
 	flex-direction: column;
@@ -112,62 +144,42 @@ section {
 .arrow-btn[style*="display:none"] {
 	display: none !important;
 }
-.arrow-btn--down {
-	margin-bottom: 0;
-}
-.arrow-btn--up {
-	margin-top: 0;
-}
-.presentation {
-	position: relative;
-}
-.presentation {
-	background: var(--color-bg);
-	padding: var(--space-8) 0;
-	padding-bottom: 0;
-	justify-content: flex-start;
-	min-height: 0; /* Pour éviter les débordements et garantir le snap */
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-}
-.presentation h2 {
-	text-align: center;
-	color: var(--color-title-primary);
-	margin-bottom: var(--space-7);
-}
-.presentation__content {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	max-width: 1100px;
-	background: var(--color-bg-secondary);
-	margin: 0 auto var(--space-7);
-	border-radius: var(--radius-lg);
-	box-shadow: 0 2px 12px rgba(44,62,80,0.07);
-	min-width: 1000px;
-	align-items: stretch;
-	/*padding: var(--space-7);*/
-	min-height: 370px;
-	perspective: 1200px; /* Ajout de la perspective pour l'effet 3D */
-	position: relative;
-}
+.arrow-btn--down { margin-bottom: 0; }
+.arrow-btn--up { margin-top: 0; }
 
-/* Cube 3D Split Layout */
+
+
+/* Cube 3D split : structure de base (deux demi-cubes côte à côte) */
 .cube {
 	width: 100%;
 	height: 100%;
+	position: relative;
 	transform-style: preserve-3d;
 	transition: transform 0.8s cubic-bezier(0.77,0,0.175,1);
+	/* Pour que chaque demi-cube occupe sa colonne */
+	display: block;
+}
+.cube--split.cube--left {
+	grid-column: 1 / 2;
+	border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+	/* overflow: hidden; retiré pour la 3D */
+}
+.cube--split.cube--right {
+	grid-column: 2 / 3;
+	border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+	/* overflow: hidden; retiré pour la 3D */
 }
 
-/* Animation 3D Rubik's Cube */
-.presentation__histoire .cube.is-flipped {
-	transform: rotateX(-90deg);
+
+/* Animation split : flip opposé (180deg pour afficher la face arrière) */
+.cube--split.cube--left.is-flipped {
+	transform: rotateX(-180deg);
 }
-.presentation__image .cube.is-flipped {
-	transform: rotateX(90deg);
+.cube--split.cube--right.is-flipped {
+	transform: rotateX(180deg);
 }
 
+/* Faces du demi-cube (avant/arrière) */
 .cube__face {
 	position: absolute;
 	width: 100%;
@@ -175,42 +187,86 @@ section {
 	left: 0;
 	top: 0;
 	backface-visibility: hidden;
-	/* Pour éviter que les deux faces s'affichent en même temps */
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
 	align-items: center;
+	justify-content: center;
 }
-
-/* Face avant : visible par défaut */
 .cube__face--front {
 	z-index: 2;
 	background: transparent;
 }
-
-/* Face arrière : masquée par défaut, positionnée pour la rotation */
 .cube__face--back {
 	z-index: 1;
 	background: transparent;
+	transform: rotateX(180deg);
 }
 
-/* Préparation des rotations (sans animation JS pour l'instant) */
-.presentation__histoire .cube__face--back {
-	transform: rotateX(90deg);
+/* Contenu de chaque split (texte ou image) */
+.cube__split-content {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	padding: var(--space-4);
 }
-.presentation__image .cube__face--back {
-	transform: rotateX(-90deg);
+.cube--right .cube__split-content {
+	padding: 0;
+}
+.cube--right img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	border-radius: 0 var(--radius-md) var(--radius-md) 0;
+	box-shadow: 0 2px 8px rgba(44,62,80,0.10);
 }
 
-/* Responsive : garder la perspective sur mobile */
+/* Responsive : vertical split sur mobile */
 @media (max-width: 900px) {
 	.presentation__content {
-		perspective: 900px;
+		grid-template-columns: 1fr;
+		grid-template-rows: 1fr 1fr;
+	}
+	.cube--split.cube--left {
+		grid-column: 1 / 2;
+		grid-row: 1 / 2;
+		border-radius: var(--radius-md) var(--radius-md) 0 0;
+	}
+	.cube--split.cube--right {
+		grid-column: 1 / 2;
+		grid-row: 2 / 3;
+		border-radius: 0 0 var(--radius-md) var(--radius-md);
+	}
+	.cube--right img {
+		border-radius: 0 0 var(--radius-md) var(--radius-md);
+		height: 100%;
 	}
 }
-/* Make presentation content fixed size and allow avis-clients to grow */
-.presentation__content {
-	flex: 0 0 auto; /* don't expand vertically */
+
+/* Responsive : garder la perspective et la structure sur mobile */
+@media (max-width: 900px) {
+	.presentation__content { perspective: 900px; }
+	.cube__face, .cube {
+		flex-direction: column;
+	}
+	.cube__split {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		transform-style: preserve-3d !important;
+		transition: transform 0.8s cubic-bezier(0.77,0,0.175,1);
+		display: block;
+		will-change: transform;
+	}
+}
+
+/* Responsive : perspective adaptée */
+@media (max-width: 900px) {
+	.presentation__content { perspective: 900px; }
 }
 
 .avis-clients {
@@ -223,48 +279,6 @@ section {
 	min-height: 220px; /* reasonable minimum for small screens */
 	overflow: auto; /* allow internal scroll if content exceeds space */
 	-webkit-overflow-scrolling: touch;
-}
-.presentation__histoire {
-	flex: 1 1 50%;
-	padding: var(--space-4);
-	min-width: 260px;
-	position: relative;
-	display: flex;
-	align-items: stretch;
-	justify-content: center;
-	height: 100%;
-	width: 100%;
-}
-.presentation__histoire h3 {
-	color: var(--color-title-primary);
-	margin-bottom: 0;
-    text-align: center;
-	margin-top: var(--space-5);
-}
-.presentation__histoire p {
-	color: var(--color-text);
-	font-size: var(--font-400);
-    text-align: center;
-	padding: 10px;
-}
-.presentation__image {
-	flex: 1 1 50%;
-	position: relative;
-	display: flex;
-	align-items: stretch;
-	justify-content: center;
-	height: 100%;
-	width: 100%;
-	min-width: 260px;
-}
-.presentation__image img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	/* arrondir uniquement sur la droite pour s'aligner avec le parent */
-	border-radius: 0 var(--radius-md) var(--radius-md) 0;
-	box-shadow: 0 2px 8px rgba(44,62,80,0.10);
-	display: block;
 }
 
 .avis-clients {
@@ -286,9 +300,8 @@ section {
 }
 .avis-clients > * {
 	position: relative;
-	z-index: 2;
-}
-.avis-clients h3 {
+	z-index: 3;
+	background: transparent;
 	color: var(--color-title-secondary);
 	margin-bottom: var(--space-4);
 	text-shadow: 0 1px 4px rgba(44,62,80,0.18);
