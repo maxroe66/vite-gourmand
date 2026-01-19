@@ -77,7 +77,118 @@
 	font-size: 0.95em;
 }
 
+/* Éléments spécifiques maquette mobile — cachés par défaut (desktop inchangé) */
+.avis-clients__meta,
+.avis-clients__controls {
+	display: none;
+}
+
+.avis-clients__arrow {
+	border: none;
+	background: transparent;
+	color: inherit;
+}
+
 /* =========================================
    Responsive Design
    ========================================= */
+
+/* Mobile (jusqu'à 768px) — layout maquette */
+@media (max-width: 768px) {
+	.avis-clients {
+		align-items: stretch;
+		justify-content: flex-start;
+		gap: var(--space-4);
+		padding: var(--space-6) var(--space-5) var(--space-7);
+	}
+
+	.avis-clients > * {
+		margin-bottom: 0;
+	}
+
+	.avis-clients h3 {
+		text-align: left;
+		margin: 0;
+		font-size: var(--font-700);
+	}
+
+	.avis-clients__meta {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-2);
+	}
+	.avis-clients__rating-line {
+		display: flex;
+		gap: var(--space-2);
+		align-items: baseline;
+	}
+	.avis-clients__rating {
+		font-size: var(--font-300);
+		font-weight: 700;
+		color: var(--color-title-secondary);
+	}
+	.avis-clients__count {
+		font-size: var(--font-300);
+		color: rgba(255,255,255,0.85);
+	}
+	.avis-clients__stars-row {
+		color: var(--color-warning);
+		letter-spacing: 1px;
+		font-size: 1rem;
+	}
+
+	/* Carousel horizontal swipe */
+	.avis-clients__list {
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scroll-snap-type: x mandatory;
+		gap: var(--space-4);
+		padding: var(--space-3) 2px;
+	}
+	.avis-clients__list::-webkit-scrollbar { display: none; }
+	.avis-clients__list { scrollbar-width: none; }
+
+	.avis-clients__item {
+		flex: 0 0 min(85%, 340px);
+		min-width: 0;
+		max-width: none;
+		background: var(--color-bg);
+		scroll-snap-align: center;
+	}
+	.avis-clients__item p {
+		font-size: var(--font-300);
+		line-height: var(--lh-normal);
+	}
+
+	/* On a déjà la ligne d'étoiles au-dessus (maquette) */
+	.avis-clients__item .avis-clients__stars {
+		display: none;
+	}
+
+	/* Contrôles flèches en bas */
+	.avis-clients__controls {
+		display: flex;
+		justify-content: center;
+		gap: var(--space-5);
+		margin-top: var(--space-4);
+	}
+	.avis-clients__arrow {
+		width: 44px;
+		height: 44px;
+		border-radius: 999px;
+		background: var(--color-primary);
+		color: #fff;
+		box-shadow: 0 2px 8px rgba(44,62,80,0.18);
+		font-size: 1.75rem;
+		line-height: 1;
+		cursor: pointer;
+		transition: background var(--transition-fast), transform var(--transition-fast);
+	}
+	.avis-clients__arrow:hover { background: var(--color-primary-600); }
+	.avis-clients__arrow:active { transform: scale(0.96); }
+}
 

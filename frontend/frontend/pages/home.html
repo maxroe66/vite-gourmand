@@ -77,7 +77,13 @@
             </div>
             <div class="avis-clients">
                 <h3>Avis Clients</h3>
-                <!-- Note supprimée pour gagner de la place -->
+                <div class="avis-clients__meta" aria-label="Note moyenne">
+                    <div class="avis-clients__rating-line">
+                        <span class="avis-clients__rating">4.8 ★ / 5</span>
+                        <span class="avis-clients__count">(148 avis)</span>
+                    </div>
+                    <div class="avis-clients__stars-row" aria-hidden="true">★★★★★</div>
+                </div>
                 <div class="avis-clients__list">
                     <div class="avis-clients__item">
                         <p>Excellent service ! Les menus sont délicieux et la livraison très rapide.</p>
@@ -91,6 +97,11 @@
                         <p>Rapide et efficace ! Les repas sont frais et d'excellente qualité.</p>
                         <span>- Marie D. <span class="avis-clients__stars">★★★★★</span></span>
                     </div>
+                </div>
+
+                <div class="avis-clients__controls" aria-label="Navigation des avis">
+                    <button class="avis-clients__arrow avis-clients__arrow--prev" type="button" aria-label="Avis précédent">&#8249;</button>
+                    <button class="avis-clients__arrow avis-clients__arrow--next" type="button" aria-label="Avis suivant">&#8250;</button>
                 </div>
             </div>
         </section>
@@ -175,5 +186,6 @@
     <script src="/frontend/js/services/authService.js"></script>
     <script src="/frontend/js/auth/auth-navbar.js"></script>
     <script src="/frontend/js/navbar.js"></script>
+    <script src="/frontend/js/avis-carousel.js"></script>
 </body>
 </html>
