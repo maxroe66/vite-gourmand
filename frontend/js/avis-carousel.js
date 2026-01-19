@@ -2,7 +2,7 @@
 // Swipe natif via overflow-x, flèches pour faire défiler d'une carte.
 
 document.addEventListener('DOMContentLoaded', () => {
-  const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 1024px)').matches;
   if (!isMobile) return;
 
   const section = document.querySelector('.avis-clients');

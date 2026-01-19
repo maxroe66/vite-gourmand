@@ -111,9 +111,9 @@
    Responsive Design
    ========================================= */
 
-/* Mobile (jusqu'à 768px) */
+/* Mobile & Tablette (jusqu'à 1024px) */
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 	.menus {
 		background: var(--color-bg);
 		padding: var(--space-6) 0 var(--space-7);

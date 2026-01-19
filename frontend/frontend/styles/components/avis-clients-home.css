@@ -93,8 +93,8 @@
    Responsive Design
    ========================================= */
 
-/* Mobile (jusqu'à 768px) — layout maquette */
-@media (max-width: 768px) {
+/* Mobile & Tablette (jusqu'à 1024px) — layout maquette */
+@media (max-width: 1024px) {
 	.avis-clients {
 		align-items: stretch;
 		justify-content: flex-start;
