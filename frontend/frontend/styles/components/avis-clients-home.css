@@ -1,0 +1,83 @@
+/* Avis Clients Home Component */
+
+.avis-clients {
+	flex: 1 1 auto; /* grow to take remaining vertical space */
+	display: flex;
+	flex-direction: column; /* Place title above the list */
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-6);
+	min-height: 220px; /* reasonable minimum for small screens */
+	overflow: auto; /* allow internal scroll if content exceeds space */
+	-webkit-overflow-scrolling: touch;
+}
+
+.avis-clients {
+	margin: 0 auto;
+	width: 100%;
+	background: url('/assets/images/avis.webp') center/cover no-repeat;
+	box-shadow: 0 2px 12px rgba(44,62,80,0.07);
+	padding: var(--space-7);
+	position: relative;
+		overflow: hidden;
+}
+
+.avis-clients::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,0.3); /* overlay noir 30% */
+	z-index: 1;
+}
+.avis-clients > * {
+	position: relative;
+	z-index: 3;
+	background: transparent;
+	color: var(--color-title-secondary);
+	margin-bottom: var(--space-4);
+	text-shadow: 0 1px 4px rgba(44,62,80,0.18);
+}
+.avis-clients__note {
+	color: var(--color-title-secondary);
+	font-size: var(--font-500);
+	margin-bottom: var(--space-5);
+	text-shadow: 0 1px 4px rgba(44,62,80,0.18);
+}
+.avis-clients__list {
+	display: flex;
+	gap: var(--space-6);
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.avis-clients__item {
+	background: var(--color-bg-secondary);
+	border-radius: var(--radius-md);
+	box-shadow: 0 1px 6px rgba(44,62,80,0.08);
+	padding: var(--space-5);
+	min-width: 220px;
+	max-width: 320px;
+	flex: 1 1 220px;
+	color: var(--color-title-primary);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+.avis-clients__stars {
+	color: var(--color-warning);
+	font-size: 1.2em;
+	margin-bottom: var(--space-2);
+}
+.avis-clients__item p {
+	font-size: var(--font-400);
+	margin-bottom: var(--space-2);
+    margin-top: 0;
+}
+.avis-clients__item span {
+	color: var(--color-text-muted);
+	font-size: 0.95em;
+}
+
+/* =========================================
+   Responsive Design
+   ========================================= */
+
