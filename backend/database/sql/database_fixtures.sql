@@ -16,13 +16,13 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Hash bcrypt : $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 
 INSERT IGNORE INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_postal, mot_de_passe, role, actif, date_creation) VALUES
-('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMINISTRATEUR', TRUE, '2024-01-15 10:00:00'),
-('Employe', 'Julie', '0556789012', 'julie@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'EMPLOYE', TRUE, '2024-01-15 10:30:00'),
-('Dupont', 'Marie', '0601020304', 'marie.dupont@email.fr', '25 cours de l''Intendance', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-02-10 14:30:00'),
-('Martin', 'Pierre', '0612345678', 'pierre.martin@email.fr', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-03-05 16:20:00'),
-('Bernard', 'Sophie', '0623456789', 'sophie.bernard@email.fr', '15 place de la Victoire', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-04-12 11:15:00'),
-('Lefebvre', 'Thomas', '0634567890', 'thomas.lefebvre@email.fr', '8 avenue Victor Hugo', 'Bordeaux', '33200', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-05-20 09:45:00'),
-('Moreau', 'Claire', '0645678901', 'claire.moreau@email.fr', '22 rue de la Devise', 'Bordeaux', '33000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'UTILISATEUR', TRUE, '2024-06-08 15:30:00');
+('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$EboifBYTi8lO/X2WUMDFqe4AfSIjlJUm5kRPG/38FIcUB7N.3M5hC', 'ADMINISTRATEUR', TRUE, '2024-01-15 10:00:00'),
+('Employe', 'Julie', '0556789012', 'julie@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$EboifBYTi8lO/X2WUMDFqe4AfSIjlJUm5kRPG/38FIcUB7N.3M5hC', 'EMPLOYE', TRUE, '2024-01-15 10:30:00'),
+('Dupont', 'Marie', '0601020304', 'marie.dupont@email.fr', '25 cours de l''Intendance', 'Bordeaux', '33000', '$2y$10$EboifBYTi8lO/X2WUMDFqe4AfSIjlJUm5kRPG/38FIcUB7N.3M5hC', 'UTILISATEUR', TRUE, '2024-02-10 14:30:00'),
+('Martin', 'Pierre', '0612345678', 'pierre.martin@email.fr', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '$2y$10$EboifBYTi8lO/X2WUMDFqe4AfSIjlJUm5kRPG/38FIcUB7N.3M5hC', 'UTILISATEUR', TRUE, '2024-03-05 16:20:00'),
+('Bernard', 'Sophie', '0623456789', 'sophie.bernard@email.fr', '15 place de la Victoire', 'Bordeaux', '33000', '$2y$10$EboifBYTi8lO/X2WUMDFqe4AfSIjlJUm5kRPG/38FIcUB7N.3M5hC', 'UTILISATEUR', TRUE, '2024-04-12 11:15:00'),
+('Lefebvre', 'Thomas', '0634567890', 'thomas.lefebvre@email.fr', '8 avenue Victor Hugo', 'Bordeaux', '33200', '$2y$10$EboifBYTi8lO/X2WUMDFqe4AfSIjlJUm5kRPG/38FIcUB7N.3M5hC', 'UTILISATEUR', TRUE, '2024-05-20 09:45:00'),
+('Moreau', 'Claire', '0645678901', 'claire.moreau@email.fr', '22 rue de la Devise', 'Bordeaux', '33000', '$2y$10$EboifBYTi8lO/X2WUMDFqe4AfSIjlJUm5kRPG/38FIcUB7N.3M5hC', 'UTILISATEUR', TRUE, '2024-06-08 15:30:00');
 
 -- ============================================================
 -- THÈMES & RÉGIMES

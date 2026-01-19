@@ -91,6 +91,16 @@ class PlatController
                 ->setJsonContent(['error' => 'Données invalides ou manquantes']);
         }
 
+        // Mapping pour compatibilité avec le test Postman (nom -> libelle)
+        if (isset($data['nom']) && !isset($data['libelle'])) {
+            $data['libelle'] = $data['nom'];
+        }
+
+        // Normalisation du type en majuscules (plat -> PLAT)
+        if (isset($data['type'])) {
+            $data['type'] = strtoupper($data['type']);
+        }
+
         // Validation
         $validation = $this->platValidator->validate($data);
         if (!$validation['isValid']) {
@@ -105,6 +115,7 @@ class PlatController
                 ->setStatusCode(Response::HTTP_CREATED)
                 ->setJsonContent(['id' => $id, 'message' => 'Plat créé avec succès']);
         } catch (Exception $e) {
+            error_log('Plat Create Error: ' . $e->getMessage());
             return (new Response())
                 ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
                 ->setJsonContent(['error' => $e->getMessage()]);
