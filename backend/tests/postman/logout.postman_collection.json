@@ -6,7 +6,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:8000/api",
+      "value": "http://localhost:8000",
       "type": "string"
     }
   ],
@@ -21,7 +21,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/logout",
+        "url": "{{base_url}}/api/auth/logout",
         "body": {
           "mode": "raw",
           "raw": ""
@@ -51,7 +51,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/logout",
+        "url": "{{base_url}}/api/auth/logout",
         "body": {
           "mode": "raw",
           "raw": ""
@@ -75,7 +75,7 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": "{{base_url}}/auth/logout"
+        "url": "{{base_url}}/api/auth/logout"
       },
       "event": [{
         "listen": "test",

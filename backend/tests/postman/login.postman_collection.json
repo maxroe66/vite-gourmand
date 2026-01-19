@@ -6,7 +6,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:8000/api",
+      "value": "http://localhost:8000",
       "type": "string"
     }
   ],
@@ -21,10 +21,10 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
-          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"password\"}"
+          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"Password123!\"}"
         }
       },
       "event": [
@@ -56,7 +56,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
           "raw": "{\"email\": \"inexistant@test.fr\", \"password\": \"password\"}"
@@ -88,7 +88,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
           "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"WrongPassword123\"}"
@@ -120,7 +120,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
           "raw": "{\"password\": \"password\"}"
@@ -152,7 +152,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
           "raw": "{\"email\": \"marie.dupont@email.fr\"}"
@@ -184,7 +184,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
           "raw": "{\"email\": \"invalid-email\", \"password\": \"password\"}"
@@ -216,7 +216,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
           "raw": "{}"
@@ -248,7 +248,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/api/auth/login",
         "body": {
           "mode": "raw",
           "raw": "not a valid json"
