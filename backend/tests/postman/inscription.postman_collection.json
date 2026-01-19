@@ -15,7 +15,7 @@
     },
     {
       "key": "api_path",
-      "value": "/api/auth/register",
+      "value": "/auth/register",
       "type": "string"
     }
   ],

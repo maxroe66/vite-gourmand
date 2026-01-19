@@ -14,7 +14,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/menus",
+							"raw": "{{base_url}}/menus",
 							"host": [
 								"{{base_url}}"
 							],
@@ -45,7 +45,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/menus/1",
+							"raw": "{{base_url}}/menus/1",
 							"host": [
 								"{{base_url}}"
 							],
@@ -77,7 +77,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/plats",
+							"raw": "{{base_url}}/plats",
 							"host": [
 								"{{base_url}}"
 							],
@@ -108,7 +108,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/plats/1",
+							"raw": "{{base_url}}/plats/1",
 							"host": [
 								"{{base_url}}"
 							],
@@ -170,7 +170,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/auth/login",
+							"raw": "{{base_url}}/auth/login",
 							"host": [
 								"{{base_url}}"
 							],
@@ -198,7 +198,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/menus",
+							"raw": "{{base_url}}/menus",
 							"host": [
 								"{{base_url}}"
 							],
@@ -243,7 +243,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/menus/1",
+							"raw": "{{base_url}}/menus/1",
 							"host": [
 								"{{base_url}}"
 							],
@@ -305,7 +305,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/auth/login",
+							"raw": "{{base_url}}/auth/login",
 							"host": [
 								"{{base_url}}"
 							],
@@ -354,7 +354,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/plats",
+							"raw": "{{base_url}}/plats",
 							"host": [
 								"{{base_url}}"
 							],
@@ -402,7 +402,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/menus",
+							"raw": "{{base_url}}/menus",
 							"host": [
 								"{{base_url}}"
 							],
@@ -420,7 +420,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/menus/{{menu_id}}",
+							"raw": "{{base_url}}/menus/{{menu_id}}",
 							"host": [
 								"{{base_url}}"
 							],
@@ -471,7 +471,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/menus/{{menu_id}}",
+							"raw": "{{base_url}}/menus/{{menu_id}}",
 							"host": [
 								"{{base_url}}"
 							],
@@ -509,7 +509,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/menus/{{menu_id}}",
+							"raw": "{{base_url}}/menus/{{menu_id}}",
 							"host": [
 								"{{base_url}}"
 							],
@@ -547,7 +547,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/plats/{{plat_id}}",
+							"raw": "{{base_url}}/plats/{{plat_id}}",
 							"host": [
 								"{{base_url}}"
 							],
