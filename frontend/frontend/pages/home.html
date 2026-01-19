@@ -109,6 +109,9 @@
         <!-- Section Menus -->
         <section class="menus" id="menus">
             <h2>Nos Menus</h2>
+            <div class="menus__mobile-toolbar" aria-label="Filtres menus">
+                <button class="menus__filters-toggle" type="button">Filtres</button>
+            </div>
             <div class="menus__filters">
                 <button>Prix max</button>
                 <button>Fourchette de prix</button>
@@ -144,6 +147,11 @@
                         <a href="#" class="menu-card__cta">Voir détails</a>
                     </div>
                 </div>
+            </div>
+
+            <div class="menus__controls" aria-label="Navigation des menus">
+                <button class="menus__arrow menus__arrow--prev" type="button" aria-label="Menu précédent">&#8249;</button>
+                <button class="menus__arrow menus__arrow--next" type="button" aria-label="Menu suivant">&#8250;</button>
             </div>
             
         </section>
@@ -187,5 +195,6 @@
     <script src="/frontend/js/auth/auth-navbar.js"></script>
     <script src="/frontend/js/navbar.js"></script>
     <script src="/frontend/js/avis-carousel.js"></script>
+    <script src="/frontend/js/menus-carousel.js"></script>
 </body>
 </html>
