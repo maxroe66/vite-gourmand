@@ -24,7 +24,7 @@
         "url": "{{base_url}}/auth/login",
         "body": {
           "mode": "raw",
-          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"password\"}"
+          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"Password123!\"}"
         }
       },
       "event": [
