@@ -19,7 +19,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus"
 							]
 						}
@@ -50,7 +49,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus",
 								"1"
 							]
@@ -82,7 +80,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"plats"
 							]
 						}
@@ -113,7 +110,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"plats",
 								"1"
 							]
@@ -175,7 +171,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"auth",
 								"login"
 							]
@@ -203,7 +198,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus"
 							]
 						}
@@ -248,7 +242,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus",
 								"1"
 							]
@@ -310,7 +303,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"auth",
 								"login"
 							]
@@ -359,7 +351,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"plats"
 							]
 						}
@@ -407,7 +398,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus"
 							]
 						}
@@ -425,7 +415,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus",
 								"{{menu_id}}"
 							]
@@ -476,7 +465,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus",
 								"{{menu_id}}"
 							]
@@ -514,7 +502,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"menus",
 								"{{menu_id}}"
 							]
@@ -552,7 +539,6 @@
 								"{{base_url}}"
 							],
 							"path": [
-								"api",
 								"plats",
 								"{{plat_id}}"
 							]
