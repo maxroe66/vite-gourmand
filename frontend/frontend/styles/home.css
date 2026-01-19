@@ -34,6 +34,52 @@ section {
 }
 
 /* =========================================
+   Mobile & Tablette (jusqu'à 1024px)
+   - Désactive le scroll-snap (trop contraignant sur mobile/tablette)
+   - Supprime les hauteurs figées en viewport
+   - Laisse la page scroller naturellement
+   ========================================= */
+
+@media (max-width: 1024px) {
+    main {
+        height: auto;
+        overflow-y: visible;
+        scroll-snap-type: none;
+        scroll-padding-top: 0;
+        scroll-behavior: auto;
+        /* La navbar est responsive (souvent non-fixed en mobile) : pas de padding forcé */
+        padding-top: 0;
+    }
+
+    .hero,
+    .presentation,
+    .menus {
+        height: auto;
+        scroll-snap-align: none;
+    }
+	.hero {
+		justify-content: center;
+	}
+
+    section {
+        scroll-snap-align: none;
+        justify-content: flex-start;
+    }
+}
+
+/* Zone de transition (769-1024px) : navbar desktop (80px) mais layout mobile */
+@media (min-width: 769px) and (max-width: 1024px) {
+    main {
+        /* Compense la navbar desktop qui fait 80px */
+        padding-top: var(--navbar-height, 80px);
+    }
+    .hero {
+        /* Ajuste la hauteur minimale pour compenser */
+        min-height: calc(60vh - var(--navbar-height, 80px));
+    }
+}
+
+/* =========================================
    Responsive Design
    ========================================= */
 

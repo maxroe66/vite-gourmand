@@ -77,7 +77,13 @@
             </div>
             <div class="avis-clients">
                 <h3>Avis Clients</h3>
-                <!-- Note supprimée pour gagner de la place -->
+                <div class="avis-clients__meta" aria-label="Note moyenne">
+                    <div class="avis-clients__rating-line">
+                        <span class="avis-clients__rating">4.8 ★ / 5</span>
+                        <span class="avis-clients__count">(148 avis)</span>
+                    </div>
+                    <div class="avis-clients__stars-row" aria-hidden="true">★★★★★</div>
+                </div>
                 <div class="avis-clients__list">
                     <div class="avis-clients__item">
                         <p>Excellent service ! Les menus sont délicieux et la livraison très rapide.</p>
@@ -92,12 +98,20 @@
                         <span>- Marie D. <span class="avis-clients__stars">★★★★★</span></span>
                     </div>
                 </div>
+
+                <div class="avis-clients__controls" aria-label="Navigation des avis">
+                    <button class="avis-clients__arrow avis-clients__arrow--prev" type="button" aria-label="Avis précédent">&#8249;</button>
+                    <button class="avis-clients__arrow avis-clients__arrow--next" type="button" aria-label="Avis suivant">&#8250;</button>
+                </div>
             </div>
         </section>
 
         <!-- Section Menus -->
         <section class="menus" id="menus">
             <h2>Nos Menus</h2>
+            <div class="menus__mobile-toolbar" aria-label="Filtres menus">
+                <button class="menus__filters-toggle" type="button">Filtres</button>
+            </div>
             <div class="menus__filters">
                 <button>Prix max</button>
                 <button>Fourchette de prix</button>
@@ -134,6 +148,11 @@
                     </div>
                 </div>
             </div>
+
+            <div class="menus__controls" aria-label="Navigation des menus">
+                <button class="menus__arrow menus__arrow--prev" type="button" aria-label="Menu précédent">&#8249;</button>
+                <button class="menus__arrow menus__arrow--next" type="button" aria-label="Menu suivant">&#8250;</button>
+            </div>
             
         </section>
         
@@ -166,7 +185,6 @@
                 document.getElementById('currentYear').textContent = new Date().getFullYear();
             </script>
         </section>
-        </section>
     </main>
 
 
@@ -175,5 +193,7 @@
     <script src="/frontend/js/services/authService.js"></script>
     <script src="/frontend/js/auth/auth-navbar.js"></script>
     <script src="/frontend/js/navbar.js"></script>
+    <script src="/frontend/js/avis-carousel.js"></script>
+    <script src="/frontend/js/menus-carousel.js"></script>
 </body>
 </html>

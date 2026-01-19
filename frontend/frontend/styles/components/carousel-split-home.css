@@ -34,7 +34,8 @@
 .presentation__arrows {
 	position: absolute;
 	top: 50%;
-	right: -7%;
+	/* Placées dans le bloc pour éviter d'être coupées (overflow hidden) */
+	right: var(--space-4);
 	transform: translateY(-50%);
 	display: flex;
 	flex-direction: column;
@@ -45,7 +46,7 @@
 .arrow-btn {
 	width: 44px;
 	height: 44px;
-	background: #ff8800;
+	background: var(--color-primary);
 	color: #fff;
 	border: none;
 	border-radius: 50%;
@@ -59,7 +60,7 @@
 	outline: none;
 }
 .arrow-btn:active, .arrow-btn:focus {
-	background: #ff6600;
+	background: var(--color-primary-600);
 	transform: scale(0.95);
 }
 .arrow-btn[style*="display:none"] {
@@ -131,8 +132,12 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	text-align: center;
 	box-sizing: border-box;
 	padding: var(--space-4);
+}
+.cube__split-content h3 {
+	margin-bottom: var(--space-4);
 }
 .cube--right .cube__split-content {
 	padding: 0;
@@ -151,5 +156,182 @@
    Responsive Design
    ========================================= */
 
+/* Desktop faible hauteur (≤830px) : compacter pour éviter la coupe (scroll-snap conservé) */
+@media (min-width: 1025px) and (max-height: 830px) {
+	.presentation {
+		padding: var(--space-6) 0 0;
+	}
+
+	.presentation__content {
+		min-height: 300px;
+		margin-bottom: var(--space-5);
+	}
+
+	.cube__split-content {
+		padding: var(--space-3);
+	}
+
+	.cube__split-content h3 {
+		margin-top: var(--space-3);
+		margin-bottom: var(--space-3);
+		font-size: var(--font-600);
+	}
+
+	.cube__split-content p {
+		font-size: var(--font-300);
+		line-height: var(--lh-normal);
+	}
+
+	.arrow-btn {
+		width: 40px;
+		height: 40px;
+		font-size: 1.8rem;
+	}
+}
+
+/* Écrans moyens (1025px - 1200px) : Adaptation du layout desktop */
+@media (min-width: 1025px) and (max-width: 1200px) {
+	.presentation {
+		padding: var(--space-7) 0 0;
+	}
+
+	.presentation__content {
+		min-width: 0;
+		width: 95%;
+		max-width: 950px;
+		min-height: 370px;
+		margin-bottom: var(--space-6);
+	}
+
+	.cube__split-content {
+		padding: var(--space-3);
+	}
+
+	.cube__split-content h3 {
+		font-size: var(--font-600);
+		margin-bottom: 0;
+		margin-top: var(--space-4);
+	}
+
+	.cube__split-content p {
+		font-size: var(--font-400);
+		line-height: var(--lh-normal);
+	}
+
+	.presentation__arrows {
+		/* Évite que la flèche soit coupée (overflow hidden) */
+		right: var(--space-4);
+	}
+
+	.arrow-btn {
+		width: 40px;
+		height: 40px;
+		font-size: 1.8rem;
+	}
+}
+
 /* Tablette et petits ordinateurs (jusqu'à 1175px) */
+
+/* Mobile & Tablette (jusqu'à 1024px)
+   Objectif: remplacer l'effet split 3D par une carte 1 colonne,
+   et garder un switch simple entre "Notre Histoire" / "Notre Professionnalisme".
+*/
+@media (max-width: 1024px) {
+	.presentation {
+		padding: var(--space-6) 0 0 0;
+	}
+
+	.presentation__content {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		width: calc(100% - (var(--space-5) * 2));
+		max-width: 520px;
+		min-width: 0;
+		min-height: 0;
+		margin: 0 auto var(--space-6);
+		padding-bottom: 72px; /* réserve pour les flèches */
+		perspective: none;
+		overflow: hidden;
+	}
+
+	/* Sur mobile on garde uniquement la partie texte (comme la maquette) */
+	.cube--split.cube--right {
+		display: none;
+	}
+
+	.cube {
+		height: auto;
+		transform-style: flat;
+		transition: none;
+		transform: none;
+	}
+
+	/* IMPORTANT: le JS ajoute .is-flipped et les règles desktop font rotateX.
+	   On les neutralise explicitement en mobile (spécificité supérieure). */
+	.cube--split.cube--left.is-flipped,
+	.cube--split.cube--right.is-flipped {
+		transform: none;
+	}
+
+	/* Désactive le positionnement 3D des faces et affiche une seule face à la fois */
+	.cube__face {
+		position: static;
+		width: 100%;
+		height: auto;
+		backface-visibility: visible;
+	}
+	.cube__face--back {
+		display: none;
+		transform: none;
+	}
+	.cube--split.is-flipped .cube__face--front {
+		display: none;
+	}
+	.cube--split.is-flipped .cube__face--back {
+		display: flex;
+	}
+
+	.cube__split-content {
+		align-items: flex-start;
+		justify-content: flex-start;
+		padding: var(--space-6) var(--space-5);
+		gap: var(--space-4);
+	}
+	.cube__split-content h3 {
+		width: 100%;
+		text-align: center;
+		margin: 0;
+		color: var(--color-title-primary);
+		font-size: var(--font-500);
+	}
+	.cube__split-content p {
+		margin: 0;
+		color: var(--color-text);
+		font-size: var(--font-300);
+		line-height: var(--lh-relaxed);
+	}
+
+	/* Flèches: placées en bas, centrées, orientation gauche/droite */
+	.presentation__arrows {
+		position: absolute;
+		top: auto;
+		right: auto;
+		left: 50%;
+		bottom: var(--space-4);
+		transform: translateX(-50%);
+		flex-direction: row;
+		gap: var(--space-5);
+	}
+	.arrow-btn {
+		width: 40px;
+		height: 40px;
+		font-size: 1.6rem;
+	}
+	.arrow-btn--down span,
+	.arrow-btn--up span {
+		display: inline-block;
+		transform: rotate(-90deg);
+	}
+}
 
