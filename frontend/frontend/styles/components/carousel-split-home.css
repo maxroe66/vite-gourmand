@@ -154,11 +154,11 @@
 
 /* Tablette et petits ordinateurs (jusqu'à 1175px) */
 
-/* Mobile (jusqu'à 768px)
+/* Mobile & Tablette (jusqu'à 1024px)
    Objectif: remplacer l'effet split 3D par une carte 1 colonne,
    et garder un switch simple entre "Notre Histoire" / "Notre Professionnalisme".
 */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 	.presentation {
 		padding: var(--space-6) 0 0 0;
 	}

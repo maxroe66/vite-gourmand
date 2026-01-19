@@ -41,7 +41,7 @@
 		text-shadow: 0 1px 4px rgba(44,62,80,0.18);
 	}
 
-	@media(max-width: 768px) {
+	@media(max-width: 1024px) {
 		.hero {
 			padding: var(--space-7) var(--space-5);
 			min-height: 60vh;

@@ -34,13 +34,13 @@ section {
 }
 
 /* =========================================
-   Mobile baseline (jusqu'à 768px)
-   - Désactive le scroll-snap (trop contraignant sur mobile)
+   Mobile & Tablette (jusqu'à 1024px)
+   - Désactive le scroll-snap (trop contraignant sur mobile/tablette)
    - Supprime les hauteurs figées en viewport
    - Laisse la page scroller naturellement
    ========================================= */
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     main {
         height: auto;
         overflow-y: visible;
@@ -57,6 +57,9 @@ section {
         height: auto;
         scroll-snap-align: none;
     }
+	.hero {
+		justify-content: center;
+	}
 
     section {
         scroll-snap-align: none;
