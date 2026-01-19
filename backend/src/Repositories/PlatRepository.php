@@ -120,4 +120,39 @@ class PlatRepository
         $stmt->execute(['platId' => $platId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Vérifie si un plat est utilisé dans au moins un menu.
+     * @param int $platId
+     * @return bool
+     */
+    public function isUsedInMenu(int $platId): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM MENU_PLAT WHERE id_plat = :platId');
+        $stmt->execute(['platId' => $platId]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Associe un allergène à un plat.
+     * @param int $platId
+     * @param int $allergenId
+     * @return bool
+     */
+    public function associateAllergen(int $platId, int $allergenId): bool
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO PLAT_ALLERGENE (id_plat, id_allergene) VALUES (:platId, :allergenId)');
+        return $stmt->execute(['platId' => $platId, 'allergenId' => $allergenId]);
+    }
+
+    /**
+     * Dissocie tous les allergènes d'un plat.
+     * @param int $platId
+     * @return bool
+     */
+    public function dissociateAllAllergens(int $platId): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM PLAT_ALLERGENE WHERE id_plat = :platId');
+        return $stmt->execute(['platId' => $platId]);
+    }
 }

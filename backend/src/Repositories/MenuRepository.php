@@ -164,4 +164,27 @@ class MenuRepository
         $stmt = $this->pdo->query('SELECT * FROM MENU WHERE actif = true AND stock > 0');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Associe un plat à un menu.
+     * @param int $menuId
+     * @param int $platId
+     * @return bool
+     */
+    public function associateDish(int $menuId, int $platId): bool
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO MENU_PLAT (id_menu, id_plat) VALUES (:menuId, :platId)');
+        return $stmt->execute(['menuId' => $menuId, 'platId' => $platId]);
+    }
+
+    /**
+     * Dissocie tous les plats d'un menu.
+     * @param int $menuId
+     * @return bool
+     */
+    public function dissociateAllDishes(int $menuId): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM MENU_PLAT WHERE id_menu = :menuId');
+        return $stmt->execute(['menuId' => $menuId]);
+    }
 }
