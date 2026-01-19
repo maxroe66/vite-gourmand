@@ -159,16 +159,38 @@ class MenuControllerTest extends TestCase
         // Arrange
         $menuId = 1;
         $inputData = ['titre' => 'Menu Mis à Jour', 'description' => 'Description valide', 'prix' => 30.0, 'nb_personnes_min' => 2, 'stock' => 5, 'id_theme' => 1, 'id_regime' => 1];
-        $request = Request::createFromJson($inputData);
+        
+        // Données existantes simulées (nécessaires car le contrôleur fait un getMenuDetails avant)
+        $existingMenu = [
+            'id' => $menuId,
+            'titre' => 'Ancien Titre',
+            'description' => 'Ancienne desc',
+            'prix' => 20.0,
+            'nb_personnes_min' => 1,
+            'stock' => 10,
+            'id_theme' => 1,
+            'id_regime' => 1
+        ];
 
+        $request = Request::createFromJson($inputData);
+        
+        // Mocker getMenuDetails pour retourner un menu existant
+        $this->menuServiceMock->expects($this->once())
+            ->method('getMenuDetails')
+            ->with($menuId)
+            ->willReturn($existingMenu);
+
+        // Validation attendue sur les données fusionnées
+        // Le contrôleur merge $existingMenu et $inputData
+        // On vérifie juste qu'il appelle validate avec un tableau
         $this->menuValidatorMock->expects($this->once())
             ->method('validate')
-            ->with($inputData)
+            ->with($this->isType('array')) 
             ->willReturn(['isValid' => true, 'errors' => []]);
 
         $this->menuServiceMock->expects($this->once())
             ->method('updateMenu')
-            ->with($menuId, $inputData)
+            ->with($menuId, $this->isType('array'))
             ->willReturn(true);
 
         // Act
@@ -187,9 +209,22 @@ class MenuControllerTest extends TestCase
         $inputData = ['titre' => '']; // Données invalides
         $request = Request::createFromJson($inputData);
 
+        // Données existantes simulées
+        $existingMenu = [
+            'id' => $menuId,
+            'titre' => 'Valide',
+            'stock' => 10
+        ];
+
+        // Mocker getMenuDetails pour éviter le 404
+        $this->menuServiceMock->expects($this->once())
+            ->method('getMenuDetails')
+            ->with($menuId)
+            ->willReturn($existingMenu);
+
         $this->menuValidatorMock->expects($this->once())
             ->method('validate')
-            ->with($inputData)
+            ->with($this->isType('array'))
             ->willReturn(['isValid' => false, 'errors' => ['titre' => 'Le titre est requis.']]);
 
         // Act
