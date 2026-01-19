@@ -126,10 +126,8 @@
 		text-shadow: none;
 		margin-bottom: var(--space-4);
 		text-align: left;
-		width: calc(100% - (var(--space-5) * 2));
-		max-width: 520px;
-		margin-left: auto;
-		margin-right: auto;
+		padding-left: var(--space-5);
+		padding-right: var(--space-5);
 	}
 
 	/* Remplace la rangée de filtres desktop par un bouton "Filtres" */
@@ -139,9 +137,9 @@
 	.menus__mobile-toolbar {
 		display: flex;
 		justify-content: flex-start;
-		width: calc(100% - (var(--space-5) * 2));
-		max-width: 520px;
-		margin: 0 auto var(--space-5);
+		padding-left: var(--space-5);
+		padding-right: var(--space-5);
+		margin-bottom: var(--space-5);
 	}
 	.menus__filters-toggle {
 		background: var(--color-bg-secondary);
