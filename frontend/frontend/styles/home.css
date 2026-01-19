@@ -34,6 +34,37 @@ section {
 }
 
 /* =========================================
+   Mobile baseline (jusqu'à 768px)
+   - Désactive le scroll-snap (trop contraignant sur mobile)
+   - Supprime les hauteurs figées en viewport
+   - Laisse la page scroller naturellement
+   ========================================= */
+
+@media (max-width: 768px) {
+    main {
+        height: auto;
+        overflow-y: visible;
+        scroll-snap-type: none;
+        scroll-padding-top: 0;
+        scroll-behavior: auto;
+        /* La navbar est responsive (souvent non-fixed en mobile) : pas de padding forcé */
+        padding-top: 0;
+    }
+
+    .hero,
+    .presentation,
+    .menus {
+        height: auto;
+        scroll-snap-align: none;
+    }
+
+    section {
+        scroll-snap-align: none;
+        justify-content: flex-start;
+    }
+}
+
+/* =========================================
    Responsive Design
    ========================================= */
 
