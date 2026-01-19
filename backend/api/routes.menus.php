@@ -53,44 +53,40 @@ $router->delete('/menus/{id}', function (ContainerInterface $container, array $p
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
 
-// --- Routes Plats (Protégées : EMPLOYE, ADMINISTRATEUR) ---
+// --- Routes Plats (Publiques et Protégées) ---
 
-// Liste des plats par type (via query param ?type=...)
+// Liste des plats par type (via query param ?type=...) - Protégée
 $router->get('/plats/by-type', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->getByType($request);
 })
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
-// Détail d'un plat
+// Détail d'un plat - Publique
 $router->get('/plats/{id}', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->show($request, (int)$params['id']);
-})
-->middleware(AuthMiddleware::class)
-->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
+});
 
-// Liste de tous les plats
+// Liste de tous les plats - Publique
 $router->get('/plats', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->index($request);
-})
-->middleware(AuthMiddleware::class)
-->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
+});
 
-// Création plat
+// Création plat - Protégée
 $router->post('/plats', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->store($request);
 })
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
-// Modification plat
+// Modification plat - Protégée
 $router->put('/plats/{id}', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->update($request, (int)$params['id']);
 })
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
-// Suppression plat
+// Suppression plat - Protégée
 $router->delete('/plats/{id}', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->destroy($request, (int)$params['id']);
 })

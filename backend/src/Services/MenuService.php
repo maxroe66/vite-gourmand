@@ -96,17 +96,26 @@ class MenuService
     /**
      * Associe des plats à un menu.
      * @param int $menuId
-     * @param array $dishes (ex: ['entrees' => [1, 2], 'plats' => [3], 'desserts' => [4]])
+     * @param array $dishes (ex: ['entrees' => [1, 2], 'plats' => [3], 'desserts' => [4]] OU [1, 2, 3, 4])
      */
     public function associateDishes(int $menuId, array $dishes): void
     {
         // D'abord, on supprime les anciennes associations pour éviter les doublons
         $this->menuRepository->dissociateAllDishes($menuId);
 
+        $position = 1;
+
         // Ensuite, on ajoute les nouvelles associations
-        foreach ($dishes as $type => $platIds) {
-            foreach ($platIds as $platId) {
-                $this->menuRepository->associateDish($menuId, $platId);
+        // On gère à la fois le format catégorisé (tableau de tableaux) et le format plat (tableau d'IDs)
+        foreach ($dishes as $val) {
+            if (is_array($val)) {
+                // Format catégorisé : ['entrees' => [1, 2], ...]
+                foreach ($val as $platId) {
+                    $this->menuRepository->associateDish($menuId, (int)$platId, $position++);
+                }
+            } else {
+                // Format plat : [1, 2, 3, ...]
+                $this->menuRepository->associateDish($menuId, (int)$val, $position++);
             }
         }
     }

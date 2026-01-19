@@ -98,7 +98,7 @@ class PlatRepository
         $stmt = $this->pdo->prepare('DELETE FROM PLAT_ALLERGENE WHERE id_plat = :id');
         $stmt->execute(['id' => $id]);
 
-        $stmt = $this->pdo->prepare('DELETE FROM MENU_PLAT WHERE id_plat = :id');
+        $stmt = $this->pdo->prepare('DELETE FROM PROPOSE WHERE id_plat = :id');
         $stmt->execute(['id' => $id]);
 
         $stmt = $this->pdo->prepare('DELETE FROM PLAT WHERE id_plat = :id');
@@ -122,13 +122,17 @@ class PlatRepository
     }
 
     /**
-     * Vérifie si un plat est utilisé dans au moins un menu.
+     * Vérifie si un plat est utilisé dans au moins un menu actif.
      * @param int $platId
      * @return bool
      */
     public function isUsedInMenu(int $platId): bool
     {
-        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM MENU_PLAT WHERE id_plat = :platId');
+        $stmt = $this->pdo->prepare('
+            SELECT COUNT(*) FROM PROPOSE p
+            JOIN MENU m ON p.id_menu = m.id_menu
+            WHERE p.id_plat = :platId AND m.actif = TRUE
+        ');
         $stmt->execute(['platId' => $platId]);
         return $stmt->fetchColumn() > 0;
     }
