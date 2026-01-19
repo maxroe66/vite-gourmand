@@ -67,6 +67,18 @@ section {
     }
 }
 
+/* Zone de transition (769-1024px) : navbar desktop (80px) mais layout mobile */
+@media (min-width: 769px) and (max-width: 1024px) {
+    main {
+        /* Compense la navbar desktop qui fait 80px */
+        padding-top: var(--navbar-height, 80px);
+    }
+    .hero {
+        /* Ajuste la hauteur minimale pour compenser */
+        min-height: calc(60vh - var(--navbar-height, 80px));
+    }
+}
+
 /* =========================================
    Responsive Design
    ========================================= */
