@@ -1,8 +1,8 @@
 /* MENUS */
 .menus {
+	position: relative;
 	background: url('/assets/images/menus-bg.webp') center/cover no-repeat;
-	padding: var(--space-8) 0;
-	padding-top: 30px;
+	padding: 30px 0 var(--space-4); /* Réduction du padding bas */
 	justify-content: flex-start;
 }
 .menus h2 {
@@ -70,7 +70,6 @@
 	
 	display: flex;
 	flex-direction: column;
-	margin-bottom: var(--space-6);
 }
 .menu-card img {
 	width: 100%;
@@ -116,12 +115,18 @@
 	display: none;
 }
 
-/* Contrôles visibles partout */
+/* Contrôles repositionnés en overlay pour gagner de l'espace */
 .menus__controls {
+	position: absolute;
+	top: 55%; /* Centré verticalement (ajusté pour compenser titres/filtres) */
+	left: 0;
+	width: 100%;
 	display: flex;
-	justify-content: center;
-	gap: var(--space-5);
-	margin-top: var(--space-2);
+	justify-content: space-between;
+	padding: 0 var(--space-4);
+	transform: translateY(-50%);
+	pointer-events: none; /* Permet de cliquer au travers du conteneur */
+	z-index: 5;
 }
 
 .menus__filters-toggle {
@@ -131,6 +136,7 @@
 }
 
 .menus__arrow {
+	pointer-events: auto; /* Réactive les clics sur les boutons eux-mêmes */
 	width: 44px;
 	height: 44px;
 	border-radius: 999px;
