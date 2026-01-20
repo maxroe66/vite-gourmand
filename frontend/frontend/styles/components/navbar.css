@@ -10,8 +10,7 @@
 /* Navbar wrapper */
    .navbar {
         position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 50;
-    background: var(--navbar-bg, #2F3E4D);          /* dark blue/gray */
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: var(--color-secondary, #2C3E50);
     box-shadow: var(--shadow-100);
     }
 
