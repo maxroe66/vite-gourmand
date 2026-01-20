@@ -82,7 +82,7 @@ class MenuRepository
         foreach ($plats as &$plat) {
             $stmtAllergene = $this->pdo->prepare('
                 SELECT a.* FROM ALLERGENE a
-                JOIN CONTIENT c ON a.id_allergene = c.id_allergene
+                JOIN PLAT_ALLERGENE c ON a.id_allergene = c.id_allergene
                 WHERE c.id_plat = :id_plat
             ');
             $stmtAllergene->execute(['id_plat' => $plat['id_plat']]);
@@ -115,7 +115,7 @@ class MenuRepository
             'description' => $data['description'],
             'prix' => $data['prix'],
             'nb_personnes_min' => $data['nb_personnes_min'],
-            'conditions' => $data['conditions'],
+            'conditions' => $data['conditions'] ?? null,
             'stock' => $data['stock'],
             'actif' => $data['actif'] ?? true,
             'id_theme' => $data['id_theme'],
@@ -222,12 +222,13 @@ class MenuRepository
      * Ajoute une image à un menu.
      * @param int $menuId
      * @param string $url
+     * @param int $position
      * @return bool
      */
-    public function addImage(int $menuId, string $url): bool
+    public function addImage(int $menuId, string $url, int $position): bool
     {
-        $stmt = $this->pdo->prepare('INSERT INTO IMAGE_MENU (id_menu, url) VALUES (:menuId, :url)');
-        return $stmt->execute(['menuId' => $menuId, 'url' => $url]);
+        $stmt = $this->pdo->prepare('INSERT INTO IMAGE_MENU (id_menu, url, position) VALUES (:menuId, :url, :position)');
+        return $stmt->execute(['menuId' => $menuId, 'url' => $url, 'position' => $position]);
     }
 
     /**

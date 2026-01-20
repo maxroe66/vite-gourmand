@@ -1,51 +1,57 @@
-document.addEventListener('componentsLoaded', () => {
-    // Sélectionne la zone des boutons à droite du navbar (desktop)
+document.addEventListener('componentsLoaded', async () => {
+    // Sélection main containers
     const desktopActions = document.querySelector('.navbar__actions');
-    // Sélectionne les slots d’actions dans le menu mobile
-    const mobileActionSlots = document.querySelectorAll('.navbar__mobile-action');
-    // On suppose que AuthService est déjà chargé
-    AuthService.isAuthenticated().then(auth => {
-        // Affichage pour utilisateur connecté
+    const navbarMenu = document.querySelector('.navbar__menu');
+
+    try {
+        // Récupération de l'état authentifié
+        const auth = await AuthService.isAuthenticated();
+
         if (auth && auth.isAuthenticated) {
-            // Desktop
-            if (desktopActions) {
-                desktopActions.innerHTML = `<button class="button button--primary" id="logoutBtn">Déconnexion</button>`;
-            }
-            // Mobile : un seul bouton Déconnexion dans le premier slot
-            if (mobileActionSlots[0]) {
-                mobileActionSlots[0].innerHTML = `<button class="button button--primary" id="logoutBtnMobile0">Déconnexion</button>`;
-            }
-            if (mobileActionSlots[1]) {
-                mobileActionSlots[1].innerHTML = "";
-            }
-            // Ajoute le handler logout
-            const addLogoutHandler = btn => {
-                if (btn) btn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    try {
-                        await AuthService.logout();
-                        window.location.reload();
-                    } catch {
-                        window.location.reload();
-                    }
-                });
-            };
-            addLogoutHandler(document.getElementById('logoutBtn'));
-            addLogoutHandler(document.getElementById('logoutBtnMobile0'));
-        } else {
-            // Affichage pour utilisateur non connecté
+            const user = auth.user;
+
+            // --- 1. Boutons Navigation (Logout & Welcome) ---
             if (desktopActions) {
                 desktopActions.innerHTML = `
-                    <a href="/inscription" class="button button--ghost">Inscription</a>
-                    <a href="/connexion" class="button button--primary">Connexion</a>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="navbar__user-name" style="font-weight: 500; font-size: 0.9rem;">
+                            Bonjour, ${user.prenom || 'Utilisateur'}
+                        </span>
+                        <button class="button button--ghost" id="logoutBtn">
+                            Déconnexion
+                        </button>
+                    </div>
                 `;
             }
-            if (mobileActionSlots[0]) {
-                mobileActionSlots[0].innerHTML = `<a href="/inscription" class="button button--ghost">Inscription</a>`;
+
+            // --- 2. Lien Espace Gestion (Admin/Employé) ---
+            // On vérifie le rôle
+            if (user.role === 'ADMINISTRATEUR' || user.role === 'EMPLOYE') {
+                if (navbarMenu) {
+                    const li = document.createElement('li');
+                    // Style inline pour le mettre en évidence (ou classe utilitaire)
+                    li.innerHTML = `
+                        <a href="/frontend/frontend/pages/admin/dashboard.html" class="navbar__link" style="color: #e67e22; font-weight: bold;">
+                            Espace Gestion
+                        </a>
+                    `;
+                    // Ajout à la fin de la liste existante
+                    navbarMenu.appendChild(li);
+                }
             }
-            if (mobileActionSlots[1]) {
-                mobileActionSlots[1].innerHTML = `<a href="/connexion" class="button button--primary">Connexion</a>`;
+
+            // --- 3. Event Listener Logout ---
+            const btnLogout = document.getElementById('logoutBtn');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await AuthService.logout();
+                    window.location.href = '/'; 
+                });
             }
+
         }
-    });
+    } catch (e) {
+        console.error("Erreur lors de la mise à jour de la navbar :", e);
+    }
 });
