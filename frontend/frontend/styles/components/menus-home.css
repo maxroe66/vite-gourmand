@@ -85,6 +85,7 @@
 }
 .menu-card__content h3 {
 	margin: 0;
+	font-size: var(--font-500);
 }
 .menu-card__content p {
 	margin: 0;
