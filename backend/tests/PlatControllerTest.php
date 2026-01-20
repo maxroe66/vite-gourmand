@@ -7,6 +7,7 @@ use App\Controllers\PlatController;
 use App\Services\PlatService;
 use App\Validators\PlatValidator;
 use App\Repositories\PlatRepository;
+use App\Repositories\AllergeneRepository;
 use App\Core\Request;
 use App\Core\Response;
 use Exception;
@@ -17,17 +18,20 @@ class PlatControllerTest extends TestCase
     private PlatService $platServiceMock;
     private PlatValidator $platValidatorMock;
     private PlatRepository $platRepositoryMock;
+    private AllergeneRepository $allergeneRepositoryMock;
 
     protected function setUp(): void
     {
         $this->platServiceMock = $this->createMock(PlatService::class);
         $this->platValidatorMock = $this->createMock(PlatValidator::class);
         $this->platRepositoryMock = $this->createMock(PlatRepository::class);
+        $this->allergeneRepositoryMock = $this->createMock(AllergeneRepository::class);
 
         $this->platController = new PlatController(
             $this->platServiceMock,
             $this->platValidatorMock,
-            $this->platRepositoryMock
+            $this->platRepositoryMock,
+            $this->allergeneRepositoryMock
         );
     }
 
@@ -153,12 +157,13 @@ class PlatControllerTest extends TestCase
         // Arrange
         $platId = 1;
         $request = Request::createFromGlobals();
-        $errorMessage = "Impossible de supprimer ce plat car il est utilisé.";
+        $exceptionMessage = "Constraint violation"; // Peu importe ce message, le contrôleur le remplace
+        $expectedMessage = "Ce plat ne peut pas être supprimé car il est lié à des menus ou contient des allergènes.";
 
         $this->platServiceMock->expects($this->once())
             ->method('deleteDish')
             ->with($platId)
-            ->willThrowException(new Exception($errorMessage));
+            ->willThrowException(new Exception($exceptionMessage));
 
         // Act
         $response = $this->platController->destroy($request, $platId);
@@ -166,6 +171,6 @@ class PlatControllerTest extends TestCase
 
         // Assert
         $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
-        $this->assertEquals($errorMessage, $content['error']);
+        $this->assertEquals($expectedMessage, $content['error']);
     }
 }
