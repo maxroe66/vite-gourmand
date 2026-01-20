@@ -248,10 +248,11 @@ function addImageInput(value = '') {
         formData.append('image', file);
 
         try {
-            // Utilisation du token auth si besoin (authService devrait gérer, mais ici fetch brut)
-            const token = localStorage.getItem('authToken'); // ou AuthService.getToken()
+            // Utilisation du token auth si besoin
+            const token = localStorage.getItem('authToken'); 
             
-            const response = await fetch('http://localhost:8000/api/upload', {
+            // Correction URL: utiliser le chemin relatif pour la prod, ou une config
+            const response = await fetch('/api/upload', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}` 
