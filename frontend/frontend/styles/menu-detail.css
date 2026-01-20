@@ -1,0 +1,210 @@
+/* Styles spécifiques à la page de détail menu */
+
+.menu-detail-page {
+    padding: var(--space-8) var(--space-5);
+    background-color: var(--color-bg);
+    min-height: 80vh;
+}
+
+.container--flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    max-width: 1100px;
+    margin: 0 auto;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* --- Colonne Gauche : Galerie --- */
+.menu-detail__gallery {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+}
+
+.menu-detail__image-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Carré */
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+    box-shadow: 0 4px 20px rgba(44, 62, 80, 0.15);
+    background-color: var(--color-bg-secondary);
+}
+
+.menu-detail__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.menu-detail__controls {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+}
+
+.menu-detail__controls button {
+    min-width: 120px;
+}
+
+/* --- Colonne Droite : Contenu --- */
+.menu-detail__content {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.menu-detail__title {
+    font-size: var(--font-700);
+    color: var(--color-title-primary);
+    margin: 0;
+    line-height: var(--lh-tight);
+}
+
+.menu-detail__composition h2 {
+    font-size: var(--font-500);
+    color: var(--color-title-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-3);
+    border-bottom: 2px solid rgba(0,0,0,0.05);
+    padding-bottom: var(--space-2);
+}
+
+.menu-detail__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    font-size: var(--font-400);
+    color: var(--color-text-secondary);
+}
+
+.menu-detail__list li {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.dish-type {
+    font-weight: 600;
+    color: var(--color-primary);
+    min-width: 70px;
+}
+
+.menu-detail__allergens {
+    border: 1px solid #e74c3c;
+    background-color: rgba(231, 76, 60, 0.05);
+    color: #c0392b;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--font-300);
+    line-height: var(--lh-normal);
+}
+
+.menu-detail__allergens strong {
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: var(--space-1);
+}
+
+.menu-detail__price {
+    font-size: var(--font-600);
+    color: var(--color-title-primary);
+    font-weight: 800;
+}
+
+.menu-detail__info-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--font-400);
+    color: var(--color-text-secondary);
+    background: var(--color-bg-secondary);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+}
+
+.infos-label {
+    font-weight: 600;
+    color: var(--color-title-primary);
+}
+
+.stock-warning {
+    color: #e67e22; /* Orange pour avertissement */
+    font-weight: bold;
+}
+
+.stock-critical {
+    color: #e74c3c; /* Rouge pour critique */
+    font-weight: bold;
+}
+
+.stock-ok {
+    color: #27ae60;
+}
+
+.menu-detail__conditions h3 {
+    font-size: var(--font-300);
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    margin-bottom: var(--space-2);
+    font-weight: 700;
+}
+
+.conditions-list {
+    list-style: disc;
+    padding-left: 1.2em;
+    color: var(--color-text-secondary);
+    font-size: var(--font-300);
+    line-height: var(--lh-loose);
+}
+
+.btn-command {
+    background-color: #e67e22; /* Couleur bouton commander */
+    color: #fff;
+    font-size: var(--font-500);
+    font-weight: 700;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    align-self: flex-start;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 4px 6px rgba(230, 126, 34, 0.2);
+}
+
+.btn-command:hover {
+    background-color: #d35400;
+    transform: translateY(-1px);
+}
+
+.btn-command:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .container--flex {
+        flex-direction: column;
+        align-items: center;
+    }
+    .menu-detail__gallery, .menu-detail__content {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .btn-command {
+        width: 100%;
+    }
+}

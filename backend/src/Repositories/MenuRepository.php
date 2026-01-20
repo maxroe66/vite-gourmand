@@ -20,26 +20,32 @@ class MenuRepository
      */
     public function findAll(array $filters = []): array
     {
-        $sql = 'SELECT * FROM MENU WHERE 1=1';
+        $sql = 'SELECT m.*, (SELECT url FROM IMAGE_MENU im WHERE im.id_menu = m.id_menu LIMIT 1) as image 
+                FROM MENU m 
+                WHERE m.actif = true'; // On affiche que les actifs par défaut dans la liste publique
         $params = [];
 
+        // Note: Le WHERE 1=1 a été remplacé par WHERE actif=true pour la sécurité publique
+        // Si on veut aussi les inactifs (pour admin), il faudra un paramètre en plus, 
+        // mais ici c'est findAll pour l'affichage liste
+
         if (!empty($filters['prix_max'])) {
-            $sql .= ' AND prix <= :prix_max';
+            $sql .= ' AND m.prix <= :prix_max';
             $params[':prix_max'] = $filters['prix_max'];
         }
 
         if (!empty($filters['theme'])) {
-            $sql .= ' AND id_theme = :id_theme';
+            $sql .= ' AND m.id_theme = :id_theme';
             $params[':id_theme'] = $filters['theme'];
         }
 
         if (!empty($filters['regime'])) {
-            $sql .= ' AND id_regime = :id_regime';
+            $sql .= ' AND m.id_regime = :id_regime';
             $params[':id_regime'] = $filters['regime'];
         }
 
         if (!empty($filters['nb_personnes'])) {
-            $sql .= ' AND nombre_personne_min <= :nb_personnes';
+            $sql .= ' AND m.nombre_personne_min <= :nb_personnes';
             $params[':nb_personnes'] = $filters['nb_personnes'];
         }
 
@@ -63,14 +69,26 @@ class MenuRepository
             return false;
         }
 
-        // Récupérer les plats associés
+        // Récupérer les plats associés avec leurs allergènes
         $stmt = $this->pdo->prepare('
             SELECT p.* FROM PLAT p
             JOIN PROPOSE mp ON p.id_plat = mp.id_plat
             WHERE mp.id_menu = :id
         ');
         $stmt->execute(['id' => $id]);
-        $menu['plats'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $plats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Pour chaque plat, récupérer les allergènes
+        foreach ($plats as &$plat) {
+            $stmtAllergene = $this->pdo->prepare('
+                SELECT a.* FROM ALLERGENE a
+                JOIN CONTIENT c ON a.id_allergene = c.id_allergene
+                WHERE c.id_plat = :id_plat
+            ');
+            $stmtAllergene->execute(['id_plat' => $plat['id_plat']]);
+            $plat['allergenes'] = $stmtAllergene->fetchAll(PDO::FETCH_ASSOC);
+        }
+        $menu['plats'] = $plats;
 
         // Récupérer les images
         $stmt = $this->pdo->prepare('SELECT url FROM IMAGE_MENU WHERE id_menu = :id');
@@ -197,6 +215,29 @@ class MenuRepository
     public function dissociateAllDishes(int $menuId): bool
     {
         $stmt = $this->pdo->prepare('DELETE FROM PROPOSE WHERE id_menu = :menuId');
+        return $stmt->execute(['menuId' => $menuId]);
+    }
+
+    /**
+     * Ajoute une image à un menu.
+     * @param int $menuId
+     * @param string $url
+     * @return bool
+     */
+    public function addImage(int $menuId, string $url): bool
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO IMAGE_MENU (id_menu, url) VALUES (:menuId, :url)');
+        return $stmt->execute(['menuId' => $menuId, 'url' => $url]);
+    }
+
+    /**
+     * Supprime toutes les images d'un menu.
+     * @param int $menuId
+     * @return bool
+     */
+    public function deleteImages(int $menuId): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM IMAGE_MENU WHERE id_menu = :menuId');
         return $stmt->execute(['menuId' => $menuId]);
     }
 }

@@ -17,36 +17,57 @@
 	justify-content: center;
 	margin-bottom: var(--space-7);
 	flex-wrap: wrap;
+	align-items: center;
 }
-.menus__filters button {
+.menus__filters input,
+.menus__filters select {
 	background: var(--color-bg-secondary);
 	color: var(--color-title-primary);
-	border: none;
+	border: 1px solid rgba(44,62,80,0.1);
 	border-radius: var(--radius-sm);
 	padding: var(--space-2) var(--space-4);
 	font-size: var(--font-400);
 	cursor: pointer;
-	transition: background 0.2s;
+	height: 40px;
 }
-.menus__filters button:hover {
-	background: var(--color-primary);
-	color: #fff;
+.menus__filters input:focus,
+.menus__filters select:focus {
+	outline: 2px solid var(--color-primary);
+	border-color: var(--color-primary);
 }
 .menus__list {
 	display: flex;
 	gap: var(--space-6);
-	justify-content: center;
-	flex-wrap: wrap;
-	max-width: 1200px;
-	margin: 0 auto;
+	/* Mode Carrousel par défaut (Desktop & Mobile) */
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	justify-content: flex-start;
+	padding: var(--space-2) var(--space-6); /* Padding horizontal pour éviter de couper les ombres */
+	
+	/* Scroll Snap */
+	scroll-snap-type: x mandatory;
+	-webkit-overflow-scrolling: touch;
+	
+	width: 100%;
+	max-width: 100vw;
+	box-sizing: border-box;
+    scrollbar-width: none;  /* Firefox */
 }
+.menus__list::-webkit-scrollbar {
+    display: none;  /* Chrome/Safari */
+}
+
 .menu-card {
 	background: var(--color-bg-secondary);
 	border-radius: var(--radius-lg);
 	box-shadow: 0 2px 12px rgba(44,62,80,0.10);
 	overflow: hidden;
-	max-width: 320px;
-	min-width: 240px;
+	/* Taille fixe desktop, responsive mobile */
+	flex: 0 0 320px;
+	width: 320px;
+	min-width: 0;
+	scroll-snap-align: center;
+	
 	display: flex;
 	flex-direction: column;
 	margin-bottom: var(--space-6);
@@ -89,10 +110,17 @@
 	background: var(--color-primary-600);
 }
 
-/* Éléments spécifiques maquette mobile — cachés par défaut (desktop inchangé) */
-.menus__mobile-toolbar,
-.menus__controls {
+/* Barre d'outils mobile cachée sur Desktop */
+.menus__mobile-toolbar {
 	display: none;
+}
+
+/* Contrôles visibles partout */
+.menus__controls {
+	display: flex;
+	justify-content: center;
+	gap: var(--space-5);
+	margin-top: var(--space-2);
 }
 
 .menus__filters-toggle {
@@ -102,9 +130,28 @@
 }
 
 .menus__arrow {
+	width: 44px;
+	height: 44px;
+	border-radius: 999px;
+	background: var(--color-primary);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(44,62,80,0.18);
+	font-size: 1.75rem;
+	line-height: 1;
+	cursor: pointer;
 	border: none;
-	background: transparent;
-	color: inherit;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.menus__arrow:hover { background: var(--color-primary-600); }
+.menus__arrow:active { transform: scale(0.96); }
+.menus__arrow:disabled {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-light);
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 /* =========================================
@@ -152,34 +199,18 @@
 		cursor: pointer;
 	}
 
-	/* Carousel horizontal swipe */
+	/* Carousel horizontal swipe (Mobile overrides) */
 	.menus__list {
-		flex-wrap: nowrap;
-		justify-content: flex-start;
-		align-self: stretch;
-		width: 100%;
-		max-width: 100vw;
-		box-sizing: border-box;
-		overflow-x: auto;
-		overflow-y: hidden;
-		-webkit-overflow-scrolling: touch;
-		scroll-snap-type: x mandatory;
+		align-self: stretch; /* Prend toute la largeur parent */
 		gap: var(--space-4);
 		padding: var(--space-3) calc(var(--space-5) - 2px);
 		max-width: none;
 	}
-	.menus__list::-webkit-scrollbar { display: none; }
-	.menus__list { scrollbar-width: none; }
 
 	.menu-card {
-		/* Objectif: ~232px sur 320px de large (maquette), tout en restant fluide */
+		/* Responsive fluide sur mobile */
 		flex: 0 0 clamp(232px, 72vw, 300px);
 		width: clamp(232px, 72vw, 300px);
-		min-width: 0;
-		max-width: none;
-		background: var(--color-bg);
-		border: 1px solid rgba(44,62,80,0.10);
-		scroll-snap-align: center;
 		margin-bottom: 0;
 	}
 	.menu-card img {
@@ -208,27 +239,5 @@
 		justify-content: center;
 		padding: 12px 16px;
 	}
-
-	/* Contrôles flèches en bas */
-	.menus__controls {
-		display: flex;
-		justify-content: center;
-		gap: var(--space-5);
-		margin-top: var(--space-5);
-	}
-	.menus__arrow {
-		width: 44px;
-		height: 44px;
-		border-radius: 999px;
-		background: var(--color-primary);
-		color: #fff;
-		box-shadow: 0 2px 8px rgba(44,62,80,0.18);
-		font-size: 1.75rem;
-		line-height: 1;
-		cursor: pointer;
-		transition: background var(--transition-fast), transform var(--transition-fast);
-	}
-	.menus__arrow:hover { background: var(--color-primary-600); }
-	.menus__arrow:active { transform: scale(0.96); }
 }
 
