@@ -15,14 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // 3. Charger le premier onglet par défaut
     loadTab('menus');
-
-    // --- Logout Handler ---
-    document.getElementById('btn-logout').addEventListener('click', async () => {
-        if(confirm('Voulez-vous vraiment vous déconnecter ?')) {
-            await AuthService.logout();
-            window.location.href = '/';
-        }
-    });
 });
 
 function initUserInfo(user) {
@@ -146,13 +138,13 @@ async function fetchMenusList() {
     menus.forEach(menu => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>
+            <td data-label="Titre">
                 <div style="font-weight: bold;">${escapeHtml(menu.titre)}</div>
                 <small style="color: #888;">${menu.description ? menu.description.substring(0, 50) + '...' : ''}</small>
             </td>
-            <td>${parseFloat(menu.prix).toFixed(2)} €</td>
-            <td>${menu.nombre_personne_min}</td>
-            <td>
+            <td data-label="Prix">${parseFloat(menu.prix).toFixed(2)} €</td>
+            <td data-label="Pers. Min">${menu.nombre_personne_min}</td>
+            <td data-label="Actions">
                 <div class="data-table__actions">
                     <button class="btn btn--sm btn--outline-primary btn-edit-menu" data-id="${menu.id_menu}">
                         <i class="fa-solid fa-pen"></i>
