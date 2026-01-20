@@ -32,6 +32,24 @@ class UserRepository
     }
 
     /**
+     * Trouve un utilisateur par son ID.
+     * @param int $id
+     * @return array|false Tableau associatif des données utilisateur ou false si non trouvé
+     */
+    public function findById(int $id)
+    {
+        $stmt = $this->pdo->prepare('
+            SELECT id_utilisateur AS id, email, prenom, nom, gsm, 
+                   adresse_postale, ville, code_postal, 
+                   role, actif, date_creation 
+            FROM UTILISATEUR 
+            WHERE id_utilisateur = :id
+        ');
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Crée un nouvel utilisateur en base de données.
      * @param array $data
      * @return int L'ID du nouvel utilisateur.

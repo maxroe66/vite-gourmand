@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite & Gourmand - Espace de Gestion</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/frontend/frontend/styles/_tokens.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/base.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/utilities.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/button.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/navbar.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/footer.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/admin/dashboard.css">
+    
+    <!-- FontAwesome pour les icônes (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+    
+    <!-- Dynamic Header -->
+    <div id="header-placeholder"></div>
+
+    <div class="dashboard-wrapper">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar__user">
+                <div class="sidebar__user-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="sidebar__user-info">
+                    <span class="sidebar__user-name" id="user-name">Chargement...</span>
+                    <span class="sidebar__user-role" id="user-role">...</span>
+                </div>
+            </div>
+
+        <ul class="sidebar__menu">
+            <!-- Menus (Accessible tous) -->
+            <li class="sidebar__item">
+                <button class="sidebar__link active" data-tab="menus">
+                    <i class="fa-solid fa-utensils"></i>
+                    <span>Gestion Menus</span>
+                </button>
+            </li>
+            
+            <!-- Plats (Accessible tous) -->
+            <li class="sidebar__item">
+                <button class="sidebar__link" data-tab="plats">
+                    <i class="fa-solid fa-bowl-food"></i>
+                    <span>Gestion Plats</span>
+                </button>
+            </li>
+
+            <!-- Commandes (Accessible tous) -->
+            <li class="sidebar__item">
+                <button class="sidebar__link" data-tab="commandes">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Commandes</span>
+                </button>
+            </li>
+
+            <!-- Avis (Accessible tous) -->
+            <li class="sidebar__item">
+                <button class="sidebar__link" data-tab="avis">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Avis Clients</span>
+                </button>
+            </li>
+
+            <!-- ADMIN ONLY : Équipe -->
+            <li class="sidebar__item admin-only" style="display: none;">
+                <button class="sidebar__link" data-tab="equipe">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>Équipe</span>
+                </button>
+            </li>
+
+            <!-- ADMIN ONLY : Stats -->
+            <li class="sidebar__item admin-only" style="display: none;">
+                <button class="sidebar__link" data-tab="stats">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Statistiques</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <h1 id="page-title">Gestion des Menus</h1>
+            <div class="dashboard-header__actions" id="header-actions">
+                <!-- Boutons d'action injectés dynamiquement (ex: "Ajouter un menu") -->
+            </div>
+        </header>
+
+        <div class="dashboard-content" id="dashboard-content">
+            <!-- Le contenu changera dynamiquement ici -->
+            <div class="loader-container">
+                <div class="loader"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Dynamic Footer (Outside Wrapper to span full width) -->
+<div id="footer-placeholder"></div>
+
+    <!-- Modal pour Création/Édition Menu -->
+    <div id="modal-menu" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title" id="modal-menu-title">Nouveau Menu</h2>
+                <button class="modal__close" id="modal-menu-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <form id="form-menu">
+                    <input type="hidden" id="menu-id" name="id">
+                    
+                    <div class="form-group">
+                        <label for="menu-titre">Titre du menu *</label>
+                        <input type="text" id="menu-titre" name="titre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="menu-description">Description</label>
+                        <textarea id="menu-description" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="menu-prix">Prix (€) *</label>
+                            <input type="number" id="menu-prix" name="prix" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="menu-nb-pers">Pers. Min *</label>
+                            <input type="number" id="menu-nb-pers" name="nombre_personne_min" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="menu-stock">Stock Initial *</label>
+                        <input type="number" id="menu-stock" name="stock" min="0" value="10" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="menu-theme">Thème</label>
+                            <select id="menu-theme" name="theme_id">
+                                <option value="">Chargement...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="menu-regime">Régime</label>
+                            <select id="menu-regime" name="regime_id">
+                                <option value="">Chargement...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Sélection des Plats -->
+                    <div class="form-group">
+                        <label>Composition du Menu</label>
+                        <div class="menu-composition">
+                            <div class="menu-section">
+                                <h6>Entrées</h6>
+                                <div id="menu-entrees-list" class="checkbox-list"></div>
+                            </div>
+                            <div class="menu-section">
+                                <h6>Plats Principaux</h6>
+                                <div id="menu-plats-list" class="checkbox-list"></div>
+                            </div>
+                            <div class="menu-section">
+                                <h6>Desserts</h6>
+                                <div id="menu-desserts-list" class="checkbox-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gestion Images -->
+                    <div class="form-group">
+                        <label>Galerie d'images (URLs)</label>
+                        <div id="menu-images-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <button type="button" class="btn btn--sm btn--secondary" id="btn-add-image-url">
+                            <i class="fa-solid fa-plus"></i> Ajouter une image
+                        </button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--ghost" id="modal-menu-cancel">Annuler</button>
+                        <button type="submit" class="btn btn--primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour Création/Édition Plat -->
+    <div id="modal-plat" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title" id="modal-plat-title">Nouveau Plat</h2>
+                <button class="modal__close" id="modal-plat-close">&times;</button>
+            </div>
+            <div class="modal__body">
+                <form id="form-plat">
+                    <input type="hidden" id="plat-id" name="id">
+                    
+                    <div class="form-group">
+                        <label for="plat-libelle">Libellé du plat *</label>
+                        <input type="text" id="plat-libelle" name="libelle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="plat-description">Description</label>
+                        <textarea id="plat-description" name="description" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="plat-type">Type de plat *</label>
+                        <select id="plat-type" name="type" required>
+                            <option value="ENTREE">Entrée</option>
+                            <option value="PLAT">Plat Principal</option>
+                            <option value="DESSERT">Dessert</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Allergènes</label>
+                        <div id="plat-allergenes-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; border: 1px solid #ddd; padding: 1rem; max-height: 150px; overflow-y: auto; background: #fafafa; border-radius: 4px;">
+                            <!-- Checkboxes allergènes injectées ici -->
+                            <p>Chargement des allergènes...</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--ghost" id="modal-plat-cancel">Annuler</button>
+                        <button type="submit" class="btn btn--primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/frontend/js/components.js"></script>
+    <script src="/frontend/js/navbar.js"></script>
+    <script src="/frontend/js/services/authService.js"></script>
+    <script src="/frontend/js/services/menuService.js"></script>
+    <script src="/frontend/js/services/platService.js"></script> <!-- Added PlatService -->
+    <script src="/frontend/js/guards/adminGuard.js"></script>
+    <script src="/frontend/js/admin/dashboard.js"></script>
+</body>
+</html>

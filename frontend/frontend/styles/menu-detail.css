@@ -1,0 +1,384 @@
+/* Styles spécifiques à la page de détail menu */
+
+/* --- 1. Neutralisation du Scroll Snap global --- */
+/* On reset les propriétés de base.css pour cette page spécifique */
+/* Ces règles surchargent celles de base.css car elles sont hors @layer */
+html, body {
+    height: auto;
+    overflow-y: visible;
+}
+
+.menu-detail-page {
+    /* Reset du main défini dans base.css */
+    height: auto;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    display: block;
+    
+    /* Compensation pour la navbar fixed (80px) + marge (40px) */
+    /* On utilise une valeur fixe de sécurité au cas où les variables CSS échouent */
+    padding-top: 80px;
+    background-color: #f9f9f9; 
+}
+
+.container--flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    max-width: 1200px;
+    margin: 0 auto;
+    justify-content: center;
+    align-items: flex-start;
+    
+    /* Effet Carte */
+    background: #ffffff;
+    padding: var(--space-8);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+}
+
+/* --- Colonne Gauche : Galerie --- */
+.menu-detail__gallery {
+    flex: 1;
+    min-width: 320px;
+    max-width: 550px;
+    position: sticky;
+    top: calc(var(--navbar-height, 80px) + 2rem);
+}
+
+.menu-detail__image-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3; /* Format un peu plus paysage que carré */
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--space-6);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    background-color: var(--color-bg-secondary);
+}
+
+.menu-detail__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease, transform 0.5s ease;
+}
+
+.menu-detail__image:hover {
+    transform: scale(1.02);
+}
+
+.menu-detail__controls {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+}
+
+.menu-detail__controls button {
+    min-width: 120px;
+    font-size: var(--font-300);
+}
+
+/* --- Colonne Droite : Contenu --- */
+.menu-detail__content {
+    flex: 1;
+    min-width: 320px;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding-top: var(--space-2);
+}
+
+.menu-detail__title {
+    font-size: var(--font-800); /* Plus grand */
+    color: var(--color-title-primary);
+    margin: 0;
+    line-height: 1.1;
+    text-transform: capitalize;
+}
+
+.menu-detail__composition h2 {
+    font-size: var(--font-400);
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: var(--space-2);
+    font-weight: 700;
+}
+
+.menu-detail__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.menu-detail__list li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    line-height: 1.4;
+}
+
+.dish-type {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #e67e22;
+    background-color: rgba(230, 126, 34, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    min-width: 80px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.dish-name {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.menu-detail__allergens {
+    border-left: 4px solid #e74c3c;
+    background-color: #fff5f5;
+    color: #c0392b;
+    padding: var(--space-4);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-size: var(--font-300);
+    line-height: var(--lh-normal);
+    margin-top: var(--space-2);
+}
+
+.menu-detail__allergens strong {
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-right: var(--space-2);
+    display: block;
+    margin-bottom: var(--space-1);
+    color: #e74c3c;
+}
+
+.menu-detail__price {
+    font-size: var(--font-700);
+    color: var(--color-title-primary);
+    font-weight: 800;
+    background: linear-gradient(to right, rgba(230, 126, 34, 0.1), transparent);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-2);
+}
+
+.menu-detail__info-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-4);
+    font-size: var(--font-400);
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+}
+
+.menu-detail__info-group div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.infos-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-light);
+    font-weight: 700;
+}
+
+.stock-warning {
+    color: #d35400;
+    font-weight: 700;
+}
+
+.stock-critical {
+    color: #e74c3c;
+    font-weight: 700;
+}
+
+.stock-ok {
+    color: #27ae60;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stock-ok::before {
+    content: "●";
+    font-size: 0.8em;
+}
+
+.menu-detail__conditions {
+    font-size: var(--font-300);
+    color: var(--color-text-light);
+}
+
+.menu-detail__conditions h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    margin-bottom: var(--space-2);
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.conditions-list {
+    list-style: none;
+    padding: 0;
+}
+
+.conditions-list li {
+    position: relative;
+    padding-left: 1rem;
+    margin-bottom: 4px;
+}
+
+.conditions-list li::before {
+    content: "•";
+    color: #bdc3c7;
+    position: absolute;
+    left: 0;
+}
+
+.btn-command {
+    background-color: #e67e22;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: var(--space-4) var(--space-8);
+    border-radius: 50px; /* Bouton arrondi style "pilule" */
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    align-self: flex-start;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+    margin-top: var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-command:hover {
+    background-color: #d35400;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.5);
+}
+
+.btn-command:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .menu-detail-page {
+        padding-inline: var(--space-3);
+        padding-top: calc(var(--navbar-height, 80px) + var(--space-4));
+    }
+    
+    .container--flex {
+        flex-direction: column;
+        align-items: center;
+        padding: var(--space-5);
+        gap: var(--space-6); /* Ajuste l'espacement entre les blocs éclatés */
+    }
+
+    .menu-detail__gallery {
+        position: static;
+        max-width: 550px;
+        width: 100%;
+        margin-inline: auto;
+        order: 0; /* Assure sa position après le titre */
+    }
+    
+    /* ASTUCE PRO : display: contents "efface" le conteneur .menu-detail__content 
+       du flux de rendu, traitant ses enfants comme des enfants directs de .container--flex.
+       Cela nous permet de réordonner le Titre (qui était enfant) par rapport à la Galerie (qui était voisine). */
+    .menu-detail__content {
+        display: contents;
+    }
+
+    /* Ordre et style du titre mobile */
+    .menu-detail__title {
+        order: -1; /* Remonte tout en haut, avant la galerie */
+        width: 100%;
+        text-align: center;
+        max-width: 550px; /* Alignement avec la galerie */
+        margin-bottom: var(--space-2);
+    }
+
+    /* Style des autres enfants de content qui sont maintenant directs */
+    .menu-detail__composition,
+    .menu-detail__allergens,
+    .menu-detail__price,
+    .menu-detail__info-group,
+    .menu-detail__conditions,
+    .btn-command {
+        width: 100%;
+        max-width: 550px; /* Alignement propre centré */
+        order: 1; /* Reste après la galerie */
+    }
+    
+    .btn-command {
+        justify-content: center;
+        margin-top: var(--space-4);
+        margin-inline: auto; /* Centre le bouton si sa largeur < 100% ou max-width joue */
+        align-self: center; /* Important si le conteneur est flex column */
+        display: flex; /* Assure que le flexbox interne au bouton fonctionne pour centrer le texte */
+    }
+}
+
+/* Très petits écrans (Mobile étroit) */
+@media (max-width: 450px) {
+    .menu-detail-page {
+        padding-inline: 0.5rem; /* Réduction des marges page */
+    }
+
+    .container--flex {
+        padding: 1rem; /* Moins de padding interne */
+    }
+    
+    .menu-detail__gallery, 
+    .menu-detail__content {
+        min-width: 100%; /* Important : permet au contenu de rétrécir sous 320px */
+    }
+
+    .menu-detail__title {
+        font-size: 1.75rem; /* Titre légèrement plus petit */
+    }
+    
+    .menu-detail__info-group {
+        grid-template-columns: 1fr; /* Stack les infos thème/stock */
+    }
+
+    .menu-detail__controls {
+        gap: 0.5rem; /* Réduit l'espace entre les boutons */
+    }
+
+    .menu-detail__controls button {
+        min-width: 0; /* Retire la largeur minimale excessive */
+        flex: 1; /* Les boutons occupent largeur égale */
+        padding: 0.5rem; /* Padding plus compact */
+        font-size: 0.85rem; /* Police adaptée */
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-detail-page {
+        padding-top: 0;
+    }
+}
