@@ -135,9 +135,10 @@ class MenuService
         // Pour simplifier l'édition, on remplace tout.
         $this->menuRepository->deleteImages($menuId);
 
+        $position = 1;
         foreach ($images as $url) {
             if (!empty($url) && is_string($url)) {
-                $this->menuRepository->addImage($menuId, $url);
+                $this->menuRepository->addImage($menuId, $url, $position++);
             }
         }
     }

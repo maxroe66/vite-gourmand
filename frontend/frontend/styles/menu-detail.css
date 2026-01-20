@@ -1,7 +1,10 @@
 /* Styles spécifiques à la page de détail menu */
 
 .menu-detail-page {
-    padding: var(--space-8) var(--space-5);
+    /* Compensation pour la navbar fixed */
+    padding-top: calc(var(--navbar-height, 80px) + var(--space-8));
+    padding-bottom: var(--space-8);
+    padding-inline: var(--space-5);
     background-color: var(--color-bg);
     min-height: 80vh;
 }
@@ -86,7 +89,6 @@
     flex-direction: column;
     gap: var(--space-3);
     font-size: var(--font-400);
-    color: var(--color-text-secondary);
 }
 
 .menu-detail__list li {
@@ -127,7 +129,6 @@
     flex-direction: column;
     gap: var(--space-2);
     font-size: var(--font-400);
-    color: var(--color-text-secondary);
     background: var(--color-bg-secondary);
     padding: var(--space-4);
     border-radius: var(--radius-md);
@@ -163,7 +164,6 @@
 .conditions-list {
     list-style: disc;
     padding-left: 1.2em;
-    color: var(--color-text-secondary);
     font-size: var(--font-300);
     line-height: var(--lh-loose);
 }

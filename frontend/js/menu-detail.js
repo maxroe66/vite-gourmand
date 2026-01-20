@@ -135,20 +135,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 6. Plats (Composition)
-        // Format attendu: menu.plats = [{ nom: "...", type: "ENTREE" }, ...]
+        // Les clés retournées par le repo sont 'libelle', 'type', 'description'
         if (menu.plats && menu.plats.length > 0) {
             // On peut trier par type : Entrée > Plat > Dessert
             const order = { 'ENTREE': 1, 'PLAT': 2, 'DESSERT': 3 };
             const sortedPlats = [...menu.plats].sort((a, b) => {
-                return (order[a.type_plat] || 99) - (order[b.type_plat] || 99);
+                return (order[a.type] || 99) - (order[b.type] || 99);
             });
 
             elDishesList.innerHTML = sortedPlats.map(plat => {
-                const typeLabel = formatTypePlat(plat.type_plat);
+                const typeLabel = formatTypePlat(plat.type);
                 return `
                     <li>
                         <span class="dish-type">${typeLabel} :</span>
-                        <span class="dish-name">${escapeHtml(plat.nom_plat || plat.description)}</span>
+                        <span class="dish-name">${escapeHtml(plat.libelle)}</span>
                     </li>
                 `;
             }).join('');

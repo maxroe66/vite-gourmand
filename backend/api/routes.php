@@ -4,4 +4,16 @@ require __DIR__ . '/routes.auth.php';
 require __DIR__ . '/routes.menus.php';
 require __DIR__ . '/routes.commandes.php';
 require __DIR__ . '/routes.avis.php';
+
+use App\Controllers\UploadController;
+use Psr\Container\ContainerInterface;
+use App\Core\Request;
+
+// Route upload
+$router->post('/upload', function (ContainerInterface $container, array $params, Request $request) {
+    // TODO: Ajouter middleware Auth + Role Admin/Employe
+    $controller = new UploadController();
+    return $controller->uploadImage($request);
+});
+
 // routes.php : point d'entrée pour toutes les routes de l'API

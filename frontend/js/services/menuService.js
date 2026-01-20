@@ -27,6 +27,11 @@ const MenuService = {
             throw new Error('Accès refusé. Vous n\'avez pas les droits nécessaires.');
         }
 
+        // Si status 204 (No Content), on retourne null sans parser le JSON
+        if (response.status === 204) {
+            return null;
+        }
+
         const data = await response.json();
 
         if (!response.ok) {
