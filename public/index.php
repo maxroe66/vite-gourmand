@@ -5,7 +5,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../backend/vendor/autoload.php';
 
 // 2) Chargement des variables d'environnement
-if (file_exists(__DIR__ . '/../.env.azure')) {
+// On vérifie d'abord si APP_ENV est défini (ex: via serveur web ou CLI)
+$appEnv = getenv('APP_ENV');
+
+if ($appEnv === 'test' && file_exists(__DIR__ . '/../.env.test')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.test');
+    $dotenv->load();
+} elseif (file_exists(__DIR__ . '/../.env.azure')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.azure');
     $dotenv->load();
 } elseif (file_exists(__DIR__ . '/../.env')) {
