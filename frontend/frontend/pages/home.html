@@ -113,40 +113,20 @@
                 <button class="menus__filters-toggle" type="button">Filtres</button>
             </div>
             <div class="menus__filters">
-                <button>Prix max</button>
-                <button>Fourchette de prix</button>
-                <button>Thème</button>
-                <button>Régime</button>
-                <button>Nb pers.</button>
+                <input type="number" id="filter-price-max" placeholder="Prix max (€)" min="0">
+                <select id="filter-theme">
+                    <option value="">Thème</option>
+                    <!-- Rempli par JS -->
+                </select>
+                <select id="filter-regime">
+                    <option value="">Régime</option>
+                    <!-- Rempli par JS -->
+                </select>
+                <input type="number" id="filter-nb-pers" placeholder="Nb pers. min" min="1">
             </div>
-            <div class="menus__list">
-                <div class="menu-card">
-                    <img src="/assets/images/menu-noel.webp" alt="Menu Noël">
-                    <div class="menu-card__content">
-                        <h3>Menu Noël</h3>
-                        <div class="menu-card__price">120€ / 4 pers</div>
-                        <p>Un menu festif aux saveurs traditionnelles pour célébrer Noël.</p>
-                        <a href="#" class="menu-card__cta">Voir détails</a>
-                    </div>
-                </div>
-                <div class="menu-card">
-                    <img src="/assets/images/menu-paques.webp" alt="Menu Pâques">
-                    <div class="menu-card__content">
-                        <h3>Menu Pâques</h3>
-                        <div class="menu-card__price">80€ / 4 pers</div>
-                        <p>Un menu printanier aux saveurs délicates pour célébrer Pâques.</p>
-                        <a href="#" class="menu-card__cta">Voir détails</a>
-                    </div>
-                </div>
-                <div class="menu-card">
-                    <img src="/assets/images/menu-gourmand.webp" alt="Menu Gourmand">
-                    <div class="menu-card__content">
-                        <h3>Menu Gourmand</h3>
-                        <div class="menu-card__price">110€ / 4 pers</div>
-                        <p>Un menu généreux et raffiné pour les amateurs de saveurs authentiques.</p>
-                        <a href="#" class="menu-card__cta">Voir détails</a>
-                    </div>
-                </div>
+            <div class="menus__list" id="menus-list">
+                <!-- Les cartes menus seront injectées ici par JS -->
+                <p class="menus__loading">Chargement des menus...</p>
             </div>
 
             <div class="menus__controls" aria-label="Navigation des menus">
@@ -191,9 +171,11 @@
     <!-- Scripts -->
     <script src="/frontend/js/components.js"></script>
     <script src="/frontend/js/services/authService.js"></script>
+    <script src="/frontend/js/services/menuService.js"></script>
     <script src="/frontend/js/auth/auth-navbar.js"></script>
     <script src="/frontend/js/navbar.js"></script>
     <script src="/frontend/js/avis-carousel.js"></script>
     <script src="/frontend/js/menus-carousel.js"></script>
+    <script src="/frontend/js/home-menus.js"></script>
 </body>
 </html>
