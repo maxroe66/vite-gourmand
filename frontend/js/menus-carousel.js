@@ -1,14 +1,12 @@
-// Carousel "Nos Menus" (mobile only)
+// Carousel "Nos Menus" (Desktop & Mobile)
 // Swipe natif via overflow-x, flèches pour faire défiler d'une carte.
 
 document.addEventListener('DOMContentLoaded', () => {
-  const mq = window.matchMedia ? window.matchMedia('(max-width: 1024px)') : null;
-  if (!mq) return;
-
+  // On ne limite plus à une taille d'écran spécifique (Carousel partout)
+  
   let initialized = false;
 
-  function initIfNeeded() {
-    if (!mq.matches) return;
+  function init() {
     if (initialized) return;
 
     const section = document.querySelector('.menus');
@@ -18,10 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const prev = section.querySelector('.menus__arrow--prev');
     const next = section.querySelector('.menus__arrow--next');
 
+    // Sécurité: si les éléments n'existent pas (ex: page sans menus), on arrête
     if (!list || !prev || !next) return;
 
     const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
+    // Calcul dynamique de l'espace (gap) entre les cartes
     function getGapPx() {
       const styles = window.getComputedStyle(list);
       const gap = styles.gap || styles.columnGap || '0px';
@@ -29,23 +29,35 @@ document.addEventListener('DOMContentLoaded', () => {
       return Number.isFinite(parsed) ? parsed : 0;
     }
 
+    // Calcul de la taille d'un pas (largeur carte + gap)
     function getStep() {
       const card = list.querySelector('.menu-card');
-      if (!card) return 0;
+      if (!card) return 0; // Si pas de carte (liste vide), pas de scroll
       return card.getBoundingClientRect().width + getGapPx();
     }
 
+    // Mise à jour de l'état des boutons (désactivés aux extrémités)
     function updateDisabled() {
+      // Tolérance d'1px pour les arrondis
       const maxScrollLeft = list.scrollWidth - list.clientWidth;
       const atStart = list.scrollLeft <= 1;
       const atEnd = list.scrollLeft >= maxScrollLeft - 1;
+      
       prev.disabled = atStart;
       next.disabled = atEnd;
+      
+      // Style visuel pour disabled si le CSS ne le gère pas auto via :disabled
+      prev.style.opacity = atStart ? '0.5' : '1';
+      next.style.opacity = atEnd ? '0.5' : '1';
+      prev.style.cursor = atStart ? 'default' : 'pointer';
+      next.style.cursor = atEnd ? 'default' : 'pointer';
     }
 
+    // Action de scroll
     function scrollByCard(direction) {
       const step = getStep();
       if (!step) return;
+      
       list.scrollBy({
         left: direction * step,
         behavior: prefersReducedMotion ? 'auto' : 'smooth',
@@ -54,16 +66,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     prev.addEventListener('click', () => scrollByCard(-1));
     next.addEventListener('click', () => scrollByCard(1));
-    list.addEventListener('scroll', updateDisabled, { passive: true });
+    
+    // Écouteur de scroll pour mettre à jour les boutons en temps réel
+    list.addEventListener('scroll', () => {
+        // Debounce léger si nécessaire, mais updateDisabled est léger
+        window.requestAnimationFrame(updateDisabled);
+    }, { passive: true });
+    
     window.addEventListener('resize', updateDisabled);
 
+    // Initialisation
     updateDisabled();
     initialized = true;
+    
+    // On expose la fonction updateDisabled globalement pour pouvoir l'appeler 
+    // quand on ajoute des menus dynamiquement (AJAX)
+    window.refreshMenuCarousel = updateDisabled;
   }
 
-  // Init immédiat si déjà en mobile
-  initIfNeeded();
-
-  // Init si on passe en mobile après coup (devtools, rotation, resize)
-  mq.addEventListener?.('change', initIfNeeded);
+  // Lancement
+  init();
 });

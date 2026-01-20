@@ -55,6 +55,11 @@ $router->delete('/menus/{id}', function (ContainerInterface $container, array $p
 
 // --- Routes Plats (Publiques et Protégées) ---
 
+// Récupération des allergènes
+$router->get('/plats/allergenes', function (ContainerInterface $container, array $params, Request $request) {
+    return $container->get(PlatController::class)->getAllergens($request);
+});
+
 // Liste des plats par type (via query param ?type=...) - Protégée
 $router->get('/plats/by-type', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->getByType($request);

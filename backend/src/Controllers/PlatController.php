@@ -7,22 +7,26 @@ use App\Core\Response;
 use App\Services\PlatService;
 use App\Validators\PlatValidator;
 use App\Repositories\PlatRepository;
+use App\Repositories\AllergeneRepository;
 use Exception;
 
 class PlatController
 {
     private PlatService $platService;
     private PlatValidator $platValidator;
-    private PlatRepository $platRepository; // Pour le listing simple sans logique métier complexe
+    private PlatRepository $platRepository;
+    private AllergeneRepository $allergeneRepository;
 
     public function __construct(
         PlatService $platService,
         PlatValidator $platValidator,
-        PlatRepository $platRepository
+        PlatRepository $platRepository,
+        AllergeneRepository $allergeneRepository
     ) {
         $this->platService = $platService;
         $this->platValidator = $platValidator;
         $this->platRepository = $platRepository;
+        $this->allergeneRepository = $allergeneRepository;
     }
 
     /**
@@ -174,8 +178,19 @@ class PlatController
         } catch (Exception $e) {
             // Ici on gère l'exception si le plat est utilisé dans un menu
             return (new Response())
-                ->setStatusCode(Response::HTTP_CONFLICT) // 409 Conflict est approprié ici
-                ->setJsonContent(['error' => $e->getMessage()]);
+                ->setStatusCode(Response::HTTP_CONFLICT)
+                ->setJsonContent(['error' => 'Ce plat ne peut pas être supprimé car il est lié à des menus ou contient des allergènes.']);
         }
+    }
+                
+    /**
+     * Liste des allergènes (public)
+     */
+    public function getAllergens(Request $request): Response
+    {
+        $allergens = $this->allergeneRepository->findAll();
+        return (new Response())
+            ->setStatusCode(Response::HTTP_OK)
+            ->setJsonContent($allergens);
     }
 }

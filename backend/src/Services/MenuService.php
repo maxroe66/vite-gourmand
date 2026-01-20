@@ -54,10 +54,9 @@ class MenuService
             $this->associateDishes($menuId, $data['plats']);
         }
         
-        // La gestion des images sera ajoutée ici plus tard
-        // if (!empty($data['images'])) {
-        //     $this->addImages($menuId, $data['images']);
-        // }
+        if (!empty($data['images'])) {
+            $this->addImages($menuId, $data['images']);
+        }
 
         return $menuId;
     }
@@ -72,11 +71,16 @@ class MenuService
     {
         $menuData = $data;
         unset($menuData['plats']);
+        unset($menuData['images']);
 
         $this->menuRepository->update($id, $menuData);
 
         if (isset($data['plats'])) {
             $this->associateDishes($id, $data['plats']);
+        }
+
+        if (isset($data['images'])) {
+            $this->addImages($id, $data['images']);
         }
 
         return true;
@@ -116,6 +120,25 @@ class MenuService
             } else {
                 // Format plat : [1, 2, 3, ...]
                 $this->menuRepository->associateDish($menuId, (int)$val, $position++);
+            }
+        }
+    }
+
+    /**
+     * Ajoute des images à un menu.
+     * @param int $menuId
+     * @param array $images Liste d'URLs d'images
+     */
+    public function addImages(int $menuId, array $images): void
+    {
+        // On supprime les anciennes images pour repartir proprement (ou on pourrait faire un différentiel)
+        // Pour simplifier l'édition, on remplace tout.
+        $this->menuRepository->deleteImages($menuId);
+
+        $position = 1;
+        foreach ($images as $url) {
+            if (!empty($url) && is_string($url)) {
+                $this->menuRepository->addImage($menuId, $url, $position++);
             }
         }
     }
