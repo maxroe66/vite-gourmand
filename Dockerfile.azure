@@ -48,11 +48,14 @@ RUN printf '%s\n' \
 # Copier le code de l'application
 COPY . /var/www/html
 
-# Créer le dossier de logs et donner les droits à Apache
+# Créer le dossier de logs et le dossier d'upload et donner les droits à Apache
 # (sur Azure tu loggues en pratique dans /tmp via LOG_FILE, mais ça ne gêne pas)
 RUN mkdir -p /var/www/html/backend/logs \
+ && mkdir -p /var/www/html/public/assets/uploads \
  && chown -R www-data:www-data /var/www/html/backend/logs \
- && chmod -R 775 /var/www/html/backend/logs
+ && chown -R www-data:www-data /var/www/html/public/assets/uploads \
+ && chmod -R 775 /var/www/html/backend/logs \
+ && chmod -R 775 /var/www/html/public/assets/uploads
 
 # Installer Composer et les dépendances PHP si composer.json est présent
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
