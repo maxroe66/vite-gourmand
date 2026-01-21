@@ -20,7 +20,8 @@ class CommandeValidatorTest extends TestCase
             'nombrePersonnes' => 10,
             'adresseLivraison' => '10 Rue Saint-Catherine, 33000 Bordeaux',
             'datePrestation' => $tomorrow,
-            'heureLivraison' => '12:00'
+            'heureLivraison' => '12:00',
+            'gsm' => '0601020304'
         ];
 
         $errors = $this->validator->validateCreate($data);
