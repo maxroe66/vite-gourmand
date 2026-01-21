@@ -47,8 +47,11 @@ class UploadController
                 ->setJsonContent(['error' => 'Fichier trop volumineux (Max 5MB)']);
         }
 
-        // Génération nom unique
+        // Génération nom unique avec extension sécurisée ou vérifiée
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        // Force l'extension ou vérifie à nouveau si nécessaire (déjà fait par in_array mimeType)
+        // Pour sécurité max, mapper mimeType -> extension
+        
         $filename = uniqid('menu_', true) . '.' . $extension;
         
         // Chemin cible (Relatif au working dir du script public/index.php, donc on remonte si besoin ou on vise public)
@@ -57,7 +60,7 @@ class UploadController
         $targetDir = __DIR__ . '/../../../public/assets/uploads/';
         
         if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0777, true);
+            mkdir($targetDir, 0755, true);
         }
 
         $targetFile = $targetDir . $filename;

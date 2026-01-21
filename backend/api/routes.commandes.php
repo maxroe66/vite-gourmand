@@ -83,3 +83,13 @@ $router->get('/commandes', function (ContainerInterface $container, array $param
     $controller = $container->get(CommandeController::class);
     return $controller->index($request);
 });
+
+// Stats Commandes (Admin)
+$router->get('/menues-commandes-stats', function (ContainerInterface $container, array $params, Request $request) {
+    $authMiddleware = $container->get(AuthMiddleware::class);
+    $authMiddleware->handle($request);
+
+    // Injection StatsController
+    $controller = $container->get(App\Controllers\StatsController::class);
+    return $controller->getMenuStats($request);
+});

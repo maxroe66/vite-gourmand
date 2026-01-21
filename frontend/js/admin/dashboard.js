@@ -62,11 +62,11 @@ function loadTab(tabName) {
             break;
         case 'commandes':
             titleEl.textContent = 'Historique des Commandes';
-            contentEl.innerHTML = '<p>Liste des commandes (À implémenter)</p>';
+            loadCommandesView(contentEl, actionsEl);
             break;
         case 'avis':
-            titleEl.textContent = 'Avis Clients';
-            contentEl.innerHTML = '<p>Modération des avis (À implémenter)</p>';
+            titleEl.textContent = 'Avis Clients - Modération';
+            loadAvisView(contentEl, actionsEl);
             break;
         case 'equipe':
             titleEl.textContent = 'Gestion de l\'Équipe';
@@ -691,4 +691,399 @@ async function deletePlat(id) {
     } catch(e) {
         alert('Erreur suppression : ' + e.message);
     }
+}
+
+// --- Commandes View ---
+
+async function loadCommandesView(container, headerActions) {
+    headerActions.innerHTML = '';
+
+    // Filtres
+    container.innerHTML = `
+        <div class="filters-bar" style="display:flex; gap:10px; margin-bottom:20px;">
+            <select id="filter-status" class="input">
+                <option value="">Tous les statuts</option>
+                <option value="EN_ATTENTE">En attente</option>
+                <option value="ACCEPTE">Accepté</option>
+                <option value="EN_PREPARATION">En préparation</option>
+                <option value="EN_LIVRAISON">En livraison</option>
+                <option value="EN_ATTENTE_RETOUR">Retour Matériel</option>
+                <option value="TERMINEE">Terminée</option>
+                <option value="ANNULEE">Annulée</option>
+            </select>
+            <button class="btn btn--secondary" id="btn-refresh-cmd"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Client / Date</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="cmd-table-body">
+                    <tr><td colspan="5" style="text-align:center;">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal Changement Statut (Annulation) -->
+        <div id="modal-cancel-cmd" class="modal-overlay" style="display:none;">
+            <div class="modal">
+                <div class="modal__header">
+                    <h3 class="modal__title">Annuler la commande</h3>
+                    <button class="modal__close" id="close-cancel-cmd">&times;</button>
+                </div>
+                <div class="modal__body">
+                    <form id="form-cancel-cmd">
+                        <input type="hidden" name="cmdId" id="cancel-cmd-id">
+                        <div class="form-group">
+                            <label>Motif d'annulation *</label>
+                            <textarea name="motif" class="input" required rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Mode de contact *</label>
+                            <select name="modeContact" class="input" required>
+                                <option value="GSM">Téléphone (GSM)</option>
+                                <option value="MAIL">Email</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn--danger">Confirmer Annulation</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Détail Commande -->
+        <div id="modal-view-cmd" class="modal-overlay" style="display:none;">
+            <div class="modal" style="max-width: 700px;">
+                <div class="modal__header">
+                    <h3 class="modal__title" id="view-cmd-title">Commande #...</h3>
+                    <button class="modal__close" id="close-view-cmd">&times;</button>
+                </div>
+                <div class="modal__body" id="view-cmd-body">
+                    <!-- Détails injectés ici -->
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btn-refresh-cmd').addEventListener('click', fetchCommandesList);
+    document.getElementById('filter-status').addEventListener('change', fetchCommandesList);
+    
+    // Init Modal Cancel
+    const modalCancel = document.getElementById('modal-cancel-cmd');
+    document.getElementById('close-cancel-cmd').addEventListener('click', () => modalCancel.style.display = 'none');
+    
+    // Init Modal View
+    const modalView = document.getElementById('modal-view-cmd');
+    document.getElementById('close-view-cmd').addEventListener('click', () => modalView.style.display = 'none');
+
+    document.getElementById('form-cancel-cmd').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const id = formData.get('cmdId');
+        const motif = formData.get('motif');
+        const mode = formData.get('modeContact');
+        
+        try {
+            await CommandeService.updateStatus(id, 'ANNULEE', motif, mode);
+            modalCancel.style.display = 'none';
+            fetchCommandesList();
+            alert("Commande annulée avec succès.");
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
+    fetchCommandesList();
+}
+
+async function fetchCommandesList() {
+    const status = document.getElementById('filter-status').value;
+    const body = document.getElementById('cmd-table-body');
+    body.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chargement...</td></tr>';
+
+    try {
+        const filters = {};
+        if (status) filters.status = status;
+        
+        const commandes = await CommandeService.getAllOrders(filters);
+        
+        if (commandes.length === 0) {
+            body.innerHTML = '<tr><td colspan="5" style="text-align:center;">Aucune commande trouvée.</td></tr>';
+            return;
+        }
+
+        body.innerHTML = commandes.map(cmd => `
+            <tr>
+                <td>#${cmd.id}</td>
+                <td>
+                    <div><strong>${new Date(cmd.datePrestation).toLocaleDateString()}</strong></div>
+                    <small>Client #${cmd.userId}</small>
+                </td>
+                <td>${parseFloat(cmd.prixTotal).toFixed(2)} €</td>
+                <td>
+                    ${renderStatusSelect(cmd.id, cmd.statut)}
+                </td>
+                <td>
+                    <button class="btn btn--sm btn--secondary btn-view-cmd" data-cmd='${JSON.stringify(cmd).replace(/'/g, "&#39;")}'><i class="fa-solid fa-eye"></i></button>
+                </td>
+            </tr>
+        `).join('');
+
+        // Attach listeners to select
+        document.querySelectorAll('.cmd-status-select').forEach(select => {
+            select.addEventListener('change', async (e) => {
+                const newStat = e.target.value;
+                const cmdId = e.target.dataset.id;
+                
+                if (newStat === 'ANNULEE') {
+                    // Open Modal
+                    document.getElementById('cancel-cmd-id').value = cmdId;
+                    document.getElementById('modal-cancel-cmd').style.display = 'flex';
+                } else {
+                    if (confirm(`Passer la commande #${cmdId} à ${newStat} ?`)) {
+                        try {
+                            await CommandeService.updateStatus(cmdId, newStat);
+                            fetchCommandesList(); // Refresh to confirm backend state
+                        } catch (err) {
+                            alert(err.message);
+                            fetchCommandesList(); // Reset
+                        }
+                    } else {
+                         fetchCommandesList(); // Reset
+                    }
+                }
+            });
+        });
+
+        // Attach listeners to view buttons
+        document.querySelectorAll('.btn-view-cmd').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const cmd = JSON.parse(btn.dataset.cmd);
+                openCmdDetails(cmd);
+            });
+        });
+
+    } catch (e) {
+        console.error(e);
+        body.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${e.message}</td></tr>`;
+    }
+}
+
+function openCmdDetails(cmd) {
+    const modal = document.getElementById('modal-view-cmd');
+    document.getElementById('view-cmd-title').textContent = `Commande #${cmd.id} - ${cmd.statut}`;
+    
+    document.getElementById('view-cmd-body').innerHTML = `
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Info Client & Livraison</h4>
+                <p><strong>Client ID:</strong> ${cmd.userId}</p>
+                <p><strong>Adresse:</strong> ${cmd.adresseLivraison}</p>
+                <p><strong>Ville:</strong> ${cmd.codePostal} ${cmd.ville}</p>
+                <p><strong>Tel:</strong> ${cmd.gsm}</p>
+                <p><strong>Distance:</strong> ${cmd.distanceKm} km (${cmd.horsBordeaux ? 'Hors Zone' : 'Bordeaux'})</p>
+            </div>
+            <div>
+                <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Prestation</h4>
+                <p><strong>Date Prestation:</strong> ${new Date(cmd.datePrestation).toLocaleDateString()}</p>
+                <p><strong>Heure:</strong> ${cmd.heureLivraison}</p>
+                <p><strong>Nb Personnes:</strong> ${cmd.nombrePersonnes} (Min: ${cmd.nombrePersonneMinSnapshot})</p>
+                <p><strong>Matériel Prêt:</strong> ${cmd.materielPret ? 'Oui' : 'Non'}</p>
+            </div>
+        </div>
+        <div style="margin-top:20px;">
+            <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Détails Financiers</h4>
+            <table style="width:100%; text-align:left;">
+                <tr><td>Prix Unitaire Menu:</td> <td>${cmd.prixMenuUnitaire} €</td></tr>
+                <tr><td>Réduction:</td> <td style="color:green;">-${cmd.montantReduction} € ${cmd.reductionAppliquee ? '(APPLIQUÉE)' : ''}</td></tr>
+                <tr><td>Frais Livraison:</td> <td>${cmd.fraisLivraison} €</td></tr>
+                <tr style="font-weight:bold; font-size:1.1em;"><td>TOTAL:</td> <td>${cmd.prixTotal} €</td></tr>
+            </table>
+        </div>
+        <div style="margin-top:15px; font-size:0.9em; color:#666;">
+            Commande passée le ${new Date(cmd.dateCommande).toLocaleString()}
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+function renderStatusSelect(id, currentStatus) {
+    const statuses = ['EN_ATTENTE', 'ACCEPTE', 'EN_PREPARATION', 'EN_LIVRAISON', 'LIVRE', 'EN_ATTENTE_RETOUR', 'TERMINEE', 'ANNULEE'];
+    const options = statuses.map(s => `
+        <option value="${s}" ${s === currentStatus ? 'selected' : ''}>${s}</option>
+    `).join('');
+    
+    // Status color
+    let color = '#ccc';
+    if(currentStatus === 'EN_ATTENTE') color = '#ffc107';
+    if(currentStatus === 'ACCEPTE') color = '#28a745';
+    if(currentStatus === 'ANNULEE') color = '#dc3545';
+    
+    return `<select class="input input--sm cmd-status-select" data-id="${id}" style="border-left: 5px solid ${color}">${options}</select>`;
+}
+
+// --- AVIS VIEW ---
+
+async function loadAvisView(container, headerActions) {
+    // Boutons de filtre 
+    headerActions.innerHTML = `
+        <div class="filters">
+            <button class="btn btn--sm btn--primary active" onclick="window.filterAvis('EN_ATTENTE', this)">En Attente</button>
+            <button class="btn btn--sm" onclick="window.filterAvis('VALIDE', this)">Validés</button>
+        </div>
+    `;
+
+    // Par défaut on charge 'EN_ATTENTE'
+    await fetchAndRenderAvis('EN_ATTENTE', container);
+}
+
+window.filterAvis = async function(status, btn) {
+    // Update active class
+    const filters = btn.parentElement;
+    if(filters) {
+       filters.querySelectorAll('button').forEach(b => b.classList.remove('btn--primary', 'active'));
+       btn.classList.add('btn--primary', 'active');
+    }
+
+    const container = document.getElementById('dashboard-content');
+    container.innerHTML = '<div class="loader-container"><div class="loader"></div></div>';
+    
+    await fetchAndRenderAvis(status, container);
+};
+
+async function fetchAndRenderAvis(status, container) {
+    try {
+        const result = await AvisService.getAvis(status);
+        let reviews = [];
+        if (result && result.data) {
+           reviews = result.data;
+        } else if (Array.isArray(result)) {
+           reviews = result;
+        }
+
+        if (reviews.length === 0) {
+            container.innerHTML = `<div class="empty-state">Aucun avis avec le statut : ${status}</div>`;
+            return;
+        }
+
+        let html = `
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Note</th>
+                            <th>Commentaire</th>
+                            <th style="width: 150px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        html += reviews.map(avis => {
+            const dateStr = avis.date_creation 
+                ? new Date(avis.date_creation).toLocaleDateString('fr-FR')
+                : 'N/A';
+            const noteHtml = renderStars(avis.note);
+            
+            return `
+                <tr>
+                    <td>${dateStr}</td>
+                    <td>${noteHtml}</td>
+                    <td><p class="text-truncate" title="${avis.commentaire}">${avis.commentaire}</p></td>
+                    <td>
+                        ${renderAvisActions(avis, status)}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+
+        bindAvisActions();
+
+    } catch (error) {
+        console.error("Erreur chargement avis", error);
+        container.innerHTML = `<div class="error-banner">Erreur lors du chargement des avis.</div>`;
+    }
+}
+
+function renderStars(note) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= note) stars += '<i class="fa-solid fa-star text-warning"></i>';
+        else stars += '<i class="fa-regular fa-star text-muted"></i>';
+    }
+    return stars;
+}
+
+function renderAvisActions(avis, currentStatus) {
+    if (currentStatus === 'EN_ATTENTE') {
+        return `
+            <div class="btn-group">
+                <button class="btn btn--sm btn--success btn-validate-avis" data-id="${avis.id}" title="Valider">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+                <button class="btn btn--sm btn--danger btn-reject-avis" data-id="${avis.id}" title="Refuser">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        `;
+    }
+    
+    // Pour les avis déjà validés, on permet de les supprimer (refuser/annuler)
+    return `
+         <button class="btn btn--sm btn--danger btn-reject-avis" data-id="${avis.id}" title="Supprimer">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    `;
+}
+
+function bindAvisActions() {
+    document.querySelectorAll('.btn-validate-avis').forEach(btn => {
+        btn.onclick = async () => {
+             const id = btn.dataset.id;
+             if(!confirm('Valider cet avis le rendra visible sur le site. Continuer ?')) return;
+             
+             try {
+                 await AvisService.validateAvis(id);
+                 // Reload click on active filter
+                 const activeBtn = document.querySelector('#header-actions .filters .active');
+                 if(activeBtn) activeBtn.click();
+             } catch(e) {
+                 alert('Erreur : ' + e.message);
+             }
+        };
+    });
+
+    document.querySelectorAll('.btn-reject-avis').forEach(btn => {
+        btn.onclick = async () => {
+             const id = btn.dataset.id;
+             if(!confirm('Supprimer cet avis ?')) return;
+             
+             try {
+                 await AvisService.deleteAvis(id);
+                 const activeBtn = document.querySelector('#header-actions .filters .active');
+                 if(activeBtn) activeBtn.click();
+             } catch(e) {
+                 alert('Erreur : ' + e.message);
+             }
+        };
+    });
 }

@@ -314,6 +314,23 @@ class CommandeRepository
     }
 
     /**
+     * Récupère la liste du matériel associé à une commande.
+     * @return array Liste des matériels prêtés
+     */
+    public function getMateriels(int $commandeId): array
+    {
+        $sql = "SELECT m.libelle, cm.quantite, cm.date_retour_prevu, cm.retourne 
+                FROM COMMANDE_MATERIEL cm
+                JOIN MATERIEL m ON cm.id_materiel = m.id_materiel
+                WHERE cm.id_commande = :id";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $commandeId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Helper pour ajouter une ligne dans COMMANDE_STATUT
      */
     private function addHistory(int $commandeId, string $status, int $modifiedBy, ?string $comment = null): void
@@ -378,7 +395,7 @@ class CommandeRepository
         }
 
         if (!empty($filters['userId'])) {
-            $sql .= " AND id_client = :userId";
+            $sql .= " AND id_utilisateur = :userId";
             $params[':userId'] = $filters['userId'];
         }
 

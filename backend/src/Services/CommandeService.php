@@ -50,6 +50,7 @@ class CommandeService
         }
 
         $timeline = $this->commandeRepository->getTimeline($commandeId);
+        $materiels = $this->commandeRepository->getMateriels($commandeId);
 
         return [
             'commande' => $commande,
@@ -62,6 +63,7 @@ class CommandeService
                     'role' => $event['role'] ?? 'SYSTEME'
                 ];
             }, $timeline),
+            'materiels' => $materiels,
             'actions' => $this->getAvailableActions($commande)
         ];
     }
@@ -277,9 +279,7 @@ class CommandeService
             $commande->prixTotal = $pricing['prixTotal'];
             // $commande->prixParPersonne = $pricing['details']['prixParPersonne']; // Si stocké
             $commande->fraisLivraison = $pricing['fraisLivraison'];
-            $commande->reduction = $pricing['prixTotal'] - $pricing['prixMenuTotal'] - $pricing['fraisLivraison']; 
-            if ($commande->reduction < 0) $commande->reduction = 0;
-            // $commande->reduction = $pricing['reduction']; // Not always present in calculation result structure
+            $commande->reduction = $pricing['montantReduction'] ?? 0.0;
         }
 
         // 5. Sauvegarde

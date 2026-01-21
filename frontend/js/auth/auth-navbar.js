@@ -13,10 +13,12 @@ document.addEventListener('componentsLoaded', async () => {
         // --- 1. Desktop Actions (.navbar__actions) ---
         const desktopActions = document.querySelector('.navbar__actions');
         if (desktopActions) {
-            // Remplacement des boutons Connexion/Inscription par Déconnexion uniquement
-            // Suppression de l'affichage Username (demandé par user)
+            // Ajout du bouton Mon Profil + Déconnexion
             desktopActions.innerHTML = `
-                <button class="button button--ghost" id="logoutBtnDesktop">
+                <a href="/frontend/frontend/pages/profil.html" class="button button--ghost" style="margin-right: 8px;">
+                    Mon Profil
+                </a>
+                <button class="button button--primary" id="logoutBtnDesktop">
                     Déconnexion
                 </button>
             `;
@@ -26,6 +28,19 @@ document.addEventListener('componentsLoaded', async () => {
         // On masque les li "connexion" et "inscription" du mobile (qui ont la classe .navbar__mobile-action)
         const mobileActions = document.querySelectorAll('.navbar__mobile-action');
         mobileActions.forEach(el => el.style.display = 'none');
+
+        // Ajout Lien Profil Mobile
+        const mobileMenu = document.querySelector('.navbar__menu--mobile');
+        if (mobileMenu) {
+            const liProfil = document.createElement('li');
+            liProfil.innerHTML = `
+                <a href="/frontend/frontend/pages/profil.html" class="navbar__link">
+                    Mon Profil
+                </a>
+            `;
+            // Insérer avant les actions (optionnel, mais append à la fin est OK car les actions sont masquées)
+            mobileMenu.appendChild(liProfil);
+        }
 
         // --- 3. Lien "Espace Gestion" (Admin/Employé) ---
         // On l'ajoute sur TOUS les menus trouvés (Desktop et Mobile)
@@ -45,7 +60,6 @@ document.addEventListener('componentsLoaded', async () => {
         }
 
         // --- 4. Ajout du bouton Déconnexion sur Mobile ---
-        const mobileMenu = document.querySelector('.navbar__menu--mobile');
         if (mobileMenu) {
             const liLogout = document.createElement('li');
             liLogout.style.textAlign = 'center';
