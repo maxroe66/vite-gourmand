@@ -48,7 +48,7 @@ Elle doit contenir les champs snapshot pour figer les conditions au moment de l'
 *   `prix_menu_unitaire` (Decimal) : Prix du menu *au moment de l'achat*.
 *   `nombre_personne_min_snapshot` (Int) : Minimum requis *au moment de l'achat*.
 *   `montant_reduction` (Decimal) : Montant de la remise appliquée.
-*   `status` (Enum) : EN_ATTENTE, ACCEPTE, ENV_LIVRAISON...
+*   `statut` (Enum) : Liste stricte (`EN_ATTENTE`, `ACCEPTE`, `EN_PREPARATION`, `EN_LIVRAISON`, `LIVRE`, `EN_ATTENTE_RETOUR`, `TERMINEE`, `ANNULEE`).
 
 **Vérifier la table `COMMANDE_STATUT` (Historique) :**
 Elle doit permettre de logger chaque changement d'état (Qui, Quand, Quoi).
@@ -71,6 +71,8 @@ class Commande {
     public int $menuId;
     public float $prixTotal;
     public string $statut;
+    public bool $reductionAppliquee; // RG20
+    public float $montantReduction;
     public array $detailsLivraison; // Objet ou Array (Adresse, Date, Tel)
     public array $pricingSnapshot; // (Prix unitaire, Reductions, Frais)
     // ... Getters & Setters
@@ -89,6 +91,8 @@ Le pattern Repository isole les requêtes SQL.
 
 ### Fichier : `backend/src/Repositories/CommandeRepository.php`
 
+**Note d'implémentation** : Ce repository doit gérer l'accès aux deux tables liées `COMMANDE` et `COMMANDE_STATUT` (Historique), conformément au diagramme UML qui centralise souvent la persistance d'un agrégat.
+
 Méthodes obligatoires :
 1.  **`create(Commande $commande): int`**
     *   Insérer dans `COMMANDE`.
@@ -100,6 +104,11 @@ Méthodes obligatoires :
 4.  **`updateStatus(int $id, string $newStatus, int $modifiedBy, string $motif): bool`**
     *   Mettre à jour `COMMANDE`.
     *   Insérer une ligne dans `COMMANDE_STATUT` (ou `COMMANDE_ANNULATION` si annulé).
+6.  **`setMateriel(int $commandeId, array $materiels): void`**
+    *   Gérer l'insertion dans `COMMANDE_MATERIEL` et la mise à jour des stocks.
+7.  **`update(int $id, array $data, int $modifiedBy): bool`**
+    *   Mettre à jour les champs autorisés dans `COMMANDE`.
+    *   **Traçabilité** : Insérer une ligne dans `COMMANDE_MODIFICATION` avec les valeurs changées (format JSON), pour respecter le MLD.
 
 ---
 
@@ -117,8 +126,10 @@ C'est le cœur de la feature.
     3.  Règle Réduction : `if (personnes >= min + 5) -10%`.
     4.  Frais Livraison :
         *   Appeler `GoogleMapsService->getDistance()`.
-        *   Si Bordeaux (Distance < X ou Code Postal) : Gratuit? (Vérifier règles).
-        *   Sinon : `5€ + (0.59€ * km)`.
+        *   **Strategie Fallback (Doc Tech)** : Si l'API Google Maps échoue ou est injoignable, utiliser une méthode d'`estimateDistance` (ex: calcul vol d'oiseau ou forfaitaire) pour ne pas bloquer la commande.
+        *   **Règle MLD (RG21)** :
+            *   Si Bordeaux (Code Postal "33000" ou ville "Bordeaux") : **5.00€ fixes**.
+            *   Sinon (Hors Bordeaux) : **5.00€ + (0.59€ * distance_km)**.
 *   **Sortie** : DTO avec le détail des coûts.
 
 #### Fonctionnalité 2 : Création de Commande (`createCommande`)
@@ -132,8 +143,44 @@ C'est le cœur de la feature.
         *   Insert Historique.
         *   Update Stock Menu (si applicable).
         *   `COMMIT`.
-    4.  **Sync MongoDB** (Optionnel/Async) : Pousser dans collection `analytics_commandes` (RGPD: Anonymiser données perso).
+    4.  **Sync MongoDB** (Optionnel/Async) : Pousser dans collection `statistiques_commandes` (RGPD: Anonymiser données perso).
     5.  **Notification** : Envoyer email confirmation via `MailerService`.
+
+#### Fonctionnalité 3 : Gestion Statuts & Annulation
+*   **Annulation Client** :
+    *   Méthode : `cancelByUser(int $userId, int $commandeId)`
+    *   **Règle stricte** : Possible UNIQUEMENT si statut actuel est `EN_ATTENTE`. Sinon `ForbiddenException`.
+*   **Action Employé (Mise à jour Générique)** :
+    *   Méthode : `updateStatus(int $employeId, int $commandeId, string $newStatus)`
+    *   **Logique** :
+        *   Mettre à jour statut SQL + Historique.
+        *   **Sync MongoDB** : Mettre à jour le champ `status` dans `statistiques_commandes`.
+        *   **Notification** : Envoyer un email de notification au client "Votre commande est passée à [Statut]".
+*   **Action Employé (Annulation)** :
+    *   Méthode : `cancelByEmployee(int $employeId, int $commandeId, string $motif, string $modeContact)`
+    *   **Obligation** : Le motif et le mode de contact (`GSM`, `MAIL`) sont requis par l'énoncé.
+*   **Flux Spécifique** :
+    *   Statut `EN_ATTENTE_RETOUR` : Déclencher email de rappel pour restitution matériel (pénalité 600€ mentionnée).        *   Statut `TERMINEE` : Déclencher **"Email Invitation Avis"** invitant le client à noter sa commande (requis par l'énoncé).
+#### Fonctionnalité 4 : Modification de Commande (Client)
+*   **Méthode** : `update(int $userId, int $commandeId, array $newData)`
+*   **Champs modifiables** : Adresse, date/heure, téléphone, nombre de personnes (recalcul du prix obligatoire).
+*   **Interdit** : Changer le MENU (nécessite annulation + nouvelle commande, voir RG).
+*   **Condition** :Possible UNIQUEMENT si statut est `EN_ATTENTE`.
+
+#### Fonctionnalité 5 : Gestion du Matériel (Employé)
+*   **Méthode** : `loanMaterial(int $commandeId, array $materiels)`
+*   **Structure** : `$materiels` est un tableau de `['id' => int, 'quantite' => int]`.
+*   **Logique** :
+    *   Lier les matériels à la commande dans `COMMANDE_MATERIEL` (avec quantité et dates).
+    *   Décrémenter le stock du matériel.
+    *   Le statut de la commande passera plus tard par `EN_ATTENTE_RETOUR`.
+
+#### Fonctionnalité 6 : Préparation pour les Avis (Point d'Extension)
+*   **Objectif** : Permettre au Frontend de savoir quand afficher le bouton "Donner un avis".
+*   **Implémentation** :
+    *   Dans `listMyOrders` et `show`, le DTO de retour doit inclure un champ booléen `can_review`.
+    *   **Logique** : `can_review = (statut == 'TERMINEE' && has_avis == false)`.
+    *   *Note : La logique complète de création/validation des avis sera gérée dans une feature dédiée (Service `AvisService`), conformément au diagramme `sequence_04`.*
 
 ---
 
@@ -144,10 +191,14 @@ Exposer les fonctionnalités via HTTP.
 ### Fichier : `backend/src/Controllers/CommandeController.php`
 
 Méthodes :
-*   `calculate(Request $request)` : POST /api/commandes/actions/calculate
+*   `calculate(Request $request)` : POST /api/commandes/calculate-price
 *   `create(Request $request)` : POST /api/commandes
+*   `updateStatus(Request $request, $id)` : POST /api/commandes/{id}/status (Réservé aux employés).
 *   `listMyOrders(Request $request)` : GET /api/commandes/me
 *   `show(Request $request, $id)` : GET /api/commandes/{id} (Vérifier que l'user est propriétaire ou Admin).
+*   `update(Request $request, $id)` : PUT /api/commandes/{id} (Modification client : adresse/date/nb_personnes uniquement).
+*   `loanMaterial(Request $request, $id)` : POST /api/commandes/{id}/material (Employé uniquement).
+*   `getTimeline(Request $request, $id)` : GET /api/commandes/{id}/timeline (Flux suivi commande : historique complet).
 
 ### Fichier : `backend/api/routes.commandes.php`
 
@@ -160,6 +211,7 @@ Définir les routes et appliquer les Middlewares :
 ## Étape 6 : Intégration Frontend
 
 1.  **Formulaire de Commande** :
+    *   **Pré-remplissage** : Les champs Nom, Prénom, Mail, GSM doivent être pré-remplis avec les infos du compte utilisateur (Lecture seule ou editable selon besoin UX, mais requis par énoncé).
     *   Récapitulatif du Menu choisi.
     *   Champs: Date, Heure, Adresse (Autocomplete Google Maps si possible), Nombre personnes.
 2.  **Mise à jour dynamique** :
