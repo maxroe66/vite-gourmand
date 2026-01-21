@@ -53,6 +53,11 @@ class Router
         return $this->add('PUT', $path, $handler);
     }
 
+    public function patch(string $path, callable $handler): self
+    {
+        return $this->add('PATCH', $path, $handler);
+    }
+
     public function delete(string $path, callable $handler): self
     {
         return $this->add('DELETE', $path, $handler);
@@ -73,6 +78,11 @@ class Router
     {
         // Création de l'objet Request qui sera passé à travers les couches
         $request = new Request();
+
+        if (!isset($this->routes[$method])) {
+             // Méthode HTTP non supportée ou aucune route définie pour cette méthode
+             return (new Response())->setStatusCode(404)->setJsonContent(['error' => 'Route not found']);
+        }
 
         foreach ($this->routes[$method] as $routePath => $route) {
             $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[a-zA-Z0-9_]+)', $routePath);

@@ -47,3 +47,39 @@ $router->put('/commandes/{id}/status', function (ContainerInterface $container, 
     // L'ID est dans $params['id'] (géré par le router regex)
     return $controller->updateStatus($request, (int)$params['id']);
 });
+
+// Consultation des commandes de l'utilisateur
+$router->get('/my-orders', function (ContainerInterface $container, array $params, Request $request) {
+    $authMiddleware = $container->get(AuthMiddleware::class);
+    $authMiddleware->handle($request);
+
+    $controller = $container->get(CommandeController::class);
+    return $controller->listMyOrders($request);
+});
+
+// Consultation d'une commande spécifique
+$router->get('/commandes/{id}', function (ContainerInterface $container, array $params, Request $request) {
+    $authMiddleware = $container->get(AuthMiddleware::class);
+    $authMiddleware->handle($request);
+
+    $controller = $container->get(CommandeController::class);
+    return $controller->show($request, (int)$params['id']);
+});
+
+// Ajout de matériel prêté (Employé)
+$router->post('/commandes/{id}/material', function (ContainerInterface $container, array $params, Request $request) {
+    $authMiddleware = $container->get(AuthMiddleware::class);
+    $authMiddleware->handle($request);
+
+    $controller = $container->get(CommandeController::class);
+    return $controller->loanMaterial($request, (int)$params['id']);
+});
+
+// Liste filtrée des commandes (Employé)
+$router->get('/commandes', function (ContainerInterface $container, array $params, Request $request) {
+    $authMiddleware = $container->get(AuthMiddleware::class);
+    $authMiddleware->handle($request);
+
+    $controller = $container->get(CommandeController::class);
+    return $controller->index($request);
+});

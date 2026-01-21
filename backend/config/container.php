@@ -108,6 +108,20 @@ return function (array $config): ContainerInterface {
             return $logger;
         },
 
+        // 5. MongoDB Client (nécessite l'URI dans la config)
+        \MongoDB\Client::class => function (ContainerInterface $c) {
+            $mongoConfig = $c->get('config')['mongo'];
+            // Si l'URI est vide (env de test sans mongo), on peut retourner null ou gérer l'erreur plus haut.
+            // Ici, on retourne le client. Si la connexion échoue, la méthode syncMongoDB du service gère en try/catch.
+            return new \MongoDB\Client($mongoConfig['uri']);
+        },
+
+        // 6. GoogleMapsService : on injecte la clé API depuis la config pour éviter le $_ENV hardcodé
+        App\Services\GoogleMapsService::class => function (ContainerInterface $c) {
+            $apiKey = $c->get('config')['google_maps']['api_key'] ?? '';
+            return new App\Services\GoogleMapsService($apiKey);
+        },
+
         // Les autres classes comme `UserValidator` et `LoginValidator` sont maintenant
         // automatiquement instanciées et injectées grâce à l'autowiring car elles
         // n'ont pas de dépendances scalaires ou complexes dans leur constructeur.

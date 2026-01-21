@@ -214,4 +214,57 @@ class CommandeController
             return $this->jsonResponse(['error' => $e->getMessage()], 400);
         }
     }
+
+    /**
+     * Déclarer du matériel prêté pour une commande (Employé uniquement).
+     * POST /api/commandes/{id}/material
+     */
+    public function loanMaterial(Request $request, int $id): Response
+    {
+        $user = $request->getAttribute('user');
+        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
+             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+        }
+
+        $data = $request->getJsonBody();
+        // $data attendu : [{"id": 10, "quantite": 5}, ...]
+
+        try {
+            $this->commandeService->loanMaterial($id, $data);
+            return $this->jsonResponse(['success' => true, 'message' => 'Matériel ajouté à la commande']);
+        } catch (Exception $e) {
+            return $this->jsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Recherche de commandes (Dashboard Employé).
+     * GET /api/commandes?status=EN_ATTENTE&user=12...
+     */
+    public function index(Request $request): Response
+    {
+        $user = $request->getAttribute('user');
+        
+        // Seuls les employés/admins peuvent voir toutes les commandes
+        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
+             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+        }
+
+        $params = $request->getQueryParams();
+        $filters = [
+            'status' => $params['status'] ?? null,
+            'userId' => $params['user'] ?? null,
+            'date' => $params['date'] ?? null
+        ];
+
+        // Nettoyage des filtres vides
+        $filters = array_filter($filters);
+
+        try {
+            $commandes = $this->commandeService->searchCommandes($filters);
+            return $this->jsonResponse($commandes);
+        } catch (Exception $e) {
+            return $this->jsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
 }
