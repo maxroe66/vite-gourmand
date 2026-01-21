@@ -296,6 +296,24 @@ class CommandeRepository
     }
 
     /**
+     * Récupère l'historique complet des statuts d'une commande.
+     * @return array Liste chronologique des changements
+     */
+    public function getTimeline(int $commandeId): array
+    {
+        $sql = "SELECT s.*, u.nom, u.prenom, u.role 
+                FROM COMMANDE_STATUT s
+                LEFT JOIN UTILISATEUR u ON s.modifie_par = u.id_utilisateur
+                WHERE s.id_commande = :id 
+                ORDER BY s.date_changement ASC";
+                
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $commandeId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Helper pour ajouter une ligne dans COMMANDE_STATUT
      */
     private function addHistory(int $commandeId, string $status, int $modifiedBy, ?string $comment = null): void

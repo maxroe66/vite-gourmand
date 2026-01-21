@@ -83,4 +83,13 @@ class Commande
             self::STATUS_ANNULEE
         ];
     }
+    
+    /**
+     * Vérifie si la commande peut recevoir un avis.
+     * Règle métier : Statut TERMINEE et pas encore d'avis.
+     */
+    public function canBeReviewed(): bool
+    {
+        return $this->statut === self::STATUS_TERMINEE && !$this->hasAvis;
+    }
 }

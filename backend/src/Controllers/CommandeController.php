@@ -110,7 +110,48 @@ class CommandeController
         }
         $userId = (int)$user->sub;
 
-        return $this->jsonResponse(['message' => 'Not implemented yet'], 501);
+        try {
+            $commandes = $this->commandeService->getUserOrders($userId);
+            
+            // Formatage pour le frontend (Light DTO)
+            $response = array_map(function($cmd) {
+                return [
+                    'id' => $cmd->id,
+                    'dateCommande' => $cmd->dateCommande,
+                    'datePrestation' => $cmd->datePrestation,
+                    'statut' => $cmd->statut,
+                    'prixTotal' => $cmd->prixTotal,
+                    'menuId' => $cmd->menuId,
+                    // Logique Frontend "Can Review" (Feature Avis)
+                    'canReview' => $cmd->canBeReviewed()
+                ];
+            }, $commandes);
+
+            return $this->jsonResponse($response);
+        } catch (Exception $e) {
+            return $this->jsonResponse(['error' => 'Erreur récupération commandes: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Voir le détail d'une commande avec sa timeline.
+     * GET /api/commandes/{id}
+     */
+    public function show(Request $request, int $id): Response
+    {
+        $user = $request->getAttribute('user');
+        if (!$user || !isset($user->sub)) {
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        try {
+            $data = $this->commandeService->getOrderWithTimeline((int)$user->sub, $id);
+            return $this->jsonResponse($data);
+        } catch (CommandeException $e) {
+            return $this->jsonResponse(['error' => $e->getMessage()], $e->getCode() ?: 403);
+        } catch (Exception $e) {
+            return $this->jsonResponse(['error' => 'Erreur: ' . $e->getMessage()], 500);
+        }
     }
     
     /**
