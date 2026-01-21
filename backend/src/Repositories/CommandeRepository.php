@@ -15,6 +15,42 @@ class CommandeRepository
     }
 
     /**
+     * Met à jour les informations d'une commande existante.
+     */
+    public function update(Commande $commande): bool
+    {
+        $sql = "UPDATE COMMANDE SET 
+                date_prestation = :datePrestation,
+                heure_livraison = :heureLivraison,
+                adresse_livraison = :adresseLivraison,
+                ville = :ville,
+                code_postal = :codePostal,
+                gsm = :gsm,
+                nombre_personnes = :nombrePersonnes,
+                prix_total = :prixTotal,
+                statut = :status,
+                frais_livraison = :fraisLivraison,
+                montant_reduction = :reduction
+                WHERE id_commande = :id";
+        
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':datePrestation' => $commande->datePrestation,
+            ':heureLivraison' => $commande->heureLivraison,
+            ':adresseLivraison' => $commande->adresseLivraison,
+            ':ville' => $commande->ville,
+            ':codePostal' => $commande->codePostal,
+            ':gsm' => $commande->gsm,
+            ':nombrePersonnes' => $commande->nombrePersonnes,
+            ':prixTotal' => $commande->prixTotal,
+            ':status' => $commande->statut, // Correct property
+            ':fraisLivraison' => $commande->fraisLivraison ?? 0,
+            ':reduction' => $commande->montantReduction ?? 0,
+            ':id' => $commande->id
+        ]);
+    }
+
+    /**
      * Crée une nouvelle commande et initialise son statut.
      * @param Commande $commande
      * @return int ID de la commande créée
@@ -155,8 +191,10 @@ class CommandeRepository
 
     /**
      * Met à jour les informations d'une commande (modification client).
+     * @deprecated Use updateObject instead if possible, keeping for backward compat or redefining.
+     * Renamed to avoid collision with the new update(Commande $obj) method.
      */
-    public function update(int $id, array $data, int $modifiedBy): bool
+    public function updateLegacy(int $id, array $data, int $modifiedBy): bool
     {
         // On ne permet la modification que de certains champs via cette méthode
         // Mapping fields vers colonnes

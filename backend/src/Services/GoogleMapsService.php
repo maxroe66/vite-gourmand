@@ -7,9 +7,9 @@ class GoogleMapsService
     private string $apiKey;
     private const BORDEAUX_COORDS = '44.837789,-0.57918'; // Not used if text search, but useful.
 
-    public function __construct()
+    public function __construct(string $apiKey = '')
     {
-        $this->apiKey = $_ENV['GOOGLE_MAPS_API_KEY'] ?? '';
+        $this->apiKey = $apiKey ?: ($_ENV['GOOGLE_MAPS_API_KEY'] ?? '');
     }
 
     /**

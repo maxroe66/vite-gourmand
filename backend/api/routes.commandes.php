@@ -8,7 +8,7 @@ use App\Middlewares\AuthMiddleware;
 use Psr\Container\ContainerInterface;
 
 // Création de commande
-$router->post('/api/commandes', function (ContainerInterface $container, array $params, Request $request) {
+$router->post('/commandes', function (ContainerInterface $container, array $params, Request $request) {
     // Middleware Auth
     $authMiddleware = $container->get(AuthMiddleware::class);
     $authMiddleware->handle($request);
@@ -21,7 +21,7 @@ $router->post('/api/commandes', function (ContainerInterface $container, array $
 });
 
 // Calcul de prix (Simulation avant commande)
-$router->post('/api/commandes/calculate-price', function (ContainerInterface $container, array $params, Request $request) {
+$router->post('/commandes/calculate-price', function (ContainerInterface $container, array $params, Request $request) {
     $authMiddleware = $container->get(AuthMiddleware::class);
     $authMiddleware->handle($request);
 
@@ -29,8 +29,17 @@ $router->post('/api/commandes/calculate-price', function (ContainerInterface $co
     return $controller->calculate($request);
 });
 
-// Update Status (Employé)
-$router->post('/api/commandes/{id}/status', function (ContainerInterface $container, array $params, Request $request) {
+// Modification partielle de la commande (Client : tant que non accepté)
+$router->patch('/commandes/{id}', function (ContainerInterface $container, array $params, Request $request) {
+    $authMiddleware = $container->get(AuthMiddleware::class);
+    $authMiddleware->handle($request);
+
+    $controller = $container->get(CommandeController::class);
+    return $controller->update($request, (int)$params['id']);
+});
+
+// Update Status (Employé ou Annulation Client)
+$router->put('/commandes/{id}/status', function (ContainerInterface $container, array $params, Request $request) {
     $authMiddleware = $container->get(AuthMiddleware::class);
     $authMiddleware->handle($request);
 

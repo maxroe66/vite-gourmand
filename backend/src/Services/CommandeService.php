@@ -157,6 +157,80 @@ class CommandeService
     }
 
     /**
+     * Met à jour une commande (Modification Client).
+     */
+    public function updateCommande(int $userId, int $commandeId, array $data): void
+    {
+        // 1. Récupérer la commande
+        $commande = $this->commandeRepository->findById($commandeId);
+        if (!$commande) {
+            throw CommandeException::notFound($commandeId);
+        }
+
+        // 2. Vérifier que l'utilisateur est bien le propriétaire
+        // Note: property is $userId in Model, mapping logic should handle this.
+        if ($commande->userId !== $userId) {
+            throw new CommandeException("Vous n'êtes pas autorisé à modifier cette commande.", 403);
+        }
+
+        // 3. Vérifier le statut (Seulement si pas encore validée/acceptée)
+        // Supposons que les statuts soient : EN_ATTENTE, EN_PREPARATION, ACCEPTE, REFUSE, ANNULE...
+        // La règle est : "tant qu’un employé n’a pas passé la commande en ACCEPTÉ"
+        $blockedStatuses = ['ACCEPTE', 'EN_PREPARATION', 'EN_LIVRAISON', 'TERMINEE', 'LIVREE'];
+        if (in_array($commande->statut, $blockedStatuses)) {
+             throw new CommandeException("La commande ne peut plus être modifiée car elle a été acceptée ou est en cours.", 403);
+        }
+
+        // 4. Si modification de quantités/adresse => Recalcul nécessaire du prix ? 
+        // L'énoncé dit "Modification possible sauf menu".
+        // Si nbPersonnes ou adresse change, le prix change.
+        
+        $recalculate = false;
+        
+        if (isset($data['nombrePersonnes']) && $data['nombrePersonnes'] != $commande->nombrePersonnes) {
+            $commande->nombrePersonnes = (int)$data['nombrePersonnes'];
+            $recalculate = true;
+        }
+
+        if (isset($data['adresseLivraison']) && $data['adresseLivraison'] !== $commande->adresseLivraison) {
+            $commande->adresseLivraison = $data['adresseLivraison'];
+            $recalculate = true;
+        }
+
+        // RG : Annulation Client
+        // Le client peut annuler sa commande (passer à ANNULEE) si elle n'est pas bloquée
+        // Note: Les statuts bloquants sont déjà vérifiés au début de la méthode (step 3)
+        if (isset($data['statut']) && $data['statut'] === 'ANNULEE') {
+            $commande->statut = 'ANNULEE';
+        }
+        // Support pour la clé 'status' aussi (convention API souvent utilisée)
+        if (isset($data['status']) && $data['status'] === 'ANNULEE') {
+            $commande->statut = 'ANNULEE';
+        }
+
+        // Update basic fields
+        if (isset($data['datePrestation'])) $commande->datePrestation = $data['datePrestation'];
+        if (isset($data['heureLivraison'])) $commande->heureLivraison = $data['heureLivraison'];
+        if (isset($data['gsm'])) $commande->gsm = $data['gsm'];
+        if (isset($data['codePostal'])) $commande->codePostal = $data['codePostal'];
+        if (isset($data['ville'])) $commande->ville = $data['ville'];
+
+        if ($recalculate) {
+            // Recalcul du prix via la logique existante
+            $pricing = $this->calculatePrice($commande->menuId, $commande->nombrePersonnes, $commande->adresseLivraison);
+            $commande->prixTotal = $pricing['prixTotal'];
+            // $commande->prixParPersonne = $pricing['details']['prixParPersonne']; // Si stocké
+            $commande->fraisLivraison = $pricing['fraisLivraison'];
+            $commande->reduction = $pricing['prixTotal'] - $pricing['prixMenuTotal'] - $pricing['fraisLivraison']; 
+            if ($commande->reduction < 0) $commande->reduction = 0;
+            // $commande->reduction = $pricing['reduction']; // Not always present in calculation result structure
+        }
+
+        // 5. Sauvegarde
+        $this->commandeRepository->update($commande);
+    }
+
+    /**
      * Change le statut d'une commande.
      */
     public function updateStatus(int $userId, int $commandeId, string $newStatus, string $motif = null, string $modeContact = null): void

@@ -21,30 +21,42 @@ class CommandeController
     }
 
     /**
+     * Helper pour créer une réponse JSON.
+     */
+    private function jsonResponse(mixed $data, int $status = 200): Response
+    {
+        return (new Response())->setStatusCode($status)->setJsonContent($data);
+    }
+
+    /**
      * Calcule le prix d'une commande (simulation).
      * POST /api/commandes/calculate-price
      */
     public function calculate(Request $request): Response
     {
-        $data = $request->getBody();
+        $data = $request->getJsonBody();
 
         try {
-            $menuId = (int)($data['menuId'] ?? 0);
-            $nombrePersonnes = (int)($data['nombrePersonnes'] ?? 0);
-            $adresseLivraison = $data['adresseLivraison'] ?? '';
+            $menuId = (int)($data['menu_id'] ?? $data['menuId'] ?? 0);
+            $nombrePersonnes = (int)($data['nombre_personnes'] ?? $data['nombrePersonnes'] ?? 1);
+            $adresseLivraison = $data['user_address'] ?? $data['adresseLivraison'] ?? '';
 
-            if (!$menuId || !$nombrePersonnes || !$adresseLivraison) {
-                return Response::json(['error' => 'Données manquantes (menuId, nombrePersonnes, adresseLivraison)'], 400);
+            if (!$menuId) {
+                return $this->jsonResponse(['error' => 'ID du menu manquant (menu_id)'], 400);
+            }
+            
+            if (!$adresseLivraison) {
+                return $this->jsonResponse(['error' => 'Adresse manquante'], 400);
             }
 
             $result = $this->commandeService->calculatePrice($menuId, $nombrePersonnes, $adresseLivraison);
             
-            return Response::json($result);
+            return $this->jsonResponse($result);
 
         } catch (CommandeException $e) {
-            return Response::json(['error' => $e->getMessage()], $e->getCode() ?: 400); 
+            return $this->jsonResponse(['error' => $e->getMessage()], $e->getCode() ?: 400); 
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 400);
+            return $this->jsonResponse(['error' => $e->getMessage()], 400);
         }
     }
 
@@ -56,33 +68,33 @@ class CommandeController
     {
         // Récupérer l'utilisateur authentifié (via Middleware)
         $user = $request->getAttribute('user');
+        
         if (!$user || !isset($user->sub)) {
-            return Response::json(['error' => 'Non authentifié'], 401);
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
         }
         $userId = (int)$user->sub;
 
-        $data = $request->getBody();
+        $data = $request->getJsonBody();
 
         // Validation
         $errors = $this->commandeValidator->validateCreate($data);
         if (!empty($errors)) {
-            return Response::json(['errors' => $errors], 400);
+            return $this->jsonResponse(['errors' => $errors], 400);
         }
 
         try {
             $commandeId = $this->commandeService->createCommande($userId, $data);
             
-            return Response::json([
+            return $this->jsonResponse([
                 'success' => true,
                 'message' => 'Commande créée avec succès',
                 'id' => $commandeId
             ], 201);
 
         } catch (CommandeException $e) {
-            return Response::json(['error' => $e->getMessage()], $e->getCode() ?: 400);
+            return $this->jsonResponse(['error' => $e->getMessage()], $e->getCode() ?: 400);
         } catch (Exception $e) {
-            // Log error
-            return Response::json(['error' => 'Une erreur interne est survenue.'], 500);
+            return $this->jsonResponse(['error' => 'Une erreur interne est survenue: ' . $e->getMessage()], 500);
         }
     }
 
@@ -94,24 +106,40 @@ class CommandeController
     {
         $user = $request->getAttribute('user');
         if (!$user || !isset($user->sub)) {
-            return Response::json(['error' => 'Non authentifié'], 401);
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
         }
         $userId = (int)$user->sub;
 
-        // Note: Je devrais exposer une méthode findByUserId dans CommandeService qui appelle Repository
-        // Pour l'instant, je n'ai pas implémenté la méthode service, mais le Repo l'a.
-        // Généralement on ne bypass pas le Service. 
-        // Je vais supposer que je peux l'ajouter dans Service ou l'appeler via repo si pattern autorisé,
-        // mais cleaner d'avoir Service.
-        
-        // Pour ce POC, je renvoie une 501 Not Implemented ou j'ajoute la méthode dans Service rapidement.
-        // Le user m'a demandé la Feature Commande. "Visualiser l'ensemble des commandes" est pré-requis.
-        // Je vais faire un update rapide de CommandeService si je peux, sinon je laisse un TODO.
-        // Vu que c'est une 1ère passe, je vais laisser le contrôleur simple.
-        
-        return Response::json(['message' => 'Not implemented yet'], 501);
+        return $this->jsonResponse(['message' => 'Not implemented yet'], 501);
     }
     
+    /**
+     * Modification d'une commande par le client (PATCH)
+     * "Tout est modifiable, sauf le choix du menu" 
+     * Condition: Commande non encore "ACCEPTE" (ou statut avancé)
+     */
+    public function update(Request $request, int $id): Response
+    {
+        $user = $request->getAttribute('user');
+        if (!$user || !isset($user->sub)) {
+             return $this->jsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $data = $request->getJsonBody();
+
+        // Règle métier : Interdiction de modifier le menuId
+        if (isset($data['menuId']) || isset($data['menu_id'])) {
+             return $this->jsonResponse(['error' => 'Impossible de modifier le menu choisi.'], 400);
+        }
+
+        try {
+             $this->commandeService->updateCommande((int)$user->sub, $id, $data);
+             return $this->jsonResponse(['success' => true, 'message' => 'Commande mise à jour']);
+        } catch (Exception $e) {
+             return $this->jsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
+
     /**
      * Mise à jour du statut (Employé uniquement)
      */
@@ -119,24 +147,30 @@ class CommandeController
     {
         $user = $request->getAttribute('user');
         // Check role (devrait être fait aussi côté Service ou Middleware)
-        if ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR') {
-             return Response::json(['error' => 'Accès interdit'], 403);
+        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
+             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
         }
         
-        $data = $request->getBody();
+        $data = $request->getJsonBody();
         $status = $data['status'] ?? null;
         $motif = $data['motif'] ?? null;
         $modeContact = $data['modeContact'] ?? null;
 
         if (!$status) {
-            return Response::json(['error' => 'Statut manquant'], 400);
+            return $this->jsonResponse(['error' => 'Statut manquant'], 400);
+        }
+
+        // Règle métier : Annulation requiert motif et mode de contact
+        if ($status === 'ANNULE' && (empty($motif) || empty($modeContact))) {
+            return $this->jsonResponse(['error' => 'L\'annulation nécessite un motif et un mode de contact (GSM/Email).'], 400);
         }
 
         try {
-            $this->commandeService->updateStatus($user->sub, $id, $status, $motif, $modeContact);
-            return Response::json(['success' => true]);
+            $employeId = (int)$user->sub;
+            $this->commandeService->updateStatus($employeId, $id, $status, $motif, $modeContact);
+            return $this->jsonResponse(['success' => true]);
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 400);
+            return $this->jsonResponse(['error' => $e->getMessage()], 400);
         }
     }
 }
