@@ -935,6 +935,6 @@ Pour rendre les uploads persistants, vous devez utiliser le mécanisme de "Path 
     *   **Configuration options** : `Basic`
     *   **Storage Account** : (Celui créé à l'étape 1)
     *   **Share Name** : `vite-uploads`
-    *   **Mount Path** : `/var/www/html/public/assets/uploads`
+    *   **Mount Path** : `/var/www/vite_gourmand/public/assets/uploads`
 
 Ainsi, chaque image uploadée par l'application sera physiquement stockée dans le File Share Azure et survivra aux redémarrages.

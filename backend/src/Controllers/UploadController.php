@@ -51,8 +51,9 @@ class UploadController
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
         $filename = uniqid('menu_', true) . '.' . $extension;
         
-        // Chemin cible (Relatif au fichier actuel)
-        // S'adapte automatiquement à /var/www/html (Azure) ou /var/www/vite_gourmand (Local)
+        // Chemin cible (Relatif au working dir du script public/index.php, donc on remonte si besoin ou on vise public)
+        // Dans Docker, le working dir est /var/www/vite_gourmand
+        // Le script d'entrée est public/index.php
         $targetDir = __DIR__ . '/../../../public/assets/uploads/';
         
         if (!is_dir($targetDir)) {
