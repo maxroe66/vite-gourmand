@@ -57,7 +57,7 @@ class CommandeServiceTest extends TestCase
             'prix' => 100.0,
             'nombre_personne_min' => 5
         ]);
-        $this->menuRepo->method('findById')->willReturn($menu);
+        $this->menuRepo->method('findEntityById')->willReturn($menu);
 
         // Setup Distance (10km -> <20km -> gratuit si dans Bordeaux ou proche)
         // Mais règle : Frais si > 20km OU si pas Bordeaux selon implémentation.
@@ -86,7 +86,7 @@ class CommandeServiceTest extends TestCase
             'id_menu' => 1,
             'nombre_personne_min' => 10
         ]);
-        $this->menuRepo->method('findById')->willReturn($menu);
+        $this->menuRepo->method('findEntityById')->willReturn($menu);
 
         $this->expectException(CommandeException::class);
         // Message attendu contient "inférieur au minimum"
@@ -98,7 +98,7 @@ class CommandeServiceTest extends TestCase
     public function testCalculatePriceFraisLivraisonEloigne(): void
     {
         $menu = new \App\Models\Menu(['id_menu' => 1, 'prix' => 50, 'nombre_personne_min' => 1]);
-        $this->menuRepo->method('findById')->willReturn($menu);
+        $this->menuRepo->method('findEntityById')->willReturn($menu);
         
         $this->googleMapsService->method('getDistance')->willReturn(50.0);
 
@@ -117,7 +117,7 @@ class CommandeServiceTest extends TestCase
         // Spec dit: "Réduction 10% si > Min + 5 personnes".
         
         $menu = new \App\Models\Menu(['id_menu' => 1, 'prix' => 100, 'nombre_personne_min' => 5]);
-        $this->menuRepo->method('findById')->willReturn($menu);
+        $this->menuRepo->method('findEntityById')->willReturn($menu);
         $this->googleMapsService->method('getDistance')->willReturn(0.0); // 5€ frais
 
         // 10 personnes (>= 5+5=10) -> Reduction 10%
@@ -155,7 +155,7 @@ class CommandeServiceTest extends TestCase
         // Code might use it for insert?
         // Service creates array for repo->create?
         
-        $this->menuRepo->method('findById')->willReturn($menu);
+        $this->menuRepo->method('findEntityById')->willReturn($menu);
         $this->googleMapsService->method('getDistance')->willReturn(5.0);
         $this->commandeRepo->method('create')->willReturn(1001); // ID commande créée
 
