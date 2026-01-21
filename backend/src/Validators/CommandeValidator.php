@@ -46,8 +46,10 @@ class CommandeValidator
              $errors['heureLivraison'] = "L'heure de livraison est requise.";
         }
 
-        // GSM : Format simple check
-        if (!empty($data['gsm']) && !preg_match('/^[0-9+ ]{10,15}$/', $data['gsm'])) {
+        // GSM : Requis + Format simple check
+        if (empty($data['gsm'])) {
+             $errors['gsm'] = "Le numéro GSM est requis.";
+        } elseif (!preg_match('/^[0-9+ ]{10,15}$/', $data['gsm'])) {
              $errors['gsm'] = "Le numéro GSM est invalide.";
         }
 

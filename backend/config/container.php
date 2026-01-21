@@ -116,11 +116,15 @@ return function (array $config): ContainerInterface {
             return new \MongoDB\Client($mongoConfig['uri']);
         },
 
-        // 6. GoogleMapsService : on injecte la clé API depuis la config pour éviter le $_ENV hardcodé
+        // 6. GoogleMapsService
         App\Services\GoogleMapsService::class => function (ContainerInterface $c) {
             $apiKey = $c->get('config')['google_maps']['api_key'] ?? '';
             return new App\Services\GoogleMapsService($apiKey);
         },
+
+        // Injection explicite pour AvisService car il prend $config
+        App\Services\AvisService::class => DI\autowire()
+             ->constructorParameter('config', DI\get('config')),
 
         // Les autres classes comme `UserValidator` et `LoginValidator` sont maintenant
         // automatiquement instanciées et injectées grâce à l'autowiring car elles

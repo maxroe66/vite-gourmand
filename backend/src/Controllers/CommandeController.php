@@ -202,7 +202,8 @@ class CommandeController
         }
 
         // Règle métier : Annulation requiert motif et mode de contact
-        if ($status === 'ANNULE' && (empty($motif) || empty($modeContact))) {
+        // Correction : On vérifie 'ANNULEE' (enum DB) et 'ANNULE' (potentiel typo front)
+        if (($status === 'ANNULE' || $status === 'ANNULEE') && (empty($motif) || empty($modeContact))) {
             return $this->jsonResponse(['error' => 'L\'annulation nécessite un motif et un mode de contact (GSM/Email).'], 400);
         }
 

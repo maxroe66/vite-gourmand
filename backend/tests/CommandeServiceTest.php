@@ -183,4 +183,51 @@ class CommandeServiceTest extends TestCase
 
         $this->service->updateStatus($userId, $commandeId, $status);
     }
+
+    public function testGetOrderWithTimeline(): void
+    {
+        $userId = 1;
+        $commandeId = 100;
+
+        // Mock Commande
+        $commande = new \App\Models\Commande([
+            'userId' => $userId,
+            'menuId' => 1,
+            'statut' => 'EN_ATTENTE',
+            'datePrestation' => '2026-06-01',
+            'heureLivraison' => '12:00',
+            'adresseLivraison' => 'Paris',
+            'ville' => 'Paris',
+            'codePostal' => '75000',
+            'gsm' => '0600000000',
+            'nombrePersonnes' => 10,
+            'nombrePersonneMinSnapshot' => 5,
+            'prixMenuUnitaire' => 10,
+            'prixTotal' => 100
+        ]);
+        $commande->id = $commandeId;
+
+        $this->commandeRepo->method('findById')->willReturn($commande);
+
+        // Mock Timeline
+        $timeline = [
+            ['statut' => 'EN_ATTENTE', 'date_changement' => '2026-01-01', 'commentaire' => null, 'prenom' => 'Bob', 'role' => 'CLIENT']
+        ];
+        $this->commandeRepo->method('getTimeline')->willReturn($timeline);
+        
+        // Mock Materiels
+        $materiels = [
+            ['libelle' => 'Chaise', 'quantite' => 10, 'retourne' => false]
+        ];
+        $this->commandeRepo->expects($this->once())
+            ->method('getMateriels')
+            ->with($commandeId)
+            ->willReturn($materiels);
+
+        $result = $this->service->getOrderWithTimeline($userId, $commandeId);
+
+        $this->assertArrayHasKey('materiels', $result);
+        $this->assertEquals($materiels, $result['materiels']);
+        $this->assertEquals('EN_ATTENTE', $result['timeline'][0]['statut']);
+    }
 }

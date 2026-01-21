@@ -1,55 +1,98 @@
-// Carousel "Avis Clients" (mobile only)
-// Swipe natif via overflow-x, flèches pour faire défiler d'une carte.
+document.addEventListener('DOMContentLoaded', async () => {
+    const track = document.querySelector('.avis-clients__track');
+    if (!track) return;
 
-document.addEventListener('DOMContentLoaded', () => {
-  const isMobile = window.matchMedia && window.matchMedia('(max-width: 1024px)').matches;
-  if (!isMobile) return;
+    // Charger les avis
+    let reviews = [];
+    try {
+        const response = await fetch('/api/avis/public');
+        if (response.ok) {
+            const data = await response.json();
+            reviews = data.data || [];
+        }
+    } catch (e) {
+        console.error("Erreur chargement avis public", e);
+    }
 
-  const section = document.querySelector('.avis-clients');
-  if (!section) return;
+    if (reviews.length === 0) {
+        track.innerHTML = '<div class="avis-clients__empty">Aucun avis pour le moment.</div>';
+        return;
+    }
 
-  const list = section.querySelector('.avis-clients__list');
-  const prev = section.querySelector('.avis-clients__arrow--prev');
-  const next = section.querySelector('.avis-clients__arrow--next');
+    // Render avis - en respectant le style original (avis-clients__item)
+    track.innerHTML = reviews.map(review => {
+        const stars = renderStars(review.note); // ★★★★★
+        return `
+            <div class="avis-clients__item">
+                <p>${escapeHtml(review.commentaire)}</p>
+                <span>- Client vérifié <span class="avis-clients__stars">${stars}</span></span>
+            </div>
+        `;
+    }).join('');
 
-  if (!list || !prev || !next) return;
-
-  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-
-  function getGapPx() {
-    const styles = window.getComputedStyle(list);
-    const gap = styles.gap || styles.columnGap || '0px';
-    const parsed = Number.parseFloat(gap);
-    return Number.isFinite(parsed) ? parsed : 0;
-  }
-
-  function getStep() {
-    const card = list.querySelector('.avis-clients__item');
-    if (!card) return 0;
-    return card.getBoundingClientRect().width + getGapPx();
-  }
-
-  function updateDisabled() {
-    const maxScrollLeft = list.scrollWidth - list.clientWidth;
-    const atStart = list.scrollLeft <= 1;
-    const atEnd = list.scrollLeft >= maxScrollLeft - 1;
-    prev.disabled = atStart;
-    next.disabled = atEnd;
-  }
-
-  function scrollByCard(direction) {
-    const step = getStep();
-    if (!step) return;
-    list.scrollBy({
-      left: direction * step,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-    });
-  }
-
-  prev.addEventListener('click', () => scrollByCard(-1));
-  next.addEventListener('click', () => scrollByCard(1));
-  list.addEventListener('scroll', updateDisabled, { passive: true });
-
-  updateDisabled();
-  window.addEventListener('resize', updateDisabled);
+    initCarousel();
 });
+
+function renderStars(note) {
+    let stars = '';
+    for (let i = 0; i < 5; i++) {
+        // En texte comme dans l'exemple, ou FontAwesome si on veut ? 
+        // L'exemple utilisait ★ directement dans le HTML.
+        if (i < note) stars += '★';
+        else stars += '☆'; // Etoile vide optionnelle, ou rien
+    }
+    return stars;
+}
+
+function formatDate(isoStr) {
+    if (!isoStr) return '';
+    // MongoDB date usually returns a string with new DateTime in standard JSON
+    // But if coming from Mongo Driver directly it might be object
+    let date = new Date(isoStr);
+    if(isoStr && typeof isoStr === 'object' && isoStr.date) {
+         // PHP DateTime serialize
+         date = new Date(isoStr.date);
+    }
+    return date.toLocaleDateString('fr-FR');
+}
+
+function escapeHtml(text) {
+    if(!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function initCarousel() {
+    // Basic Carousel Logic
+    const list = document.querySelector('.avis-clients__list'); // Wrapper avec overflow
+    const track = document.querySelector('.avis-clients__track'); // Contenu
+    const items = document.querySelectorAll('.avis-clients__item');
+    const prevBtn = document.querySelector('.avis-clients__arrow--prev');
+    const nextBtn = document.querySelector('.avis-clients__arrow--next');
+    
+    if(!list || items.length === 0 || !prevBtn || !nextBtn) return;
+
+    let currentIndex = 0;
+    
+    // Adapt scroll amount based on item width
+    function getItemWidth() {
+         // items display inline-block or flex? 
+         // Le JS ne connait pas le style original s'il n'est pas chargé mais on suppose
+         // qu'on doit scroller d'un item à la fois.
+         const style = window.getComputedStyle(items[0]);
+         return items[0].offsetWidth + parseFloat(style.marginRight) + parseFloat(style.marginLeft);
+    }
+
+    nextBtn.addEventListener('click', () => {
+        // Simple scroll logic
+        list.scrollBy({ left: 300, behavior: 'smooth' }); // Valeur arbitraire si width inconnu, ou calculé
+    });
+
+    prevBtn.addEventListener('click', () => {
+        list.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+}

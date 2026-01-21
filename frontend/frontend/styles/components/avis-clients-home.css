@@ -46,17 +46,25 @@
 .avis-clients__list {
 	display: flex;
 	gap: var(--space-6);
-	flex-wrap: wrap;
-	justify-content: center;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	overflow-x: auto;
+	width: 100%;
+	-ms-overflow-style: none;  /* IE and Edge */
+	scrollbar-width: none;  /* Firefox */
+	padding-bottom: var(--space-2); /* avoid scrollbar overlap if any */
+}
+.avis-clients__list::-webkit-scrollbar {
+	display: none;
 }
 .avis-clients__item {
 	background: var(--color-bg-secondary);
 	border-radius: var(--radius-md);
 	box-shadow: 0 1px 6px rgba(44,62,80,0.08);
 	padding: var(--space-5);
-	min-width: 220px;
-	max-width: 320px;
-	flex: 1 1 220px;
+	min-width: 300px;
+	width: 300px;
+	flex: 0 0 auto;
 	color: var(--color-title-primary);
 	display: flex;
 	flex-direction: column;
@@ -77,16 +85,42 @@
 	font-size: 0.95em;
 }
 
-/* Éléments spécifiques maquette mobile — cachés par défaut (desktop inchangé) */
-.avis-clients__meta,
-.avis-clients__controls {
+/* Contrôles visibles par défaut (desktop inclus) */
+.avis-clients__meta {
 	display: none;
+}
+.avis-clients__controls {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	transform: translateY(-50%);
+	display: flex;
+	justify-content: space-between;
+	padding: 0 var(--space-4);
+	pointer-events: none;
+	z-index: 4;
 }
 
 .avis-clients__arrow {
-	border: none;
-	background: transparent;
-	color: inherit;
+	pointer-events: auto;
+	width: 44px;
+	height: 44px;
+	border-radius: 999px;
+	background: var(--color-primary);
+	color: #fff;
+	border: 1px solid var(--color-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	font-size: 1.5rem;
+	transition: all 0.2s;
+	z-index: 10;
+}
+.avis-clients__arrow:hover {
+	background: var(--color-primary-600);
+	border-color: var(--color-primary-600);
 }
 h3 {
 	font-size: var(--font-700);
@@ -173,101 +207,16 @@ h3 {
 		padding: var(--space-6) var(--space-5) var(--space-7);
 	}
 
-	.avis-clients > * {
-		margin-bottom: 0;
-	}
-
-	.avis-clients h3 {
-		text-align: left;
-		margin: 0;
-		font-size: var(--font-700);
-	}
-
-	.avis-clients__meta {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: var(--space-2);
-	}
-	.avis-clients__rating-line {
-		display: flex;
-		gap: var(--space-2);
-		align-items: baseline;
-	}
-	.avis-clients__rating {
-		font-size: var(--font-300);
-		font-weight: 700;
-		color: var(--color-title-secondary);
-	}
-	.avis-clients__count {
-		font-size: var(--font-300);
-		color: rgba(255,255,255,0.85);
-	}
-	.avis-clients__stars-row {
-		color: var(--color-warning);
-		letter-spacing: 1px;
-		font-size: 1rem;
-	}
-
-	/* Carousel horizontal swipe */
 	.avis-clients__list {
 		flex-wrap: nowrap;
 		justify-content: flex-start;
 		overflow-x: auto;
-		overflow-y: hidden;
-		-webkit-overflow-scrolling: touch;
-		scroll-snap-type: x mandatory;
 		gap: var(--space-4);
-		padding: var(--space-3) 2px;
 	}
-	.avis-clients__list::-webkit-scrollbar { display: none; }
-	.avis-clients__list { scrollbar-width: none; }
 
 	.avis-clients__item {
-		flex: 0 0 min(85%, 340px);
-		min-width: 0;
-		max-width: none;
-		background: var(--color-bg);
-		scroll-snap-align: center;
+		width: 300px;
+		flex: 0 0 300px;
 	}
-	.avis-clients__item p {
-		font-size: var(--font-300);
-		line-height: var(--lh-normal);
-	}
-
-	/* Étoiles visibles aussi dans chaque avis (inline) */
-	.avis-clients__item span {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-2);
-	}
-	.avis-clients__item .avis-clients__stars {
-		display: inline-block;
-		margin-bottom: 0;
-		font-size: 1rem;
-		line-height: 1;
-	}
-
-	/* Contrôles flèches en bas */
-	.avis-clients__controls {
-		display: flex;
-		justify-content: center;
-		gap: var(--space-5);
-		margin-top: var(--space-4);
-	}
-	.avis-clients__arrow {
-		width: 44px;
-		height: 44px;
-		border-radius: 999px;
-		background: var(--color-primary);
-		color: #fff;
-		box-shadow: 0 2px 8px rgba(44,62,80,0.18);
-		font-size: 1.75rem;
-		line-height: 1;
-		cursor: pointer;
-		transition: background var(--transition-fast), transform var(--transition-fast);
-	}
-	.avis-clients__arrow:hover { background: var(--color-primary-600); }
-	.avis-clients__arrow:active { transform: scale(0.96); }
 }
 

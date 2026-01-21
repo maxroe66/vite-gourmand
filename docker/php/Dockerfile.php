@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y \
 # Installer les extensions PHP requises pour le projet
 RUN docker-php-ext-install pdo pdo_mysql zip mbstring
 
-# Installer une version du driver MongoDB compatible avec PHP 8.0
-RUN pecl install mongodb && docker-php-ext-enable mongodb
+# Installer une version du driver MongoDB compatible et fixe (1.17.2 est stable et compatible PHP 8.1+)
+RUN pecl install mongodb-1.17.2 && docker-php-ext-enable mongodb
 
 # Installer Composer (gestionnaire de dépendances PHP)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
