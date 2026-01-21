@@ -10,6 +10,12 @@ $router->post('/admin/employees', function (ContainerInterface $container, array
     return $controller->createEmployee($request);
 });
 
+// Lister les employés
+$router->get('/admin/employees', function (ContainerInterface $container, array $params, Request $request) {
+    $controller = $container->get(AdminController::class);
+    return $controller->getEmployees($request);
+});
+
 // Désactiver un utilisateur
 $router->patch('/admin/users/{id}/disable', function (ContainerInterface $container, array $params, Request $request) {
     $controller = $container->get(AdminController::class);

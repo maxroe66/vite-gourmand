@@ -95,6 +95,24 @@ class AdminController
     }
 
     /**
+     * Liste des employés
+     * GET /api/admin/employees
+     */
+    public function getEmployees(Request $request): Response
+    {
+        $accessCheck = $this->checkAdminAccess($request);
+        if ($accessCheck) return $accessCheck;
+
+        try {
+            $employees = $this->userService->getEmployees();
+            return (new Response())->setJsonContent($employees);
+        } catch (\Exception $e) {
+            return (new Response())->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+                ->setJsonContent(['error' => 'Erreur lors de la récupération des employés.']);
+        }
+    }
+
+    /**
      * Désactiver un compte utilisateur
      * PATCH /api/admin/users/{id}/disable
      */
