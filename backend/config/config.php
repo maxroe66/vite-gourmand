@@ -150,6 +150,11 @@ if (empty($jwtSecret) || $jwtSecret === '<placeholder>') {
  */
 $frontendOrigin = $env('FRONTEND_ORIGIN', 'http://localhost:8000');
 
+/**
+ * Google Maps API Key
+ */
+$googleMapsApiKey = $env('GOOGLE_MAPS_API_KEY', '');
+
 return [
     'db' => [
         'dsn' => "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
@@ -184,4 +189,9 @@ return [
     'app_url' => $env('APP_URL', $frontendOrigin),
     'env' => $appEnv,
     'debug' => (string)$appDebugRaw === 'true',
+    
+    // Services Tiers
+    'google_maps' => [
+        'api_key' => $googleMapsApiKey,
+    ],
 ];

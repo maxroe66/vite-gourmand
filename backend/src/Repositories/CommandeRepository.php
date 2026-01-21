@@ -360,4 +360,42 @@ class CommandeRepository
             'dateRetourMateriel' => $row['date_retour_materiel'],
         ];
     }
+
+    /**
+     * Recherche avancée pour le dashboard employé.
+     * @param array $filters ['status' => 'EN_ATTENTE', 'userId' => 12, 'date' => '2023-10-10']
+     */
+    public function findByFilters(array $filters): array
+    {
+        // Note: La table COMMANDE a déjà une colonne 'statut' (dénormalisée / snapshot)
+        // On peut l'utiliser directement pour la performance plutôt que de joindre COMMANDE_STATUT
+        $sql = "SELECT * FROM COMMANDE WHERE 1=1";
+        $params = [];
+
+        if (!empty($filters['status'])) {
+            $sql .= " AND statut = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        if (!empty($filters['userId'])) {
+            $sql .= " AND id_client = :userId";
+            $params[':userId'] = $filters['userId'];
+        }
+
+        if (!empty($filters['date'])) {
+            $sql .= " AND DATE(date_prestation) = :date";
+            $params[':date'] = $filters['date'];
+        }
+
+        $sql .= " ORDER BY date_prestation DESC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $commandes = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $commandes[] = $this->mapToModel($row);
+        }
+        return $commandes;
+    }
 }

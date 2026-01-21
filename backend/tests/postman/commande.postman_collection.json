@@ -2,12 +2,12 @@
 	"info": {
 		"_postman_id": "c0mm4nd3-1234-5678-9abc-def012345678",
 		"name": "vite & gourmand - commandes",
-		"description": "Collection de tests pour le module de Gestion des Commandes\n- Simulation de prix\n- Création de commande\n- Workflow de statut (Employé)",
+		"description": "Collection de tests pour le module de Gestion des Commandes\n- Simulation de prix\n- Cr\u00e9ation de commande\n- Workflow de statut (Employ\u00e9)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "0. Login (Pré-requis)",
+			"name": "0. Login (Pr\u00e9-requis)",
 			"event": [
 				{
 					"listen": "test",
@@ -45,23 +45,23 @@
 						"login"
 					]
 				},
-				"description": "Authentifie l'utilisateur pour obtenir le cookie httpOnly nécessaire aux commandes."
+				"description": "Authentifie l'utilisateur pour obtenir le cookie httpOnly n\u00e9cessaire aux commandes."
 			},
 			"response": []
 		},
 		{
-			"name": "1. Simuler Prix (Succès - Bordeaux)",
+			"name": "1. Simuler Prix (Succ\u00e8s - Bordeaux)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Calcul Réussi\", function () {",
+							"pm.test(\"Calcul R\u00e9ussi\", function () {",
 							"    pm.response.to.have.status(200);",
 							"});",
 							"",
 							"const jsonData = pm.response.json();",
-							"pm.test(\"Valeurs cohérentes\", function () {",
+							"pm.test(\"Valeurs coh\u00e9rentes\", function () {",
 							"    pm.expect(jsonData.prixMenuTotal).to.be.above(0);",
 							"    pm.expect(jsonData.prixTotal).to.be.above(jsonData.prixMenuTotal);",
 							"    // Bordeaux = 0km ou proche",
@@ -99,7 +99,7 @@
 			"response": []
 		},
 		{
-			"name": "2. Simuler Prix (Erreur - Qté Insuffisante)",
+			"name": "2. Simuler Prix (Erreur - Qt\u00e9 Insuffisante)",
 			"event": [
 				{
 					"listen": "test",
@@ -111,7 +111,7 @@
 							"",
 							"const jsonData = pm.response.json();",
 							"pm.test(\"Message d'erreur explicite\", function () {",
-							"    pm.expect(jsonData.error).to.contain(\"inférieur au minimum\");",
+							"    pm.expect(jsonData.error).to.contain(\"inf\u00e9rieur au minimum\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -145,13 +145,13 @@
 			"response": []
 		},
 		{
-			"name": "3. Commander (Succès)",
+			"name": "3. Commander (Succ\u00e8s)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Création Succès 201\", function () {",
+							"pm.test(\"Cr\u00e9ation Succ\u00e8s 201\", function () {",
 							"    pm.response.to.have.status(201);",
 							"});",
 							"",
@@ -198,14 +198,14 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Modification Succès 200\", function () {",
+							"pm.test(\"Modification Succ\u00e8s 200\", function () {",
 							"    pm.response.to.have.status(200);",
 							"});",
 							"",
 							"pm.test(\"Confirmation explicite\", function () {",
 							"    const jsonData = pm.response.json();",
 							"    pm.expect(jsonData.success).to.be.true;",
-							"    pm.expect(jsonData.message).to.contain(\"mise à jour\");",
+							"    pm.expect(jsonData.message).to.contain(\"mise \u00e0 jour\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -222,7 +222,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"nombrePersonnes\": 25,\n    \"remarques\": \"(Champ ignoré si inexistant, mais test de robustesse)\"\n}"
+					"raw": "{\n    \"nombrePersonnes\": 25,\n    \"remarques\": \"(Champ ignor\u00e9 si inexistant, mais test de robustesse)\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/commandes/{{last_order_id}}",
@@ -235,7 +235,7 @@
 						"{{last_order_id}}"
 					]
 				},
-				"description": "Le client modifie sa commande (ex: nbre personnes) tant qu'elle n'est pas acceptée."
+				"description": "Le client modifie sa commande (ex: nbre personnes) tant qu'elle n'est pas accept\u00e9e."
 			},
 			"response": []
 		},
@@ -277,7 +277,7 @@
 						"{{last_order_id}}"
 					]
 				},
-				"description": "Vérifie la règle métier : 'Tout est modifiable, sauf le choix du menu'."
+				"description": "V\u00e9rifie la r\u00e8gle m\u00e9tier : 'Tout est modifiable, sauf le choix du menu'."
 			},
 			"response": []
 		},
@@ -288,12 +288,12 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Annulation Succès 200\", function () {",
+							"pm.test(\"Annulation Succ\u00e8s 200\", function () {",
 							"    pm.response.to.have.status(200);",
 							"});",
 							"",
-							"pm.test(\"Statut changé\", function () {",
-							"    // On vérifie (idéalement il faudrait un GET pour confirmer, mais le 200 suffit ici)",
+							"pm.test(\"Statut chang\u00e9\", function () {",
+							"    // On v\u00e9rifie (id\u00e9alement il faudrait un GET pour confirmer, mais le 200 suffit ici)",
 							"    const jsonData = pm.response.json();",
 							"    pm.expect(jsonData.success).to.be.true;",
 							"});"
@@ -336,7 +336,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Accès Interdit 403 pour utilisateur Lambda\", function () {",
+							"pm.test(\"Acc\u00e8s Interdit 403 pour utilisateur Lambda\", function () {",
 							"    pm.response.to.have.status(403);",
 							"});"
 						],
@@ -354,7 +354,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"status\": \"EN_PREPARATION\",\n    \"motif\": \"Ça part en cuisine\"\n}"
+					"raw": "{\n    \"status\": \"EN_PREPARATION\",\n    \"motif\": \"\u00c7a part en cuisine\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/commandes/{{last_order_id}}/status",
@@ -368,18 +368,18 @@
 						"status"
 					]
 				},
-				"description": "Vérifie qu'un utilisateur classique ne peut pas modifier un statut."
+				"description": "V\u00e9rifie qu'un utilisateur classique ne peut pas modifier un statut."
 			},
 			"response": []
 		},
 		{
-			"name": "5. Login (Employé)",
+			"name": "5. Login (Employ\u00e9)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Login Employé Successful\", function () {",
+							"pm.test(\"Login Employ\u00e9 Successful\", function () {",
 							"    pm.response.to.have.status(200);",
 							"    pm.expect(pm.cookies.has('authToken')).to.be.true;",
 							"    const jsonData = pm.response.json();",
@@ -417,13 +417,13 @@
 			"response": []
 		},
 		{
-			"name": "6. Update Statut (Succès - Employé)",
+			"name": "6. Update Statut (Succ\u00e8s - Employ\u00e9)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Mise à jour statut par Employé\", function () {",
+							"pm.test(\"Mise \u00e0 jour statut par Employ\u00e9\", function () {",
 							"    pm.response.to.have.status(200);",
 							"});",
 							"",
@@ -460,7 +460,7 @@
 						"status"
 					]
 				},
-				"description": "L'employé Julie passe la commande en préparation."
+				"description": "L'employ\u00e9 Julie passe la commande en pr\u00e9paration."
 			},
 			"response": []
 		},
@@ -503,12 +503,12 @@
 						"login"
 					]
 				},
-				"description": "Retour sur le compte client pour vérifier l'impossibilité de modifier."
+				"description": "Retour sur le compte client pour v\u00e9rifier l'impossibilit\u00e9 de modifier."
 			},
 			"response": []
 		},
 		{
-			"name": "8. Modifier Commande (Interdit - Statut Avancé)",
+			"name": "8. Modifier Commande (Interdit - Statut Avanc\u00e9)",
 			"event": [
 				{
 					"listen": "test",
@@ -547,7 +547,7 @@
 						"{{last_order_id}}"
 					]
 				},
-				"description": "Essaie de modifier une commande qui est déjà EN_PREPARATION."
+				"description": "Essaie de modifier une commande qui est d\u00e9j\u00e0 EN_PREPARATION."
 			},
 			"response": []
 		},
@@ -590,12 +590,12 @@
 						"commandes"
 					]
 				},
-				"description": "Tente de commander pour une date passée ou trop proche (< 24h)."
+				"description": "Tente de commander pour une date pass\u00e9e ou trop proche (< 24h)."
 			},
 			"response": []
 		},
 		{
-			"name": "10. Validation - Données Incomplètes",
+			"name": "10. Validation - Donn\u00e9es Incompl\u00e8tes",
 			"event": [
 				{
 					"listen": "test",
@@ -638,7 +638,7 @@
 			"response": []
 		},
 		{
-			"name": "11. Métier - Menu Inconnu",
+			"name": "11. M\u00e9tier - Menu Inconnu",
 			"event": [
 				{
 					"listen": "test",
@@ -680,15 +680,15 @@
 			"response": []
 		},
 		{
-			"name": "12. Sécurité - Accès sans Auth",
+			"name": "12. S\u00e9curit\u00e9 - Acc\u00e8s sans Auth",
 			"event": [
 				{
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-                            "// Force l'envoi d'un cookie invalide et clean le jar",
-                            "const jar = pm.cookies.jar();",
-                            "jar.clear(\"localhost\");"
+							"// Force l'envoi d'un cookie invalide et clean le jar",
+							"const jar = pm.cookies.jar();",
+							"jar.clear(\"localhost\");"
 						],
 						"type": "text/javascript"
 					}
@@ -697,7 +697,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Erreur 401 - Non Authentifié\", function () {",
+							"pm.test(\"Erreur 401 - Non Authentifi\u00e9\", function () {",
 							"    pm.response.to.have.status(401);",
 							"});"
 						],
@@ -708,12 +708,12 @@
 			"request": {
 				"method": "POST",
 				"header": [
-                    {
-                        "key": "Cookie",
-                        "value": "authToken=invalid_token_value; path=/;",
-                        "type": "text"
-                    }
-                ],
+					{
+						"key": "Cookie",
+						"value": "authToken=invalid_token_value; path=/;",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": ""
@@ -728,7 +728,136 @@
 						"commandes"
 					]
 				},
-				"description": "Tentative de création sans cookie de session."
+				"description": "Tentative de cr\u00e9ation sans cookie de session."
+			},
+			"response": []
+		},
+		{
+			"name": "12b. Login (Employ\u00e9 - Pr\u00e9-requis)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login Employ\u00e9 Successful\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"julie@vite-gourmand.fr\",\n    \"password\": \"Password123!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "13. Gestion Mat\u00e9riel (Employ\u00e9)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ajout Mat\u00e9riel Successful 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\"id\": 1, \"quantite\": 2}]"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/commandes/{{last_order_id}}/material",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"commandes",
+						"{{last_order_id}}",
+						"material"
+					]
+				},
+				"description": "L'employ\u00e9 ajoute du mat\u00e9riel \u00e0 la commande."
+			},
+			"response": []
+		},
+		{
+			"name": "14. Filters Dashboard (Employ\u00e9)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Recherche Successful 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Retourne une liste\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/commandes?status=EN_PREPARATION",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"commandes"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "EN_PREPARATION"
+						}
+					]
+				},
+				"description": "Recherche de commandes filtr\u00e9es par statut."
 			},
 			"response": []
 		}

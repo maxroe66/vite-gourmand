@@ -14,7 +14,8 @@
         "monolog/monolog": "^3.9",
         "firebase/php-jwt": "^7.0",
         "php-di/php-di": "^7.1",
-        "phpmailer/phpmailer": "^7.0"
+        "phpmailer/phpmailer": "^7.0",
+        "mongodb/mongodb": "^2.1"
     },
     "autoload": {
         "psr-4": {

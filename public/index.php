@@ -111,6 +111,13 @@ try {
     error_log('LOG_FILE=' . getenv('LOG_FILE'));
     $response = $router->dispatch($method, $path, $container);
 
+} catch (\App\Exceptions\AuthException $e) {
+    $response = (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                               ->setJsonContent([
+                                   'success' => false,
+                                   'message' => $e->getMessage()
+                               ]);
+
 } catch (\Exception $e) {
     // Gestion centralisée des erreurs non capturées
     $logger = $container->get(LoggerInterface::class);
