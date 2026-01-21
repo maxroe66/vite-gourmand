@@ -918,3 +918,23 @@ docker-compose exec mysql tail -f /var/log/mysql/slow.log
 **Status :** ✅ Production-Ready  
 **Last Updated :** 11 décembre 2025
 
+
+## ☁️ Persistance des FICHIERS sur Azure (Web App for Containers)
+
+⚠️ **IMPORTANT** : Sur Azure App Service (Docker), le système de fichiers est **éphémère**. Tout fichier uploadé dans le dossier `/var/www/vite_gourmand/public/assets/uploads` (ex: images des menus) sera perdu au redémarrage du conteneur.
+
+### Solution : Monter un Azure File Share
+
+Pour rendre les uploads persistants, vous devez utiliser le mécanisme de "Path Mappings" d'Azure.
+
+1.  **Créer un Storage Account** dans le même Resource Group que votre App Service.
+2.  **Créer un File Share** (exemple: `vite-uploads`) dans ce Storage Account.
+3.  **Configurer le Path Mapping** dans Azure Portal :
+    *   Allez dans votre **App Service** > **Configuration** > **Path mappings** > **New Azure Storage Mount**.
+    *   **Name** : `uploads` (arbitraire)
+    *   **Configuration options** : `Basic`
+    *   **Storage Account** : (Celui créé à l'étape 1)
+    *   **Share Name** : `vite-uploads`
+    *   **Mount Path** : `/var/www/html/public/assets/uploads`
+
+Ainsi, chaque image uploadée par l'application sera physiquement stockée dans le File Share Azure et survivra aux redémarrages.
