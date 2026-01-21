@@ -33,6 +33,53 @@ class CommandeService
     }
 
     /**
+     * Récupère les détails d'une commande avec sa timeline pour l'affichage.
+     * Vérifie que l'utilisateur est autorisé.
+     */
+    public function getOrderWithTimeline(int $userId, int $commandeId): array
+    {
+        $commande = $this->commandeRepository->findById($commandeId);
+        
+        if (!$commande) {
+            throw CommandeException::notFound($commandeId);
+        }
+
+        // Vérification autorisation
+        if ($commande->userId !== $userId) {
+             throw new CommandeException("Accès refusé à cette commande.", 403);
+        }
+
+        $timeline = $this->commandeRepository->getTimeline($commandeId);
+
+        return [
+            'commande' => $commande,
+            'timeline' => array_map(function($event) {
+                return [
+                    'statut' => $event['statut'],
+                    'date' => $event['date_changement'],
+                    'commentaire' => $event['commentaire'],
+                    'acteur' => ($event['prenom'] ?? 'Système'),
+                    'role' => $event['role'] ?? 'SYSTEME'
+                ];
+            }, $timeline),
+            'actions' => $this->getAvailableActions($commande)
+        ];
+    }
+    
+    private function getAvailableActions(Commande $commande): array
+    {
+        $actions = [];
+        if ($commande->statut === Commande::STATUS_EN_ATTENTE) {
+            $actions[] = 'annuler';
+            $actions[] = 'modifier';
+        }
+        if ($commande->canBeReviewed()) {
+            $actions[] = 'donner_avis';
+        }
+        return $actions;
+    }
+
+    /**
      * Calcule le prix total d'une commande potentielle.
      * @return array [prixMenu, reduction, fraisLivraison, total, details]
      * @throws CommandeException
@@ -154,6 +201,15 @@ class CommandeService
         }
 
         return $commandeId;
+    }
+
+    /**
+     * Récupère toutes les commandes d'un utilisateur.
+     * @return Commande[]
+     */
+    public function getUserOrders(int $userId): array
+    {
+        return $this->commandeRepository->findAllByUserId($userId);
     }
 
     /**
