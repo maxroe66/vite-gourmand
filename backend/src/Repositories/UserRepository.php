@@ -50,6 +50,24 @@ class UserRepository
     }
 
     /**
+     * Trouve tous les utilisateurs ayant un rôle spécifique
+     * @param string $role
+     * @return array
+     */
+    public function findAllByRole(string $role): array
+    {
+        $stmt = $this->pdo->prepare('
+            SELECT id_utilisateur AS id, email, prenom, nom, gsm, 
+                   role, actif, date_creation 
+            FROM UTILISATEUR 
+            WHERE role = :role
+            ORDER BY nom, prenom
+        ');
+        $stmt->execute(['role' => $role]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Crée un nouvel utilisateur en base de données.
      * @param array $data
      * @return int L'ID du nouvel utilisateur.

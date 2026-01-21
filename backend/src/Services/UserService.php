@@ -68,6 +68,15 @@ class UserService
     }
 
     /**
+     * Récupère la liste des employés
+     * @return array
+     */
+    public function getEmployees(): array
+    {
+        return $this->userRepository->findAllByRole('EMPLOYE');
+    }
+
+    /**
      * Désactive un compte utilisateur (soft delete)
      * @param int $id
      * @throws UserServiceException
