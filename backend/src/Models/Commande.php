@@ -16,6 +16,7 @@ class Commande
     public string $ville;
     public string $codePostal;
     public string $gsm;
+    public ?string $remarques = null;
     
     // Tarification (Snapshots)
     public int $nombrePersonnes;
