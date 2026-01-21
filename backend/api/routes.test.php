@@ -11,9 +11,9 @@ use Psr\Container\ContainerInterface;
 // ATTENTION: A n'activer qu'en environnement de test !
 $router->get('/test/latest-reset-token', function (ContainerInterface $container, array $params, Request $request) {
     try {
-        // Sécurité : vérifier qu'on est bien en environnement de test
+        // Sécurité : vérifier qu'on est bien en environnement de test ou de développement
         $config = $container->get('config');
-        if (($config['env'] ?? 'production') !== 'test') {
+        if (!in_array(($config['env'] ?? 'production'), ['test', 'development'])) {
             return (new Response())->setStatusCode(Response::HTTP_FORBIDDEN)
                                   ->setJsonContent(['error' => 'Endpoint accessible en environnement de test uniquement.']);
         }

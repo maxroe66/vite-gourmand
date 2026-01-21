@@ -344,6 +344,7 @@ class AuthController
                                   ->setJsonContent([
                                       'success' => true,
                                       'userId' => $user['id'],
+                                      'token' => $token,
                                       'message' => 'Connexion réussie.'
                                   ]);
 
@@ -438,12 +439,24 @@ class AuthController
         $decodedToken = $request->getAttribute('user');
 
         if ($decodedToken) {
+            // Récupérer les infos fraîches de l'utilisateur
+            $user = $this->userService->getUserById($decodedToken->sub);
+            
+            if (!$user) {
+                // Token valide mais utilisateur supprimé ??
+                return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                                      ->setJsonContent(['isAuthenticated' => false]);
+            }
+
             return (new Response())->setStatusCode(Response::HTTP_OK)
                                   ->setJsonContent([
                                       'isAuthenticated' => true,
                                       'user' => [
-                                          'id' => $decodedToken->sub, // 'sub' est le standard pour l'ID utilisateur
-                                          'role' => $decodedToken->role
+                                          'id' => $user['id'],
+                                          'email' => $user['email'],
+                                          'prenom' => $user['prenom'],
+                                          'nom' => $user['nom'],
+                                          'role' => $user['role']
                                       ]
                                   ]);
         }

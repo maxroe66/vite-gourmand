@@ -86,7 +86,7 @@ class CommandeService
      */
     public function calculatePrice(int $menuId, int $nombrePersonnes, string $adresseLivraison): array
     {
-        $menu = $this->menuRepository->findById($menuId);
+        $menu = $this->menuRepository->findEntityById($menuId);
         if (!$menu) {
             throw CommandeException::menuNotFound($menuId);
         }
@@ -183,9 +183,9 @@ class CommandeService
         // 5. Mise à jour Stock Menu (Si le stock est géré par nombre de commandes ?)
         // L'énoncé dit "Stock disponible (par exemple, il reste 5 commande possible de ce menu)"
         // Donc on décrémente de 1 le stock du menu.
-        $menu = $this->menuRepository->findById($data['menuId']);
-        if ($menu->stockDisponible > 0) {
-            $this->menuRepository->updateStock($menu->id, $menu->stockDisponible - 1);
+        $menu = $this->menuRepository->findEntityById($data['menuId']);
+        if ($menu && $menu->stockDisponible > 0) {
+            $this->menuRepository->decrementStock($menu->id, 1);
         }
 
         // 6. Sync MongoDB (Analytique - Best Effort)

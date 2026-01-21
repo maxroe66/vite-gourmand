@@ -5,6 +5,7 @@ namespace App\Core;
 use App\Core\Request;
 use App\Core\Response;
 use App\Exceptions\AuthException;
+use App\Exceptions\ForbiddenException;
 use Psr\Container\ContainerInterface;
 
 class Router
@@ -29,11 +30,16 @@ class Router
 
     /**
      * Attache une classe de middleware à la dernière route ajoutée.
+     * @param string $middlewareClass
+     * @param array $args Arguments optionnels à passer au middleware
      */
-    public function middleware(string $middlewareClass): self
+    public function middleware(string $middlewareClass, array $args = []): self
     {
         if ($this->lastRouteKey) {
-            $this->routes[$this->lastRouteKey['method']][$this->lastRouteKey['path']]['middlewares'][] = $middlewareClass;
+            $this->routes[$this->lastRouteKey['method']][$this->lastRouteKey['path']]['middlewares'][] = [
+                'class' => $middlewareClass,
+                'args' => $args
+            ];
         }
         return $this;
     }
@@ -91,14 +97,28 @@ class Router
 
                 // Exécution des middlewares
                 try {
-                    foreach ($route['middlewares'] as $middlewareClass) {
+                    foreach ($route['middlewares'] as $middlewareConfig) {
+                        // Rétrocompatibilité ou format normalisé
+                        if (is_string($middlewareConfig)) {
+                            $middlewareClass = $middlewareConfig;
+                            $args = [];
+                        } else {
+                            $middlewareClass = $middlewareConfig['class'];
+                            $args = $middlewareConfig['args'];
+                        }
+
                         $middleware = $container->get($middlewareClass);
-                        // On passe l'objet Request au middleware pour qu'il puisse l'enrichir
-                        $middleware->handle($request);
+                        // On passe l'objet Request au middleware et les arguments éventuels
+                        // Note: les middlewares doivent accepter ces arguments optionnels
+                        $middleware->handle($request, $args);
                     }
                 } catch (AuthException $e) {
                     // Exception d'authentification : on retourne une réponse 401
                     return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                                          ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
+                } catch (ForbiddenException $e) {
+                    // Exception d'autorisation (rôle) : on retourne une réponse 403
+                    return (new Response())->setStatusCode(Response::HTTP_FORBIDDEN)
                                           ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
                 } catch (\Exception $e) {
                     // Autres exceptions : on retourne une réponse 500

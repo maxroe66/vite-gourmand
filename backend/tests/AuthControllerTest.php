@@ -522,6 +522,19 @@ class AuthControllerTest extends TestCase
 
         $request->setAttribute('user', $tokenData);
 
+        // Mock: getUserById retourne l'utilisateur
+        $this->userServiceMock
+            ->expects($this->once())
+            ->method('getUserById')
+            ->with($this->equalTo(25))
+            ->willReturn([
+                'id' => 25,
+                'email' => 'admin@test.com',
+                'prenom' => 'Admin',
+                'nom' => 'User',
+                'role' => 'ADMIN'
+            ]);
+
         // Act
         $response = $this->authController->checkAuth($request);
         $result = json_decode($response->getContent(), true);

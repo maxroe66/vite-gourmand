@@ -26,9 +26,11 @@ class AuthMiddleware
     /**
      * Exécute la logique du middleware.
      * Enrichit l'objet Request avec les données utilisateur si le token est valide.
+     * @param Request $request
+     * @param array $args Arguments optionnels (non utilisés ici)
      * @throws AuthException si l'authentification échoue.
      */
-    public function handle(Request $request): void
+    public function handle(Request $request, array $args = []): void
     {
         // 1. Récupérer le token (cookie ou header)
         $token = $this->getTokenFromRequest();

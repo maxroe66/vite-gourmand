@@ -55,4 +55,15 @@ class UserService
         // PDO::fetch() retourne false si aucune ligne trouvée, on le convertit en null
         return $result === false ? null : $result;
     }
+
+    /**
+     * Trouve un utilisateur par ID
+     * @param int $id
+     * @return array|null
+     */
+    public function getUserById(int $id): ?array
+    {
+        $result = $this->userRepository->findById($id);
+        return $result === false ? null : $result;
+    }
 }

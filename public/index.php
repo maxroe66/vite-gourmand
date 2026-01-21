@@ -5,7 +5,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/../backend/vendor/autoload.php';
 
 // 2) Chargement des variables d'environnement
-if (file_exists(__DIR__ . '/../.env.azure')) {
+// On vérifie d'abord si APP_ENV est défini (ex: via serveur web ou CLI)
+$appEnv = getenv('APP_ENV');
+
+if ($appEnv === 'test' && file_exists(__DIR__ . '/../.env.test')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.test');
+    $dotenv->load();
+} elseif (file_exists(__DIR__ . '/../.env.azure')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.azure');
     $dotenv->load();
 } elseif (file_exists(__DIR__ . '/../.env')) {
@@ -78,8 +84,8 @@ $router->addGroup('/api', function ($router) use ($container, $config) {
     require __DIR__ . '/../backend/api/routes.commandes.php';
     require __DIR__ . '/../backend/api/routes.avis.php';
 
-    // Charger les routes de test uniquement si on est en environnement de test
-    if (($config['env'] ?? 'production') === 'test') {
+    // Charger les routes de test uniquement si on est en environnement de test ou développement
+    if (in_array(($config['env'] ?? 'production'), ['test', 'development'])) {
         require __DIR__ . '/../backend/api/routes.test.php';
     }
 });
