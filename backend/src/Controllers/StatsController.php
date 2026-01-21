@@ -41,19 +41,47 @@ class StatsController
         try {
             $collection = $this->mongoDBClient->selectCollection('vite_et_gourmand', 'statistiques_commandes');
             
+            $pipeline = [];
+
+            // Filtrage par date et par menu si paramètres fournis
+            $startDate = $request->getQueryParam('startDate');
+            $endDate = $request->getQueryParam('endDate');
+            $menuId = $request->getQueryParam('menuId');
+
+            $matchRule = [];
+
+            if ($startDate || $endDate) {
+                $dateMatch = [];
+                if ($startDate) {
+                    $dateMatch['$gte'] = $startDate . ' 00:00:00';
+                }
+                if ($endDate) {
+                    $dateMatch['$lte'] = $endDate . ' 23:59:59';
+                }
+                $matchRule['dateCommande'] = $dateMatch;
+            }
+
+            if ($menuId) {
+                // menuId est stocké en int dans MongoDB (cf. CommandeService sync)
+                $matchRule['menuId'] = (int)$menuId;
+            }
+
+            if (!empty($matchRule)) {
+                $pipeline[] = ['$match' => $matchRule];
+            }
+
             // Agrégation : Total CA et Nombre commandes par Menu
-            $pipeline = [
-                [
-                    '$group' => [
-                        '_id' => '$menuId',
-                        'totalCommandes' => ['$sum' => 1],
-                        'chiffreAffaires' => ['$sum' => '$prixTotal'],
-                        'nombrePersonnesTotal' => ['$sum' => '$nombrePersonnes']
-                    ]
-                ],
-                [
-                    '$sort' => ['chiffreAffaires' => -1]
+            $pipeline[] = [
+                '$group' => [
+                    '_id' => '$menuId',
+                    'totalCommandes' => ['$sum' => 1],
+                    'chiffreAffaires' => ['$sum' => '$prixTotal'],
+                    'nombrePersonnesTotal' => ['$sum' => '$nombrePersonnes']
                 ]
+            ];
+            
+            $pipeline[] = [
+                '$sort' => ['chiffreAffaires' => -1]
             ];
 
             $results = $collection->aggregate($pipeline);

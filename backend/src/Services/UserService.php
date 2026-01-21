@@ -66,4 +66,19 @@ class UserService
         $result = $this->userRepository->findById($id);
         return $result === false ? null : $result;
     }
+
+    /**
+     * Désactive un compte utilisateur (soft delete)
+     * @param int $id
+     * @throws UserServiceException
+     */
+    public function disableUser(int $id): void
+    {
+        try {
+            $this->userRepository->updateActif($id, false);
+        } catch (PDOException $e) {
+            $this->logger->error('Erreur PDO lors de la désactivation utilisateur', ['$id' => $id, 'error' => $e->getMessage()]);
+            throw new UserServiceException("Erreur lors de la désactivation de l'utilisateur.");
+        }
+    }
 }

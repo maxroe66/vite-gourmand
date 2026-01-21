@@ -192,4 +192,61 @@ class MailerService
             return false;
         }
     }
+
+    /**
+     * Envoie l'email de notification de création de compte employé
+     * @param string $email
+     * @param string $firstName
+     * @return bool
+     */
+    public function sendEmployeeAccountCreated(string $email, string $firstName): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) {
+                $this->logger->warning('Configuration SMTP manquante', ['email' => $email]);
+                return false;
+            }
+
+            $mail = $this->createMailer();
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = [
+                    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]
+                ];
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand RH');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '💼 Vite & Gourmand - Votre compte employé est prêt';
+
+            $templatePath = __DIR__ . '/../../templates/emails/employee_welcome.html';
+            if (file_exists($templatePath)) {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace(['{firstName}', '{email}'], [htmlspecialchars($firstName), htmlspecialchars($email)], $htmlBody);
+                $mail->Body = $htmlBody;
+            } else {
+                $mail->Body = "Bonjour $firstName, votre compte employé a été créé. Identifiant: $email. Demandez votre mot de passe à l'admin.";
+            }
+
+            $mail->AltBody = "Bonjour $firstName,\n\nVotre compte employé a été créé.\nIdentifiant: $email\n\nMerci de contacter l'administrateur pour obtenir votre mot de passe.\n\nL'équipe Vite & Gourmand";
+
+            $mail->send();
+            $this->logger->info('Email employé envoyé', ['email' => $email]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur envoi email employé: {$e->getMessage()}", ['email' => $email]);
+            return false;
+        }
+    }
 }
