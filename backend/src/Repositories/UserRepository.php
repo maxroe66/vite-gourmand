@@ -89,4 +89,18 @@ class UserRepository
             'id' => $userId
         ]);
     }
+
+    /**
+     * Active ou désactive un utilisateur
+     * @param int $userId
+     * @param bool $actif
+     */
+    public function updateActif(int $userId, bool $actif): void
+    {
+        $stmt = $this->pdo->prepare("UPDATE UTILISATEUR SET actif = :actif WHERE id_utilisateur = :id");
+        $stmt->execute([
+            'actif' => $actif ? 1 : 0,
+            'id' => $userId
+        ]);
+    }
 }

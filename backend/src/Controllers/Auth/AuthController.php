@@ -79,6 +79,9 @@ class AuthController
         $data['passwordHash'] = $passwordHash;
         unset($data['password']);
 
+        // Sécurité : On force le rôle UTILISATEUR pour l'inscription publique
+        $data['role'] = 'UTILISATEUR';
+
         // 3. Création de l'utilisateur en base
         try {
             $userId = $this->userService->createUser($data);
@@ -290,6 +293,13 @@ class AuthController
                 
                 return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
                                       ->setJsonContent(['success' => false, 'message' => 'Email ou mot de passe incorrect.']);
+            }
+
+            // Vérification compte actif
+            if (isset($user['actif']) && !$user['actif']) {
+                $this->logger->warning('Tentative de connexion compte désactivé', ['email' => $data['email']]);
+                return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                                      ->setJsonContent(['success' => false, 'message' => 'Ce compte a été désactivé. Veuillez contacter un administrateur.']);
             }
             
             // Vérification du mot de passe réel
