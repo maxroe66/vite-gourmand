@@ -70,11 +70,11 @@ function loadTab(tabName) {
             break;
         case 'equipe':
             titleEl.textContent = 'Gestion de l\'Équipe';
-            contentEl.innerHTML = '<p>CRUD Utilisateurs (À implémenter)</p>';
+            loadEquipeView(contentEl, actionsEl);
             break;
         case 'stats':
             titleEl.textContent = 'Statistiques';
-            contentEl.innerHTML = '<p>Graphiques et KPI (À implémenter)</p>';
+            loadStatsView(contentEl, actionsEl);
             break;
         default:
             contentEl.innerHTML = '<p>Onglet inconnu.</p>';
@@ -1086,4 +1086,267 @@ function bindAvisActions() {
              }
         };
     });
+}
+
+// --- View : Gestion de l'équipe ---
+
+async function loadEquipeView(container, headerActions) {
+    // Bouton Créer Employé
+    headerActions.innerHTML = `<button class="btn btn--primary" id="btn-add-employee"><i class="fa-solid fa-user-plus"></i> Créer Employé</button>`;
+    
+    container.innerHTML = `
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nom / Prénom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="equipe-table-body">
+                    <tr><td colspan="5" style="text-align:center;">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Hidden Modal for Employee Creation -->
+        <div id="modal-employee" class="modal-overlay" style="display: none;">
+            <div class="modal">
+                <div class="modal__header">
+                    <h2 class="modal__title">Créer un Employé</h2>
+                    <button class="modal__close" id="btn-close-employee-modal">&times;</button>
+                </div>
+                <form id="form-employee">
+                    <div class="form-group">
+                        <label for="emp-email">Email (Username) *</label>
+                        <input type="email" id="emp-email" name="email" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-password">Mot de passe *</label>
+                        <input type="password" id="emp-password" name="password" required class="form-input" minlength="8">
+                        <small>Ne sera pas envoyé par mail. Communiquer à l'employé.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-firstName">Prénom</label>
+                        <input type="text" id="emp-firstName" name="firstName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="emp-lastName">Nom</label>
+                        <input type="text" id="emp-lastName" name="lastName" class="form-input">
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn--secondary" id="btn-cancel-employee">Annuler</button>
+                        <button type="submit" class="btn btn--primary">Créer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    // Events Modal
+    const modal = document.getElementById('modal-employee');
+    const form = document.getElementById('form-employee');
+
+    document.getElementById('btn-add-employee').addEventListener('click', () => {
+        form.reset();
+        modal.style.display = 'flex';
+    });
+
+    const closeModal = () => modal.style.display = 'none';
+    document.getElementById('btn-close-employee-modal').addEventListener('click', closeModal);
+    document.getElementById('btn-cancel-employee').addEventListener('click', closeModal);
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            await AdminService.createEmployee(data);
+            alert('Compte employé créé avec succès. Un email a été envoyé.');
+            closeModal();
+            fetchEquipeList(); // Refresh list
+        } catch (error) {
+            alert('Erreur: ' + error.message);
+        }
+    });
+
+    await fetchEquipeList();
+}
+
+async function fetchEquipeList() {
+    const tbody = document.getElementById('equipe-table-body');
+    try {
+        const users = await AdminService.getEmployees();
+        tbody.innerHTML = '';
+
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Aucun employé trouvé.</td></tr>';
+            return;
+        }
+
+        users.forEach(user => {
+            const isActif = user.actif == 1;
+            const tr = document.createElement('tr');
+            
+            let actionBtn = '';
+            if (isActif) {
+                // Bouton désactiver seulement si actif
+                actionBtn = `<button class="btn btn--sm btn--danger btn-disable-user" data-id="${user.id}">
+                                <i class="fa-solid fa-ban"></i> Désactiver
+                             </button>`;
+            } else {
+                 actionBtn = `<span class="badge badge--danger">Désactivé</span>`;
+            }
+
+            tr.innerHTML = `
+                <td data-label="Nom">${escapeHtml(user.nom)} ${escapeHtml(user.prenom)}</td>
+                <td data-label="Email">${escapeHtml(user.email)}</td>
+                <td data-label="Rôle"><span class="badge badge--info">${user.role}</span></td>
+                <td data-label="Statut">${isActif ? '<span class="badge badge--success">Actif</span>' : '<span class="badge badge--secondary">Inactif</span>'}</td>
+                <td data-label="Actions">${actionBtn}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Event listener pour désactivation
+        document.querySelectorAll('.btn-disable-user').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (confirm('Voulez-vous vraiment désactiver ce compte employé ? Il ne pourra plus se connecter.')) {
+                    try {
+                        await AdminService.disableUser(btn.dataset.id);
+                        fetchEquipeList();
+                    } catch (e) {
+                        alert("Erreur: " + e.message);
+                    }
+                }
+            });
+        });
+
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${error.message}</td></tr>`;
+    }
+}
+
+// --- View : Statistiques ---
+
+async function loadStatsView(container, headerActions) {
+    headerActions.innerHTML = '';
+    
+    container.innerHTML = `
+        <div class="stats-controls" style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-end;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Date Début</label>
+                <input type="date" id="stats-start" class="form-input">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Date Fin</label>
+                <input type="date" id="stats-end" class="form-input">
+            </div>
+            <button class="btn btn--primary" id="btn-refresh-stats">Filtrer</button>
+        </div>
+
+        <div>
+            <!-- Tableau CA -->
+            <div class="card">
+                <h3>Chiffre d'Affaires par Menu</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Menu ID</th>
+                                <th>Commandes</th>
+                                <th>Pers. Total</th>
+                                <th>C.A. (€)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Graphique -->
+            <div class="card">
+                 <h3>Comparaison Commandes</h3>
+                 <canvas id="statsChart"></canvas>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btn-refresh-stats').addEventListener('click', () => {
+        fetchStatsData();
+    });
+
+    // Load initial data
+    fetchStatsData();
+}
+
+let statsChartInstance = null;
+
+async function fetchStatsData() {
+    const startDate = document.getElementById('stats-start').value;
+    const endDate = document.getElementById('stats-end').value;
+    
+    try {
+        const stats = await AdminService.getStats({ startDate, endDate });
+        
+        // 1. Update Table
+        const tbody = document.getElementById('stats-table-body');
+        tbody.innerHTML = '';
+        
+        if (stats.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucune donnée (MongoDB)</td></tr>';
+        } else {
+            stats.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>#${item.menuId}</td>
+                    <td>${item.totalCommandes}</td>
+                    <td>${item.nombrePersonnesTotal}</td>
+                    <td><strong>${item.chiffreAffaires.toFixed(2)} €</strong></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 2. Update Chart
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        
+        const labels = stats.map(item => `Menu #${item.menuId}`);
+        const dataCounts = stats.map(item => item.totalCommandes);
+
+        if (statsChartInstance) {
+            statsChartInstance.destroy();
+        }
+
+        statsChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Nombre de Commandes',
+                    data: dataCounts,
+                    backgroundColor: 'rgba(230, 126, 34, 0.6)',
+                    borderColor: 'rgba(230, 126, 34, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+    } catch (e) {
+        console.error("Erreur stats:", e);
+    }
 }

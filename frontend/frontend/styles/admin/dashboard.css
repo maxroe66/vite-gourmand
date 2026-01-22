@@ -546,3 +546,10 @@ textarea {
 .checkbox-list input[type="checkbox"] {
     margin-top: 3px;
 }
+
+.modal-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
