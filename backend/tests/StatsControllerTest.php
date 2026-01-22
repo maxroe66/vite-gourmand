@@ -26,7 +26,7 @@ class StatsControllerTest extends TestCase
         $this->mongoClient->method('selectDatabase')->willReturn($mongoDb);
         $mongoDb->method('selectCollection')->willReturn($this->mongoCollection);
 
-        $this->controller = new StatsController($this->mongoClient);
+        $this->controller = new StatsController('test_db', $this->mongoClient);
     }
 
     public function testGetMenuStatsAsAdmin(): void
