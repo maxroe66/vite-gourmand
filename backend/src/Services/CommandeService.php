@@ -17,18 +17,21 @@ class CommandeService
     private MailerService $mailerService;
     private GoogleMapsService $googleMapsService;
     private ?MongoDBClient $mongoDBClient;
+    private string $mongoDbName;
 
     public function __construct(
         CommandeRepository $commandeRepository,
         MenuRepository $menuRepository,
         MailerService $mailerService,
         GoogleMapsService $googleMapsService,
+        string $mongoDbName,
         ?MongoDBClient $mongoDBClient = null
     ) {
         $this->commandeRepository = $commandeRepository;
         $this->menuRepository = $menuRepository;
         $this->mailerService = $mailerService;
         $this->googleMapsService = $googleMapsService;
+        $this->mongoDbName = $mongoDbName; 
         $this->mongoDBClient = $mongoDBClient;
     }
 
@@ -191,7 +194,8 @@ class CommandeService
         }
 
         // 6. Sync MongoDB (Analytique - Best Effort)
-        $this->syncToMongoDB($commandeId, $commandeData);
+        // On délègue à la méthode robuste qui va re-fetcher l'objet complet
+        $this->syncOrderToStatistics($commandeId);
 
         // 7. Notification Email
         try {
@@ -349,42 +353,57 @@ class CommandeService
             }
 
             // Sync status update to MongoDB
-            if ($this->mongoDBClient) {
-                try {
-                    $collection = $this->mongoDBClient->selectCollection('vite_et_gourmand', 'statistiques_commandes');
-                    $collection->updateOne(
-                        ['commandeId' => $commandeId],
-                        ['$set' => ['status' => $newStatus, 'updatedAt' => date('Y-m-d H:i:s')]]
-                    );
-                } catch (\Exception $e) {
-                    // Ignore Mongo error
-                }
-            }
+            $this->syncOrderToStatistics($commandeId);
         }
     }
     
     /**
-     * Synchronisation vers MongoDB pour les stats.
+     * Synchronise l'état complet de la commande vers MongoDB (Upsert).
+     * Récupère la source de vérité depuis MySQL pour assurer la cohérence.
      */
-    private function syncToMongoDB(int $commandeId, array $data): void
+    private function syncOrderToStatistics(int $commandeId): void
     {
         if (!$this->mongoDBClient) return;
 
         try {
-            $collection = $this->mongoDBClient->selectCollection('vite_et_gourmand', 'statistiques_commandes');
-            $collection->insertOne([
-                'commandeId' => $commandeId,
-                'menuId' => $data['menuId'],
-                'nombrePersonnes' => $data['nombrePersonnes'],
-                'prixTotal' => $data['prixTotal'],
-                'dateCommande' => date('Y-m-d H:i:s'),
-                'status' => 'EN_ATTENTE',
-                // Données anonymisées pour stats
-                'ville' => $data['ville'],
-                'horsBordeaux' => $data['horsBordeaux']
-            ]);
+            // 1. Récupérer la commande fraîche depuis SQL (Source de vérité)
+            $commande = $this->commandeRepository->findById($commandeId);
+            
+            // Si jamais la commande n'existe plus (supprimée?), on ne fait rien ou on devrait supprimer de Mongo aussi?
+            // Pour l'instant, on ignore.
+            if (!$commande) return;
+
+            $collection = $this->mongoDBClient->selectCollection($this->mongoDbName, 'statistiques_commandes');
+            
+            // 2. Préparer le document complet
+            // On s'assure d'avoir une date de commande valide
+            $dateCommande = $commande->dateCommande ?? date('Y-m-d H:i:s');
+
+            $document = [
+                'commandeId' => (int)$commande->id,
+                'menuId' => (int)$commande->menuId,
+                'nombrePersonnes' => (int)$commande->nombrePersonnes,
+                'prixTotal' => (float)$commande->prixTotal,
+                'dateCommande' => $dateCommande,
+                'status' => $commande->statut, // ex: TERMINEE
+                
+                // Champs analytiques
+                'ville' => $commande->ville,
+                'horsBordeaux' => (bool)$commande->horsBordeaux,
+                
+                // Metadonnées de sync
+                'updatedAt' => date('Y-m-d H:i:s')
+            ];
+
+            // 3. Upsert (Update or Insert)
+            // Si le document existe (par commandeId), on le remplace. Sinon on le crée.
+            $collection->replaceOne(
+                ['commandeId' => (int)$commande->id],
+                $document,
+                ['upsert' => true]
+            );
+
         } catch (\Exception $e) {
-            // Best effort : on ne fail pas la transaction SQL si Mongo plante
             error_log("MongoDB Sync Error: " . $e->getMessage());
         }
     }

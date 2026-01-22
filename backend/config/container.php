@@ -126,6 +126,16 @@ return function (array $config): ContainerInterface {
         App\Services\AvisService::class => DI\autowire()
              ->constructorParameter('config', DI\get('config')),
 
+        // Injection explicite pour CommandeService (signature modifiée)
+        App\Services\CommandeService::class => DI\autowire()
+            ->constructorParameter('mongoDbName', $config['mongo']['database'])
+            ->constructorParameter('mongoDBClient', DI\get(\MongoDB\Client::class)),
+
+        // Injection explicite pour StatsController pour éviter que le paramètre optionnel ne soit résolu à NULL
+        App\Controllers\StatsController::class => DI\autowire()
+             ->constructorParameter('mongoDbName', $config['mongo']['database'])
+             ->constructorParameter('mongoDBClient', DI\get(\MongoDB\Client::class)),
+
         // Les autres classes comme `UserValidator` et `LoginValidator` sont maintenant
         // automatiquement instanciées et injectées grâce à l'autowiring car elles
         // n'ont pas de dépendances scalaires ou complexes dans leur constructeur.
