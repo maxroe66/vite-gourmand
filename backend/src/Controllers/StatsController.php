@@ -10,9 +10,11 @@ use Exception;
 class StatsController
 {
     private ?MongoDBClient $mongoDBClient;
+    private string $mongoDbName;
 
-    public function __construct(?MongoDBClient $mongoDBClient = null)
+    public function __construct(string $mongoDbName, ?MongoDBClient $mongoDBClient = null)
     {
+        $this->mongoDbName = $mongoDbName;
         $this->mongoDBClient = $mongoDBClient;
     }
 
@@ -39,7 +41,7 @@ class StatsController
         }
 
         try {
-            $collection = $this->mongoDBClient->selectCollection('vite_et_gourmand', 'statistiques_commandes');
+            $collection = $this->mongoDBClient->selectCollection($this->mongoDbName, 'statistiques_commandes');
             
             $pipeline = [];
 

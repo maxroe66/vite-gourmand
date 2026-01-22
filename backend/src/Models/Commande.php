@@ -48,8 +48,24 @@ class Commande
     }
 
     private function hydrate(array $data): void {
+        // Custom mapping for ID fields that don't follow snakeToCamel strictly
+        $customMapping = [
+            'id_commande' => 'id',
+            'id_utilisateur' => 'userId',
+            'id_menu' => 'menuId'
+        ];
+
         foreach ($data as $key => $value) {
-            // Conversion camelCase pour les propriétés si les clés sont en snake_case (BD)
+            // 1. Check custom mapping first
+            if (isset($customMapping[$key])) {
+                $property = $customMapping[$key];
+                if (property_exists($this, $property)) {
+                    $this->$property = $value;
+                }
+                continue;
+            }
+
+            // 2. Standard camelCase conversion
             $property = $this->snakeToCamel($key);
             if (property_exists($this, $property)) {
                 $this->$property = $value;

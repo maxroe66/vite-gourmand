@@ -108,7 +108,14 @@ $mongoUri = $env('MONGO_URI', '');
 if ($mongoUri === '') {
     $mongoHost = $env('MONGO_HOST', '127.0.0.1');
     $mongoPort = $env('MONGO_PORT', '27017');
-    $mongoUri = "mongodb://{$mongoHost}:{$mongoPort}";
+    $mongoUser = $env('MONGO_USERNAME') ?? $env('MONGO_USER');
+    $mongoPass = $env('MONGO_PASSWORD') ?? $env('MONGO_PASS');
+
+    if ($mongoUser && $mongoPass) {
+        $mongoUri = "mongodb://{$mongoUser}:{$mongoPass}@{$mongoHost}:{$mongoPort}/{$mongoDb}?authSource=admin";
+    } else {
+        $mongoUri = "mongodb://{$mongoHost}:{$mongoPort}/{$mongoDb}";
+    }
 }
 
 /**
