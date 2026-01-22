@@ -31,10 +31,12 @@ jobs:
         run: |
           # Populate backend/vendor on the runner to include it in the Docker build context.
           # We run Composer inside the official composer container to avoid installing PHP locally.
+          # We use --ignore-platform-req=ext-mongodb because the composer container doesn't have the extension,
+          # but our production Dockerfile installs it.
           docker run --rm -v "${{ github.workspace }}/backend":/app -w /app composer:2 \
-            composer install --no-interaction --prefer-dist --no-dev --no-plugins --no-scripts || \
+            composer install --no-interaction --prefer-dist --no-dev --no-plugins --no-scripts --ignore-platform-req=ext-mongodb || \
           docker run --rm -v "${{ github.workspace }}/backend":/app -w /app composer:2 \
-            composer install --no-interaction --prefer-dist --no-dev
+            composer install --no-interaction --prefer-dist --no-dev --ignore-platform-req=ext-mongodb
 
       - name: Verify backend/vendor present (debug)
         run: |

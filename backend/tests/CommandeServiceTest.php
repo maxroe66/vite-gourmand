@@ -151,16 +151,26 @@ class CommandeServiceTest extends TestCase
             'nombre_personne_min' => 1,
             'stock_disponible' => 10
         ]);
-        // hydrate manually id_theme if needed or assume null/default ok for test unless used
-        // Code might use it for insert?
-        // Service creates array for repo->create?
         
         $this->menuRepo->method('findEntityById')->willReturn($menu);
         $this->googleMapsService->method('getDistance')->willReturn(5.0);
         $this->commandeRepo->method('create')->willReturn(1001); // ID commande créée
 
-        // Expect Mongo Insert
-        $this->mongoCollection->expects($this->once())->method('insertOne');
+        // Mock findById for Sync
+        $mockCommande = new \App\Models\Commande([
+            'userId' => $userId, 
+            'menuId' => 1, 
+            'statut' => 'EN_ATTENTE', 
+            'nombrePersonnes' => 10,
+            'prixTotal' => 500.0,
+            'ville' => 'Bordeaux',
+            'horsBordeaux' => false
+        ]);
+        $mockCommande->id = 1001;
+        $this->commandeRepo->method('findById')->willReturn($mockCommande);
+
+        // Expect Mongo replaceOne (upsert) instead of insertOne
+        $this->mongoCollection->expects($this->once())->method('replaceOne');
 
         $commandeId = $this->service->createCommande($userId, $data);
 
@@ -178,8 +188,21 @@ class CommandeServiceTest extends TestCase
             ->with($commandeId, $status, $userId, null, null)
             ->willReturn(true);
 
-        // Expect Mongo Update
-        $this->mongoCollection->expects($this->once())->method('updateOne');
+        // Mock findById for Sync
+        $mockCommande = new \App\Models\Commande([
+            'userId' => 99, 
+            'menuId' => 1, 
+            'statut' => $status, 
+            'nombrePersonnes' => 10,
+            'prixTotal' => 500.0,
+            'ville' => 'Bordeaux',
+            'horsBordeaux' => false
+        ]);
+        $mockCommande->id = $commandeId;
+        $this->commandeRepo->method('findById')->willReturn($mockCommande);
+
+        // Expect Mongo replaceOne (upsert) instead of updateOne
+        $this->mongoCollection->expects($this->once())->method('replaceOne');
 
         $this->service->updateStatus($userId, $commandeId, $status);
     }
