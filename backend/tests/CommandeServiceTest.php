@@ -44,6 +44,7 @@ class CommandeServiceTest extends TestCase
             $this->menuRepo,
             $this->mailerService,
             $this->googleMapsService,
+            'vite_gourmand_test',
             $this->mongoClient
         );
     }
@@ -143,6 +144,19 @@ class CommandeServiceTest extends TestCase
             'heureLivraison' => '20:00'
         ];
 
+        // Mock commande AVANT pour que syncOrderToStatistics puisse la récupérer
+        $mockCommande = new \App\Models\Commande([
+            'userId' => $userId, 
+            'menuId' => 1, 
+            'statut' => 'EN_ATTENTE', 
+            'nombrePersonnes' => 10,
+            'prixTotal' => 500.0,
+            'ville' => 'Bordeaux',
+            'horsBordeaux' => false,
+            'dateCommande' => '2026-12-25 20:00:00'
+        ]);
+        $mockCommande->id = 1001;
+
         // Mocks
         $menu = new \App\Models\Menu([
             'id_menu' => 1,
@@ -154,23 +168,20 @@ class CommandeServiceTest extends TestCase
         
         $this->menuRepo->method('findEntityById')->willReturn($menu);
         $this->googleMapsService->method('getDistance')->willReturn(5.0);
-        $this->commandeRepo->method('create')->willReturn(1001); // ID commande créée
-
-        // Mock findById for Sync
-        $mockCommande = new \App\Models\Commande([
-            'userId' => $userId, 
-            'menuId' => 1, 
-            'statut' => 'EN_ATTENTE', 
-            'nombrePersonnes' => 10,
-            'prixTotal' => 500.0,
-            'ville' => 'Bordeaux',
-            'horsBordeaux' => false
-        ]);
-        $mockCommande->id = 1001;
+        $this->commandeRepo->method('create')->willReturn(1001);
+        // findById doit être mocké AVANT l'appel car syncOrderToStatistics l'utilise
         $this->commandeRepo->method('findById')->willReturn($mockCommande);
 
-        // Expect Mongo replaceOne (upsert) instead of insertOne
-        $this->mongoCollection->expects($this->once())->method('replaceOne');
+        // Expect Mongo replaceOne (upsert)
+        $this->mongoCollection->expects($this->once())
+            ->method('replaceOne')
+            ->with(
+                $this->equalTo(['commandeId' => 1001]),
+                $this->callback(function($doc) {
+                    return isset($doc['commandeId']) && $doc['commandeId'] === 1001;
+                }),
+                $this->equalTo(['upsert' => true])
+            );
 
         $commandeId = $this->service->createCommande($userId, $data);
 
@@ -183,12 +194,7 @@ class CommandeServiceTest extends TestCase
         $commandeId = 1001;
         $status = 'VALIDE';
         
-        $this->commandeRepo->expects($this->once())
-            ->method('updateStatus')
-            ->with($commandeId, $status, $userId, null, null)
-            ->willReturn(true);
-
-        // Mock findById for Sync
+        // Mock commande AVANT pour que syncOrderToStatistics puisse la récupérer
         $mockCommande = new \App\Models\Commande([
             'userId' => 99, 
             'menuId' => 1, 
@@ -196,13 +202,29 @@ class CommandeServiceTest extends TestCase
             'nombrePersonnes' => 10,
             'prixTotal' => 500.0,
             'ville' => 'Bordeaux',
-            'horsBordeaux' => false
+            'horsBordeaux' => false,
+            'dateCommande' => '2026-01-20 10:00:00'
         ]);
         $mockCommande->id = $commandeId;
+        
+        $this->commandeRepo->expects($this->once())
+            ->method('updateStatus')
+            ->with($commandeId, $status, $userId, null, null)
+            ->willReturn(true);
+
+        // findById doit être mocké AVANT car syncOrderToStatistics l'utilise
         $this->commandeRepo->method('findById')->willReturn($mockCommande);
 
-        // Expect Mongo replaceOne (upsert) instead of updateOne
-        $this->mongoCollection->expects($this->once())->method('replaceOne');
+        // Expect Mongo replaceOne (upsert)
+        $this->mongoCollection->expects($this->once())
+            ->method('replaceOne')
+            ->with(
+                $this->equalTo(['commandeId' => $commandeId]),
+                $this->callback(function($doc) use ($status) {
+                    return isset($doc['status']) && $doc['status'] === $status;
+                }),
+                $this->equalTo(['upsert' => true])
+            );
 
         $this->service->updateStatus($userId, $commandeId, $status);
     }
