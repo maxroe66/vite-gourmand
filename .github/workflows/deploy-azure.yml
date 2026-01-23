@@ -161,10 +161,11 @@ jobs:
 
       - name: Install MongoDB Shell (mongosh)
         run: |
-          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-mongosh
+          # Installation via tarball officiel (compatible toutes versions Ubuntu)
+          curl -fsSL https://downloads.mongodb.com/compass/mongosh-2.1.0-linux-x64.tgz -o mongosh.tgz
+          tar -zxvf mongosh.tgz
+          sudo mv mongosh-2.1.0-linux-x64/bin/mongosh /usr/local/bin/
+          mongosh --version
 
       - name: Initialize MongoDB collections on Azure Cosmos DB
         env:
