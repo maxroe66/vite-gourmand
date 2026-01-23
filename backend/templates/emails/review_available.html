@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laissez votre avis - Vite & Gourmand</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; background: #f4f4f4; }
+        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .header { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: white; padding: 24px; text-align: center; }
+        .content { padding: 24px; }
+        .cta { display:inline-block; padding: 12px 24px; background: #ff7a00; color: white; border-radius: 6px; text-decoration: none; font-weight:600; }
+        .footer { padding: 16px; text-align:center; font-size:12px; color:#777; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><h1>🍽️ Vite & Gourmand</h1></div>
+        <div class="content">
+            <h2>Bonjour {firstName},</h2>
+            <p>Votre commande est maintenant terminée. Merci d'avoir choisi Vite &amp; Gourmand !</p>
+            <p>Si vous le souhaitez, vous pouvez <strong>laisser un avis</strong> et une note (1 à 5 étoiles) pour cette commande afin d'aider d'autres clients.</p>
+            <p style="text-align:center; margin-top:20px;">
+                <a href="{orderLink}" class="cta" target="_blank" rel="noopener noreferrer">Voir ma commande & laisser un avis</a>
+            </p>
+            <p style="margin-top:16px;color:#666;">Merci pour votre confiance,<br>L'équipe Vite &amp; Gourmand</p>
+        </div>
+        <div class="footer">Vous recevez cet email car vous avez passé une commande chez Vite &amp; Gourmand.</div>
+    </div>
+</body>
+</html>

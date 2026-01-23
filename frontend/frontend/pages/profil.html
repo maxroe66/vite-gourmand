@@ -65,6 +65,38 @@
             </div>
         </div>
 
+        <!-- Modal pour modifier une commande -->
+        <div id="modal-edit-order" class="modal-overlay" style="display:none;">
+            <div class="modal-content">
+                <span id="close-edit-order" class="close-modal">&times;</span>
+                <h2>Modifier ma commande</h2>
+                <form id="form-edit-order">
+                    <input type="hidden" id="edit-order-id" name="commandeId">
+                    <div class="form-group">
+                        <label for="edit-adresse">Adresse de livraison</label>
+                        <input type="text" id="edit-adresse" name="adresseLivraison" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-ville">Ville</label>
+                        <input type="text" id="edit-ville" name="ville" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-cp">Code postal</label>
+                        <input type="text" id="edit-cp" name="codePostal" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-nb-personnes">Nombre de personnes</label>
+                        <input type="number" id="edit-nb-personnes" name="nombrePersonnes" class="input" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-date-prestation">Date de livraison</label>
+                        <input type="date" id="edit-date-prestation" name="datePrestation" class="input" required>
+                    </div>
+                    <button type="submit" class="button button--primary" style="width:100%;">Enregistrer les modifications</button>
+                </form>
+            </div>
+        </div>
+
     </main>
 
     <div id="footer-placeholder"></div>

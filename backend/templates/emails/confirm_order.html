@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue chez Vite & Gourmand</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .content h2 {
+            color: #667eea;
+            font-size: 22px;
+            margin-top: 0;
+        }
+        .content p {
+            margin: 15px 0;
+            color: #555;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        .features {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Vite & Gourmand</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Félicitations {firstName} !</h2>
+            
+            <p>Nous confirmons que votre commande a été reçue avec succès.</p>
+            
+            <p>Voici un récapitulatif de votre commande :</p>
+            
+            <div class="features">
+                <ul>
+                    {orderSummary}
+                </ul>
+            </div>
+            
+            <p style="text-align: center;">
+                <a href="https://vitegourmand.fr/menus" class="cta-button">Découvrir nos menus</a>
+            </p>
+            
+            <p>Si vous avez des questions, n'hésitez pas à nous contacter. Notre équipe est là pour vous aider !</p>
+            
+            <p>Bon appétit et à très bientôt,<br>
+            <strong>L'équipe Vite & Gourmand</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>Vous recevez cet email car vous avez passé une commande sur Vite & Gourmand.</p>
+            <p>
+                <a href="https://vitegourmand.fr/contact">Contact</a> | 
+                <a href="https://vitegourmand.fr/cgu">CGU</a> | 
+                <a href="https://vitegourmand.fr/confidentialite">Confidentialité</a>
+            </p>
+            <p>&copy; 2026 Vite & Gourmand. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

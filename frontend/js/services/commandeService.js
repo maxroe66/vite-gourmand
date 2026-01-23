@@ -1,4 +1,4 @@
-
+    
 class CommandeService {
     static API_URL = '/api/commandes';
 
@@ -101,6 +101,28 @@ class CommandeService {
         }
 
         return await response.json();
+    }
+
+    /**
+     * Met à jour une commande (Client)
+     * @param {number|string} id
+     * @param {Object} data
+     * @returns {Promise<Object>}
+     */
+    static async updateOrder(id, data) {
+        const response = await fetch(`${this.API_URL}/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+            credentials: 'include'
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.error || 'Erreur lors de la modification de la commande');
+        }
+        return result;
     }
 
     /**

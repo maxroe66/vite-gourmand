@@ -72,11 +72,14 @@ class AvisService
             throw new \Exception("Erreur lors de l'enregistrement de l'avis");
         }
 
-        // On devrait update has_avis côté commande, mais faisons simple pour l'exercice.
-        // Si le repository Commande expose update, on pourrait faire:
-        // $commande->hasAvis = true;
-        // $this->commandeRepository->update($commande); 
-        // Mais il semble que le mapping soit manuel.
+        // Mettre à jour le flag hasAvis sur la commande pour éviter nouveaux avis
+        try {
+            $commande->hasAvis = true;
+            $this->commandeRepository->update($commande);
+        } catch (\Exception $e) {
+            // Ne bloquons pas l'enregistrement de l'avis si ce update échoue, mais log
+            error_log('Impossible de mettre à jour hasAvis sur la commande: ' . $e->getMessage());
+        }
 
         return ['success' => true, 'message' => 'Avis envoyé avec succès, en attente de modération'];
     }
