@@ -158,3 +158,18 @@ jobs:
         run: |
           mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
             "$DB_NAME" < backend/database/sql/database_fixtures.sql
+
+      - name: Install MongoDB Shell (mongosh)
+        run: |
+          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-mongosh
+
+      - name: Initialize MongoDB collections on Azure Cosmos DB
+        env:
+          MONGO_URI: ${{ secrets.AZURE_MONGO_URI }}
+        run: |
+          echo "🔧 Initializing MongoDB collections on Azure Cosmos DB..."
+          mongosh "$MONGO_URI" --file backend/database/mongoDB/database_mongodb_setup_azure.js
+          echo "✅ MongoDB collections initialized successfully"
