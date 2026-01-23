@@ -27,6 +27,7 @@ class CommandeServiceTest extends TestCase
         $this->menuRepo = $this->createMock(MenuRepository::class);
         $this->mailerService = $this->createMock(MailerService::class);
         $this->googleMapsService = $this->createMock(GoogleMapsService::class);
+        $this->userService = $this->createMock(\App\Services\UserService::class);
         
         // Mock MongoDB chain
         $this->mongoClient = $this->createMock(Client::class);
@@ -44,6 +45,7 @@ class CommandeServiceTest extends TestCase
             $this->menuRepo,
             $this->mailerService,
             $this->googleMapsService,
+            $this->userService,
             'vite_gourmand_test',
             $this->mongoClient
         );
@@ -214,6 +216,54 @@ class CommandeServiceTest extends TestCase
 
         // findById doit être mocké AVANT car syncOrderToStatistics l'utilise
         $this->commandeRepo->method('findById')->willReturn($mockCommande);
+
+        // Expect Mongo replaceOne (upsert)
+        $this->mongoCollection->expects($this->once())
+            ->method('replaceOne')
+            ->with(
+                $this->equalTo(['commandeId' => $commandeId]),
+                $this->callback(function($doc) use ($status) {
+                    return isset($doc['status']) && $doc['status'] === $status;
+                }),
+                $this->equalTo(['upsert' => true])
+            );
+
+        $this->service->updateStatus($userId, $commandeId, $status);
+    }
+
+    public function testUpdateStatusSendsReviewEmail(): void
+    {
+        $userId = 55; // Employé
+        $commandeId = 1001;
+        $status = 'TERMINEE';
+
+        $mockCommande = new \App\Models\Commande([
+            'userId' => 99,
+            'menuId' => 1,
+            'statut' => $status,
+            'nombrePersonnes' => 10,
+            'prixTotal' => 500.0,
+            'ville' => 'Bordeaux',
+            'horsBordeaux' => false,
+            'dateCommande' => '2026-01-20 10:00:00'
+        ]);
+        $mockCommande->id = $commandeId;
+
+        $this->commandeRepo->expects($this->once())
+            ->method('updateStatus')
+            ->with($commandeId, $status, $userId, null, null)
+            ->willReturn(true);
+
+        $this->commandeRepo->method('findById')->willReturn($mockCommande);
+
+        // Expect the user service query
+        $this->userService->method('getUserById')->with(99)->willReturn(['email' => 'test@example.com', 'prenom' => 'Jean']);
+
+        // Expect mailer called
+        $this->mailerService->expects($this->once())
+            ->method('sendReviewAvailableEmail')
+            ->with('test@example.com', 'Jean', $commandeId)
+            ->willReturn(true);
 
         // Expect Mongo replaceOne (upsert)
         $this->mongoCollection->expects($this->once())

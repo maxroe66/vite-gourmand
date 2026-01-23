@@ -138,6 +138,44 @@ main.profil-page {
     }
 }
 
+/* Modal form improvements */
+.modal-content .form-group {
+    margin-bottom: 1rem;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content input[type="date"],
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.modal-content .form-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.modal-content .form-row .form-group {
+    flex: 1;
+}
+
+.modal-content .button {
+    margin-top: 0.75rem;
+}
+
 /* Star Rating */
 .star-rating {
     display: flex;

@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = '/frontend/frontend/pages/connexion.html';
             return;
         }
-        loadOrders();
+        await loadOrders();
+        checkQueryOrderParam();
     } catch (e) {
         console.error(e);
     }
@@ -31,6 +32,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             ordersList.innerHTML = `<p class="error-text">Erreur: ${e.message}</p>`;
         } finally {
             ordersLoader.style.display = 'none';
+        }
+    }
+
+    // Si l'URL contient ?orderId=123, ouvrir le détail et éventuellement la modale d'avis
+    async function checkQueryOrderParam() {
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('orderId');
+        if (!orderId) return;
+
+        try {
+            const data = await CommandeService.getOrder(orderId);
+            const commande = data.commande || data;
+            if (commande.statut === 'TERMINEE' && !commande.hasAvis) {
+                // Ouvrir directement la modale avis
+                openAvisModal(orderId);
+                // Scroll to modal
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                // Ouvrir le détail de la commande
+                showDetail(orderId);
+            }
+        } catch (e) {
+            console.error('Param orderId present but impossible de charger la commande', e);
         }
     }
 
@@ -56,7 +80,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="action-group">
                     <button class="button button--secondary button--sm btn-detail" data-id="${order.id}">Détails</button>
                     ${order.statut === 'EN_ATTENTE' ? 
-                        `<button class="button button--danger button--sm btn-cancel" data-id="${order.id}">Annuler</button>` 
+                        `<button class="button button--danger button--sm btn-cancel" data-id="${order.id}">Annuler</button>
+                         <button class="button button--sm btn-edit-order" data-id="${order.id}">Modifier</button>` 
                         : ''}
                     ${order.canReview ? 
                         `<button class="button button--primary button--sm btn-avis" data-id="${order.id}">Laisser un avis</button>`
@@ -77,7 +102,67 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.btn-avis').forEach(btn => {
             btn.addEventListener('click', () => openAvisModal(btn.dataset.id));
         });
+
+        document.querySelectorAll('.btn-edit-order').forEach(btn => {
+            btn.addEventListener('click', () => openEditOrderModal(btn.dataset.id));
+        });
     }
+
+    // --- MODALE EDITION COMMANDE ---
+    const modalEditOrder = document.getElementById('modal-edit-order');
+    const closeEditOrder = document.getElementById('close-edit-order');
+    const formEditOrder = document.getElementById('form-edit-order');
+
+    async function openEditOrderModal(orderId) {
+        // Récupérer les infos de la commande
+        try {
+            const data = await CommandeService.getOrder(orderId);
+            const commande = data.commande || data; // selon structure API
+            document.getElementById('edit-order-id').value = commande.id;
+            document.getElementById('edit-adresse').value = commande.adresseLivraison || '';
+            document.getElementById('edit-ville').value = commande.ville || '';
+            document.getElementById('edit-cp').value = commande.codePostal || '';
+            document.getElementById('edit-nb-personnes').value = commande.nombrePersonnes || 1;
+            // Date de livraison (format yyyy-mm-dd)
+            if (commande.datePrestation) {
+                const d = new Date(commande.datePrestation);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                document.getElementById('edit-date-prestation').value = `${yyyy}-${mm}-${dd}`;
+            } else {
+                document.getElementById('edit-date-prestation').value = '';
+            }
+            // Afficher la modale
+            modalEditOrder.style.display = 'flex';
+        } catch (e) {
+            alert("Impossible de charger la commande à modifier.");
+        }
+    }
+
+    closeEditOrder.addEventListener('click', () => {
+        modalEditOrder.style.display = 'none';
+    });
+
+    formEditOrder.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-order-id').value;
+        const data = {
+            adresseLivraison: document.getElementById('edit-adresse').value,
+            ville: document.getElementById('edit-ville').value,
+            codePostal: document.getElementById('edit-cp').value,
+            nombrePersonnes: parseInt(document.getElementById('edit-nb-personnes').value, 10),
+            datePrestation: document.getElementById('edit-date-prestation').value
+        };
+        try {
+            await CommandeService.updateOrder(id, data);
+            alert('Commande modifiée avec succès.');
+            modalEditOrder.style.display = 'none';
+            loadOrders();
+        } catch (err) {
+            alert(err.message || 'Erreur lors de la modification.');
+        }
+    });
 
     function openAvisModal(id) {
         document.getElementById('avis-cmd-id').value = id;

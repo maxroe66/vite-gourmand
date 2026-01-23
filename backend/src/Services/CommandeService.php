@@ -16,6 +16,7 @@ class CommandeService
     private MenuRepository $menuRepository;
     private MailerService $mailerService;
     private GoogleMapsService $googleMapsService;
+    private UserService $userService;
     private ?MongoDBClient $mongoDBClient;
     private string $mongoDbName;
 
@@ -24,6 +25,7 @@ class CommandeService
         MenuRepository $menuRepository,
         MailerService $mailerService,
         GoogleMapsService $googleMapsService,
+        UserService $userService,
         string $mongoDbName,
         ?MongoDBClient $mongoDBClient = null
     ) {
@@ -31,6 +33,7 @@ class CommandeService
         $this->menuRepository = $menuRepository;
         $this->mailerService = $mailerService;
         $this->googleMapsService = $googleMapsService;
+        $this->userService = $userService;
         $this->mongoDbName = $mongoDbName; 
         $this->mongoDBClient = $mongoDBClient;
     }
@@ -341,12 +344,17 @@ class CommandeService
                 }
             }
             
-            // RG31 : Invitation à donner un avis
+            // RG31 : Invitation à donner un avis (envoyer un email au client)
             if ($newStatus === 'TERMINEE') {
                 try {
                     $commande = $this->commandeRepository->findById($commandeId);
-                    // $this->mailerService->sendReviewInvitation($commande);
-                    error_log("Email simulation: INVITATION AVIS envoyée pour Commande #$commandeId");
+                    if ($commande && isset($commande->userId)) {
+                        $user = $this->userService->getUserById($commande->userId);
+                        if ($user && !empty($user['email'])) {
+                            $firstName = $user['prenom'] ?? ($user['firstName'] ?? 'Client');
+                            $this->mailerService->sendReviewAvailableEmail($user['email'], $firstName, $commandeId);
+                        }
+                    }
                 } catch (\Exception $e) {
                      error_log("Erreur envoi email avis: " . $e->getMessage());
                 }

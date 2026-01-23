@@ -194,6 +194,71 @@ class MailerService
     }
 
     /**
+     * Envoie l'email de notification à l'utilisateur pour l'inviter à laisser un avis
+     * @param string $email
+     * @param string $firstName
+     * @param int $commandeId
+     * @return bool
+     */
+    public function sendReviewAvailableEmail(string $email, string $firstName, int $commandeId): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) {
+                $this->logger->warning('Configuration SMTP manquante, email review non envoyé', ['email' => $email]);
+                return false;
+            }
+
+            $mail = $this->createMailer();
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = [
+                    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]
+                ];
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '⭐ Donnez votre avis sur votre commande';
+
+            $frontendUrl = $this->config['app_url'] ?? 'http://localhost:5173';
+            // Lien direct vers la page Profil avec l'ID de la commande et un fragment utile pour le scroll/identifiant
+            // Pointer vers la page profil statique (chemin utilisé par le frontend)
+            $orderLink = rtrim($frontendUrl, '/') . '/frontend/frontend/pages/profil.html?orderId=' . $commandeId . '#order-' . $commandeId;
+
+            $templatePath = __DIR__ . '/../../templates/emails/review_available.html';
+            if (!file_exists($templatePath)) {
+                $this->logger->warning('Template email review introuvable, utilisation fallback', ['path' => $templatePath]);
+                $mail->Body = "Bonjour {$firstName},<br><br>Votre commande est terminée. Vous pouvez laisser un avis en visitant : <a href='{$orderLink}'>{$orderLink}</a>";
+            } else {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace('{firstName}', htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8'), $htmlBody);
+                $htmlBody = str_replace('{orderLink}', $orderLink, $htmlBody);
+                $mail->Body = $htmlBody;
+            }
+
+            $mail->AltBody = "Bonjour {$firstName},\n\nVotre commande est terminée. Pour laisser un avis, visitez : {$orderLink}";
+
+            $mail->send();
+            $this->logger->info('Email review envoyé', ['email' => $email, 'commandeId' => $commandeId]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error('Erreur envoi email review', ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    /**
      * Envoie l'email de notification de création de compte employé
      * @param string $email
      * @param string $firstName
@@ -246,6 +311,64 @@ class MailerService
 
         } catch (Exception $e) {
             $this->logger->error("Erreur envoi email employé: {$e->getMessage()}", ['email' => $email]);
+            return false;
+        }
+    }
+
+    /**
+     * Envoie l'email de confirmation de commande
+     * @param string $email
+     * @param string $firstName
+     * @param string $orderSummary
+     * @return bool
+     */
+    public function sendOrderConfirmation(string $email, string $firstName, string $orderSummary): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) {
+                $this->logger->warning('Configuration SMTP manquante', ['email' => $email]);
+                return false;
+            }
+
+            $mail = $this->createMailer();
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = [
+                    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]
+                ];
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '🍽️ Vite & Gourmand - Confirmation de votre commande';
+
+            $templatePath = __DIR__ . '/../../templates/emails/confirm_order.html';
+            if (file_exists($templatePath)) {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace(['{firstName}', '{orderSummary}'], [htmlspecialchars($firstName), $orderSummary], $htmlBody);
+                $mail->Body = $htmlBody;
+            } else {
+                $mail->Body = "Bonjour $firstName,\n\nVotre commande a été confirmée.\n\nDétails:\n$orderSummary\n\nMerci de votre confiance.\n\nL'équipe Vite & Gourmand";
+            }
+
+            $mail->AltBody = "Bonjour $firstName,\n\nVotre commande a été confirmée.\n\nDétails:\n$orderSummary\n\nMerci de votre confiance.\n\nL'équipe Vite & Gourmand";
+
+            $mail->send();
+            $this->logger->info('Email confirmation commande envoyé', ['email' => $email]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur envoi email confirmation commande: {$e->getMessage()}", ['email' => $email]);
             return false;
         }
     }

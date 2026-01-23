@@ -13,11 +13,17 @@ class CommandeController
 {
     private CommandeService $commandeService;
     private CommandeValidator $commandeValidator;
+    private $mailerService;
+    private $logger;
+    private $userService;
 
-    public function __construct(CommandeService $commandeService, CommandeValidator $commandeValidator)
+    public function __construct(CommandeService $commandeService, CommandeValidator $commandeValidator, $mailerService, $logger, $userService)
     {
         $this->commandeService = $commandeService;
         $this->commandeValidator = $commandeValidator;
+        $this->mailerService = $mailerService;
+        $this->logger = $logger;
+        $this->userService = $userService;
     }
 
     /**
@@ -84,11 +90,36 @@ class CommandeController
 
         try {
             $commandeId = $this->commandeService->createCommande($userId, $data);
-            
+
+            // Charger les vraies infos utilisateur depuis la base
+            $userData = $this->userService->getUserById($userId);
+            $email = $userData['email'] ?? null;
+            $firstName = $userData['prenom'] ?? 'Client';
+
+            // Génération d'un résumé de commande simple (à adapter selon ton besoin)
+            $orderSummary = '<li>Menu : ' . htmlspecialchars($data['menuId'] ?? '', ENT_QUOTES, 'UTF-8') . '</li>';
+            $orderSummary .= '<li>Nombre de personnes : ' . htmlspecialchars($data['nombre_personnes'] ?? $data['nombrePersonnes'] ?? '', ENT_QUOTES, 'UTF-8') . '</li>';
+            $orderSummary .= '<li>Adresse : ' . htmlspecialchars($data['user_address'] ?? $data['adresseLivraison'] ?? '', ENT_QUOTES, 'UTF-8') . '</li>';
+
+            $emailSent = false;
+            if ($email) {
+                $emailSent = $this->mailerService->sendOrderConfirmation($email, $firstName, $orderSummary);
+                if (!$emailSent) {
+                    $this->logger->error('Échec envoi email confirmation commande', ['email' => $email]);
+                    return (new Response())->setStatusCode(Response::HTTP_CREATED)
+                        ->setJsonContent([
+                            'success' => true,
+                            'userId' => $userId,
+                            'emailSent' => false,
+                            'message' => "Commande créée, mais l'email de confirmation n'a pas pu être envoyé."
+                        ]);
+                }
+            }
             return $this->jsonResponse([
                 'success' => true,
                 'message' => 'Commande créée avec succès',
-                'id' => $commandeId
+                'id' => $commandeId,
+                'emailSent' => $emailSent
             ], 201);
 
         } catch (CommandeException $e) {
