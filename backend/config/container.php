@@ -66,20 +66,16 @@ return function (array $config): ContainerInterface {
             $config = $c->get('config');
             $env = $config['env'] ?? 'development';
 
-            $logFileEnv = getenv('LOG_FILE');
-            $logFileEnv = ($logFileEnv === false) ? '' : trim($logFileEnv);
+            $logFile = 'php://stderr'; // Toujours utiliser stderr en production/staging
 
-            if ($logFileEnv === '') {
-                $logFile = __DIR__ . '/../logs/app.log';
-            } else {
-                $logFile = $logFileEnv;
-            }
+            if ($env === 'development') {
+                $logFileEnv = getenv('LOG_FILE');
+                $logFileEnv = ($logFileEnv === false) ? '' : trim($logFileEnv);
 
-            // Si en production et que le chemin n'est pas accessible, utiliser stderr
-            if ($env === 'production') {
-                $dir = dirname($logFile);
-                if ($logFile !== 'php://stderr' && (!is_dir($dir) || !is_writable($dir))) {
-                    $logFile = 'php://stderr';
+                if ($logFileEnv === '') {
+                    $logFile = __DIR__ . '/../logs/app.log';
+                } else {
+                    $logFile = $logFileEnv;
                 }
             }
 
@@ -88,12 +84,7 @@ return function (array $config): ContainerInterface {
             // Niveau de log selon l'environnement
             $logLevel = ($env === 'production') ? Logger::WARNING : Logger::DEBUG;
 
-            // Handler avec rotation : 7 jours d'historique, max 10MB par fichier
-            $handler = new \Monolog\Handler\RotatingFileHandler(
-                $logFile,
-                7,           // 7 jours de rétention
-                $logLevel    // Niveau minimum
-            );
+            $handler = new StreamHandler($logFile, $logLevel);
 
             // Format personnalisé pour meilleure lisibilité
             $handler->setFormatter(new \Monolog\Formatter\LineFormatter(
