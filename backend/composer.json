@@ -15,7 +15,8 @@
         "firebase/php-jwt": "^7.0",
         "php-di/php-di": "^7.1",
         "phpmailer/phpmailer": "^7.0",
-        "mongodb/mongodb": "^2.1"
+        "mongodb/mongodb": "^2.1",
+        "microsoft/azure-storage-blob": "^1.5"
     },
     "autoload": {
         "psr-4": {

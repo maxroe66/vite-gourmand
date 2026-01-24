@@ -4,9 +4,17 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Services\StorageService;
 
 class UploadController
 {
+    private $storageService;
+
+    public function __construct(StorageService $storageService)
+    {
+        $this->storageService = $storageService;
+    }
+
     /**
      * Gère l'upload d'une image
      */
@@ -54,32 +62,21 @@ class UploadController
         
         $filename = uniqid('menu_', true) . '.' . $extension;
         
-        // Chemin cible (Relatif au working dir du script public/index.php, donc on remonte si besoin ou on vise public)
-        // Dans Docker, le working dir est /var/www/vite_gourmand
-        // Le script d'entrée est public/index.php
-        $targetDir = __DIR__ . '/../../../public/assets/uploads/';
-        
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
-        }
+        try {
+            // Utilisation du service de stockage (Azure ou Local)
+            $publicUrl = $this->storageService->upload($file, $filename);
 
-        $targetFile = $targetDir . $filename;
-
-        if (move_uploaded_file($file['tmp_name'], $targetFile)) {
-            // Reussite : on retourne l'URL relative
-            // On s'assure que les permissions sont ok pour la lecture par Apache
-            chmod($targetFile, 0644);
-            
             return (new Response())
                 ->setStatusCode(Response::HTTP_OK)
                 ->setJsonContent([
                     'success' => true,
-                    'url' => '/assets/uploads/' . $filename
+                    'url' => $publicUrl
                 ]);
-        } else {
+
+        } catch (\Exception $e) {
              return (new Response())
                 ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-                ->setJsonContent(['error' => 'Erreur lors de la sauvegarde du fichier']);
+                ->setJsonContent(['error' => 'Erreur upload: ' . $e->getMessage()]);
         }
     }
 }
