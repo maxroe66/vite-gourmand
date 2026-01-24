@@ -66,8 +66,8 @@ try {
 
 // Index pour statistiques
 try {
-    db.statistiques_commandes.createIndex({ "commandeId": 1 });
-    print("✓ Index statistiques_commandes.commandeId");
+    db.statistiques_commandes.createIndex({ "commandeId": 1 }, { unique: true });
+    print("✓ Index UNIQUE statistiques_commandes.commandeId");
 } catch (e) {
     print("⚠️  " + e.message);
 }
@@ -75,6 +75,20 @@ try {
 try {
     db.statistiques_commandes.createIndex({ "menuId": 1 });
     print("✓ Index statistiques_commandes.menuId");
+} catch (e) {
+    print("⚠️  " + e.message);
+}
+
+try {
+    db.statistiques_commandes.createIndex({ "dateCommande": 1 });
+    print("✓ Index statistiques_commandes.dateCommande");
+} catch (e) {
+    print("⚠️  " + e.message);
+}
+
+try {
+    db.statistiques_commandes.createIndex({ "ville": 1 });
+    print("✓ Index statistiques_commandes.ville");
 } catch (e) {
     print("⚠️  " + e.message);
 }
