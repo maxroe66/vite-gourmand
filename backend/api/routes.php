@@ -5,6 +5,7 @@ require __DIR__ . '/routes.menus.php';
 require __DIR__ . '/routes.commandes.php';
 require __DIR__ . '/routes.avis.php';
 require __DIR__ . '/routes.admin.php';
+require __DIR__ . '/routes.diagnostic.php'; // Route de diagnostic MongoDB
 
 use App\Controllers\UploadController;
 use Psr\Container\ContainerInterface;

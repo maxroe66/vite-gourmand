@@ -102,9 +102,27 @@ return function (array $config): ContainerInterface {
         // 5. MongoDB Client (nécessite l'URI dans la config)
         \MongoDB\Client::class => function (ContainerInterface $c) {
             $mongoConfig = $c->get('config')['mongo'];
-            // Si l'URI est vide (env de test sans mongo), on peut retourner null ou gérer l'erreur plus haut.
-            // Ici, on retourne le client. Si la connexion échoue, la méthode syncMongoDB du service gère en try/catch.
-            return new \MongoDB\Client($mongoConfig['uri']);
+            
+            // Log de debug pour diagnostiquer les problèmes Azure
+            $uriForLog = preg_replace('/\/\/([^:]+):([^@]+)@/', '//***:***@', $mongoConfig['uri']);
+            error_log("[MongoDB Init] Tentative de connexion à: " . $uriForLog);
+            error_log("[MongoDB Init] Base de données: " . $mongoConfig['database']);
+            
+            try {
+                $client = new \MongoDB\Client($mongoConfig['uri']);
+                
+                // Test de connexion pour détecter les erreurs au démarrage
+                $client->listDatabases();
+                error_log("[MongoDB Init] Connexion réussie !");
+                
+                return $client;
+            } catch (\Exception $e) {
+                error_log("[MongoDB Init] ERREUR de connexion: " . $e->getMessage());
+                error_log("[MongoDB Init] Type d'erreur: " . get_class($e));
+                // On retourne quand même le client pour ne pas bloquer l'app
+                // Les erreurs seront gérées dans les services
+                return new \MongoDB\Client($mongoConfig['uri']);
+            }
         },
 
         // 6. GoogleMapsService
