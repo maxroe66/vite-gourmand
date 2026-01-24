@@ -101,6 +101,7 @@ if ($dbSslEnabled) {
 /**
  * MongoDB
  * - Standard: MONGO_DB + (MONGO_URI ou MONGO_HOST/MONGO_PORT)
+ * - Détection automatique de Cosmos DB (port 10255)
  */
 $mongoDb = $env('MONGO_DB', 'vite_gourmand');
 
@@ -112,11 +113,21 @@ if ($mongoUri === '') {
     $mongoPass = $env('MONGO_PASSWORD') ?? $env('MONGO_PASS');
 
     if ($mongoUser && $mongoPass) {
-        $mongoUri = "mongodb://{$mongoUser}:{$mongoPass}@{$mongoHost}:{$mongoPort}/{$mongoDb}?authSource=admin";
+        // Détection Azure Cosmos DB (port 10255 spécifique)
+        $isCosmosDb = ($mongoPort === '10255');
+        
+        if ($isCosmosDb) {
+            // Cosmos DB nécessite ssl=true et retrywrites=false
+            $mongoUri = "mongodb://{$mongoUser}:{$mongoPass}@{$mongoHost}:{$mongoPort}/{$mongoDb}?ssl=true&retrywrites=false";
+        } else {
+            // MongoDB standard
+            $mongoUri = "mongodb://{$mongoUser}:{$mongoPass}@{$mongoHost}:{$mongoPort}/{$mongoDb}?authSource=admin";
+        }
     } else {
         $mongoUri = "mongodb://{$mongoHost}:{$mongoPort}/{$mongoDb}";
     }
 }
+
 
 /**
  * Mail Provider (Mailtrap en dev, SendGrid en prod)

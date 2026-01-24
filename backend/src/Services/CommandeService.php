@@ -371,16 +371,28 @@ class CommandeService
      */
     private function syncOrderToStatistics(int $commandeId): void
     {
-        if (!$this->mongoDBClient) return;
+        $logPrefix = "[MongoDB Sync #$commandeId]";
+        
+        if (!$this->mongoDBClient) {
+            error_log("$logPrefix ERREUR: mongoDBClient est NULL - MongoDB non configuré");
+            return;
+        }
 
         try {
+            error_log("$logPrefix Début de la synchronisation");
+            
             // 1. Récupérer la commande fraîche depuis SQL (Source de vérité)
             $commande = $this->commandeRepository->findById($commandeId);
             
             // Si jamais la commande n'existe plus (supprimée?), on ne fait rien ou on devrait supprimer de Mongo aussi?
             // Pour l'instant, on ignore.
-            if (!$commande) return;
+            if (!$commande) {
+                error_log("$logPrefix ATTENTION: Commande non trouvée dans MySQL");
+                return;
+            }
 
+            error_log("$logPrefix Commande récupérée - Tentative de connexion à MongoDB (DB: {$this->mongoDbName})");
+            
             $collection = $this->mongoDBClient->selectCollection($this->mongoDbName, 'statistiques_commandes');
             
             // 2. Préparer le document complet
@@ -403,16 +415,30 @@ class CommandeService
                 'updatedAt' => date('Y-m-d H:i:s')
             ];
 
+            error_log("$logPrefix Document préparé - Exécution de replaceOne...");
+
             // 3. Upsert (Update or Insert)
             // Si le document existe (par commandeId), on le remplace. Sinon on le crée.
-            $collection->replaceOne(
+            $result = $collection->replaceOne(
                 ['commandeId' => (int)$commande->id],
                 $document,
                 ['upsert' => true]
             );
 
+            error_log("$logPrefix SUCCÈS - Matched: {$result->getMatchedCount()}, Modified: {$result->getModifiedCount()}, Upserted: " . ($result->getUpsertedId() ? 'OUI' : 'NON'));
+
+        } catch (\MongoDB\Driver\Exception\AuthenticationException $e) {
+            error_log("$logPrefix ERREUR AUTHENTIFICATION MongoDB: " . $e->getMessage());
+            error_log("$logPrefix Vérifiez MONGO_USERNAME et MONGO_PASSWORD dans Azure");
+        } catch (\MongoDB\Driver\Exception\ConnectionTimeoutException $e) {
+            error_log("$logPrefix ERREUR TIMEOUT MongoDB: " . $e->getMessage());
+            error_log("$logPrefix Vérifiez MONGO_HOST, MONGO_PORT et la connectivité réseau");
+        } catch (\MongoDB\Driver\Exception\ConnectionException $e) {
+            error_log("$logPrefix ERREUR CONNEXION MongoDB: " . $e->getMessage());
+            error_log("$logPrefix URI utilisée: " . (defined('MONGO_URI_LOG') ? MONGO_URI_LOG : 'non disponible'));
         } catch (\Exception $e) {
-            error_log("MongoDB Sync Error: " . $e->getMessage());
+            error_log("$logPrefix ERREUR GÉNÉRALE: " . $e->getMessage());
+            error_log("$logPrefix Trace: " . $e->getTraceAsString());
         }
     }
 
