@@ -1271,7 +1271,7 @@ async function loadStatsView(container, headerActions) {
 
             <!-- Graphique -->
             <div class="card">
-                 <h3>Comparaison Commandes</h3>
+                 <h3>Chiffre d'Affaires et Commandes</h3>
                  <canvas id="statsChart"></canvas>
             </div>
         </div>
@@ -1317,7 +1317,8 @@ async function fetchStatsData() {
         const ctx = document.getElementById('statsChart').getContext('2d');
         
         const labels = stats.map(item => `Menu #${item.menuId}`);
-        const dataCounts = stats.map(item => item.totalCommandes);
+        const dataCA = stats.map(item => item.chiffreAffaires);
+        const dataCount = stats.map(item => item.totalCommandes);
 
         if (statsChartInstance) {
             statsChartInstance.destroy();
@@ -1327,19 +1328,46 @@ async function fetchStatsData() {
             type: 'bar',
             data: {
                 labels: labels,
-                datasets: [{
-                    label: 'Nombre de Commandes',
-                    data: dataCounts,
-                    backgroundColor: 'rgba(230, 126, 34, 0.6)',
-                    borderColor: 'rgba(230, 126, 34, 1)',
-                    borderWidth: 1
-                }]
+                datasets: [
+                    {
+                        label: 'Chiffre d\'Affaires (€)',
+                        data: dataCA,
+                        backgroundColor: 'rgba(46, 204, 113, 0.6)', // Vert
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Nombre de Commandes',
+                        data: dataCount,
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)', // Bleu
+                        borderColor: 'rgba(41, 128, 185, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
             },
             options: {
                 responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 scales: {
                     y: {
-                        beginAtZero: true,
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Chiffre d\'Affaires (€)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Commandes' },
+                        grid: {
+                            drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        },
                         ticks: { stepSize: 1 }
                     }
                 }
