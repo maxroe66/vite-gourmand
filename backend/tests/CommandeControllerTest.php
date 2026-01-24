@@ -4,20 +4,36 @@ use PHPUnit\Framework\TestCase;
 use App\Controllers\CommandeController;
 use App\Services\CommandeService;
 use App\Validators\CommandeValidator;
+use App\Services\MailerService;
+use App\Services\UserService;
 use App\Core\Request;
 use App\Core\Response;
+use Monolog\Logger;
 
 class CommandeControllerTest extends TestCase
 {
     private CommandeController $controller;
     private $service;
     private $validator;
+    private $mailerService;
+    private $logger;
+    private $userService;
 
     protected function setUp(): void
     {
         $this->service = $this->createMock(CommandeService::class);
         $this->validator = $this->createMock(CommandeValidator::class);
-        $this->controller = new CommandeController($this->service, $this->validator);
+        $this->mailerService = $this->createMock(MailerService::class);
+        $this->logger = $this->createMock(Logger::class);
+        $this->userService = $this->createMock(UserService::class);
+        
+        $this->controller = new CommandeController(
+            $this->service,
+            $this->validator,
+            $this->mailerService,
+            $this->logger,
+            $this->userService
+        );
     }
 
     public function testCalculateSuccess(): void
