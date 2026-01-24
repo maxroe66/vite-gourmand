@@ -63,7 +63,8 @@ class StorageService
 
         } catch (ServiceException $e) {
             error_log("Azure Upload Failed: " . $e->getMessage());
-            throw new \Exception("Erreur lors de l'upload vers Azure");
+            // DEBUG : On retourne le message technique pour comprendre l'erreur
+            throw new \Exception("Azure Error (" . $e->getCode() . "): " . $e->getMessage());
         }
     }
 
