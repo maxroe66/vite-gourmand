@@ -14,7 +14,8 @@ use App\Core\Request;
 // Route upload
 $router->post('/upload', function (ContainerInterface $container, array $params, Request $request) {
     // TODO: Ajouter middleware Auth + Role Admin/Employe
-    $controller = new UploadController();
+    // On utilise le conteneur pour résoudre les dépendances (StorageService)
+    $controller = $container->get(UploadController::class);
     return $controller->uploadImage($request);
 });
 
