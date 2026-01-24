@@ -21,6 +21,9 @@ class StorageService
         $this->containerName = $_ENV['AZURE_STORAGE_CONTAINER'] ?? getenv('AZURE_STORAGE_CONTAINER') ?? 'uploads';
 
         if ($connectionString) {
+            // Nettoyage de la chaîne (espaces, guillemets, sauts de ligne importuns)
+            $connectionString = trim($connectionString, " \t\n\r\0\x0B\"'");
+
             try {
                 $this->blobClient = BlobRestProxy::createBlobService($connectionString);
                 $this->useAzure = true;
@@ -63,8 +66,16 @@ class StorageService
 
         } catch (ServiceException $e) {
             error_log("Azure Upload Failed: " . $e->getMessage());
-            // DEBUG : On retourne le message technique pour comprendre l'erreur
-            throw new \Exception("Azure Error (" . $e->getCode() . "): " . $e->getMessage());
+            
+            $account = $this->getAccountName() ?? 'UNKNOWN';
+            // Detailed contextual error
+            throw new \Exception(sprintf(
+                 "Azure Error [%s] Account:[%s] Container:[%s] Msg: %s",
+                 $e->getCode(),
+                 $account,
+                 $this->containerName,
+                 $e->getMessage()
+            ));
         }
     }
 
