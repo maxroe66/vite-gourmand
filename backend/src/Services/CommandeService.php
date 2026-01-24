@@ -418,7 +418,10 @@ class CommandeService
             error_log("$logPrefix Document préparé - Exécution de l'upsert...");
 
             // 3. Upsert (Update or Insert)  
-            // Utiliser updateOne avec $set au lieu de replaceOne pour éviter les conflits d'_id
+            // IMPORTANT: Retirer _id du document pour éviter E11000 duplicate key error
+            // MongoDB génère automatiquement l'_id lors de l'insertion
+            unset($document['_id']);
+            
             $result = $collection->updateOne(
                 ['commandeId' => (int)$commande->id],
                 ['$set' => $document],
