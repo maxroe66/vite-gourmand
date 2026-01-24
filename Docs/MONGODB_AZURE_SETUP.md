@@ -36,13 +36,13 @@ use vite_gourmand_prod
 
 ### 4. Initialiser les collections
 
-Exécuter le script `database_mongodb_setup.js` :
+Exécuter le script `database_mongodb_setup_cosmosdb.js` (Script optimisé pour Cosmos DB avec index corrects) :
 
 ```bash
-mongo "mongodb://vite-gourmand-mongodb.mongo.cosmos.azure.com:10255/vite_gourmand_prod?ssl=true" \
+mongosh "mongodb://vite-gourmand-mongodb.mongo.cosmos.azure.com:10255/vite_gourmand_prod?ssl=true" \
   --username vite-gourmand-mongodb \
   --password <PRIMARY_PASSWORD> \
-  backend/database/mongoDB/database_mongodb_setup.js
+  --file backend/database/mongoDB/database_mongodb_setup_cosmosdb.js
 ```
 
 ### 5. Configuration dans Azure App Service
