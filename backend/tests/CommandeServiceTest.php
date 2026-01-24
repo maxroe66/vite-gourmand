@@ -174,13 +174,13 @@ class CommandeServiceTest extends TestCase
         // findById doit être mocké AVANT l'appel car syncOrderToStatistics l'utilise
         $this->commandeRepo->method('findById')->willReturn($mockCommande);
 
-        // Expect Mongo replaceOne (upsert)
+        // Expect Mongo updateOne (upsert)
         $this->mongoCollection->expects($this->once())
-            ->method('replaceOne')
+            ->method('updateOne')
             ->with(
                 $this->equalTo(['commandeId' => 1001]),
-                $this->callback(function($doc) {
-                    return isset($doc['commandeId']) && $doc['commandeId'] === 1001;
+                $this->callback(function($update) {
+                    return isset($update['$set']['commandeId']) && $update['$set']['commandeId'] === 1001;
                 }),
                 $this->equalTo(['upsert' => true])
             );
@@ -217,13 +217,13 @@ class CommandeServiceTest extends TestCase
         // findById doit être mocké AVANT car syncOrderToStatistics l'utilise
         $this->commandeRepo->method('findById')->willReturn($mockCommande);
 
-        // Expect Mongo replaceOne (upsert)
+        // Expect Mongo updateOne (upsert)
         $this->mongoCollection->expects($this->once())
-            ->method('replaceOne')
+            ->method('updateOne')
             ->with(
                 $this->equalTo(['commandeId' => $commandeId]),
-                $this->callback(function($doc) use ($status) {
-                    return isset($doc['status']) && $doc['status'] === $status;
+                $this->callback(function($update) use ($status) {
+                    return isset($update['$set']['status']) && $update['$set']['status'] === $status;
                 }),
                 $this->equalTo(['upsert' => true])
             );
@@ -265,13 +265,13 @@ class CommandeServiceTest extends TestCase
             ->with('test@example.com', 'Jean', $commandeId)
             ->willReturn(true);
 
-        // Expect Mongo replaceOne (upsert)
+        // Expect Mongo updateOne (upsert)
         $this->mongoCollection->expects($this->once())
-            ->method('replaceOne')
+            ->method('updateOne')
             ->with(
                 $this->equalTo(['commandeId' => $commandeId]),
-                $this->callback(function($doc) use ($status) {
-                    return isset($doc['status']) && $doc['status'] === $status;
+                $this->callback(function($update) use ($status) {
+                    return isset($update['$set']['status']) && $update['$set']['status'] === $status;
                 }),
                 $this->equalTo(['upsert' => true])
             );
