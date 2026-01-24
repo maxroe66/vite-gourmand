@@ -416,19 +416,27 @@ class CommandeService
             ];
 
             error_log("$logPrefix Document préparé - Exécution de l'upsert...");
+            error_log("$logPrefix Filter: commandeId={$commande->id} (type: " . gettype($commande->id) . ")");
+            error_log("$logPrefix Document: " . json_encode($document));
 
             // 3. Upsert (Update or Insert)  
             // IMPORTANT: Retirer _id du document pour éviter E11000 duplicate key error
             // MongoDB génère automatiquement l'_id lors de l'insertion
             unset($document['_id']);
             
+            $filter = ['commandeId' => (int)$commande->id];
             $result = $collection->updateOne(
-                ['commandeId' => (int)$commande->id],
+                $filter,
                 ['$set' => $document],
                 ['upsert' => true]
             );
 
-            error_log("$logPrefix SUCCÈS - Matched: {$result->getMatchedCount()}, Modified: {$result->getModifiedCount()}, Upserted: " . ($result->getUpsertedId() ? 'OUI' : 'NON'));
+            $matchedCount = $result->getMatchedCount();
+            $modifiedCount = $result->getModifiedCount();
+            $upsertedId = $result->getUpsertedId();
+            
+            error_log("$logPrefix SUCCÈS - Matched: $matchedCount, Modified: $modifiedCount, UpsertedId: " . ($upsertedId ? json_encode($upsertedId) : 'NONE'));
+            error_log("$logPrefix Action effectuée: " . ($matchedCount > 0 ? 'UPDATE' : 'INSERT'));
 
         } catch (\MongoDB\Driver\Exception\AuthenticationException $e) {
             error_log("$logPrefix ERREUR AUTHENTIFICATION MongoDB: " . $e->getMessage());
