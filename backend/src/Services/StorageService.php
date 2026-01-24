@@ -18,7 +18,14 @@ class StorageService
         $this->config = $config;
         
         $connectionString = $_ENV['AZURE_STORAGE_CONNECTION_STRING'] ?? getenv('AZURE_STORAGE_CONNECTION_STRING');
-        $this->containerName = $_ENV['AZURE_STORAGE_CONTAINER'] ?? getenv('AZURE_STORAGE_CONTAINER') ?? 'uploads';
+        
+        // CORRECTION MAJEURE : getenv renvoie false et non null en cas d'échec
+        $envContainer = $_ENV['AZURE_STORAGE_CONTAINER'] ?? getenv('AZURE_STORAGE_CONTAINER');
+        if ($envContainer === false) {
+             $envContainer = null;
+        }
+
+        $this->containerName = $envContainer ?? 'uploads';
 
         if ($connectionString) {
             // Nettoyage de la chaîne (espaces, guillemets, sauts de ligne importuns)
