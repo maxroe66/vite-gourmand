@@ -415,13 +415,13 @@ class CommandeService
                 'updatedAt' => date('Y-m-d H:i:s')
             ];
 
-            error_log("$logPrefix Document préparé - Exécution de replaceOne...");
+            error_log("$logPrefix Document préparé - Exécution de l'upsert...");
 
-            // 3. Upsert (Update or Insert)
-            // Si le document existe (par commandeId), on le remplace. Sinon on le crée.
-            $result = $collection->replaceOne(
+            // 3. Upsert (Update or Insert)  
+            // Utiliser updateOne avec $set au lieu de replaceOne pour éviter les conflits d'_id
+            $result = $collection->updateOne(
                 ['commandeId' => (int)$commande->id],
-                $document,
+                ['$set' => $document],
                 ['upsert' => true]
             );
 
