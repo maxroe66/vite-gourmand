@@ -119,6 +119,9 @@ class MenuController
         if (!isset($data['plats'])) {
             unset($existingMenu['plats']);
         }
+        if (!isset($data['materiels'])) {
+            unset($existingMenu['materiels']);
+        }
         unset($existingMenu['images']); // Suppression images pour éviter conflits
 
         // Mapping des champs DB vers DTO pour la validation et l'update

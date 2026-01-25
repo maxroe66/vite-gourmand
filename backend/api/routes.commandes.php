@@ -75,6 +75,15 @@ $router->post('/commandes/{id}/material', function (ContainerInterface $containe
     return $controller->loanMaterial($request, (int)$params['id']);
 });
 
+// Retour du matériel prêté (Employé/Admin)
+$router->post('/commandes/{id}/return-material', function (ContainerInterface $container, array $params, Request $request) {
+    $authMiddleware = $container->get(AuthMiddleware::class);
+    $authMiddleware->handle($request, ['EMPLOYE', 'ADMINISTRATEUR']);
+
+    $controller = $container->get(CommandeController::class);
+    return $controller->returnMaterial($request, (int)$params['id']);
+});
+
 // Liste filtrée des commandes (Employé)
 $router->get('/commandes', function (ContainerInterface $container, array $params, Request $request) {
     $authMiddleware = $container->get(AuthMiddleware::class);

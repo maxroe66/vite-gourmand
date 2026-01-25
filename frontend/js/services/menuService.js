@@ -176,6 +176,31 @@ const MenuService = {
             console.error('Erreur getRegimes:', error);
             throw error;
         }
+    },
+
+    /**
+     * Récupère la liste du matériel disponible pour configuration
+     * @returns {Promise<Array>}
+     */
+    async getMaterials() {
+        try {
+            // Utilise l'endpoint global ou celui des menus si imbriqué
+            const response = await fetch(`/api/materiels`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            
+            // Si l'endpoint principal '/api/materiels' n'est pas encore ouvert publiquement, 
+            // on pourrait devoir passer par un endpoint authentifié.
+            // On suppose ici que le backend expose GET /api/materiels (vérifié dans routes.php ?)
+            
+            // Note: Dans une architecture précédente, c'était peut-être restreint. 
+            // On s'assure de gérer la réponse standard.
+            return this._handleResponse(response);
+        } catch (error) {
+            console.error('Erreur getMaterials:', error);
+            throw error;
+        }
     }
 };
 

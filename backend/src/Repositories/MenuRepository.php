@@ -96,6 +96,16 @@ class MenuRepository
         $stmt->execute(['id' => $id]);
         $menu['images'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+        // Récupérer le matériel associé (pour l'affichage et la gestion)
+        $stmtMat = $this->pdo->prepare('
+            SELECT m.id_materiel, m.libelle, m.description, mm.quantite_par_personne as quantite, m.stock_disponible
+            FROM MATERIEL m
+            JOIN MENU_MATERIEL mm ON m.id_materiel = mm.id_materiel
+            WHERE mm.id_menu = :id
+        ');
+        $stmtMat->execute(['id' => $id]);
+        $menu['materiels'] = $stmtMat->fetchAll(PDO::FETCH_ASSOC);
+
         return $menu;
     }
 
@@ -262,6 +272,24 @@ class MenuRepository
     public function deleteImages(int $menuId): bool
     {
         $stmt = $this->pdo->prepare('DELETE FROM IMAGE_MENU WHERE id_menu = :menuId');
+        return $stmt->execute(['menuId' => $menuId]);
+    }
+
+    /**
+     * Associe un matériel à un menu par défaut.
+     */
+    public function associateMaterial(int $menuId, int $materielId, int $quantite): bool
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO MENU_MATERIEL (id_menu, id_materiel, quantite_par_personne) VALUES (:menuId, :matId, :qty)');
+        return $stmt->execute(['menuId' => $menuId, 'matId' => $materielId, 'qty' => $quantite]);
+    }
+
+    /**
+     * Dissocie tout le matériel d'un menu.
+     */
+    public function dissociateAllMaterials(int $menuId): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM MENU_MATERIEL WHERE id_menu = :menuId');
         return $stmt->execute(['menuId' => $menuId]);
     }
 }

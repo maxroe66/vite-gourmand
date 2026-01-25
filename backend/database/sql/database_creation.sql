@@ -5,6 +5,13 @@
 -- SGBD: MySQL 8.0+
 -- ============================================================
 
+-- Configuration de l'encodage UTF-8
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
+-- S'assurer que la base utilise UTF-8 (si elle existe déjà)
+ALTER DATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- Création de la base de données
 -- DROP DATABASE IF EXISTS vite_et_gourmand;
 -- CREATE DATABASE vite_et_gourmand CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -120,6 +127,24 @@ CREATE TABLE IF NOT EXISTS IMAGE_MENU (
     INDEX idx_position (position)
 ) ENGINE=InnoDB COMMENT='Galerie d\'images pour chaque menu';
 
+CREATE TABLE IF NOT EXISTS MENU_MATERIEL (
+    id_menu INT NOT NULL,
+    id_materiel INT NOT NULL,
+    quantite_par_personne INT NOT NULL DEFAULT 1 CHECK(quantite_par_personne > 0),
+    PRIMARY KEY (id_menu, id_materiel),
+    
+    CONSTRAINT fk_menu_materiel_menu
+        FOREIGN KEY (id_menu) 
+        REFERENCES MENU(id_menu) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE,
+    
+    -- Attention: La table MATERIEL doit être créée avant cette contrainte.
+    -- Si ce script est exécuté séquentiellement, assurez-vous que MATERIEL est défini plus bas ou déplacez cette table.
+    -- Pour éviter les erreurs de dépendance circulaire lors de l'import, on peut définir la contrainte à la fin.
+   INDEX idx_materiel_def (id_materiel)
+) ENGINE=InnoDB COMMENT='Matériel inclus par défaut dans un menu';
+
 -- ============================================================
 -- PLATS & ALLERGÈNES
 -- ============================================================
@@ -222,6 +247,12 @@ CREATE TABLE IF NOT EXISTS MATERIEL (
     INDEX idx_libelle (libelle),
     INDEX idx_stock (stock_disponible)
 ) ENGINE=InnoDB COMMENT='Matériel pouvant être prêté aux clients';
+
+-- Ajout de la contrainte FK pour MENU_MATERIEL maintenant que MATERIEL existe
+ALTER TABLE MENU_MATERIEL
+ADD CONSTRAINT fk_menu_materiel_materiel
+FOREIGN KEY (id_materiel) REFERENCES MATERIEL(id_materiel)
+ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- ============================================================
 -- COMMANDES

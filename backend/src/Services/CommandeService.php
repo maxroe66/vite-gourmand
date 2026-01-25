@@ -188,15 +188,45 @@ class CommandeService
         // ainsi que la transaction si implémenté, mais ici create est atomique.
         $commandeId = $this->commandeRepository->create($commande);
 
-        // 5. Mise à jour Stock Menu (Si le stock est géré par nombre de commandes ?)
+        // 5. Prêt de Matériel Automatique (Lié au Menu)
+        // On récupère le menu avec ses relations (matériel)
+        $fullMenuData = $this->menuRepository->findById($data['menuId']);
+        if ($fullMenuData && !empty($fullMenuData['materiels'])) {
+            $materialsToLoan = [];
+            foreach ($fullMenuData['materiels'] as $mat) {
+                // RG : La quantité de matériel dépend-elle du nombre de personnes ou c'est forfaitaire ?
+                // L'exemple "1 appareil à fondue" est souvent forfaitaire par commande.
+                // L'exemple "Vaisselle" serait proportionnel.
+                // Dans le doute, l'énoncé est flou, mais la table MENU_MATERIEL a 'quantite'.
+                // Supposons que c'est une quantité fixe par menu commandé (ex: 1 menu fondue = 1 appareil).
+                // SI on veut multiplier par le nombre de menus commandés ? Ici on commande "UN" type de menu pour N personnes.
+                // Si la table de laison diz "1 assiette", et on est 10 personnes, il faut 10 assiettes.
+                // Pour simplifier ici, on prend la quantité définie dans MENU_MATERIEL. (ex: 10 Assiettes définies dans le menu).
+                
+                // TODO Pro: Différencier Matériel Fixe (Fontaine) vs Proportionnel (Couverts).
+                // Pour l'instant on prend la valeur brute définie dans le menu.
+                
+                $materialsToLoan[] = [
+                    'id' => $mat['id_materiel'],
+                    'quantite' => (int)$mat['quantite']
+                ];
+            }
+            
+            if (!empty($materialsToLoan)) {
+                $this->loanMaterial($commandeId, $materialsToLoan);
+            }
+        }
+
+        // 6. Mise à jour Stock Menu (Si le stock est géré par nombre de commandes ?)
         // L'énoncé dit "Stock disponible (par exemple, il reste 5 commande possible de ce menu)"
         // Donc on décrémente de 1 le stock du menu.
+        // Note: L'update du matériel se fait automatiquement dans loanMaterial
         $menu = $this->menuRepository->findEntityById($data['menuId']);
         if ($menu && $menu->stockDisponible > 0) {
             $this->menuRepository->decrementStock($menu->id, 1);
         }
 
-        // 6. Sync MongoDB (Analytique - Best Effort)
+        // 7. Sync MongoDB (Analytique - Best Effort)
         // On délègue à la méthode robuste qui va re-fetcher l'objet complet
         $this->syncOrderToStatistics($commandeId);
 
@@ -314,6 +344,70 @@ class CommandeService
         // ou passera en négatif (si pas strict). On assume que l'employé vérifie physiquement.
         
         $this->commandeRepository->setMateriel($commandeId, $materiels);
+
+        // Envoyer email de bon de prêt
+        // RG : L'utilisateur doit recevoir la liste de ce qu'il a emprunté
+        try {
+            $commande = $this->commandeRepository->findById($commandeId);
+            if ($commande) {
+                $user = $this->userService->getUserById($commande->userId);
+                
+                // On doit récupérer les noms du matériel pour l'email, car $dat aue ID et Qte
+                // On refait un getMateriels via le repository pour avoir les infos complètes 
+                // car setMateriel a tout persisté.
+                $materielsEmpruntes = $this->commandeRepository->getMateriels($commandeId);
+                
+                $listHtml = "<ul>";
+                foreach ($materielsEmpruntes as $mat) {
+                    $nom = htmlspecialchars($mat['libelle'] ?? 'Matériel inconnu');
+                    $qty = (int)$mat['quantite'];
+                    $listHtml .= "<li>{$qty}x {$nom}</li>";
+                }
+                $listHtml .= "</ul>";
+                
+                $firstName = $user['prenom'] ?? 'Client';
+                $email = $user['email'] ?? '';
+                
+                if ($email) {
+                    $this->mailerService->sendLoanConfirmation($email, $firstName, $listHtml);
+                }
+            }
+        } catch (\Exception $e) {
+             error_log("Email warning (Loan): " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Enregistre le retour du matériel et clôture la commande.
+     * @param int $commandeId
+     * @param int $employeId
+     */
+    public function returnMaterial(int $commandeId, int $employeId): void
+    {
+        // 1. Enregistrer le retour physique (Remet le stock)
+        $this->commandeRepository->returnMateriel($commandeId);
+
+        // 2. Passer la commande à TERMINÉE
+        $this->updateStatus($employeId, $commandeId, 'TERMINEE', 'Retour matériel validé');
+
+        // Petit délai pour éviter le rate limit SMTP (Mailtrap sandbox)
+        usleep(500000); // 0.5 seconde
+
+        // 3. Email de confirmation / remerciement
+        try {
+            $commande = $this->commandeRepository->findById($commandeId);
+            if ($commande) {
+                $user = $this->userService->getUserById($commande->userId);
+                $email = $user['email'] ?? null;
+                $firstName = $user['prenom'] ?? 'Client';
+                
+                if ($email) {
+                    $this->mailerService->sendMaterialReturnConfirmation($email, $firstName);
+                }
+            }
+        } catch (\Exception $e) {
+            error_log("Erreur envoi email retour matériel: " . $e->getMessage());
+        }
     }
 
     /**
@@ -335,17 +429,23 @@ class CommandeService
                 try {
                     // Récupérer infos user pour email
                     $commande = $this->commandeRepository->findById($commandeId);
-                    // On suppose getUserById disponible ou via commande join.
-                    // Ici on simule l'envoi via le mailer service avec les infos commande
-                    // $this->mailerService->sendMaterialReturnAlert($commande);
-                    error_log("Email simulation: ALERTE RETOUR MATERIEL (Caution 600€) envoyée pour Commande #$commandeId");
+                    if ($commande && isset($commande->userId)) {
+                        $user = $this->userService->getUserById($commande->userId);
+                        $email = $user['email'] ?? null;
+                        $firstName = $user['prenom'] ?? 'Client';
+                        
+                        if ($email) {
+                            $this->mailerService->sendMaterialReturnAlert($email, $firstName);
+                        }
+                    }
                 } catch (\Exception $e) {
-                    error_log("Erreur envoi email retour matériel: " . $e->getMessage());
+                    error_log("Erreur envoi email retour matériel (Alerte): " . $e->getMessage());
                 }
             }
             
             // RG31 : Invitation à donner un avis (envoyer un email au client)
-            if ($newStatus === 'TERMINEE') {
+            // Ne pas envoyer si c'est un retour matériel (l'email de confirmation retour sera envoyé à la place)
+            if ($newStatus === 'TERMINEE' && $motif !== 'Retour matériel validé') {
                 try {
                     $commande = $this->commandeRepository->findById($commandeId);
                     if ($commande && isset($commande->userId)) {

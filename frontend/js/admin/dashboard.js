@@ -347,6 +347,71 @@ async function loadMenuDishesSelectors(selectedIds = []) {
     }
 }
 
+async function loadMenuMaterialSelectors(selectedMaterials = []) {
+    // selectedMaterials est un tableau d'objets : [{ id_materiel: 1, quantite: 2 }, ...] 
+    // Ou directement depuis l'API Menu details : items avec id_materiel et quantite
+    
+    const container = document.getElementById('menu-materiel-list');
+    if (!container) return;
+    
+    container.innerHTML = '<small>Chargement...</small>';
+
+    try {
+        const materiels = await MenuService.getMaterials();
+        container.innerHTML = '';
+
+        if (!materiels || materiels.length === 0) {
+            container.innerHTML = '<small style="color:#888;">Aucun matériel disponible.</small>';
+            return;
+        }
+
+        // Création d'une Map pour accès rapide aux quantités existantes
+        const selectedMap = new Map();
+        selectedMaterials.forEach(m => selectedMap.set(m.id_materiel, m.quantite));
+
+        materiels.forEach(mat => {
+            const isSelected = selectedMap.has(mat.id_materiel);
+            const qty = selectedMap.get(mat.id_materiel) || 1; // Défaut 1
+
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.marginBottom = '6px';
+            div.style.paddingBottom = '6px';
+            div.style.borderBottom = '1px solid #eee';
+
+            // HTML Structure: Checkbox | Nom | Input Qty
+            div.innerHTML = `
+                <label style="flex: 1; display:flex; align-items:center;">
+                    <input type="checkbox" class="mat-check" value="${mat.id_materiel}" ${isSelected ? 'checked' : ''} style="margin-right:8px;">
+                    <div>
+                        <span style="font-weight:500;">${escapeHtml(mat.libelle)}</span>
+                        <br><small style="color:#888;">Stock: ${mat.stock_disponible}</small>
+                    </div>
+                </label>
+                <div style="width: 80px; margin-left:10px;">
+                    <input type="number" class="mat-qty input input--sm" value="${qty}" min="1" max="100" ${!isSelected ? 'disabled' : ''} title="Quantité par personne">
+                </div>
+            `;
+            
+            container.appendChild(div);
+
+            // Activation/Désactivation auto du champ quantité
+            const check = div.querySelector('.mat-check');
+            const input = div.querySelector('.mat-qty');
+            
+            check.addEventListener('change', () => {
+                input.disabled = !check.checked;
+                if(check.checked && !input.value) input.value = 1;
+            });
+        });
+
+    } catch (e) {
+        console.error("Erreur chargement matériel", e);
+        container.innerHTML = '<small style="color:red">Impossible de charger le matériel.</small>';
+    }
+}
+
 async function openMenuModal(menuId = null) {
     const modal = document.getElementById('modal-menu');
     const form = document.getElementById('form-menu');
@@ -381,6 +446,11 @@ async function openMenuModal(menuId = null) {
             const existingDishIds = (menu.plats || []).map(p => p.id_plat);
             await loadMenuDishesSelectors(existingDishIds);
 
+            // Charger liste matériel
+            // Il faudrait que l'API renvoie "materiels" : [{id_materiel, quantite}, ...]
+            // Si pas dispo, on suppose un tableau vide
+            await loadMenuMaterialSelectors(menu.materiels || []);
+
             // Charger les images
             const imgContainer = document.getElementById('menu-images-list');
             imgContainer.innerHTML = '';
@@ -403,6 +473,8 @@ async function openMenuModal(menuId = null) {
         document.getElementById('menu-nb-pers').value = 2;
         // Charger la liste des plats vide
         await loadMenuDishesSelectors([]);
+        // Charger matériel vide
+        await loadMenuMaterialSelectors([]);
         // Reset images
         document.getElementById('menu-images-list').innerHTML = '';
         addImageInput();
@@ -425,6 +497,28 @@ async function saveMenu() {
         selectedPlats.push(parseInt(cb.value));
     });
 
+    // Récupérer matériel coché + quantités
+    const selectedMaterials = [];
+    const matList = document.getElementById('menu-materiel-list');
+    if (matList) {
+        matList.querySelectorAll('.mat-check:checked').forEach(cb => {
+            // Trouver l'input number frère
+            const div = cb.closest('div').parentElement; // Remonte au label puis au parent div (structure Checkbox | Nom | Input)
+            // Ah attention à ma structure HTML insérée dans loadMenuMaterialSelectors...
+            // Structure: div > label (checkbox+div) + div(input)
+            const rowDiv = cb.closest('div').parentElement; // Checkbox est dans Label, Label est dans RowDiv ? 
+            // Non: <label...><input checkbox>...</label> est un enfant de RowDiv.
+            // Donc cb.closest('label').parentElement => RowDiv
+            const row = cb.closest('label').parentElement;
+            const qtyInput = row.querySelector('.mat-qty');
+            
+            selectedMaterials.push({
+                id: parseInt(cb.value),
+                quantite: parseInt(qtyInput.value) || 1
+            });
+        });
+    }
+
 
     // Récupérer les images
     const images = [];
@@ -442,6 +536,7 @@ async function saveMenu() {
         id_theme: formData.get('theme_id') ? parseInt(formData.get('theme_id')) : null,
         id_regime: formData.get('regime_id') ? parseInt(formData.get('regime_id')) : null,
         plats: selectedPlats, // Envoi du tableau d'IDs
+        materiels: selectedMaterials, // Tableau d'objets {id, quantite}
         images: images // Envoi du tableau d'URLs
     };
 
@@ -821,7 +916,26 @@ async function fetchCommandesList() {
             return;
         }
 
-        body.innerHTML = commandes.map(cmd => `
+        body.innerHTML = commandes.map(cmd => {
+            
+            // Logique d'affichage des boutons
+            let actions = '';
+            
+            // Bouton spécial Retour Matériel
+            if (cmd.statut === 'EN_ATTENTE_RETOUR') {
+                actions += `
+                    <button class="btn btn--sm btn--success btn-return-material" data-id="${cmd.id}" title="Valider Retour Matériel">
+                        <i class="fa-solid fa-box-open"></i>
+                    </button>
+                `;
+            }
+
+            actions += `
+                <button class="btn btn--sm btn--secondary btn-view-cmd" data-cmd='${JSON.stringify(cmd).replace(/'/g, "&#39;")}'><i class="fa-solid fa-eye"></i></button>
+            `;
+
+
+            return `
             <tr>
                 <td>#${cmd.id}</td>
                 <td>
@@ -833,10 +947,13 @@ async function fetchCommandesList() {
                     ${renderStatusSelect(cmd.id, cmd.statut)}
                 </td>
                 <td>
-                    <button class="btn btn--sm btn--secondary btn-view-cmd" data-cmd='${JSON.stringify(cmd).replace(/'/g, "&#39;")}'><i class="fa-solid fa-eye"></i></button>
+                    <div class="data-table__actions">
+                        ${actions}
+                    </div>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
 
         // Attach listeners to select
         document.querySelectorAll('.cmd-status-select').forEach(select => {
@@ -864,10 +981,37 @@ async function fetchCommandesList() {
             });
         });
 
+        // Attach listeners to Return Material buttons
+        document.querySelectorAll('.btn-return-material').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if(confirm('Confirmez-vous le retour complet du matériel pour cette commande ?\n\n- Le stock sera réincrémenté.\n- La commande passera en TERMINEE.\n- Un email de confirmation sera envoyé.')) {
+                    // Sauvegarder le contenu original avant le try
+                    const originalContent = btn.innerHTML;
+                    try {
+                        // Afficher un loader temporaire sur le bouton
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                        btn.disabled = true;
+
+                        await CommandeService.returnMaterial(btn.dataset.id);
+                        
+                        alert('Retour validé avec succès !');
+                        fetchCommandesList();
+                    } catch (e) {
+                         alert('Erreur : ' + e.message);
+                         btn.innerHTML = originalContent;
+                         btn.disabled = false;
+                    }
+                }
+            });
+        });
+
+
         // Attach listeners to view buttons
         document.querySelectorAll('.btn-view-cmd').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const cmd = JSON.parse(btn.dataset.cmd);
+                // Remonter au bouton si click sur icon
+                const target = e.target.closest('.btn-view-cmd');
+                const cmd = JSON.parse(target.dataset.cmd);
                 openCmdDetails(cmd);
             });
         });
