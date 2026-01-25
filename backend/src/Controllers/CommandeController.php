@@ -270,6 +270,25 @@ class CommandeController
     }
 
     /**
+     * Valider le retour matériel (Employé uniquement).
+     * POST /api/commandes/{id}/return-material
+     */
+    public function returnMaterial(Request $request, int $id): Response
+    {
+        $user = $request->getAttribute('user');
+        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
+             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+        }
+
+        try {
+            $this->commandeService->returnMaterial($id, (int)$user->sub);
+            return $this->jsonResponse(['success' => true, 'message' => 'Retour matériel validé & Stock mis à jour. Commande terminée.']);
+        } catch (Exception $e) {
+            return $this->jsonResponse(['error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
      * Recherche de commandes (Dashboard Employé).
      * GET /api/commandes?status=EN_ATTENTE&user=12...
      */

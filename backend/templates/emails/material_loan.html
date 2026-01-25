@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bon de Prêt de Matériel - Vite & Gourmand</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #1d4ed8 0%, #172554 100%); color: white; padding: 30px 20px; text-align: center; } /* Bleu plus sombre pour le sérieux */
+        .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        .content { padding: 30px 20px; }
+        .content h2 { color: #1e3a8a; font-size: 20px; margin-top: 0; }
+        .content p { margin: 15px 0; color: #555; }
+        .material-list { background-color: #f8fafc; padding: 15px; border-radius: 5px; border-left: 4px solid #3b82f6; margin: 20px 0; }
+        .warning-box { background-color: #fff7ed; color: #9a3412; padding: 15px; border-radius: 5px; border: 1px solid #fdba74; margin-top: 20px; font-size: 0.9em; }
+        .footer { background-color: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eeeeee; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Bon de Prêt de Matériel</h1>
+        </div>
+        <div class="content">
+            <h2>Bonjour {firstName},</h2>
+            <p>Dans le cadre de votre commande chez <strong>Vite & Gourmand</strong>, le matériel suivant a été mis à votre disposition :</p>
+            
+            <div class="material-list">
+                {materialList}
+            </div>
+
+            <div class="warning-box">
+                <strong>Conditions de prêt :</strong><br>
+                Ce matériel reste la propriété de Vite & Gourmand. Il devra être restitué propre et en bon état sous <strong>10 jours ouvrés</strong> après la prestation.
+                <br>Faute de quoi, une pénalité forfaitaire de <strong>600€</strong> vous sera réclamée.
+            </div>
+            
+            <p>Merci de votre confiance !</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 Vite & Gourmand. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

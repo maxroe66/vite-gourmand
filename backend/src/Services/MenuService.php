@@ -58,6 +58,10 @@ class MenuService
             $this->addImages($menuId, $data['images']);
         }
 
+        if (!empty($data['materiels'])) {
+            $this->associateMaterials($menuId, $data['materiels']);
+        }
+
         return $menuId;
     }
 
@@ -81,6 +85,10 @@ class MenuService
 
         if (isset($data['images'])) {
             $this->addImages($id, $data['images']);
+        }
+
+        if (isset($data['materiels'])) {
+            $this->associateMaterials($id, $data['materiels']);
         }
 
         return true;
@@ -139,6 +147,22 @@ class MenuService
         foreach ($images as $url) {
             if (!empty($url) && is_string($url)) {
                 $this->menuRepository->addImage($menuId, $url, $position++);
+            }
+        }
+    }
+
+    /**
+     * Associe du matériel à un menu (définition par défaut).
+     * @param int $menuId
+     * @param array $materiels Liste [{'id' => 1, 'quantite' => 2}, ...]
+     */
+    public function associateMaterials(int $menuId, array $materiels): void
+    {
+        $this->menuRepository->dissociateAllMaterials($menuId);
+
+        foreach ($materiels as $m) {
+            if (isset($m['id']) && isset($m['quantite'])) {
+                $this->menuRepository->associateMaterial($menuId, (int)$m['id'], (int)$m['quantite']);
             }
         }
     }

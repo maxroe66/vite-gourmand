@@ -1,180 +1,128 @@
-# 📦 Guide d'Implémentation : Feature Commande (Vite & Gourmand)
+# 📦 Guide d'Implémentation : Feature Commande & Matériel (Vite & Gourmand)
 
-**Version :** 1.1.0  
-**Date :** 21 Janvier 2026  
-**Responsable :** Équipe Backend / Lead Dev  
-**Statut :** En cours (Mise à jour suite analyse manques)
+**Version :** 1.2.0 (Validée)  
+**Date :** 25 Janvier 2026  
+**Responsable :** Équipe Backend  
+**Statut :** ✅ Implémentation Backend Terminée (En attente intégration Front)
 
 ---
 
 ## 📑 Table des Matières
 
-1.  [Objectif de la Feature](#objectif-de-la-feature)
-2.  [Prérequis Techniques](#prérequis-techniques)
-3.  [Étape 1 : Vérification Base de Données](#étape-1--vérification-base-de-données)
-4.  [Étape 2 : Couche Modèle (Models)](#étape-2--couche-modèle-models)
-5.  [Étape 3 : Couche Accès Données (Repository)](#étape-3--couche-accès-données-repository)
-6.  [Étape 4 : Logique Métier (Service)](#étape-4--logique-métier-service)
-7.  [Étape 5 : API & Contrôleurs (Controller)](#étape-5--api--contrôleurs-controller)
-8.  [Étape 6 : Intégration Frontend](#étape-6--intégration-frontend)
-9.  [Sécurité & RGPD](#sécurité--rgpd)
-10. [Stratégie de Tests](#stratégie-de-tests)
+1.  [Objectif](#objectif-de-la-feature)
+2.  [Architecture & Cycle de Vie du Matériel](#architecture--cycle-de-vie-du-matériel)
+3.  [Base de Données (Mise à jour)](#base-de-données)
+4.  [Logique Métier Automatisée](#logique-métier-automatisée)
+5.  [Flux de Communication (Emails)](#flux-de-communication-emails)
+6.  [Endpoints API (Référence)](#endpoints-api-référence)
+7.  [Intégration Frontend (Instructions)](#intégration-frontend-instructions)
 
 ---
 
 ## 🎯 Objectif de la Feature
 
-Fournir une gestion complète du cycle de vie des commandes : de la création par le client jusqu'au service après-vente (avis, retour matériel). Le module doit couvrir la commande, le paiement (simulé par statuts), le suivi en temps réel (timeline), la gestion du matériel prêté et les notifications automatiques.
+Gérer de bout en bout le cycle de vie des commandes traiteur, incluant la complexité du **prêt de matériel** (Vaisselle, Appareils à fondue, etc.). 
+Le système doit assurer que le stock est toujours exact, que les statuts de commande reflètent la réalité (Retours en attente), et que les clients sont notifiés de leurs engagements (Caution 600€).
 
 ---
 
-## 🛠 Prérequis Techniques
+## 🏗 Architecture & Cycle de Vie du Matériel
 
-Avant de commencer, validez les points suivants :
-
-*   [ ] **Authentification** : Le système de login / registration fonctionne.
-*   [ ] **Base de Données** : Tables `COMMANDE`, `COMMANDE_STATUT`, `COMMANDE_MATERIEL` créées.
-*   [ ] **API Google Maps** : Clé API valide (avec fallback estimation configuré).
-*   [ ] **Service Mailer** : Templates d'emails prêts :
-    *   `order_confirmation` (Confirm commande)
-    *   `status_update` (Notif changement statut)
-    *   `material_return_alert` (Alerte caution 600€)
-    *   `review_invitation` (Invitation à noter)
+Le module matériel repose sur 3 piliers :
+1.  **Configuration (Menu)** : Le matériel est défini *par défaut* dans le menu (ex: "Menu Fondue" inclut automatiquement "1 Appareil").
+2.  **Sortie (Commande)** : À la commande, le matériel est réservé et déstocké **automatiquement**.
+3.  **Entrée (Retour)** : L'employé valide manuellement le retour physique, ce qui clôture la commande.
 
 ---
 
-## Étape 1 : Vérification Base de Données
+## 💾 Base de Données
 
-S'assurer que le schéma SQL supporte toutes les règles métiers.
+Le schéma relationnel a été mis à jour pour supporter cette logique :
 
-**Table `COMMANDE` (Snapshots & Flags) :**
-*   `prix_menu_unitaire`, `nombre_personne_min_snapshot`, `montant_reduction` : Pour figer le prix.
-*   `materiel_pret` (Boolean) : Indicateur rapide pour savoir si du matériel est impliqué.
-*   `statut` (Enum) : `EN_ATTENTE`, `ACCEPTE`, `EN_PREPARATION`, `EN_LIVRAISON`, `LIVRE`, `EN_ATTENTE_RETOUR`, `TERMINEE`, `ANNULEE`.
+### 1. `MENU_MATERIEL` (Nouvelle Table)
+Définit le "Kit" matériel associé à un menu.
+*   `id_menu`, `id_materiel`, `quantite`
 
-**Table `COMMANDE_STATUT` (Historique Traçabilité) :**
-*   `id_commande`, `statut`, `modifie_par`, `changed_at`, `commentaire`.
+### 2. `COMMANDE_MATERIEL` (Log)
+Trace chaque objet prêté pour une commande spécifique.
+*   `id_commande`, `id_materiel`, `quantite`
+*   `date_pret` (Automatique à la création)
+*   `date_retour_prevu` (J+10 par défaut)
+*   `date_retour_effectif` (**CRITIQUE** : NULL tant que pas rendu)
 
----
-
-## Étape 2 : Couche Modèle (Models)
-
-### Fichier : `backend/src/Models/Commande.php`
-
-```php
-class Commande {
-    // ... propriétés existantes ...
-    public bool $materielPret; // Important pour la logique de retour
-    public bool $hasAvis;      // Pour l'UI "Donner mon avis"
-    
-    // Relations (chargées à la demande ou via Repository)
-    public ?array $historique = []; 
-    public ?array $materiels = [];
-}
-```
+### 3. `MATERIEL` (Stock)
+*   `stock_disponible` : Compteur temps réel. Décrémenté à la commande, Incrémenté au retour.
 
 ---
 
-## Étape 3 : Couche Accès Données (Repository)
+## 🧠 Logique Métier Automatisée
 
-### Fichier : `backend/src/Repositories/CommandeRepository.php`
+### 1. Création de Commande (`CommandeService::createCommande`)
+*   Le système vérifie si le Menu choisi a du matériel associé (`MENU_MATERIEL`).
+*   Si OUI -> Appelle `loanMaterial()` automatiquement.
+*   **Résultat** : Stock -1, Commande flag `materiel_pret=1`.
 
-Méthodes à implémenter ou compléter :
-
-1.  **`findAllByUserId(int $userId): array`**
-    *   Retourner la liste des commandes triées par date décroissante.
-2.  **`findByIdWithDetails(int $id): ?Commande`** 
-    *   Retourner la commande + son historique (`COMMANDE_STATUT`) + matériel (`COMMANDE_MATERIEL`).
-3.  **`findByFilters(array $filters): array`** (Pour Employé)
-    *   Permettre filtrage par `status` et recherche par `userId` (ou nom client).
-4.  **`setMateriel(int $commandeId, array $materiels): void`**
-    *   Insérer dans `COMMANDE_MATERIEL`.
-    *   Décrémenter stock `MATERIEL`.
-    *   Mettre à jour flag `materiel_pret = 1` dans `COMMANDE`.
-5.  **`getTimeline(int $commandeId): array`**
-    *   `SELECT * FROM COMMANDE_STATUT WHERE id_commande = ? ORDER BY date_changement ASC`.
+### 2. Retour de Matériel (`CommandeService::returnMaterial`)
+Action manuelle déclenchée par l'employé quand le client ramène le matériel.
+*   Vérifie les lignes `COMMANDE_MATERIEL` non rendues.
+*   Met à jour `date_retour_effectif = NOW()`.
+*   **Résultat** : Stock +1, Commande passe à `TERMINEE`.
 
 ---
 
-## Étape 4 : Logique Métier (Service)
+## 📧 Flux de Communication (Emails)
 
-### Fichier : `backend/src/Services/CommandeService.php`
+Les notifications sont désormais **transactionnelles** et automatiques :
 
-#### 1. Consultation & Suivi (`getUserOrders`, `getTimeline`)
-*   **Objectif** : Permettre au client de voir "Mes Commandes" et le détail.
-*   **Implémentation** :
-    *   `getUserOrders($userId)` : Appel repo simple.
-    *   `getOrderWithTimeline($userId, $cmdId)` :
-        *   Vérifier que `$userId` est propriétaire.
-        *   Récupérer commande + historique.
-        *   Formatter la timeline pour le frontend (Date, Statut, Description).
-
-#### 2. Mise à jour Statut & Notifications (`updateStatus`)
-C'est ici que réside la complexité des règles métiers "Post-Commande".
-*   **Logique** :
-    *   Mettre à jour statut SQL + Historique.
-    *   **Cas Spécial `EN_ATTENTE_RETOUR`** :
-        *   Si déclenché, envoyer email **"Alerte Retour Matériel"** (Texte légal : "Restitution sous 10j ou prélèvement 600€").
-    *   **Cas Spécial `TERMINEE`** :
-        *   Si commande terminée (soit après livraison directe, soit après retour matériel) :
-        *   Envoyer email **"Votre avis compte"** (Lien vers form avis).
-    *   **Cas Spécial `ANNULEE` (Employé)** :
-        *   Vérifier présence `motif` et `modeContact` (Requis).
-
-#### 3. Gestion du Matériel (`addMaterielToOrder`)
-*   **Entrée** : Employé ID, Commande ID, Liste Matériels.
-*   **Action** :
-    *   Appeler `repo->setMateriel()`.
-    *   Le statut de la commande ne change pas immédiatement (reste souvent `EN_PREPARATION` ou `EN_LIVRAISON`), mais le flag est posé pour forcer le passage futur par `EN_ATTENTE_RETOUR` avant `TERMINEE`.
-
-#### 4. Filtres Employé (`searchCommandes`)
-*   Exposer la recherche multicritères pour le dashboard employé.
+| Événement | Template Email | Contenu Clé | Statut |
+|-----------|----------------|-------------|--------|
+| **Commande (Création)** | `material_loan.html` | ✅ Liste html du matériel emprunté<br>⚠️ Avertissement délai 10j | Implémenté |
+| **Passage Statut** `EN_ATTENTE_RETOUR` | `material_return_alert.html` | 🚨 **ALERTE CAUTION 600€**<br>Rappel date butoir | Implémenté |
+| **Validation Retour** | `material_return_confirmation.html` | ✅ Confirmation de réception<br>Clôture dossier | Implémenté |
 
 ---
 
-## Étape 5 : API & Contrôleurs (Controller)
+## 🔌 Endpoints API (Référence pour Frontend)
 
-### Fichier : `backend/src/Controllers/CommandeController.php`
+### 1. 🟢 Gestion Matériel (Nouveau)
 
-Endpoints manquants à ajouter :
+#### **Valider le Retour Matériel (Employé)**
+Permet de clôturer une commande "matériel" et remonter le stock.
+*   **POST** `/api/commandes/{id}/return-material`
+*   **Auth** : Employé / Admin
+*   **Effet** : Passe commande à `TERMINEE`.
 
-1.  **`GET /api/commandes`** (Client & Employé)
-    *   Client : Renvoie `listMyOrders`.
-    *   Employé : Renvoie `searchCommandes` (avec params `?status=EN_COURS&user=...`).
-2.  **`GET /api/commandes/{id}`**
-    *   Renvoie le détail complet (Prix, Produits, Adresse).
-    *   Inclut champ `timeline` (Tableau d'étapes).
-    *   Inclut champ `actions_possibles` (ex: `['annuler', 'modifier']` ou `['donner_avis']`) pour aider le front.
-3.  **`POST /api/commandes/{id}/material`** (Employé)
-    *   Body: `[{ "id": 1, "quantite": 2 }]`.
-    *   Appelle service matériel.
-4.  **`GET /api/menues-commandes-stats`** (Admin)
-    *   Endpoint dédié aux stats MongoDB (CA par menu, nb commandes).
+#### **Ajout Manuel Matériel (Employé - Cas Exceptionnel)**
+Si l'employé veut ajouter un truc en plus hors menu.
+*   **POST** `/api/commandes/{id}/material`
+*   **Body** : `[{ "id": 10, "quantite": 1 }]`
 
----
+### 2. 🟢 Configuration Menu (Mise à jour)
 
-## Étape 6 : Intégration Frontend
-
-### Pages à prévoir :
-1.  **Mes Commandes (Client)** :
-    *   Liste cartes avec : Date, Montant, Badge Statut (Couleur selon statut).
-    *   Bouton "Voir le suivi".
-2.  **Détail Commande & Timeline (Client)** :
-    *   Visualisation verticale de l'historique (`EN_ATTENTE` -> `ACCEPTE` -> ...).
-    *   Si `TERMINEE` et `!hasAvis` : Gros bouton CTA "Donner mon avis".
-3.  **Gestionnaire Commandes (Employé)** :
-    *   Tableau avec filtres.
-    *   Modale "Ajout Matériel" sur une commande.
-    *   Modale "Changer Statut" (Select avec statuts autorisés).
-    *   Modale "Annuler" (Champs obligatoires : Motif, Mode Contact).
+#### **Créer/Modifier Menu avec Matériel**
+*   **POST/PUT** `/api/menus`
+*   **Body** : 
+    ```json
+    {
+      "titre": "Menu Raclette",
+      "prix": 25,
+      "materiels": [
+        { "id": 5, "quantite": 1 } 
+      ]
+    }
+    ```
 
 ---
 
-## ✅ Checklist Finale
+## 🎨 Intégration Frontend (Instructions)
 
-- [ ] L'utilisateur voit sa timeline complète.
-- [ ] L'employé peut filtrer les commandes "EN_ATTENTE".
-- [ ] L'ajout de matériel décrémente le stock.
-- [ ] Le passage à `EN_ATTENTE_RETOUR` envoie le mail de menace (600€).
-- [ ] Le passage à `TERMINEE` envoie le mail d'invitation avis.
-- [ ] Impossible d'annuler sans motif en tant qu'employé.
+### Pour le Dashboard Employé :
+1.  **Page "Gestion Menus"** : Ajouter un sélecteur multiple de matériel dans le formulaire de création de menu (comme pour les plats).
+2.  **Page "Commandes"** :
+    *   Si la commande a `materiel_pret = 1` et n'est pas `TERMINEE`.
+    *   Afficher un bouton **"📦 Valider Retour Matériel"**.
+    *   Ce bouton doit appeler `POST /api/commandes/{id}/return-material`.
+
+### Pour le Profil Client :
+1.  **Détail Commande** : Afficher la liste du matériel emprunté (récupérable via `GET /api/commandes/{id}`).
+2.  **Alerte** : Si statut `EN_ATTENTE_RETOUR`, afficher un bandeau rouge : *"En attente de restitution sous 10j"*.

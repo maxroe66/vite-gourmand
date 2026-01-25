@@ -296,6 +296,53 @@ class CommandeRepository
     }
 
     /**
+     * Enregistre le retour du matériel pour une commande.
+     * Cette méthode remet le stock et met à jour la date de retour effectif.
+     */
+    public function returnMateriel(int $commandeId): void
+    {
+        $this->pdo->beginTransaction();
+        try {
+            // 1. Récupérer tout le matériel prêté pour cette commande qui n'est pas encore rendu
+            $stmt = $this->pdo->prepare("SELECT id_materiel, quantite FROM COMMANDE_MATERIEL WHERE id_commande = :id AND date_retour_effectif IS NULL");
+            $stmt->execute(['id' => $commandeId]);
+            $materiels = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            if (empty($materiels)) {
+                // Rien à rendre ou déjà rendu
+                $this->pdo->commit();
+                return;
+            }
+
+            foreach ($materiels as $mat) {
+                // 2. Mettre à jour la date de retour effectif
+                $updLink = $this->pdo->prepare("UPDATE COMMANDE_MATERIEL SET date_retour_effectif = NOW() WHERE id_commande = :cmdId AND id_materiel = :matId");
+                $updLink->execute(['cmdId' => $commandeId, 'matId' => $mat['id_materiel']]);
+
+                // 3. Ré-incrémenter le stock MATERIEL
+                $updStock = $this->pdo->prepare("UPDATE MATERIEL SET stock_disponible = stock_disponible + :qty WHERE id_materiel = :matId");
+                $updStock->execute(['qty' => $mat['quantite'], 'matId' => $mat['id_materiel']]);
+            }
+
+            // 4. Mettre à jour le flag de la commande (optionnel, mais utile pour savoir si tout est rendu)
+            // On vérifie s'il reste du matériel non rendu
+            $check = $this->pdo->prepare("SELECT COUNT(*) FROM COMMANDE_MATERIEL WHERE id_commande = :id AND date_retour_effectif IS NULL");
+            $check->execute(['id' => $commandeId]);
+            $remaining = $check->fetchColumn();
+
+            if ($remaining == 0) {
+                // Tout est rendu, on pourrait changer un flag si besoin, ou on laisse le statut gérer ça
+                // Ici on laisse materiel_pret = 1 car il Y A EU du prêt, mais on sait que c'est clos via les dates.
+            }
+
+            $this->pdo->commit();
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Récupère l'historique complet des statuts d'une commande.
      * @return array Liste chronologique des changements
      */

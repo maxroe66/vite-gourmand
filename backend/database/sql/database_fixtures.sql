@@ -140,30 +140,6 @@ INSERT IGNORE INTO MENU (id_menu, titre, description, nombre_personne_min, prix,
 (6, 'Menu Vegan Créatif', 'Menu 100% végétal, sans produits d\'origine animale, créatif et gourmand.', 4, 105.00, 10, 'Commande à passer au minimum 4 jours avant la prestation.', 3, 3, TRUE, '2024-03-10 10:00:00');
 
 -- ============================================================
--- IMAGES MENUS
--- ============================================================
-
-INSERT IGNORE INTO IMAGE_MENU (id_image, id_menu, url, alt_text, position) VALUES
--- Menu de Noël
-(1, 1, '/images/menus/noel-1.jpg', 'Foie gras et champagne', 1),
-(2, 1, '/images/menus/noel-2.jpg', 'Chapon farci aux marrons', 2),
-(3, 1, '/images/menus/noel-3.jpg', 'Bûche de Noël chocolat', 3),
--- Menu de Pâques
-(4, 2, '/images/menus/paques-1.jpg', 'Gigot d\'agneau', 1),
-(5, 2, '/images/menus/paques-2.jpg', 'Tarte tatin maison', 2),
--- Menu Végétarien
-(6, 3, '/images/menus/vegetarien-1.jpg', 'Assortiment de légumes', 1),
-(7, 3, '/images/menus/vegetarien-2.jpg', 'Risotto aux champignons', 2),
--- Menu Classique
-(8, 4, '/images/menus/classique-1.jpg', 'Présentation du menu', 1),
--- Menu Estival
-(9, 5, '/images/menus/estival-1.jpg', 'Saumon grillé', 1),
-(10, 5, '/images/menus/estival-2.jpg', 'Salade de fruits frais', 2),
--- Menu Vegan
-(11, 6, '/images/menus/vegan-1.jpg', 'Tartare de légumes', 1),
-(12, 6, '/images/menus/vegan-2.jpg', 'Lasagnes végétariennes', 2);
-
--- ============================================================
 -- ASSOCIATIONS MENUS - PLATS
 -- ============================================================
 
@@ -227,6 +203,25 @@ INSERT IGNORE INTO MATERIEL (id_materiel, libelle, description, valeur_unitaire,
 (4, 'Nappe blanche 6 personnes', 'Nappe en lin blanc, dimension 150x200cm', 45.00, 15),
 (5, 'Chafing dish (réchaud)', 'Réchaud professionnel pour maintenir les plats au chaud', 250.00, 5),
 (6, 'Plats de service (set de 3)', 'Grands plats ovales en inox pour le service', 90.00, 8);
+
+-- ============================================================
+-- ASSOCIATIONS MENUS - MATERIEL (Configuration par défaut)
+-- ============================================================
+
+-- Menu de Noël (Id 1) : Assiettes, Couverts, Verres
+INSERT IGNORE INTO MENU_MATERIEL (id_menu, id_materiel, quantite_par_personne) VALUES
+(1, 1, 1), -- Assiettes
+(1, 2, 1), -- Couverts
+(1, 3, 1); -- Verres à vin
+
+-- Menu de Pâques (Id 2) : Assiettes, Couverts
+INSERT IGNORE INTO MENU_MATERIEL (id_menu, id_materiel, quantite_par_personne) VALUES
+(2, 1, 1), -- Assiettes
+(2, 2, 1); -- Couverts
+
+-- Menu Estival (Id 5) : Verres à vin
+INSERT IGNORE INTO MENU_MATERIEL (id_menu, id_materiel, quantite_par_personne) VALUES
+(5, 3, 1); -- Verres
 
 -- ============================================================
 -- COMMANDES

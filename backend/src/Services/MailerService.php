@@ -372,4 +372,184 @@ class MailerService
             return false;
         }
     }
+
+    /**
+     * Envoie le bon de prêt de matériel
+     * @param string $email
+     * @param string $firstName
+     * @param string $materialHtmlList Liste HTML (<ul>...</ul>) du matériel
+     * @return bool
+     */
+    public function sendLoanConfirmation(string $email, string $firstName, string $materialHtmlList): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) return false;
+
+            $mail = $this->createMailer();
+            
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+            
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    )
+                );
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand - Service Matériel');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '📦 Votre Bon de Prêt de Matériel';
+
+            $templatePath = __DIR__ . '/../../templates/emails/material_loan.html';
+            
+            if (file_exists($templatePath)) {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace('{firstName}', htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8'), $htmlBody);
+                $htmlBody = str_replace('{materialList}', $materialHtmlList, $htmlBody); // On suppose le HTML safe généré par le Service
+                $mail->Body = $htmlBody;
+            } else {
+                $mail->Body = "Bonjour $firstName,<br>Voici le matériel prêté : $materialHtmlList <br>Attention à la caution de 600€.";
+            }
+
+            $mail->AltBody = "Bonjour $firstName,\nVoici le matériel prêté :\n" . strip_tags($materialHtmlList) . "\n\nAttention: non restitution sous 10 jours = 600€ de frais.";
+
+            $mail->send();
+            $this->logger->info('Email bon de prêt envoyé', ['email' => $email]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur envoi bon de prêt: {$e->getMessage()}", ['email' => $email]);
+            return false;
+        }
+    }
+
+    /**
+     * Envoie l'alerte de retour matériel (Caution)
+     * @param string $email
+     * @param string $firstName
+     * @return bool
+     */
+    public function sendMaterialReturnAlert(string $email, string $firstName): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) return false;
+
+            $mail = $this->createMailer();
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+            
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    )
+                );
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand - SAV');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '⚠️ ALERTE : Retour Matériel & Caution';
+
+            $templatePath = __DIR__ . '/../../templates/emails/material_return_alert.html';
+            
+            if (file_exists($templatePath)) {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace('{firstName}', htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8'), $htmlBody);
+                $mail->Body = $htmlBody;
+            } else {
+                $mail->Body = "Bonjour $firstName,<br>URGENT: Merci de retourner le matériel sous 10 jours pour éviter 600€ de pénalités.";
+            }
+
+            $mail->AltBody = "Bonjour $firstName,\nURGENT: Merci de retourner le matériel sous 10 jours pour éviter 600€ de pénalités.";
+
+            $mail->send();
+            $this->logger->info('Email alerte retour envoyé', ['email' => $email]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur envoi alerte retour: {$e->getMessage()}", ['email' => $email]);
+            return false;
+        }
+    }
+
+    /**
+     * Envoie la confirmation de retour (Clôture)
+     * @param string $email
+     * @param string $firstName
+     * @return bool
+     */
+    public function sendMaterialReturnConfirmation(string $email, string $firstName): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) return false;
+
+            $mail = $this->createMailer();
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+            
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    )
+                );
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '✅ Retour Matériel Confirmé';
+
+            $templatePath = __DIR__ . '/../../templates/emails/material_return_confirmation.html';
+            
+            if (file_exists($templatePath)) {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace('{firstName}', htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8'), $htmlBody);
+                $mail->Body = $htmlBody;
+            } else {
+                $mail->Body = "Bonjour $firstName,<br>Votre matériel a bien été réceptionné. Tout est en ordre. Merci !";
+            }
+
+            $mail->AltBody = "Bonjour $firstName,\nVotre matériel a bien été réceptionné. Tout est en ordre. Merci !";
+
+            $mail->send();
+            $this->logger->info('Email confirmation retour envoyé', ['email' => $email]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur envoi conf retour: {$e->getMessage()}", ['email' => $email]);
+            return false;
+        }
+    }
 }

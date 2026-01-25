@@ -162,6 +162,28 @@ class CommandeService {
         }
         return await response.json();
     }
+
+    /**
+     * Valide le retour du matériel pour une commande
+     * @param {number|string} id 
+     * @returns {Promise<Object>}
+     */
+    static async returnMaterial(id) {
+        const response = await fetch(`${this.API_URL}/${id}/return-material`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            // Gestion erreur spécifique stock
+            throw new Error(err.error || "Erreur lors du retour matériel");
+        }
+        return await response.json();
+    }
 }
 
 window.CommandeService = CommandeService;
