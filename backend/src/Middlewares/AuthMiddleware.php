@@ -69,11 +69,24 @@ class AuthMiddleware
             return $_COOKIE['authToken'];
         }
 
-        // Fallback: vérifier le header Authorization
-        $headers = getallheaders();
-        if (isset($headers['Authorization'])) {
+        $authHeader = null;
+
+        // 1. Essayer via getallheaders (Apache mod_php)
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (isset($headers['Authorization'])) {
+                $authHeader = $headers['Authorization'];
+            }
+        }
+
+        // 2. Fallback via $_SERVER (PHP-FPM / Nginx)
+        if (!$authHeader && isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+        }
+
+        if ($authHeader) {
             // On s'attend à un format "Bearer <token>"
-            if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+            if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
                 return $matches[1];
             }
         }

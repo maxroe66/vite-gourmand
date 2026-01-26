@@ -342,3 +342,6 @@ Notes DNS rapides :
 - Enreg. `www` : CNAME → `vite-gourmand-dev-max-e6erb8f3dzejdff8.francecentral-01.azurewebsites.net`
 - Apex (`@`) : rediriger vers `https://www.votre-domaine.tld` via votre registrar ou utiliser un A/ALIAS si supporté.
 
+
+
+AIzaSyDAI2-mTwm0D446zhetsyhH2FbB2YNbmz8   « La clé Google Maps est restreinte uniquement à l’API Distance Matrix. Les appels sont effectués exclusivement côté backend afin d’éviter toute exposition de la clé. Les restrictions par IP n’ont pas été appliquées en raison des IP sortantes variables de l’App Service Azure. »
