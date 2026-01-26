@@ -105,13 +105,13 @@ class AvisService
                 ]
             );
 
-            // Convertir les documents BSON en tableau
+            // Convertir les documents BSON en tableau avec encodage UTF-8
             $avisList = [];
             foreach ($cursor as $doc) {
-                // Conversion BSON -> Array simplifiée
+                // Conversion BSON -> Array avec gestion UTF-8
                 $avisList[] = [
-                   'note' => $doc['note'],
-                   'commentaire' => $doc['commentaire'],
+                   'note' => (int)$doc['note'],
+                   'commentaire' => $this->ensureUtf8((string)$doc['commentaire']),
                    'date_avis' => $doc['date_avis'], // BSON Date
                    // On limite les infos publiques (pas d'ID, pas d'ID User)
                 ];
@@ -190,5 +190,21 @@ class AvisService
          }
 
          return $this->avisRepository->delete($id);
+    }
+
+    /**
+     * Garantit qu'une chaîne est en UTF-8 valide
+     */
+    private function ensureUtf8(string $text): string
+    {
+        // Si la chaîne n'est pas en UTF-8 valide, on la convertit
+        if (!mb_check_encoding($text, 'UTF-8')) {
+            // Essaie de détecter l'encodage automatiquement
+            $detected = mb_detect_encoding($text, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+            if ($detected && $detected !== 'UTF-8') {
+                return mb_convert_encoding($text, 'UTF-8', $detected);
+            }
+        }
+        return $text;
     }
 }
