@@ -249,10 +249,24 @@ CREATE TABLE IF NOT EXISTS MATERIEL (
 ) ENGINE=InnoDB COMMENT='Matériel pouvant être prêté aux clients';
 
 -- Ajout de la contrainte FK pour MENU_MATERIEL maintenant que MATERIEL existe
-ALTER TABLE MENU_MATERIEL
-ADD CONSTRAINT fk_menu_materiel_materiel
-FOREIGN KEY (id_materiel) REFERENCES MATERIEL(id_materiel)
-ON DELETE RESTRICT ON UPDATE CASCADE;
+-- On vérifie d'abord si la contrainte n'existe pas déjà
+SET @constraint_exists = (
+    SELECT COUNT(*) 
+    FROM information_schema.TABLE_CONSTRAINTS 
+    WHERE CONSTRAINT_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'MENU_MATERIEL'
+    AND CONSTRAINT_NAME = 'fk_menu_materiel_materiel'
+    AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+);
+
+SET @sql = IF(@constraint_exists = 0,
+    'ALTER TABLE MENU_MATERIEL ADD CONSTRAINT fk_menu_materiel_materiel FOREIGN KEY (id_materiel) REFERENCES MATERIEL(id_materiel) ON DELETE RESTRICT ON UPDATE CASCADE',
+    'SELECT "Constraint fk_menu_materiel_materiel already exists, skipping" AS Info'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- ============================================================
 -- COMMANDES
