@@ -62,6 +62,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf
       - ./backend/database/sql/database_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./backend/database/sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
     networks:
@@ -79,6 +80,7 @@ services:
       - "3307:3306"
     volumes:
       - mysql_test_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf
       - ./backend/database/sql/database_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./backend/database/sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
     networks:
@@ -95,6 +97,7 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./docker/mongodb/mongod.conf:/etc/mongod.conf
       - ./backend/database/mongoDB/database_mongodb_setup.js:/docker-entrypoint-initdb.d/setup.js
     networks:
       - vite-network

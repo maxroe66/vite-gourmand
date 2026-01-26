@@ -87,15 +87,19 @@ $dbSslRaw = $env('DB_SSL', '0') ?? '0';
 $dbSslEnabled = in_array(strtolower((string)$dbSslRaw), ['1', 'true', 'yes', 'on'], true);
 $dbSslCa = $env('DB_SSL_CA', '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem') ?: '/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem';
 
-$dbPdoOptions = [];
-if ($dbSslEnabled) {
-    $dbPdoOptions = [
-        \PDO::MYSQL_ATTR_SSL_CA => $dbSslCa,
+// Options PDO de base pour garantir UTF-8MB4
+$dbPdoOptions = [
+    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+    \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+];
 
-        // Pragmatique pour éviter les erreurs SSL sur Azure si la vérification stricte pose problème.
-        // Le TLS est bien utilisé, mais on assouplit la vérification du certificat serveur.
-        \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-    ];
+// Ajouter les options SSL si activées (Azure)
+if ($dbSslEnabled) {
+    $dbPdoOptions[\PDO::MYSQL_ATTR_SSL_CA] = $dbSslCa;
+    // Pragmatique pour éviter les erreurs SSL sur Azure si la vérification stricte pose problème.
+    // Le TLS est bien utilisé, mais on assouplit la vérification du certificat serveur.
+    $dbPdoOptions[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
 }
 
 /**
