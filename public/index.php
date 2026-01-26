@@ -24,6 +24,15 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// 3.1) Configuration encodage UTF-8 (prioritaire)
+if (function_exists('mb_internal_encoding')) {
+    mb_internal_encoding('UTF-8');
+}
+if (function_exists('mb_http_output')) {
+    mb_http_output('UTF-8');
+}
+ini_set('default_charset', 'UTF-8');
+
 use App\Core\Response;
 use App\Core\Router;
 use Psr\Log\LoggerInterface;

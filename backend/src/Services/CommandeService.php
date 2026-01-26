@@ -505,10 +505,10 @@ class CommandeService
                 'nombrePersonnes' => (int)$commande->nombrePersonnes,
                 'prixTotal' => (float)$commande->prixTotal,
                 'dateCommande' => $dateCommande,
-                'status' => $commande->statut, // ex: TERMINEE
+                'status' => $this->ensureUtf8((string)$commande->statut), // ex: TERMINEE
                 
                 // Champs analytiques
-                'ville' => $commande->ville,
+                'ville' => $this->ensureUtf8((string)$commande->ville),
                 'horsBordeaux' => (bool)$commande->horsBordeaux,
                 
                 // Metadonnées de sync
@@ -559,5 +559,21 @@ class CommandeService
     public function searchCommandes(array $filters): array
     {
         return $this->commandeRepository->findByFilters($filters);
+    }
+
+    /**
+     * Garantit qu'une chaîne est en UTF-8 valide
+     */
+    private function ensureUtf8(string $text): string
+    {
+        // Si la chaîne n'est pas en UTF-8 valide, on la convertit
+        if (!mb_check_encoding($text, 'UTF-8')) {
+            // Essaie de détecter l'encodage automatiquement
+            $detected = mb_detect_encoding($text, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+            if ($detected && $detected !== 'UTF-8') {
+                return mb_convert_encoding($text, 'UTF-8', $detected);
+            }
+        }
+        return $text;
     }
 }
