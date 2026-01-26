@@ -33,39 +33,56 @@ class GoogleMapsServiceTest extends TestCase
     {
         $service = new TestableGoogleMapsService('valid_key');
         
-        // Mock réponse Routes API (v2) Success
+        // Mock réponse Distance Matrix API Success
         $service->mockResponse = json_encode([
-            [
-                'originIndex' => 0,
-                'destinationIndex' => 0,
-                'status' => [], // Empty status = OK
-                'distanceMeters' => 50000, // 50 km
-                'condition' => 'ROUTE_EXISTS'
+            'status' => 'OK',
+            'rows' => [
+                [
+                    'elements' => [
+                        [
+                            'status' => 'OK',
+                            'distance' => [
+                                'text' => '50 km',
+                                'value' => 50000 // 50 km en mètres
+                            ],
+                            'duration' => [
+                                'text' => '45 mins',
+                                'value' => 2700
+                            ]
+                        ]
+                    ]
+                ]
             ]
         ]);
 
         $distance = $service->getDistance('Libourne, France');
         
         $this->assertEquals(50.0, $distance);
-        // Verify URL is for Routes API
-        $this->assertStringContainsString('routes.googleapis.com', $service->lastUrl);
-        // Verify method POST
-        $this->assertEquals('POST', $service->lastOptions['http']['method']);
+        // Verify URL is for Distance Matrix API
+        $this->assertStringContainsString('maps.googleapis.com/maps/api/distancematrix', $service->lastUrl);
+        // Verify method GET
+        $this->assertEquals('GET', $service->lastOptions['http']['method']);
     }
 
     public function testGetDistanceApiErrorFallback(): void
     {
         $service = new TestableGoogleMapsService('valid_key');
         
-        // Mock réponse invalide/erreur Routes API
-        $service->mockResponse = json_encode(['error' => ['code' => 403, 'message' => 'PERMISSION_DENIED']]);
+        // Mock réponse erreur Distance Matrix API
+        $service->mockResponse = json_encode([
+            'status' => 'REQUEST_DENIED',
+            'error_message' => 'The provided API key is invalid.'
+        ]);
 
         // Le fallback pour une adresse sans "33" est de 50.0
         $distance = $service->getDistance('Paris');
         $this->assertEquals(50.0, $distance);
 
         // Fallback adresse gironde (33) -> 15.0
-        $service->mockResponse = json_encode(['error' => ['code' => 403, 'message' => 'PERMISSION_DENIED']]);
+        $service->mockResponse = json_encode([
+            'status' => 'REQUEST_DENIED',
+            'error_message' => 'The provided API key is invalid.'
+        ]);
         $distance33 = $service->getDistance('Langon 33210');
         $this->assertEquals(15.0, $distance33);
     }
