@@ -85,9 +85,29 @@ class Router
         // Création de l'objet Request qui sera passé à travers les couches
         $request = new Request();
 
+        // Validation JSON précoce : si Content-Type est application/json et parsing invalide, retourner 400
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+        if (stripos($contentType, 'application/json') !== false) {
+            $request->getJsonBody();
+            if ($request->hasJsonError()) {
+                $jsonError = $request->getJsonError();
+                return (new Response())
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST)
+                    ->setJsonContent([
+                        'success' => false,
+                        'message' => 'JSON invalide',
+                        'error' => $jsonError,
+                    ]);
+            }
+        }
+
         if (!isset($this->routes[$method])) {
-             // Méthode HTTP non supportée ou aucune route définie pour cette méthode
-             return (new Response())->setStatusCode(404)->setJsonContent(['error' => 'Route not found']);
+            $allowed = $this->findAllowedMethods($path, $method);
+            if (!empty($allowed)) {
+                return $this->methodNotAllowedResponse($allowed);
+            }
+            return (new Response())->setStatusCode(Response::HTTP_NOT_FOUND)
+                                  ->setJsonContent(['error' => 'Route not found']);
         }
 
         foreach ($this->routes[$method] as $routePath => $route) {
@@ -148,7 +168,45 @@ class Router
         }
 
         // Si aucune route n'est trouvée, on retourne une réponse 404
+        $allowed = $this->findAllowedMethods($path, $method);
+        if (!empty($allowed)) {
+            return $this->methodNotAllowedResponse($allowed);
+        }
+
         return (new Response())->setStatusCode(Response::HTTP_NOT_FOUND)
                               ->setJsonContent(['success' => false, 'message' => 'Route non trouvée']);
+    }
+
+    private function pathMatches(string $routePath, string $path): bool
+    {
+        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[a-zA-Z0-9_]+)', $routePath);
+        return (bool)preg_match("#^$pattern$#", $path);
+    }
+
+    private function findAllowedMethods(string $path, string $currentMethod): array
+    {
+        $allowed = [];
+
+        foreach ($this->routes as $method => $routesByPath) {
+            if ($method === $currentMethod) {
+                continue;
+            }
+            foreach ($routesByPath as $routePath => $_) {
+                if ($this->pathMatches($routePath, $path)) {
+                    $allowed[] = $method;
+                    break;
+                }
+            }
+        }
+
+        return array_values(array_unique($allowed));
+    }
+
+    private function methodNotAllowedResponse(array $allowed): Response
+    {
+        return (new Response())
+            ->setStatusCode(Response::HTTP_METHOD_NOT_ALLOWED)
+            ->setHeader('Allow', implode(', ', $allowed))
+            ->setJsonContent(['success' => false, 'message' => 'Méthode non autorisée']);
     }
 }

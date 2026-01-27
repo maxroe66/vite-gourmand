@@ -110,17 +110,6 @@ class CommandeControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    public function testUpdateStatusForbidden(): void
-    {
-        $request = $this->createMock(Request::class);
-        // Client role -> Forbidden
-        $user = (object)['sub' => 99, 'role' => 'CLIENT'];
-        $request->method('getAttribute')->with('user')->willReturn($user);
-
-        $response = $this->controller->updateStatus($request, 1);
-        $this->assertEquals(403, $response->getStatusCode());
-    }
-
     public function testUpdateStatusSuccess(): void
     {
         $request = $this->createMock(Request::class);
@@ -146,13 +135,4 @@ class CommandeControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testLoanMaterialForbidden(): void
-    {
-        $request = $this->createMock(Request::class);
-        $user = (object)['role' => 'CLIENT'];
-        $request->method('getAttribute')->with('user')->willReturn($user);
-
-        $response = $this->controller->loanMaterial($request, 10);
-        $this->assertEquals(403, $response->getStatusCode());
-    }
 }

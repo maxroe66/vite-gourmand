@@ -218,11 +218,16 @@ class CommandeController
     public function updateStatus(Request $request, int $id): Response
     {
         $user = $request->getAttribute('user');
-        // Check role (devrait être fait aussi côté Service ou Middleware)
-        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
-             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+
+        if (!$user || !isset($user->role)) {
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
         }
-        
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+        }
+
         $data = $request->getJsonBody();
         $status = $data['status'] ?? null;
         $motif = $data['motif'] ?? null;
@@ -254,8 +259,14 @@ class CommandeController
     public function loanMaterial(Request $request, int $id): Response
     {
         $user = $request->getAttribute('user');
-        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
-             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+
+        if (!$user || !isset($user->role)) {
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return $this->jsonResponse(['error' => 'Accès interdit'], 403);
         }
 
         $data = $request->getJsonBody();
@@ -276,8 +287,14 @@ class CommandeController
     public function returnMaterial(Request $request, int $id): Response
     {
         $user = $request->getAttribute('user');
-        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
-             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+
+        if (!$user || !isset($user->role)) {
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return $this->jsonResponse(['error' => 'Accès interdit'], 403);
         }
 
         try {
@@ -295,10 +312,14 @@ class CommandeController
     public function index(Request $request): Response
     {
         $user = $request->getAttribute('user');
-        
-        // Seuls les employés/admins peuvent voir toutes les commandes
-        if (!isset($user->role) || ($user->role !== 'EMPLOYE' && $user->role !== 'ADMINISTRATEUR')) {
-             return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+
+        if (!$user || !isset($user->role)) {
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return $this->jsonResponse(['error' => 'Accès interdit'], 403);
         }
 
         $params = $request->getQueryParams();

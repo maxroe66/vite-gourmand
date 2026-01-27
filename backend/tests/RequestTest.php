@@ -82,4 +82,27 @@ class RequestTest extends TestCase
         $this->assertEquals($rawData, $request->getRawBody());
         $this->assertEquals(['test' => 'value'], $request->getJsonBody());
     }
+
+    public function test_getJsonBody_invalid_json_sets_error(): void
+    {
+        $request = new Request();
+        $request->setRawBody('{invalid json');
+
+        $this->assertNull($request->getJsonBody());
+        $this->assertTrue($request->hasJsonError());
+        $error = $request->getJsonError();
+        $this->assertIsArray($error);
+        $this->assertArrayHasKey('code', $error);
+        $this->assertArrayHasKey('message', $error);
+    }
+
+    public function test_getJsonBody_empty_body_no_error(): void
+    {
+        $request = new Request();
+        $request->setRawBody('');
+
+        $this->assertNull($request->getJsonBody());
+        $this->assertFalse($request->hasJsonError());
+        $this->assertNull($request->getJsonError());
+    }
 }

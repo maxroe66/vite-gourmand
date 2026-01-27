@@ -2,6 +2,8 @@
 
 use App\Controllers\AvisController;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\RoleMiddleware;
+use App\Exceptions\AuthException;
 use App\Core\Request;
 use Psr\Container\ContainerInterface;
 
@@ -16,9 +18,16 @@ $router->post('/avis', function (ContainerInterface $container, array $params, R
 
 // Lister les avis (Admin dashboard ou public)
 $router->get('/avis', function (ContainerInterface $container, array $params, Request $request) {
-    // On protège a minima pour récupérer l'user / role si nécessaire.
+    // Auth facultative : si un token est présent on enrichit la requête, sinon on sert la version publique.
     $middleware = $container->get(AuthMiddleware::class);
-    $middleware->handle($request);
+    try {
+        $middleware->handle($request);
+    } catch (AuthException $e) {
+        if ($e->getCode() !== AuthException::TOKEN_MISSING) {
+            throw $e;
+        }
+        // Pas de token : on continue en mode public (avis validés uniquement)
+    }
 
     $controller = $container->get(AvisController::class);
     return $controller->list($request);
@@ -33,18 +42,16 @@ $router->get('/avis/public', function (ContainerInterface $container, array $par
 
 // Valider un avis
 $router->put('/avis/{id}/validate', function (ContainerInterface $container, array $params, Request $request) {
-    $middleware = $container->get(AuthMiddleware::class);
-    $middleware->handle($request);
-
     $controller = $container->get(AvisController::class);
     return $controller->validate($request, $params);
-});
+})
+->middleware(AuthMiddleware::class)
+->middleware(RoleMiddleware::class, ['ADMINISTRATEUR']);
 
 // Supprimer/Refuser un avis
 $router->delete('/avis/{id}', function (ContainerInterface $container, array $params, Request $request) {
-    $middleware = $container->get(AuthMiddleware::class);
-    $middleware->handle($request);
-
     $controller = $container->get(AvisController::class);
     return $controller->delete($request, $params);
-});
+})
+->middleware(AuthMiddleware::class)
+->middleware(RoleMiddleware::class, ['ADMINISTRATEUR']);

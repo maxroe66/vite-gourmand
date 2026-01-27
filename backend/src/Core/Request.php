@@ -12,6 +12,10 @@ class Request
     private ?array $parsedBody = null;
     private ?string $rawBody = null;
     private ?array $queryParams = null;
+    private ?int $jsonErrorCode = null;
+    private ?string $jsonErrorMessage = null;
+    private ?string $method = null;
+    private ?array $uploadedFiles = null;
 
     /**
      * Définit un attribut personnalisé (utilisé par les middlewares)
@@ -19,6 +23,28 @@ class Request
     public function setAttribute(string $key, $value): void
     {
         $this->attributes[$key] = $value;
+    }
+
+    /**
+     * Définir la méthode HTTP (utile pour les tests)
+     */
+    public function setMethod(string $method): void
+    {
+        $this->method = strtoupper($method);
+    }
+
+    /**
+     * Récupérer la méthode HTTP
+     */
+    public function getMethod(): string
+    {
+        if ($this->method !== null) {
+            return $this->method;
+        }
+
+        return isset($_SERVER['REQUEST_METHOD'])
+            ? strtoupper((string)$_SERVER['REQUEST_METHOD'])
+            : 'GET';
     }
 
     /**
@@ -59,15 +85,49 @@ class Request
     {
         if ($this->parsedBody === null) {
             $rawBody = $this->getRawBody();
-            $this->parsedBody = json_decode($rawBody, true);
-            
-            // Si json_decode retourne null et qu'il y a une erreur JSON, on garde null
-            // Si le body est vide, on retourne null aussi
-            if ($this->parsedBody === null && json_last_error() === JSON_ERROR_NONE && empty($rawBody)) {
+            // Cas: body vide -> null sans erreur
+            if (trim($rawBody) === '') {
+                $this->jsonErrorCode = null;
+                $this->jsonErrorMessage = null;
                 $this->parsedBody = null;
+                return null;
             }
+
+            $this->parsedBody = json_decode($rawBody, true);
+            $errorCode = json_last_error();
+
+            // Cas: JSON invalide -> null mais on enregistre l'erreur
+            if ($this->parsedBody === null && $errorCode !== JSON_ERROR_NONE) {
+                $this->jsonErrorCode = $errorCode;
+                $this->jsonErrorMessage = json_last_error_msg();
+                return null;
+            }
+
+            // JSON valide (y compris booléen/null/liste/objet)
+            $this->jsonErrorCode = null;
+            $this->jsonErrorMessage = null;
         }
         return $this->parsedBody;
+    }
+
+    /**
+     * Définir les fichiers uploadés (utile pour les tests)
+     */
+    public function setUploadedFiles(?array $files): void
+    {
+        $this->uploadedFiles = $files;
+    }
+
+    /**
+     * Récupérer les fichiers uploadés
+     */
+    public function getUploadedFiles(): array
+    {
+        if ($this->uploadedFiles !== null) {
+            return $this->uploadedFiles;
+        }
+
+        return $_FILES ?? [];
     }
 
     /**
@@ -89,6 +149,29 @@ class Request
     {
         $body = $this->getJsonBody();
         return $body[$key] ?? $default;
+    }
+
+    /**
+     * Indique si une erreur JSON a été rencontrée lors du parsing.
+     */
+    public function hasJsonError(): bool
+    {
+        return $this->jsonErrorCode !== null;
+    }
+
+    /**
+     * Retourne les détails de l'erreur JSON (code + message) ou null s'il n'y en a pas.
+     */
+    public function getJsonError(): ?array
+    {
+        if ($this->jsonErrorCode === null) {
+            return null;
+        }
+
+        return [
+            'code' => $this->jsonErrorCode,
+            'message' => $this->jsonErrorMessage,
+        ];
     }
 
     /**

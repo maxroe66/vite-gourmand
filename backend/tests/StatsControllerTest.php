@@ -7,7 +7,6 @@ use App\Core\Response;
 use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\Database;
-use stdClass;
 
 class StatsControllerTest extends TestCase
 {
@@ -32,7 +31,7 @@ class StatsControllerTest extends TestCase
     public function testGetMenuStatsAsAdmin(): void
     {
         $request = $this->createMock(Request::class);
-        $user = new stdClass();
+        $user = new \stdClass();
         $user->role = 'ADMINISTRATEUR';
         $request->method('getAttribute')->with('user')->willReturn($user);
 
@@ -48,16 +47,15 @@ class StatsControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testGetMenuStatsForbidden(): void
+    public function testGetMenuStatsPassThroughWithoutRoleCheck(): void
     {
-        // Mock Request with Employee User (Not Admin)
         $request = $this->createMock(Request::class);
-        $user = new stdClass();
+        $user = new \stdClass();
         $user->role = 'EMPLOYE';
         $request->method('getAttribute')->with('user')->willReturn($user);
 
         $response = $this->controller->getMenuStats($request);
         
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 }

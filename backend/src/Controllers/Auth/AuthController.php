@@ -9,6 +9,7 @@ use App\Services\MailerService;
 use Psr\Log\LoggerInterface;
 use App\Validators\UserValidator;
 use App\Validators\LoginValidator;
+use App\Validators\ResetPasswordValidator;
 use App\Exceptions\InvalidCredentialsException;
 use App\Exceptions\UserServiceException;
 
@@ -21,6 +22,7 @@ class AuthController
     private array $config;
     private UserValidator $userValidator;
     private LoginValidator $loginValidator;
+    private ResetPasswordValidator $resetPasswordValidator;
 
     public function __construct(
         UserService $userService,
@@ -29,7 +31,8 @@ class AuthController
         LoggerInterface $logger,
         array $config,
         UserValidator $userValidator,
-        LoginValidator $loginValidator
+        LoginValidator $loginValidator,
+        ResetPasswordValidator $resetPasswordValidator = null
     ) {
         $this->userService = $userService;
         $this->authService = $authService;
@@ -38,6 +41,7 @@ class AuthController
         $this->config = $config;
         $this->userValidator = $userValidator;
         $this->loginValidator = $loginValidator;
+        $this->resetPasswordValidator = $resetPasswordValidator ?: new ResetPasswordValidator();
     }
 
     /**
@@ -106,59 +110,8 @@ class AuthController
 
         // 5. Envoi du JWT dans un cookie httpOnly (sécurisé)
         $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
-
-        // Déterminer si la requête d'origine est en HTTPS (prise en compte des en-têtes proxy)
-        $isSecure = (
-            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
-            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
-            !empty($_SERVER['HTTP_X_ARR_SSL'])
-        );
-
-        // Déterminer le domaine du cookie : utiliser la config si fournie, sinon le host courant.
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $cookieDomain = $this->config['cookie_domain'] ?? null;
-        if (empty($cookieDomain) && $host !== '') {
-            // enlever le port si présent
-            $baseHost = preg_replace('/:\d+$/', '', $host);
-            // si le host commence par www., on préfère le domaine apex (.example.com)
-            if (stripos($baseHost, 'www.') === 0) {
-                $baseHost = substr($baseHost, 4);
-            }
-            $cookieDomain = '.' . $baseHost;
-        }
-
-        // Choisir SameSite en fonction du secure : si on veut autoriser les requêtes cross-site
-        // via fetch credentials, il faut SameSite=None et Secure=true.
-        $sameSite = $isSecure ? 'None' : 'Lax';
-
-        $cookieOptions = [
-            'expires' => $expire,
-            'path' => '/',
-            'secure' => $isSecure,
-            'httponly' => true,
-            'samesite' => $sameSite,
-        ];
-        if (!empty($cookieDomain)) {
-            $cookieOptions['domain'] = $cookieDomain;
-        }
-
-        $cookieResult = setcookie('authToken', $token, $cookieOptions);
-                    // TEST: log natif PHP pour vérifier l'exécution sur Azure
-                    error_log('TEST ERROR_LOG: écriture log PHP natif');
-                // TEST: log WARNING pour vérifier l'écriture dans /tmp/app.log sur Azure
-                $this->logger->warning('TEST WARNING: écriture log Azure', [
-                    'env' => getenv('APP_ENV'),
-                    'log_file' => getenv('LOG_FILE'),
-                    'debug' => getenv('APP_DEBUG'),
-                ]);
-        // DEBUG: Logger tous les headers pour diagnostiquer la détection du HTTPS sur Azure
-        $this->logger->debug('Headers $_SERVER', $_SERVER);
-        $this->logger->debug('Tentative setcookie sur register', [
-            'cookie_name' => 'authToken',
-            'cookie_result' => $cookieResult,
-            'headers_sent' => headers_sent() ? true : false,
-            'cookie_options' => $cookieOptions,
-        ]);
+        $cookieOptions = $this->buildCookieOptions($expire);
+        setcookie('authToken', $token, $cookieOptions);
 
         // 6. Envoi de l'email de bienvenue
         $emailSent = $this->mailerService->sendWelcomeEmail($data['email'], $data['firstName']);
@@ -214,19 +167,19 @@ class AuthController
     public function resetPassword(Request $request): Response
     {
         $data = $request->getJsonBody();
-        $token = $data['token'] ?? '';
-        $password = $data['password'] ?? '';
 
-        if (empty($token) || empty($password)) {
-            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
-                ->setJsonContent(['success' => false, 'message' => 'Token et mot de passe requis.']);
+        $validation = $this->resetPasswordValidator->validate($data);
+        if (!$validation['isValid']) {
+            return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ->setJsonContent([
+                    'success' => false,
+                    'message' => 'Des champs sont invalides.',
+                    'errors' => $validation['errors']
+                ]);
         }
 
-        // Validation basique mot de passe (min 8 chars, etc) - on pourrait réutiliser UserValidator
-        if (strlen($password) < 8) {
-             return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
-                ->setJsonContent(['success' => false, 'message' => 'Le mot de passe doit faire au moins 8 caractères.']);
-        }
+        $token = $data['token'];
+        $password = $data['password'];
 
         try {
             $this->authService->resetPassword($token, $password);
@@ -237,6 +190,11 @@ class AuthController
             ]);
             
         } catch (\Exception $e) {
+            $this->logger->error('Erreur reset password', [
+                'error' => $e->getMessage(),
+                // Ne pas loguer le mot de passe ; le token est potentiellement sensible
+                'token_prefix' => substr($token, 0, 8) . '...'
+            ]);
             return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
                 ->setJsonContent([
                     'success' => false, 
@@ -310,42 +268,8 @@ class AuthController
 
             // 6. Envoi du JWT dans un cookie httpOnly (sécurisé)
             $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
-
-            // Déterminer si la requête d'origine est en HTTPS (prise en compte des en-têtes proxy)
-            $isSecure = (
-                (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
-                (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
-                !empty($_SERVER['HTTP_X_ARR_SSL']) || !empty($_SERVER['HTTP_X_ARR_PROTO'])
-            );
-
-            // Déterminer le domaine du cookie : utiliser la config si fournie, sinon le host courant.
-            $host = $_SERVER['HTTP_HOST'] ?? '';
-            $cookieDomain = $this->config['cookie_domain'] ?? null;
-            if (empty($cookieDomain) && $host !== '') {
-                $cookieDomain = '.' . preg_replace('/:\\d+$/', '', $host);
-            }
-
-            $sameSite = $isSecure ? 'None' : 'Lax';
-
-            $cookieOptions = [
-                'expires' => $expire,
-                'path' => '/',
-                'secure' => $isSecure,
-                'httponly' => true,
-                'samesite' => $sameSite,
-            ];
-            if (!empty($cookieDomain)) {
-                $cookieOptions['domain'] = $cookieDomain;
-            }
-
-            $cookieResult = setcookie('authToken', $token, $cookieOptions);
-            // Loguer le résultat de la tentative d'ajout du cookie pour faciliter le debug en prod
-            $this->logger->debug('Tentative setcookie sur login', [
-                'cookie_name' => 'authToken',
-                'cookie_result' => $cookieResult,
-                'headers_sent' => headers_sent() ? true : false,
-                'cookie_options' => $cookieOptions,
-            ]);
+            $cookieOptions = $this->buildCookieOptions($expire);
+            setcookie('authToken', $token, $cookieOptions);
 
             // 7. Retourne la réponse de succès
             $this->logger->info('Connexion réussie', ['userId' => $user['id'], 'email' => $data['email']]);
@@ -371,66 +295,14 @@ class AuthController
 
     public function logout(): Response
     {
-        // 1. Invalider le cookie en le supprimant
-            $isSecure = (
-                (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
-                (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
-                !empty($_SERVER['HTTP_X_ARR_SSL'])
-            );
+        // 1. Invalider le cookie en le supprimant avec la même logique que register/login
+        $expire = time() - 3600;
+        $cookieOptions = $this->buildCookieOptions($expire);
+        setcookie('authToken', '', $cookieOptions);
 
-        $host = $_SERVER['HTTP_HOST'] ?? '';
-        $cookieDomain = $this->config['cookie_domain'] ?? null;
-        if (empty($cookieDomain) && $host !== '') {
-            $cookieDomain = '.' . preg_replace('/:\d+$/', '', $host);
-        }
-
-        // Déterminer SameSite comme lors du login
-        $sameSite = $isSecure ? 'None' : 'Lax';
-        $baseDomains = [];
-        if (!empty($cookieDomain)) {
-            $baseDomains[] = $cookieDomain;
-            // Si le domaine commence par .www., ajouter aussi la version sans www
-            if (stripos($cookieDomain, '.www.') === 0) {
-                $baseDomains[] = str_ireplace('.www.', '.', $cookieDomain);
-            } elseif (stripos($cookieDomain, '.vite-et-gourmand.me') !== false) {
-                // Ajoute aussi la version .www.vite-et-gourmand.me si ce n'est pas déjà le cas
-                $baseDomains[] = '.www.vite-et-gourmand.me';
-                $baseDomains[] = '.vite-et-gourmand.me';
-            }
-        } else {
-            // fallback : tente les deux domaines principaux
-            $baseDomains = ['.vite-et-gourmand.me', '.www.vite-et-gourmand.me'];
-        }
-
-        $cookieResults = [];
-        foreach (array_unique($baseDomains) as $domain) {
-            $cookieOptions = [
-                'expires' => time() - 3600,
-                'path' => '/',
-                'secure' => $isSecure,
-                'httponly' => true,
-                'samesite' => $sameSite,
-                'domain' => $domain
-            ];
-            $cookieResults[$domain] = setcookie('authToken', '', $cookieOptions);
-        }
-        // Pour le cas où le cookie aurait été créé sans domain explicite (host only)
-        $cookieOptionsHostOnly = [
-            'expires' => time() - 3600,
-            'path' => '/',
-            'secure' => $isSecure,
-            'httponly' => true,
-            'samesite' => $sameSite
-        ];
-        $cookieResults['host_only'] = setcookie('authToken', '', $cookieOptionsHostOnly);
-
-        $this->logger->debug('Tentative setcookie sur logout (multi-domaines)', [
-            'cookie_name' => 'authToken',
-            'cookie_results' => $cookieResults,
-            'headers_sent' => headers_sent() ? true : false,
-            'cookie_domains' => $baseDomains,
-            'cookie_options_host_only' => $cookieOptionsHostOnly,
-        ]);
+        // Supprime aussi une éventuelle version host-only (sans domain explicite)
+        $hostOnlyOptions = $this->buildCookieOptions($expire, false);
+        setcookie('authToken', '', $hostOnlyOptions);
 
         $this->logger->info('Utilisateur déconnecté avec succès');
 
@@ -475,5 +347,69 @@ class AuthController
         $this->logger->error("checkAuth atteint sans attribut 'user' dans la requête. Le middleware a-t-il échoué ?");
         return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
                               ->setJsonContent(['isAuthenticated' => false]);
+    }
+
+    /**
+     * Construit les options du cookie auth de manière cohérente (domain, secure, SameSite).
+     */
+    private function buildCookieOptions(int $expires, bool $withDomain = true): array
+    {
+        $isSecure = $this->isSecureRequest();
+        $sameSite = $isSecure ? 'None' : 'Lax';
+
+        $options = [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => $isSecure,
+            'httponly' => true,
+            'samesite' => $sameSite,
+        ];
+
+        if ($withDomain) {
+            $domain = $this->resolveCookieDomain();
+            if ($domain !== null) {
+                $options['domain'] = $domain;
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Détecte si la requête est sécurisée, en tenant compte des proxys (https / headers proxy).
+     */
+    private function isSecureRequest(): bool
+    {
+        return (
+            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
+            (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') ||
+            !empty($_SERVER['HTTP_X_ARR_SSL']) ||
+            (!empty($_SERVER['HTTP_X_ARR_PROTO']) && strtolower($_SERVER['HTTP_X_ARR_PROTO']) === 'https')
+        );
+    }
+
+    /**
+     * Normalise le domaine du cookie (config prioritaire, sinon host courant sans port ni www).
+     */
+    private function resolveCookieDomain(): ?string
+    {
+        $configured = $this->config['cookie_domain'] ?? null;
+        if (!empty($configured)) {
+            // Normalise en forçant un préfixe '.' et en retirant les doublons éventuels.
+            return '.' . ltrim($configured, '.');
+        }
+
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        if ($host === '') {
+            return null;
+        }
+
+        // Retire le port éventuel et le préfixe www.
+        $baseHost = preg_replace('/:\d+$/', '', $host);
+        if (stripos($baseHost, 'www.') === 0) {
+            $baseHost = substr($baseHost, 4);
+        }
+
+        return '.' . $baseHost;
     }
 }

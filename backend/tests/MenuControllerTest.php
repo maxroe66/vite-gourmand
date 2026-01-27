@@ -36,6 +36,20 @@ class MenuControllerTest extends TestCase
         );
     }
 
+    private function makeAuthorizedRequest(?array $jsonData = null): Request
+    {
+        $request = $jsonData !== null
+            ? Request::createFromJson($jsonData)
+            : Request::createFromGlobals();
+
+        $request->setAttribute('user', (object) [
+            'role' => 'ADMINISTRATEUR',
+            'sub' => 1,
+        ]);
+
+        return $request;
+    }
+
     // ==========================================
     // TESTS POUR index()
     // ==========================================
@@ -111,7 +125,7 @@ class MenuControllerTest extends TestCase
     {
         // Arrange
         $inputData = ['titre' => 'Nouveau Menu', 'description' => 'Description valide', 'prix' => 25.5, 'nb_personnes_min' => 2, 'stock' => 10, 'id_theme' => 1, 'id_regime' => 1];
-        $request = Request::createFromJson($inputData);
+        $request = $this->makeAuthorizedRequest($inputData);
 
         $this->menuValidatorMock->expects($this->once())
             ->method('validate')
@@ -136,7 +150,7 @@ class MenuControllerTest extends TestCase
     {
         // Arrange
         $inputData = ['titre' => '']; // Données invalides
-        $request = Request::createFromJson($inputData);
+        $request = $this->makeAuthorizedRequest($inputData);
 
         $this->menuValidatorMock->expects($this->once())
             ->method('validate')
@@ -172,7 +186,7 @@ class MenuControllerTest extends TestCase
             'id_regime' => 1
         ];
 
-        $request = Request::createFromJson($inputData);
+        $request = $this->makeAuthorizedRequest($inputData);
         
         // Mocker getMenuDetails pour retourner un menu existant
         $this->menuServiceMock->expects($this->once())
@@ -207,7 +221,7 @@ class MenuControllerTest extends TestCase
         // Arrange
         $menuId = 1;
         $inputData = ['titre' => '']; // Données invalides
-        $request = Request::createFromJson($inputData);
+        $request = $this->makeAuthorizedRequest($inputData);
 
         // Données existantes simulées
         $existingMenu = [
@@ -242,7 +256,7 @@ class MenuControllerTest extends TestCase
     {
         // Arrange
         $menuId = 1;
-        $request = Request::createFromGlobals();
+        $request = $this->makeAuthorizedRequest();
 
         $this->menuServiceMock->expects($this->once())
             ->method('deleteMenu')
@@ -260,7 +274,7 @@ class MenuControllerTest extends TestCase
     {
         // Arrange
         $menuId = 999;
-        $request = Request::createFromGlobals();
+        $request = $this->makeAuthorizedRequest();
 
         $this->menuServiceMock->expects($this->once())
             ->method('deleteMenu')

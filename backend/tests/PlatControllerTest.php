@@ -35,6 +35,20 @@ class PlatControllerTest extends TestCase
         );
     }
 
+    private function makeAuthorizedRequest(?array $jsonData = null): Request
+    {
+        $request = $jsonData !== null
+            ? Request::createFromJson($jsonData)
+            : Request::createFromGlobals();
+
+        $request->setAttribute('user', (object) [
+            'role' => 'ADMINISTRATEUR',
+            'sub' => 1,
+        ]);
+
+        return $request;
+    }
+
     // ==========================================
     // TESTS POUR index()
     // ==========================================
@@ -116,7 +130,7 @@ class PlatControllerTest extends TestCase
     {
         // Arrange
         $inputData = ['libelle' => 'Nouveau Plat', 'description' => '...', 'type' => 'PLAT'];
-        $request = Request::createFromJson($inputData);
+        $request = $this->makeAuthorizedRequest($inputData);
 
         $this->platValidatorMock->method('validate')->willReturn(['isValid' => true]);
         $this->platServiceMock->method('createDish')->willReturn(123);
@@ -138,7 +152,7 @@ class PlatControllerTest extends TestCase
     {
         // Arrange
         $platId = 1;
-        $request = Request::createFromGlobals();
+        $request = $this->makeAuthorizedRequest();
 
         $this->platServiceMock->expects($this->once())
             ->method('deleteDish')
@@ -156,7 +170,7 @@ class PlatControllerTest extends TestCase
     {
         // Arrange
         $platId = 1;
-        $request = Request::createFromGlobals();
+        $request = $this->makeAuthorizedRequest();
         $exceptionMessage = "Constraint violation"; // Peu importe ce message, le contrôleur le remplace
         $expectedMessage = "Ce plat ne peut pas être supprimé car il est lié à des menus ou contient des allergènes.";
 

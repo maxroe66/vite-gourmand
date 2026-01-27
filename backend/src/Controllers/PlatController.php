@@ -87,6 +87,21 @@ class PlatController
      */
     public function store(Request $request): Response
     {
+        $user = $request->getAttribute('user');
+
+        if (!$user || !isset($user->role)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                ->setJsonContent(['error' => 'Non authentifié']);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_FORBIDDEN)
+                ->setJsonContent(['error' => 'Accès interdit']);
+        }
+
         $data = $request->getJsonBody();
 
         if (!$data) {
@@ -131,6 +146,21 @@ class PlatController
      */
     public function update(Request $request, int $id): Response
     {
+        $user = $request->getAttribute('user');
+
+        if (!$user || !isset($user->role)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                ->setJsonContent(['error' => 'Non authentifié']);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_FORBIDDEN)
+                ->setJsonContent(['error' => 'Accès interdit']);
+        }
+
         $data = $request->getJsonBody();
 
         if (!$data) {
@@ -168,6 +198,21 @@ class PlatController
      */
     public function destroy(Request $request, int $id): Response
     {
+        $user = $request->getAttribute('user');
+
+        if (!$user || !isset($user->role)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                ->setJsonContent(['error' => 'Non authentifié']);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_FORBIDDEN)
+                ->setJsonContent(['error' => 'Accès interdit']);
+        }
+
         try {
             if ($this->platService->deleteDish($id)) {
                 return (new Response())->setStatusCode(Response::HTTP_NO_CONTENT);

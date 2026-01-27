@@ -20,8 +20,23 @@ class MaterielController
      */
     public function index(Request $request): Response
     {
+        $user = $request->getAttribute('user');
+
+        if (!$user || !isset($user->role)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                ->setJsonContent(['error' => 'Non authentifié']);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_FORBIDDEN)
+                ->setJsonContent(['error' => 'Accès interdit']);
+        }
+
         $materiels = $this->materielRepository->findAll();
-        
+
         return (new Response())
             ->setStatusCode(Response::HTTP_OK)
             ->setJsonContent($materiels);

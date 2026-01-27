@@ -5,14 +5,17 @@ namespace App\Controllers;
 use App\Core\Request;
 use App\Core\Response;
 use App\Services\StorageService;
+use Psr\Log\LoggerInterface;
 
 class UploadController
 {
     private $storageService;
+    private LoggerInterface $logger;
 
-    public function __construct(StorageService $storageService)
+    public function __construct(StorageService $storageService, LoggerInterface $logger)
     {
         $this->storageService = $storageService;
+        $this->logger = $logger;
     }
 
     /**
@@ -20,21 +23,38 @@ class UploadController
      */
     public function uploadImage(Request $request): Response
     {
+        $user = $request->getAttribute('user');
+
+        if (!$user || !isset($user->role)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                ->setJsonContent(['error' => 'Non authentifié']);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return (new Response())
+                ->setStatusCode(Response::HTTP_FORBIDDEN)
+                ->setJsonContent(['error' => 'Accès interdit']);
+        }
+
         // Vérification de la méthode
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($request->getMethod() !== 'POST') {
             return (new Response())
                 ->setStatusCode(Response::HTTP_METHOD_NOT_ALLOWED)
                 ->setJsonContent(['error' => 'Méthode non autorisée']);
         }
 
+        $files = $request->getUploadedFiles();
+
         // Vérification de la présence du fichier
-        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        if (!isset($files['image']) || $files['image']['error'] !== UPLOAD_ERR_OK) {
             return (new Response())
                 ->setStatusCode(Response::HTTP_BAD_REQUEST)
                 ->setJsonContent(['error' => 'Aucun fichier valide reçu']);
         }
 
-        $file = $_FILES['image'];
+        $file = $files['image'];
         
         // Validation type MIME
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -55,11 +75,14 @@ class UploadController
                 ->setJsonContent(['error' => 'Fichier trop volumineux (Max 5MB)']);
         }
 
-        // Génération nom unique avec extension sécurisée ou vérifiée
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        // Force l'extension ou vérifie à nouveau si nécessaire (déjà fait par in_array mimeType)
-        // Pour sécurité max, mapper mimeType -> extension
-        
+        // Génération nom unique avec extension contrôlée (mapping MIME -> extension)
+        $extensionMap = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/webp' => 'webp',
+            'image/gif'  => 'gif',
+        ];
+        $extension = $extensionMap[$mimeType] ?? 'bin';
         $filename = uniqid('menu_', true) . '.' . $extension;
         
         try {
@@ -74,6 +97,12 @@ class UploadController
                 ]);
 
         } catch (\Exception $e) {
+             $this->logger->error('Upload failed', [
+                 'error' => $e->getMessage(),
+                 'mime' => $mimeType,
+                 'filename' => $filename,
+             ]);
+
              return (new Response())
                 ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
                 ->setJsonContent(['error' => 'Erreur upload: ' . $e->getMessage()]);

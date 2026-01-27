@@ -30,10 +30,13 @@ class StatsController
     public function getMenuStats(Request $request): Response
     {
         $user = $request->getAttribute('user');
-        
-        // Sécurité : Admin/Employé seulement
-        if (!isset($user->role) || ($user->role !== 'ADMINISTRATEUR')) {
-             return $this->jsonResponse(['error' => 'Accès interdit. Réservé aux administrateurs.'], 403);
+
+        if (!$user || !isset($user->role)) {
+            return $this->jsonResponse(['error' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if ($user->role !== 'ADMINISTRATEUR') {
+            return $this->jsonResponse(['error' => 'Accès interdit'], Response::HTTP_FORBIDDEN);
         }
 
         if (!$this->mongoDBClient) {
@@ -49,6 +52,18 @@ class StatsController
             $startDate = $request->getQueryParam('startDate');
             $endDate = $request->getQueryParam('endDate');
             $menuId = $request->getQueryParam('menuId');
+
+            $isDate = function ($value) {
+                return is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value);
+            };
+
+            if (($startDate && !$isDate($startDate)) || ($endDate && !$isDate($endDate))) {
+                return $this->jsonResponse(['error' => 'Format de date invalide (attendu AAAA-MM-JJ)'], Response::HTTP_BAD_REQUEST);
+            }
+
+            if ($menuId !== null && !is_numeric($menuId)) {
+                return $this->jsonResponse(['error' => 'menuId doit être numérique'], Response::HTTP_BAD_REQUEST);
+            }
 
             $matchRule = [];
 

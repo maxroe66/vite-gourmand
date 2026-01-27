@@ -9,6 +9,7 @@ use App\Services\MailerService;
 use App\Services\AuthService;
 use Psr\Log\LoggerInterface;
 use App\Exceptions\UserServiceException;
+use App\Validators\EmployeeValidator;
 
 class AdminController
 {
@@ -16,17 +17,20 @@ class AdminController
     private AuthService $authService;
     private MailerService $mailerService;
     private LoggerInterface $logger;
+    private EmployeeValidator $employeeValidator;
 
     public function __construct(
         UserService $userService,
         AuthService $authService,
         MailerService $mailerService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EmployeeValidator $employeeValidator
     ) {
         $this->userService = $userService;
         $this->authService = $authService;
         $this->mailerService = $mailerService;
         $this->logger = $logger;
+        $this->employeeValidator = $employeeValidator;
     }
 
     /**
@@ -53,9 +57,20 @@ class AdminController
 
         $data = $request->getJsonBody();
 
-        if (empty($data['email']) || empty($data['password'])) {
-            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
-                ->setJsonContent(['success' => false, 'message' => 'Email et mot de passe requis.']);
+        // Validation dédiée employé (email, mot de passe, prénom, nom)
+        $validation = $this->employeeValidator->validate($data);
+        if (!$validation['isValid']) {
+            $this->logger->warning('Échec validation création employé', [
+                'errors' => $validation['errors'],
+                'email' => $data['email'] ?? null,
+                'adminId' => $this->getAdminId($request)
+            ]);
+            return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ->setJsonContent([
+                    'success' => false,
+                    'message' => 'Des champs sont invalides.',
+                    'errors' => $validation['errors']
+                ]);
         }
 
         // On définit le rôle et on prépare les data
@@ -65,8 +80,8 @@ class AdminController
             'password' => $data['password'],
             'role' => 'EMPLOYE',
             // Champs optionnels ou par défaut pour respecter le schéma DB
-            'firstName' => $data['firstName'] ?? 'Employé',
-            'lastName' => $data['lastName'] ?? 'V&G',
+            'firstName' => $data['firstName'],
+            'lastName' => $data['lastName'],
             'phone' => $data['phone'] ?? '',
             'address' => $data['address'] ?? '',
             'city' => $data['city'] ?? '',
@@ -75,6 +90,7 @@ class AdminController
 
         // Hash du mot de passe
         $userData['passwordHash'] = $this->authService->hashPassword($userData['password']);
+        unset($userData['password']);
         
         try {
             $this->userService->createUser($userData);
@@ -85,10 +101,20 @@ class AdminController
             return (new Response())->setStatusCode(Response::HTTP_CREATED)
                 ->setJsonContent(['success' => true, 'message' => 'Compte employé créé avec succès.']);
         } catch (UserServiceException $e) {
+            $this->logger->warning('Conflit création employé', [
+                'email' => $userData['email'] ?? null,
+                'adminId' => $this->getAdminId($request),
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+            ]);
             return (new Response())->setStatusCode(Response::HTTP_CONFLICT)
                 ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
         } catch (\Exception $e) {
-            $this->logger->error("Erreur création employé: " . $e->getMessage());
+            $this->logger->error('Erreur création employé', [
+                'email' => $userData['email'] ?? null,
+                'adminId' => $this->getAdminId($request),
+                'error' => $e->getMessage()
+            ]);
             return (new Response())->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
                 ->setJsonContent(['success' => false, 'message' => 'Erreur serveur lors de la création.']);
         }
@@ -131,5 +157,14 @@ class AdminController
             return (new Response())->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
                 ->setJsonContent(['success' => false, 'message' => 'Erreur lors de la désactivation.']);
         }
+    }
+
+    /**
+     * Récupère l'identifiant de l'admin depuis le token décodé (attribut 'user').
+     */
+    private function getAdminId(Request $request): ?int
+    {
+        $user = $request->getAttribute('user');
+        return isset($user->sub) ? (int) $user->sub : null;
     }
 }

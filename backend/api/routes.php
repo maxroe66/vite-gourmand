@@ -9,15 +9,18 @@ require __DIR__ . '/routes.materiel.php'; // Routes matériel
 require __DIR__ . '/routes.diagnostic.php'; // Route de diagnostic MongoDB
 
 use App\Controllers\UploadController;
+use App\Middlewares\AuthMiddleware;
+use App\Middlewares\RoleMiddleware;
 use Psr\Container\ContainerInterface;
 use App\Core\Request;
 
-// Route upload
+// Route upload (Protégée : EMPLOYE, ADMINISTRATEUR)
 $router->post('/upload', function (ContainerInterface $container, array $params, Request $request) {
-    // TODO: Ajouter middleware Auth + Role Admin/Employe
     // On utilise le conteneur pour résoudre les dépendances (StorageService)
     $controller = $container->get(UploadController::class);
     return $controller->uploadImage($request);
-});
+})
+->middleware(AuthMiddleware::class)
+->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
 // routes.php : point d'entrée pour toutes les routes de l'API

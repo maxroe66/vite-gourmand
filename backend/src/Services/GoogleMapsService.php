@@ -54,16 +54,16 @@ class GoogleMapsService
             $data = json_decode($response, true);
 
             // Log pour debug
-            error_log("Google Maps API Response: " . $response);
+            // error_log("Google Maps API Response: " . $response);
 
             // Vérification du statut global
             if (!isset($data['status'])) {
-                error_log("Google Maps API: No status in response");
+                // error_log("Google Maps API: No status in response");
                 return $this->estimateDistance($originAddress);
             }
 
             if ($data['status'] !== 'OK') {
-                error_log("Google Maps API Error Status: " . $data['status'] . " - " . ($data['error_message'] ?? 'No message'));
+                // error_log("Google Maps API Error Status: " . $data['status'] . " - " . ($data['error_message'] ?? 'No message'));
                 
                 // Si l'API legacy n'est pas activée, essayer l'API Routes v2
                 if ($data['status'] === 'REQUEST_DENIED') {
@@ -80,10 +80,10 @@ class GoogleMapsService
                 if ($element['status'] === 'OK' && isset($element['distance']['value'])) {
                     // Distance en mètres -> converti en km
                     $distanceKm = round($element['distance']['value'] / 1000, 2);
-                    error_log("Google Maps Distance calculated: " . $distanceKm . " km");
+                    // error_log("Google Maps Distance calculated: " . $distanceKm . " km");
                     return $distanceKm;
                 } else {
-                    error_log("Google Maps Element Error: " . ($element['status'] ?? 'Unknown'));
+                    // error_log("Google Maps Element Error: " . ($element['status'] ?? 'Unknown'));
                 }
             }
             
@@ -91,7 +91,7 @@ class GoogleMapsService
             return $this->estimateDistance($originAddress);
 
         } catch (\Exception $e) {
-            error_log("Google Maps Exception: " . $e->getMessage());
+            // error_log("Google Maps Exception: " . $e->getMessage());
             return $this->estimateDistance($originAddress);
         }
     }
@@ -146,28 +146,39 @@ class GoogleMapsService
             $response = $this->makeHttpRequest($url, $opts);
             $data = json_decode($response, true);
 
-            error_log("Google Maps Routes API Response: " . $response);
+            // error_log("Google Maps Routes API Response: " . $response);
 
-            if (is_array($data) && !empty($data)) {
-                $element = $data[0];
+            if (!is_array($data) || empty($data)) {
+                return $this->estimateDistance($originAddress);
+            }
 
-                // Vérification d'erreur dans la réponse
-                if (isset($element['error'])) {
-                    error_log("Google Maps Routes API Error: " . ($element['error']['message'] ?? 'Unknown'));
-                    return $this->estimateDistance($originAddress);
-                }
+            // Certaines erreurs sont renvoyées à la racine (ex: REQUEST_DENIED)
+            if (isset($data['status']) && $data['status'] !== 'OK') {
+                // error_log("Google Maps Routes API Error Status: " . $data['status'] . " - " . ($data['error_message'] ?? 'No message'));
+                return $this->estimateDistance($originAddress);
+            }
 
-                if (isset($element['distanceMeters'])) {
-                    $distanceKm = round($element['distanceMeters'] / 1000, 2);
-                    error_log("Google Maps Routes Distance: " . $distanceKm . " km");
-                    return $distanceKm;
-                }
+            $element = $data[0] ?? null;
+            if (!is_array($element)) {
+                return $this->estimateDistance($originAddress);
+            }
+
+            // Vérification d'erreur dans la réponse
+            if (isset($element['error'])) {
+                // error_log("Google Maps Routes API Error: " . ($element['error']['message'] ?? 'Unknown'));
+                return $this->estimateDistance($originAddress);
+            }
+
+            if (isset($element['distanceMeters'])) {
+                $distanceKm = round($element['distanceMeters'] / 1000, 2);
+                // error_log("Google Maps Routes Distance: " . $distanceKm . " km");
+                return $distanceKm;
             }
 
             return $this->estimateDistance($originAddress);
 
         } catch (\Exception $e) {
-            error_log("Google Maps Routes Exception: " . $e->getMessage());
+            // error_log("Google Maps Routes Exception: " . $e->getMessage());
             return $this->estimateDistance($originAddress);
         }
     }

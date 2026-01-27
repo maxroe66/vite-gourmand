@@ -19,6 +19,7 @@ final class Response
     public const HTTP_UNAUTHORIZED = 401;
     public const HTTP_FORBIDDEN = 403;
     public const HTTP_NOT_FOUND = 404;
+    public const HTTP_METHOD_NOT_ALLOWED = 405;
     public const HTTP_CONFLICT = 409;
     public const HTTP_UNPROCESSABLE_ENTITY = 422;
     public const HTTP_INTERNAL_SERVER_ERROR = 500;
@@ -41,12 +42,12 @@ final class Response
      *
      * @deprecated since 1.0.0 Use Response::setJsonContent() and Response::send() instead.
      */
-    public static function json($data, int $status = 200): void
+    public static function json($data, int $status = 200): self
     {
-        http_response_code($status);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        exit;
+        return (new self())
+            ->setStatusCode($status)
+            ->setHeader('Content-Type', 'application/json; charset=utf-8')
+            ->setContent(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
     /**
@@ -94,6 +95,11 @@ final class Response
     public function getStatusCode(): int
     {
         return $this->statusCode;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
     }
 
     /**
