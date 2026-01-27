@@ -26,6 +26,13 @@ $router->post('/auth/logout', function (ContainerInterface $container, array $pa
     return $authController->logout();
 });
 
+// Route GET explicite pour renvoyer 404 (sécurité/idempotence)
+$router->get('/auth/logout', function () {
+    return (new Response())
+        ->setStatusCode(Response::HTTP_NOT_FOUND)
+        ->setJsonContent(['error' => 'Not found']);
+});
+
 // Routes mot de passe oublié
 $router->post('/auth/forgot-password', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
