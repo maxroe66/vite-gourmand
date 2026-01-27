@@ -106,10 +106,12 @@ class CommandeController
                 $emailSent = $this->mailerService->sendOrderConfirmation($email, $firstName, $orderSummary);
                 if (!$emailSent) {
                     $this->logger->error('Échec envoi email confirmation commande', ['email' => $email]);
+                    // Même en cas d'échec d'email, retourner l'ID pour permettre le suivi côté client/tests
                     return (new Response())->setStatusCode(Response::HTTP_CREATED)
                         ->setJsonContent([
                             'success' => true,
                             'userId' => $userId,
+                            'id' => $commandeId,
                             'emailSent' => false,
                             'message' => "Commande créée, mais l'email de confirmation n'a pas pu être envoyé."
                         ]);
