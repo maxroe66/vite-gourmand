@@ -103,13 +103,13 @@ $router->addGroup('/api', function ($router) use ($container, $config) {
 if ($method === 'GET' && strpos($path, '/api') !== 0) {
     $staticPagePath = null;
     if ($path === '/' || $path === '/home' || $path === '/accueil') {
-        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/home.html';
+        $staticPagePath = __DIR__ . '/frontend/frontend/pages/home.html';
     } elseif ($path === '/inscription') {
-        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/inscription.html';
+        $staticPagePath = __DIR__ . '/frontend/frontend/pages/inscription.html';
     } elseif ($path === '/connexion') {
-        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/connexion.html';
+        $staticPagePath = __DIR__ . '/frontend/frontend/pages/connexion.html';
     } elseif ($path === '/reset-password') {
-        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/motdepasse-oublie.html';
+        $staticPagePath = __DIR__ . '/frontend/frontend/pages/motdepasse-oublie.html';
     }
 
     
