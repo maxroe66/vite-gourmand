@@ -114,14 +114,46 @@ return function (array $config): ContainerInterface {
         // 5. MongoDB Client (nécessite l'URI dans la config)
         \MongoDB\Client::class => function (ContainerInterface $c) {
             $mongoConfig = $c->get('config')['mongo'];
+            $isCosmos = $mongoConfig['is_cosmos'] ?? false;
             
             // Log de debug pour diagnostiquer les problèmes Azure
             $uriForLog = preg_replace('/\/\/([^:]+):([^@]+)@/', '//***:***@', $mongoConfig['uri']);
             error_log("[MongoDB Init] Tentative de connexion à: " . $uriForLog);
             error_log("[MongoDB Init] Base de données: " . $mongoConfig['database']);
+            error_log("[MongoDB Init] Cosmos DB: " . ($isCosmos ? 'oui' : 'non'));
+            
+            // Options URI (passées au driver libmongoc)
+            $uriOptions = [];
+            
+            // Options driver PHP
+            $driverOptions = [];
+            
+            if ($isCosmos) {
+                // Cosmos DB nécessite TLS + timeouts généreux + pas de retries
+                $uriOptions = [
+                    'tls' => true,
+                    'retryWrites' => false,
+                    'retryReads' => false,
+                    'serverSelectionTimeoutMS' => 15000,
+                    'connectTimeoutMS' => 10000,
+                    'socketTimeoutMS' => 30000,
+                ];
+                // Accepter le certificat Azure (auto-signé Cosmos DB)
+                $driverOptions = [
+                    'allow_invalid_hostname' => true,
+                    'context' => stream_context_create([
+                        'ssl' => [
+                            'allow_self_signed' => true,
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                        ],
+                    ]),
+                ];
+                error_log("[MongoDB Init] Options Cosmos DB activées (TLS + timeouts)");
+            }
             
             try {
-                $client = new \MongoDB\Client($mongoConfig['uri']);
+                $client = new \MongoDB\Client($mongoConfig['uri'], $uriOptions, $driverOptions);
                 
                 // Test de connexion pour détecter les erreurs au démarrage
                 $client->listDatabases();
@@ -133,7 +165,7 @@ return function (array $config): ContainerInterface {
                 error_log("[MongoDB Init] Type d'erreur: " . get_class($e));
                 // On retourne quand même le client pour ne pas bloquer l'app
                 // Les erreurs seront gérées dans les services
-                return new \MongoDB\Client($mongoConfig['uri']);
+                return new \MongoDB\Client($mongoConfig['uri'], $uriOptions, $driverOptions);
             }
         },
 
