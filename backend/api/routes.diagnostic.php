@@ -4,12 +4,15 @@
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Middlewares\AuthMiddleware;
+use App\Middlewares\RoleMiddleware;
 use MongoDB\Client as MongoDBClient;
 use Psr\Container\ContainerInterface;
 
 /**
  * Route de diagnostic MongoDB pour Azure
  * GET /api/diagnostic/mongodb
+ * Protégée : ADMINISTRATEUR uniquement
  */
 $router->get('/diagnostic/mongodb', function (ContainerInterface $container, array $params, Request $request) {
     $diagnostics = [
@@ -87,4 +90,6 @@ $router->get('/diagnostic/mongodb', function (ContainerInterface $container, arr
     }
     
     return Response::json($diagnostics, 200);
-});
+})
+->middleware(AuthMiddleware::class)
+->middleware(RoleMiddleware::class, ['ADMINISTRATEUR']);

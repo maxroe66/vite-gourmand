@@ -48,7 +48,7 @@ $router->put('/avis/{id}/validate', function (ContainerInterface $container, arr
 })
 ->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
-->middleware(RoleMiddleware::class, ['ADMINISTRATEUR']);
+->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
 // Supprimer/Refuser un avis
 $router->delete('/avis/{id}', function (ContainerInterface $container, array $params, Request $request) {
@@ -57,4 +57,4 @@ $router->delete('/avis/{id}', function (ContainerInterface $container, array $pa
 })
 ->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
-->middleware(RoleMiddleware::class, ['ADMINISTRATEUR']);
+->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
