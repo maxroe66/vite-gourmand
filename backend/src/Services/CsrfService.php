@@ -72,7 +72,10 @@ class CsrfService
 
     private function buildCookieOptions(int $expires): array
     {
-        $isSecure = $this->isSecureRequest();
+        // En production, forcer Secure=true comme filet de sécurité
+        // même si les headers proxy ne sont pas détectés.
+        $isProduction = ($this->config['env'] ?? 'development') === 'production';
+        $isSecure = $isProduction || $this->isSecureRequest();
         $sameSite = $isSecure ? 'None' : 'Lax';
 
         $options = [
