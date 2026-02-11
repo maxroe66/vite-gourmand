@@ -115,12 +115,13 @@ return function (array $config): ContainerInterface {
         \MongoDB\Client::class => function (ContainerInterface $c) {
             $mongoConfig = $c->get('config')['mongo'];
             $isCosmos = $mongoConfig['is_cosmos'] ?? false;
+            $isVCore  = $mongoConfig['is_vcore'] ?? false;
             
             // Log de debug pour diagnostiquer les problèmes Azure
             $uriForLog = preg_replace('/\/\/([^:]+):([^@]+)@/', '//***:***@', $mongoConfig['uri']);
             error_log("[MongoDB Init] Tentative de connexion à: " . $uriForLog);
             error_log("[MongoDB Init] Base de données: " . $mongoConfig['database']);
-            error_log("[MongoDB Init] Cosmos DB: " . ($isCosmos ? 'oui' : 'non'));
+            error_log("[MongoDB Init] Azure managed: " . ($isCosmos ? 'oui' : 'non') . ", vCore: " . ($isVCore ? 'oui' : 'non'));
             
             // Options URI (passées au driver libmongoc)
             $uriOptions = [];
@@ -128,17 +129,25 @@ return function (array $config): ContainerInterface {
             // Options driver PHP
             $driverOptions = [];
             
-            if ($isCosmos) {
-                // Cosmos DB nécessite TLS + timeouts généreux + pas de retries
-                $uriOptions = [
-                    'tls' => true,
-                    'retryWrites' => false,
-                    'retryReads' => false,
-                    'serverSelectionTimeoutMS' => 15000,
-                    'connectTimeoutMS' => 10000,
-                    'socketTimeoutMS' => 30000,
-                ];
-                // Accepter le certificat Azure (auto-signé Cosmos DB)
+            if ($isVCore) {
+                // DocumentDB vCore (mongocluster) : MongoDB standard avec TLS
+                // mongodb+srv inclut déjà tls=true et authMechanism dans l'URI
+                // On n'ajoute que les timeouts adaptés au cloud
+                $uriOptions['serverSelectionTimeoutMS'] = 15000;
+                $uriOptions['connectTimeoutMS'] = 10000;
+                $uriOptions['socketTimeoutMS'] = 30000;
+                // retryWrites=false est déjà dans l'URI DocumentDB vCore
+                error_log("[MongoDB Init] Options DocumentDB vCore activées (timeouts cloud)");
+            } elseif ($isCosmos) {
+                // Ancien Cosmos DB RU (port 10255) : nécessite des hacks spécifiques
+                $uriOptions['serverSelectionTimeoutMS'] = 15000;
+                $uriOptions['connectTimeoutMS'] = 10000;
+                $uriOptions['socketTimeoutMS'] = 30000;
+                $uriOptions['tls'] = true;
+                $uriOptions['retryWrites'] = false;
+                $uriOptions['retryReads'] = false;
+                
+                // Accepter le certificat Azure Cosmos DB
                 $driverOptions = [
                     'allow_invalid_hostname' => true,
                     'context' => stream_context_create([
@@ -149,22 +158,28 @@ return function (array $config): ContainerInterface {
                         ],
                     ]),
                 ];
-                error_log("[MongoDB Init] Options Cosmos DB activées (TLS + timeouts)");
+                error_log("[MongoDB Init] Options Cosmos DB RU activées (TLS + hacks)");
+            } else {
+                // MongoDB standard (local / Docker)
+                $uriOptions['serverSelectionTimeoutMS'] = 5000;
+                $uriOptions['connectTimeoutMS'] = 5000;
+                $uriOptions['socketTimeoutMS'] = 30000;
             }
             
             try {
                 $client = new \MongoDB\Client($mongoConfig['uri'], $uriOptions, $driverOptions);
                 
-                // Test de connexion pour détecter les erreurs au démarrage
-                $client->listDatabases();
+                // Test de connexion : ping (compatible Cosmos DB, contrairement à listDatabases)
+                $client->selectDatabase($mongoConfig['database'])->command(['ping' => 1]);
                 error_log("[MongoDB Init] Connexion réussie !");
                 
                 return $client;
             } catch (\Exception $e) {
                 error_log("[MongoDB Init] ERREUR de connexion: " . $e->getMessage());
                 error_log("[MongoDB Init] Type d'erreur: " . get_class($e));
-                // On retourne quand même le client pour ne pas bloquer l'app
-                // Les erreurs seront gérées dans les services
+                error_log("[MongoDB Init] URI (masquée): " . $uriForLog);
+                // Retourner le client même en cas d'échec du ping
+                // pour tenter les opérations individuelles
                 return new \MongoDB\Client($mongoConfig['uri'], $uriOptions, $driverOptions);
             }
         },

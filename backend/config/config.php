@@ -104,12 +104,13 @@ if ($dbSslEnabled) {
 
 /**
  * MongoDB
- * - Standard: MONGO_DB + (MONGO_URI ou MONGO_HOST/MONGO_PORT)
- * - Détection automatique de Cosmos DB (port 10255)
+ * - Standard: MONGO_DB + (MONGO_URI ou MONGODB_URI ou MONGO_HOST/MONGO_PORT)
+ * - Détection automatique de Cosmos DB / DocumentDB vCore
  */
 $mongoDb = $env('MONGO_DB', 'vite_gourmand');
 
-$mongoUri = $env('MONGO_URI', '');
+// Accepter MONGO_URI (notre convention) OU MONGODB_URI (convention Azure)
+$mongoUri = $env('MONGO_URI') ?? $env('MONGODB_URI') ?? '';
 $isCosmosDb = false;
 
 if ($mongoUri === '') {
@@ -133,8 +134,23 @@ if ($mongoUri === '') {
         $mongoUri = "mongodb://{$mongoHost}:{$mongoPort}/{$mongoDb}";
     }
 } else {
-    // Détection Cosmos DB depuis l'URI fournie (port 10255 ou ssl=true)
-    $isCosmosDb = (str_contains($mongoUri, ':10255') || str_contains($mongoUri, 'cosmos'));
+    // Détection Azure DocumentDB / Cosmos DB depuis l'URI fournie
+    // DocumentDB vCore : *.mongocluster.cosmos.azure.com (mongodb+srv, SCRAM-SHA-256)
+    // Cosmos DB RU : port 10255, ssl=true
+    // On unifie sous isCosmosDb = true pour activer TLS + timeouts adaptés
+    $isCosmosDb = (
+        str_contains($mongoUri, ':10255') ||
+        str_contains($mongoUri, ':10260') ||
+        str_contains($mongoUri, 'cosmos') ||
+        str_contains($mongoUri, 'documentdb') ||
+        str_contains($mongoUri, 'mongocluster') ||
+        str_contains($mongoUri, 'ssl=true') ||
+        str_contains($mongoUri, 'tls=true')
+    );
+
+    // DocumentDB vCore (mongocluster) utilise mongodb+srv et SCRAM-SHA-256
+    // → plus proche d'un MongoDB standard, pas besoin de hacks Cosmos DB RU
+    $isDocumentDbVCore = str_contains($mongoUri, 'mongocluster');
 }
 
 
@@ -220,6 +236,7 @@ return [
         'uri'      => $mongoUri,
         'database' => $mongoDb,
         'is_cosmos' => $isCosmosDb,
+        'is_vcore'  => $isDocumentDbVCore ?? false,
     ],
     'jwt' => [
         'secret' => $jwtSecret,
