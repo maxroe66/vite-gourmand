@@ -143,7 +143,7 @@ jobs:
           MONGO_PASS: root
           MONGO_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
 
-          JWT_SECRET: 4efd16790bfec508f370d4383aa98834c519200e31a038a3ebb7772a63f6f58c
+          JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
 
       - name: Run backend tests
         env:
@@ -168,7 +168,7 @@ jobs:
           MONGO_PASS: root
           MONGO_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
 
-          JWT_SECRET: 4efd16790bfec508f370d4383aa98834c519200e31a038a3ebb7772a63f6f58c
+          JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
         run: |
           cd backend
           if [ -f vendor/bin/phpunit ]; then
