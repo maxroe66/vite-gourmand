@@ -118,6 +118,10 @@ class CsrfService
             $baseHost = substr($baseHost, 4);
         }
 
+        if ($baseHost === 'localhost' || filter_var($baseHost, FILTER_VALIDATE_IP)) {
+            return null;
+        }
+
         return '.' . $baseHost;
     }
 }

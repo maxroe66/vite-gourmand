@@ -11,9 +11,21 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					"const csrfToken = pm.cookies.get('csrfToken');",
+					"const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token') || pm.environment.get('csrf_token');",
 					"if (csrfToken) {",
 					"  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken');",
+					"if (csrfToken) {",
+					"  pm.collectionVariables.set('csrf_token', csrfToken);",
 					"}"
 				]
 			}
@@ -22,6 +34,20 @@
 	"item": [
 		{
 			"name": "00. Init CSRF",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"const json = pm.response.json();",
+							"if (json && json.csrfToken) {",
+							"  pm.collectionVariables.set('csrf_token', json.csrfToken);",
+							"}"
+						]
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],

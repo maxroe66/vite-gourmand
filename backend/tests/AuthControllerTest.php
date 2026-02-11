@@ -7,6 +7,7 @@ use App\Controllers\Auth\AuthController;
 use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\MailerService;
+use App\Services\CsrfService;
 use App\Validators\UserValidator;
 use App\Validators\LoginValidator;
 use App\Exceptions\UserServiceException;
@@ -21,6 +22,7 @@ class AuthControllerTest extends TestCase
     private UserService $userServiceMock;
     private AuthService $authServiceMock;
     private MailerService $mailerServiceMock;
+    private CsrfService $csrfServiceMock;
     private UserValidator $userValidatorMock;
     private LoginValidator $loginValidatorMock;
     private LoggerInterface $loggerMock;
@@ -43,6 +45,7 @@ class AuthControllerTest extends TestCase
         $this->userServiceMock = $this->createMock(UserService::class);
         $this->authServiceMock = $this->createMock(AuthService::class);
         $this->mailerServiceMock = $this->createMock(MailerService::class);
+        $this->csrfServiceMock = $this->createMock(CsrfService::class);
         $this->userValidatorMock = $this->createMock(UserValidator::class);
         $this->loginValidatorMock = $this->createMock(LoginValidator::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
@@ -52,6 +55,7 @@ class AuthControllerTest extends TestCase
             $this->userServiceMock,
             $this->authServiceMock,
             $this->mailerServiceMock,
+            $this->csrfServiceMock,
             $this->loggerMock,
             $this->config,
             $this->userValidatorMock,
