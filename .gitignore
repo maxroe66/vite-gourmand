@@ -1,5 +1,6 @@
 .env
 .env.*
+!.env.test.example
 DigiCertGlobalRootCA.crt.pem
 test_mysql_connexion.php
 AZURE_CONFIG_CHECKLIST.md

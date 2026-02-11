@@ -3,30 +3,30 @@
 # Usage : ./scripts/tests/test_backend.sh
 set -euo pipefail
 
-# 1) Variables d'environnement TEST
-export APP_ENV=test
-export APP_DEBUG=false
-export ENV=test
-export DEBUG=false
+# 1) Charger les variables depuis .env.test (secrets exclus du repo)
+ENV_FILE="$(dirname "$0")/../../.env.test"
+if [ ! -f "$ENV_FILE" ]; then
+  echo "❌ Fichier .env.test introuvable ($ENV_FILE)"
+  echo "   Copier .env.test.example vers .env.test et renseigner les valeurs."
+  exit 1
+fi
 
-# JWT_SECRET généré dynamiquement (ne jamais committer un secret en dur)
+# Exporter chaque ligne KEY=VALUE (ignorer commentaires et lignes vides)
+set -a
+while IFS='=' read -r key value; do
+  # Ignorer commentaires, lignes vides et clés invalides
+  [[ -z "$key" || "$key" =~ ^# ]] && continue
+  # Supprimer espaces autour de la clé
+  key="$(echo "$key" | xargs)"
+  # Ne pas écraser une variable déjà définie (ex: CI)
+  if [ -z "${!key:-}" ]; then
+    export "$key"="$value"
+  fi
+done < "$ENV_FILE"
+set +a
+
+# JWT_SECRET : toujours généré dynamiquement (ne jamais committer un secret)
 export JWT_SECRET="$(openssl rand -hex 32)"
-
-export DB_HOST=${DB_HOST:-127.0.0.1}
-export DB_PORT=${DB_PORT:-3307}
-export DB_NAME=${DB_NAME:-vite_gourmand_test}
-export DB_USER=${DB_USER:-root}
-export DB_PASSWORD=${DB_PASSWORD:-root_password_test}
-export DB_PASS=${DB_PASS:-$DB_PASSWORD}
-
-export MONGO_HOST=${MONGO_HOST:-127.0.0.1}
-export MONGO_PORT=${MONGO_PORT:-27018}
-export MONGO_DB=${MONGO_DB:-vite_gourmand_test}
-export MONGO_USERNAME=${MONGO_USERNAME:-root}
-export MONGO_PASSWORD=${MONGO_PASSWORD:-mongo_root_password_test}
-export MONGO_USER=${MONGO_USER:-$MONGO_USERNAME}
-export MONGO_PASS=${MONGO_PASS:-$MONGO_PASSWORD}
-export MONGO_URI=${MONGO_URI:-"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin"}
 
 # 2) Reset base de test
 ./scripts/tests/reset_test_db.sh
