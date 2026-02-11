@@ -9,7 +9,7 @@ export APP_DEBUG=false
 export ENV=test
 export DEBUG=false
 
-export JWT_SECRET="dGVzdC1qd3Qtc2VjcmV0LWtleS1taW5pbXVtLTMyLWNoYXJhY3RlcnMtbG9uZy1mb3ItSFMyNTYtYWxnb3JpdGhtLXRlc3Rpbmc="
+export JWT_SECRET="4efd16790bfec508f370d4383aa98834c519200e31a038a3ebb7772a63f6f58c"
 
 export DB_HOST=127.0.0.1
 export DB_PORT=3307

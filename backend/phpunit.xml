@@ -8,7 +8,7 @@
     <env name="ENV" value="test"/>
     <env name="DEBUG" value="false"/>
     <!-- JWT Secret de test (doit être >= 256 bits pour HS256 avec firebase/php-jwt v7) -->
-    <env name="JWT_SECRET" value="dGVzdC1qd3Qtc2VjcmV0LWtleS1taW5pbXVtLTMyLWNoYXJhY3RlcnMtbG9uZy1mb3ItSFMyNTYtYWxnb3JpdGhtLXRlc3Rpbmc="/>
+    <env name="JWT_SECRET" value="4efd16790bfec508f370d4383aa98834c519200e31a038a3ebb7772a63f6f58c"/>
   </php>
   <testsuites>
     <testsuite name="Application Test Suite">
