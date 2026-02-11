@@ -5,7 +5,29 @@
 		"description": "Collection de tests pour le module de Gestion des Commandes\n- Simulation de prix\n- Cr\u00e9ation de commande\n- Workflow de statut (Employ\u00e9)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken');",
+					"if (csrfToken) {",
+					"  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+					"}"
+				]
+			}
+		}
+	],
 	"item": [
+		{
+			"name": "00. Init CSRF",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{base_url}}/api/csrf"
+			}
+		},
 		{
 			"name": "0. Login (Pr\u00e9-requis)",
 			"event": [

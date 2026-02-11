@@ -19,7 +19,29 @@
       "type": "string"
     }
   ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const csrfToken = pm.cookies.get('csrfToken');",
+          "if (csrfToken) {",
+          "  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+          "}"
+        ]
+      }
+    }
+  ],
   "item": [
+    {
+      "name": "00. Init CSRF",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/csrf"
+      }
+    },
     {
       "name": "tout valide",
       "event": [
