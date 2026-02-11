@@ -81,6 +81,12 @@ $corsMiddleware->handle();
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
+// 6.1) Initialiser le cookie CSRF pour les requetes non mutatrices
+if (in_array($method, ['GET', 'HEAD'], true)) {
+    $csrfService = $container->get(\App\Services\CsrfService::class);
+    $csrfService->ensureTokenCookie();
+}
+
 // 7) Initialisation du routeur
 $router = new Router();
 

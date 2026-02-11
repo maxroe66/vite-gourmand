@@ -5,6 +5,7 @@ use App\Validators\CommandeValidator;
 use App\Core\Request;
 use App\Core\Response;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\CsrfMiddleware;
 use App\Middlewares\RoleMiddleware;
 use Psr\Container\ContainerInterface;
 
@@ -12,25 +13,32 @@ use Psr\Container\ContainerInterface;
 $router->post('/commandes', function (ContainerInterface $container, array $params, Request $request) {
     $controller = $container->get(CommandeController::class);
     return $controller->create($request);
-})->middleware(AuthMiddleware::class);
+})
+->middleware(CsrfMiddleware::class)
+->middleware(AuthMiddleware::class);
 
 // Calcul de prix (Simulation avant commande)
 $router->post('/commandes/calculate-price', function (ContainerInterface $container, array $params, Request $request) {
     $controller = $container->get(CommandeController::class);
     return $controller->calculate($request);
-})->middleware(AuthMiddleware::class);
+})
+->middleware(CsrfMiddleware::class)
+->middleware(AuthMiddleware::class);
 
 // Modification partielle de la commande (Client : tant que non accepté)
 $router->patch('/commandes/{id}', function (ContainerInterface $container, array $params, Request $request) {
     $controller = $container->get(CommandeController::class);
     return $controller->update($request, (int)$params['id']);
-})->middleware(AuthMiddleware::class);
+})
+->middleware(CsrfMiddleware::class)
+->middleware(AuthMiddleware::class);
 
 // Update Status (Employé ou Annulation Client)
 $router->put('/commandes/{id}/status', function (ContainerInterface $container, array $params, Request $request) {
     $controller = $container->get(CommandeController::class);
     return $controller->updateStatus($request, (int)$params['id']);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
@@ -51,6 +59,7 @@ $router->post('/commandes/{id}/material', function (ContainerInterface $containe
     $controller = $container->get(CommandeController::class);
     return $controller->loanMaterial($request, (int)$params['id']);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
@@ -59,6 +68,7 @@ $router->post('/commandes/{id}/return-material', function (ContainerInterface $c
     $controller = $container->get(CommandeController::class);
     return $controller->returnMaterial($request, (int)$params['id']);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 

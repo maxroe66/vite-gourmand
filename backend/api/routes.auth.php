@@ -6,25 +6,27 @@ use App\Controllers\Auth\AuthController;
 use App\Core\Request;
 use App\Core\Response;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\CsrfMiddleware;
+use App\Services\CsrfService;
 use Psr\Container\ContainerInterface;
 
 $router->post('/auth/register', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     // Le contrôleur retourne directement un objet Response
     return $authController->register($request);
-});
+})->middleware(CsrfMiddleware::class);
 
 $router->post('/auth/login', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     // Le contrôleur retourne directement un objet Response
     return $authController->login($request);
-});
+})->middleware(CsrfMiddleware::class);
 
 $router->post('/auth/logout', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     // Le contrôleur retourne directement un objet Response
     return $authController->logout();
-});
+})->middleware(CsrfMiddleware::class);
 
 // Route GET explicite pour renvoyer 404 (sécurité/idempotence)
 $router->get('/auth/logout', function () {
@@ -37,12 +39,12 @@ $router->get('/auth/logout', function () {
 $router->post('/auth/forgot-password', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     return $authController->forgotPassword($request);
-});
+})->middleware(CsrfMiddleware::class);
 
 $router->post('/auth/reset-password', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     return $authController->resetPassword($request);
-});
+})->middleware(CsrfMiddleware::class);
 
 $router->get('/auth/check', function (ContainerInterface $container, array $params, Request $request) {
     // Le middleware a déjà été exécuté et a enrichi l'objet $request.
@@ -54,4 +56,13 @@ $router->get('/auth/check', function (ContainerInterface $container, array $para
 $router->get('/auth/test', function () {
     // On retourne un nouvel objet Response pour le test
     return (new Response())->setJsonContent(['message' => 'API Auth OK']);
+});
+
+$router->get('/csrf', function (ContainerInterface $container) {
+    $csrfService = $container->get(CsrfService::class);
+    $token = $csrfService->ensureTokenCookie();
+    return (new Response())->setJsonContent([
+        'success' => true,
+        'csrfToken' => $token
+    ]);
 });

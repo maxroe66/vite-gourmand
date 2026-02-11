@@ -6,6 +6,7 @@ use App\Core\Response;
 use App\Services\UserService;
 use App\Services\AuthService;
 use App\Services\MailerService;
+use App\Services\CsrfService;
 use Psr\Log\LoggerInterface;
 use App\Validators\UserValidator;
 use App\Validators\LoginValidator;
@@ -18,6 +19,7 @@ class AuthController
     private UserService $userService;
     private AuthService $authService;
     private MailerService $mailerService;
+    private CsrfService $csrfService;
     private LoggerInterface $logger;
     private array $config;
     private UserValidator $userValidator;
@@ -28,6 +30,7 @@ class AuthController
         UserService $userService,
         AuthService $authService,
         MailerService $mailerService,
+        CsrfService $csrfService,
         LoggerInterface $logger,
         array $config,
         UserValidator $userValidator,
@@ -37,6 +40,7 @@ class AuthController
         $this->userService = $userService;
         $this->authService = $authService;
         $this->mailerService = $mailerService;
+        $this->csrfService = $csrfService;
         $this->logger = $logger;
         $this->config = $config;
         $this->userValidator = $userValidator;
@@ -112,6 +116,9 @@ class AuthController
         $expire = time() + ($this->config['jwt']['expire'] ?? 3600);
         $cookieOptions = $this->buildCookieOptions($expire);
         setcookie('authToken', $token, $cookieOptions);
+
+        // Rotation du token CSRF pour la session nouvellement creee
+        $this->csrfService->rotateToken();
 
         // 6. Envoi de l'email de bienvenue
         $emailSent = $this->mailerService->sendWelcomeEmail($data['email'], $data['firstName']);
@@ -271,6 +278,9 @@ class AuthController
             $cookieOptions = $this->buildCookieOptions($expire);
             setcookie('authToken', $token, $cookieOptions);
 
+            // Rotation du token CSRF apres authentification
+            $this->csrfService->rotateToken();
+
             // 7. Retourne la réponse de succès
             $this->logger->info('Connexion réussie', ['userId' => $user['id'], 'email' => $data['email']]);
             
@@ -303,6 +313,9 @@ class AuthController
         // Supprime aussi une éventuelle version host-only (sans domain explicite)
         $hostOnlyOptions = $this->buildCookieOptions($expire, false);
         setcookie('authToken', '', $hostOnlyOptions);
+
+        // Nettoyer le token CSRF a la deconnexion
+        $this->csrfService->clearTokenCookie();
 
         $this->logger->info('Utilisateur déconnecté avec succès');
 

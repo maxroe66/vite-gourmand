@@ -10,6 +10,7 @@ require __DIR__ . '/routes.diagnostic.php'; // Route de diagnostic MongoDB
 
 use App\Controllers\UploadController;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\CsrfMiddleware;
 use App\Middlewares\RoleMiddleware;
 use Psr\Container\ContainerInterface;
 use App\Core\Request;
@@ -20,6 +21,7 @@ $router->post('/upload', function (ContainerInterface $container, array $params,
     $controller = $container->get(UploadController::class);
     return $controller->uploadImage($request);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 

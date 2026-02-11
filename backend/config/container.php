@@ -26,8 +26,13 @@ return function (array $config): ContainerInterface {
         App\Controllers\Auth\AuthController::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
 
+        App\Services\CsrfService::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
+
         App\Middlewares\AuthMiddleware::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
+
+        App\Middlewares\CsrfMiddleware::class => DI\autowire(),
 
         App\Services\AuthService::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),

@@ -187,7 +187,7 @@ return [
     'cors' => [
         'allowed_origins' => [$frontendOrigin], // On utilise un tableau pour le futur
         'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        'allowed_headers' => ['Content-Type', 'Authorization'],
+        'allowed_headers' => ['Content-Type', 'Authorization', 'X-CSRF-Token'],
         'allow_credentials' => true,
     ],
     'mongo' => [
@@ -198,6 +198,12 @@ return [
         'secret' => $jwtSecret,
         'algo'   => 'HS256',
         'expire' => 3600,
+    ],
+    'csrf' => [
+        'cookie_name' => 'csrfToken',
+        'header_name' => 'X-CSRF-Token',
+        'token_bytes' => 32,
+        'ttl' => 7200,
     ],
     'mail' => [
         'provider' => $mailProvider,
