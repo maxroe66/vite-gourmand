@@ -1140,12 +1140,13 @@ async function fetchAndRenderAvis(status, container) {
                 ? new Date(avis.date_creation).toLocaleDateString('fr-FR')
                 : 'N/A';
             const noteHtml = renderStars(avis.note);
+            const safeComment = escapeHtml(avis.commentaire || '');
             
             return `
                 <tr>
                     <td>${dateStr}</td>
                     <td>${noteHtml}</td>
-                    <td><p class="text-truncate" title="${avis.commentaire}">${avis.commentaire}</p></td>
+                    <td><p class="text-truncate" title="${safeComment}">${safeComment}</p></td>
                     <td>
                         ${renderAvisActions(avis, status)}
                     </td>
