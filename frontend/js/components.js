@@ -25,6 +25,13 @@ async function loadComponent(elementId, componentPath) {
 
 // Charger les composants au chargement de la page
 document.addEventListener('DOMContentLoaded', async () => {
+    // Init CSRF cookie pour les pages servies en statique
+    try {
+        await fetch('/api/csrf', { credentials: 'include' });
+    } catch (error) {
+        console.warn('CSRF init failed:', error);
+    }
+
     // Charger le header
     await loadComponent('header-placeholder', 'navbar.html');
     

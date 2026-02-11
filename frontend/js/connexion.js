@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch('/api/auth/forgot-password', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({ email })
                 });
                 const data = await response.json();

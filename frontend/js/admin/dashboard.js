@@ -254,10 +254,11 @@ function addImageInput(value = '') {
             // Correction URL: utiliser le chemin relatif pour la prod, ou une config
             const response = await fetch('/api/upload', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: formData
+                headers: AuthService.addCsrfHeader({
+                    'Authorization': `Bearer ${token}`
+                }),
+                body: formData,
+                credentials: 'include'
             });
 
             if (!response.ok) throw new Error('Erreur upload');

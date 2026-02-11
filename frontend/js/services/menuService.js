@@ -95,7 +95,7 @@ const MenuService = {
         try {
             const response = await fetch(this.API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
                 credentials: 'include', // Important pour envoyer le cookie auth
                 body: JSON.stringify(menuData)
             });
@@ -116,7 +116,7 @@ const MenuService = {
         try {
             const response = await fetch(`${this.API_URL}/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
                 credentials: 'include',
                 body: JSON.stringify(menuData)
             });
@@ -136,7 +136,7 @@ const MenuService = {
         try {
             const response = await fetch(`${this.API_URL}/${id}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
                 credentials: 'include'
             });
             return this._handleResponse(response);
