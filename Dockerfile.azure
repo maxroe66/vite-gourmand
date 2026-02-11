@@ -25,10 +25,23 @@ RUN mkdir -p /etc/ssl/azure \
  && update-ca-certificates
 
 # Activer les modules Apache nécessaires
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers ssl
 
 # Configurer le DocumentRoot vers le dossier public
 RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
+
+# ── Headers de sécurité (production) ──────────────────────
+# Azure App Service gère la terminaison TLS ; on ajoute HSTS
+# et les headers défensifs au niveau applicatif.
+RUN printf '%s\n' \
+  '<IfModule mod_headers.c>' \
+  '  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"' \
+  '  Header always set X-Content-Type-Options "nosniff"' \
+  '  Header always set X-Frame-Options "DENY"' \
+  '  Header always set Referrer-Policy "strict-origin-when-cross-origin"' \
+  '</IfModule>' \
+  > /etc/apache2/conf-available/zz-security-headers.conf \
+ && a2enconf zz-security-headers
 
 # IMPORTANT: s'assurer que Apache sert index.php par défaut sur /
 RUN printf '%s\n' \
