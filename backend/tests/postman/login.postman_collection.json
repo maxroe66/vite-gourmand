@@ -26,7 +26,43 @@
   ],
   "item": [
     {
-      "name": "00. Init CSRF",
+      "name": "00. Login sans CSRF (attendu 403)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.request.headers.upsert({ key: 'X-CSRF-Token', value: 'invalid' });"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Statut 403 attendu (CSRF)', () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"Password123!\"}"
+        }
+      }
+    },
+    {
+      "name": "01. Init CSRF",
       "request": {
         "method": "GET",
         "header": [],
@@ -293,6 +329,60 @@
           }
         }
       ]
+    },
+    {
+      "name": "auth check avec cookie",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Statut 200 attendu', () => pm.response.to.have.status(200));",
+              "pm.test('Réponse auth ok', () => {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.isAuthenticated).to.be.true;",
+              "  pm.expect(json.user).to.exist;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/auth/check"
+      }
+    },
+    {
+      "name": "auth check sans cookie",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const jar = pm.cookies.jar();",
+              "const url = pm.environment.get('base_url') || pm.collectionVariables.get('base_url');",
+              "if (url) {",
+              "  jar.unset(url, 'authToken', () => {});",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/auth/check"
+      }
     }
   ]
 }
