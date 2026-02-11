@@ -157,7 +157,7 @@ jobs:
           DB_PASS: ${{ secrets.AZURE_MYSQL_PASS }}
         run: |
           mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
-            "$DB_NAME" < backend/database/sql/database_fixtures.sql
+            "$DB_NAME" < backend/database/sql/database_seed.sql
 
       - name: Install MongoDB Shell (mongosh)
         run: |

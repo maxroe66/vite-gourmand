@@ -1,6 +1,13 @@
 -- ============================================================
--- Données de test (Fixtures) pour "Vite & Gourmand"
--- Version: 1.0
+-- ⚠️  FICHIER DE TEST UNIQUEMENT — NE PAS UTILISER EN PRODUCTION
+-- ============================================================
+-- Ce fichier contient des données fictives destinées au
+-- développement et aux tests locaux.
+-- Tous les comptes partagent le même mot de passe faible.
+--
+-- Pour la production, utilisez : database_seed.sql
+-- ============================================================
+-- Version: 1.1
 -- Date: 11 décembre 2025
 -- ============================================================
 
