@@ -61,7 +61,7 @@ const PlatService = {
         try {
             const response = await fetch(this.API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
                 credentials: 'include',
                 body: JSON.stringify(data)
             });
@@ -79,7 +79,7 @@ const PlatService = {
         try {
             const response = await fetch(`${this.API_URL}/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
                 credentials: 'include',
                 body: JSON.stringify(data)
             });
@@ -97,6 +97,7 @@ const PlatService = {
         try {
             const response = await fetch(`${this.API_URL}/${id}`, {
                 method: 'DELETE',
+                headers: AuthService.addCsrfHeader(),
                 credentials: 'include'
             });
             return this._handleResponse(response);

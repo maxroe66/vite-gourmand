@@ -3,6 +3,7 @@
 use App\Controllers\MenuController;
 use App\Controllers\PlatController;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\CsrfMiddleware;
 use App\Middlewares\RoleMiddleware;
 use App\Core\Request;
 use Psr\Container\ContainerInterface;
@@ -35,6 +36,7 @@ $router->get('/menus', function (ContainerInterface $container, array $params, R
 $router->post('/menus', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(MenuController::class)->store($request);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
@@ -42,6 +44,7 @@ $router->post('/menus', function (ContainerInterface $container, array $params, 
 $router->put('/menus/{id}', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(MenuController::class)->update($request, (int)$params['id']);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
@@ -49,6 +52,7 @@ $router->put('/menus/{id}', function (ContainerInterface $container, array $para
 $router->delete('/menus/{id}', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(MenuController::class)->destroy($request, (int)$params['id']);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
@@ -81,6 +85,7 @@ $router->get('/plats', function (ContainerInterface $container, array $params, R
 $router->post('/plats', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->store($request);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
@@ -88,6 +93,7 @@ $router->post('/plats', function (ContainerInterface $container, array $params, 
 $router->put('/plats/{id}', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->update($request, (int)$params['id']);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
 
@@ -95,5 +101,6 @@ $router->put('/plats/{id}', function (ContainerInterface $container, array $para
 $router->delete('/plats/{id}', function (ContainerInterface $container, array $params, Request $request) {
     return $container->get(PlatController::class)->destroy($request, (int)$params['id']);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);

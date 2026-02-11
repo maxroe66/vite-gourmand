@@ -9,9 +9,9 @@ class CommandeService {
      */
     static async calculatePrice(data) {
         // Authentification via Cookie HttpOnly, pas de token LocalStorage
-        const headers = {
+        const headers = AuthService.addCsrfHeader({
             'Content-Type': 'application/json'
-        };
+        });
 
         const response = await fetch(`${this.API_URL}/calculate-price`, {
             method: 'POST',
@@ -37,9 +37,9 @@ class CommandeService {
         // Authentification via Cookie HttpOnly
         const response = await fetch(this.API_URL, {
             method: 'POST',
-            headers: {
+            headers: AuthService.addCsrfHeader({
                 'Content-Type': 'application/json'
-            },
+            }),
             body: JSON.stringify(data),
             credentials: 'include'
         });
@@ -88,9 +88,9 @@ class CommandeService {
     static async cancelOrder(id) {
         const response = await fetch(`${this.API_URL}/${id}`, {
             method: 'PATCH',
-            headers: {
+            headers: AuthService.addCsrfHeader({
                 'Content-Type': 'application/json'
-            },
+            }),
             body: JSON.stringify({ status: 'ANNULEE' }),
             credentials: 'include'
         });
@@ -112,9 +112,9 @@ class CommandeService {
     static async updateOrder(id, data) {
         const response = await fetch(`${this.API_URL}/${id}`, {
             method: 'PATCH',
-            headers: {
+            headers: AuthService.addCsrfHeader({
                 'Content-Type': 'application/json'
-            },
+            }),
             body: JSON.stringify(data),
             credentials: 'include'
         });
@@ -149,9 +149,9 @@ class CommandeService {
 
         const response = await fetch(`${this.API_URL}/${id}/status`, {
             method: 'PUT',
-            headers: {
+            headers: AuthService.addCsrfHeader({
                 'Content-Type': 'application/json'
-            },
+            }),
             body: JSON.stringify(body),
             credentials: 'include'
         });
@@ -171,9 +171,9 @@ class CommandeService {
     static async returnMaterial(id) {
         const response = await fetch(`${this.API_URL}/${id}/return-material`, {
             method: 'POST',
-            headers: {
+            headers: AuthService.addCsrfHeader({
                 'Content-Type': 'application/json'
-            },
+            }),
             credentials: 'include'
         });
 

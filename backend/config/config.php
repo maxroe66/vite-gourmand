@@ -168,9 +168,29 @@ if (empty($jwtSecret) || $jwtSecret === '<placeholder>') {
 
 /**
  * CORS
- * - FRONTEND_ORIGIN: URL du frontend autorisée
+ * - CORS_ALLOWED_ORIGINS : liste d'origines séparées par des virgules (prioritaire)
+ * - FRONTEND_ORIGIN      : URL du frontend (fallback, origine unique)
+ * En production, le wildcard '*' est interdit car l'app utilise les cookies (credentials).
  */
 $frontendOrigin = $env('FRONTEND_ORIGIN', 'http://localhost:8000');
+$corsOriginsRaw = $env('CORS_ALLOWED_ORIGINS', '');
+
+$corsAllowedOrigins = !empty($corsOriginsRaw)
+    ? array_map('trim', explode(',', $corsOriginsRaw))
+    : [$frontendOrigin];
+
+// Sécurité production : interdire wildcard et origines HTTP non sécurisées
+if ($appEnv === 'production') {
+    $corsAllowedOrigins = array_filter($corsAllowedOrigins, static function (string $o): bool {
+        return $o !== '*' && str_starts_with($o, 'https://');
+    });
+    if (empty($corsAllowedOrigins)) {
+        throw new \RuntimeException(
+            'CORS: aucune origine HTTPS valide configurée pour la production. '
+            . 'Définissez CORS_ALLOWED_ORIGINS ou FRONTEND_ORIGIN avec une URL https://.'
+        );
+    }
+}
 
 /**
  * Google Maps API Key
@@ -185,10 +205,11 @@ return [
         'options' => $dbPdoOptions, // vide en CI/DEV, rempli en Azure si DB_SSL=true
     ],
     'cors' => [
-        'allowed_origins' => [$frontendOrigin], // On utilise un tableau pour le futur
+        'allowed_origins' => array_values($corsAllowedOrigins),
         'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        'allowed_headers' => ['Content-Type', 'Authorization'],
+        'allowed_headers' => ['Content-Type', 'Authorization', 'X-CSRF-Token'],
         'allow_credentials' => true,
+        'max_age' => 86400, // 24h — cache preflight côté navigateur
     ],
     'mongo' => [
         'uri'      => $mongoUri,
@@ -198,6 +219,24 @@ return [
         'secret' => $jwtSecret,
         'algo'   => 'HS256',
         'expire' => 3600,
+    ],
+    'csrf' => [
+        'cookie_name' => 'csrfToken',
+        'header_name' => 'X-CSRF-Token',
+        'token_bytes' => 32,
+        'ttl' => 7200,
+    ],
+    'csp' => [
+        'default_src' => ["'self'"],
+        'script_src'  => ["'self'", 'https://cdn.jsdelivr.net'],
+        'style_src'   => ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
+        'img_src'     => ["'self'", 'data:'],
+        'font_src'    => ["'self'", 'https://cdnjs.cloudflare.com'],
+        'connect_src' => ["'self'"],
+        'frame_src'   => ["'none'"],
+        'object_src'  => ["'none'"],
+        'base_uri'    => ["'self'"],
+        'form_action' => ["'self'"],
     ],
     'mail' => [
         'provider' => $mailProvider,

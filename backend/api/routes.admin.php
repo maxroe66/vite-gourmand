@@ -3,6 +3,7 @@
 use App\Controllers\AdminController;
 use App\Core\Request;
 use App\Middlewares\AuthMiddleware;
+use App\Middlewares\CsrfMiddleware;
 use App\Middlewares\RoleMiddleware;
 use Psr\Container\ContainerInterface;
 
@@ -11,6 +12,7 @@ $router->post('/admin/employees', function (ContainerInterface $container, array
     $controller = $container->get(AdminController::class);
     return $controller->createEmployee($request);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['ADMINISTRATEUR']);
 
@@ -27,5 +29,6 @@ $router->patch('/admin/users/{id}/disable', function (ContainerInterface $contai
     $controller = $container->get(AdminController::class);
     return $controller->disableUser($params, $request);
 })
+->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class)
 ->middleware(RoleMiddleware::class, ['ADMINISTRATEUR']);

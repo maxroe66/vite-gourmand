@@ -2,7 +2,31 @@
  * Service de gestion de l'authentification côté client
  * Utilise des cookies httpOnly gérés automatiquement par le navigateur
  */
+
+function getCookieValue(name) {
+    const parts = document.cookie.split(';');
+    for (const part of parts) {
+        const [key, ...rest] = part.trim().split('=');
+        if (key === name) {
+            return decodeURIComponent(rest.join('='));
+        }
+    }
+    return null;
+}
+
 const AuthService = {
+        getCsrfToken() {
+            return getCookieValue('csrfToken');
+        },
+
+        addCsrfHeader(headers = {}) {
+            const token = this.getCsrfToken();
+            if (!token) return headers;
+            return {
+                ...headers,
+                'X-CSRF-Token': token
+            };
+        },
         /**
          * Réinitialise le mot de passe avec le token et le nouveau mot de passe
          * @param {string} token
@@ -11,12 +35,10 @@ const AuthService = {
          */
         async resetPassword(token, password) {
             try {
-                const response = await fetch('/api/auth/reset-password', {
+                const response = await fetch('/api/auth/reset-password', this.getFetchOptions({
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token, password }),
-                    credentials: 'include'
-                });
+                    body: JSON.stringify({ token, password })
+                }));
                 const data = await response.json();
                 return { ok: response.ok, status: response.status, data };
             } catch (error) {
@@ -30,12 +52,10 @@ const AuthService = {
          */
         async register(userData) {
             try {
-                const response = await fetch('/api/auth/register', {
+                const response = await fetch('/api/auth/register', this.getFetchOptions({
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData),
-                    credentials: 'include'
-                });
+                    body: JSON.stringify(userData)
+                }));
                 const data = await response.json();
                 return { ok: response.ok, status: response.status, data };
             } catch (error) {
@@ -50,12 +70,10 @@ const AuthService = {
          */
         async login(email, password) {
             try {
-                const response = await fetch('/api/auth/login', {
+                const response = await fetch('/api/auth/login', this.getFetchOptions({
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
-                    credentials: 'include'
-                });
+                    body: JSON.stringify({ email, password })
+                }));
                 const data = await response.json();
                 return { ok: response.ok, status: response.status, data };
             } catch (error) {
@@ -68,10 +86,9 @@ const AuthService = {
      */
     async logout() {
         try {
-            const response = await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
+            const response = await fetch('/api/auth/logout', this.getFetchOptions({
+                method: 'POST'
+            }));
             if (!response.ok) {
                 throw new Error(`Le serveur a répondu avec le statut ${response.status}`);
             }
@@ -88,13 +105,15 @@ const AuthService = {
      * @returns {Object}
      */
     getFetchOptions(options = {}) {
+        const headers = this.addCsrfHeader({
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+        });
+
         return {
             ...options,
-            credentials: 'include',  // Envoie automatiquement les cookies
-            headers: {
-                'Content-Type': 'application/json',
-                ...(options.headers || {})
-            }
+            credentials: 'include',
+            headers
         };
     },
 

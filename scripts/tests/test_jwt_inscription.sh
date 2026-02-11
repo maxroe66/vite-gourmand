@@ -1,16 +1,32 @@
 #!/bin/bash
-
-# Assure que le script s'arrête à la première erreur
+# Test e2e : inscription JWT Cookie HttpOnly + vérification route protégée
+# Compatible CI (port 8000) et local (port configurable via $API_PORT)
 set -e
 
-# Nettoyage automatique du fichier de cookies à la sortie du script
-trap 'rm -f /tmp/cookies.txt' EXIT
+BASE_URL="${BASE_URL:-http://localhost:8000/api}"
+COOKIE_JAR="/tmp/cookies_jwt_test_$$.txt"
+
+# Nettoyage automatique
+trap 'rm -f "$COOKIE_JAR"' EXIT
 
 echo "🧪 Test d'inscription avec JWT Cookie HttpOnly"
 echo "================================================"
+echo "   API: $BASE_URL"
 
-# Données de test
-EMAIL="test_$(date +%s)@example.com"
+# --- Étape 1 : Récupérer le token CSRF ---
+echo -e "\n🔐 Récupération du token CSRF..."
+CSRF_RESPONSE=$(curl -s -c "$COOKIE_JAR" "$BASE_URL/csrf")
+CSRF_TOKEN=$(echo "$CSRF_RESPONSE" | jq -r '.csrfToken // empty' 2>/dev/null)
+
+if [ -z "$CSRF_TOKEN" ]; then
+  echo "❌ Impossible de récupérer le token CSRF."
+  echo "   Réponse: $CSRF_RESPONSE"
+  exit 1
+fi
+echo "✅ Token CSRF récupéré."
+
+# --- Étape 2 : Inscription avec CSRF ---
+EMAIL="test_$(date +%s)_$$@example.com"
 JSON_DATA=$(cat <<EOF
 {
   "firstName": "Test",
@@ -28,12 +44,12 @@ EOF
 echo -e "\n📤 Envoi de la requête d'inscription..."
 echo "Email: $EMAIL"
 
-# Requête avec sauvegarde des cookies
-RESPONSE=$(curl -s -c /tmp/cookies.txt -w "\n%{http_code}" \
+RESPONSE=$(curl -s -b "$COOKIE_JAR" -c "$COOKIE_JAR" -w "\n%{http_code}" \
   -X POST \
   -H "Content-Type: application/json" \
+  -H "X-CSRF-Token: $CSRF_TOKEN" \
   -d "$JSON_DATA" \
-  http://localhost:8000/api/auth/register)
+  "$BASE_URL/auth/register")
 
 HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
 BODY=$(echo "$RESPONSE" | head -n-1)
@@ -50,16 +66,15 @@ echo -e "\n✅ Inscription réussie (Code 201)."
 
 # --- Vérification du cookie ---
 echo -e "\n🍪 Vérification du cookie..."
-if ! grep -q "authToken" /tmp/cookies.txt; then
+if ! grep -q "authToken" "$COOKIE_JAR"; then
     echo "❌ Cookie authToken manquant dans la réponse."
     exit 1
 fi
 echo "✅ Cookie authToken présent."
 
-
 # --- Vérification de la route protégée ---
 echo -e "\n🔐 Test de la route protégée /api/auth/check..."
-CHECK_RESPONSE=$(curl -s -b /tmp/cookies.txt -w "\n%{http_code}" http://localhost:8000/api/auth/check)
+CHECK_RESPONSE=$(curl -s -b "$COOKIE_JAR" -w "\n%{http_code}" "$BASE_URL/auth/check")
 CHECK_HTTP_CODE=$(echo "$CHECK_RESPONSE" | tail -n1)
 CHECK_BODY=$(echo "$CHECK_RESPONSE" | head -n-1)
 

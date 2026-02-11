@@ -4,7 +4,43 @@
 		"name": "Vite & Gourmand - E2E - Menus & Plats",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken');",
+					"if (csrfToken) {",
+					"  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+					"}"
+				]
+			}
+		}
+	],
 	"item": [
+		{
+			"name": "00. Init CSRF",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"const json = pm.response.json();",
+							"if (json && json.csrfToken) {",
+							"  pm.collectionVariables.set('csrf_token', json.csrfToken);",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{base_url}}/csrf"
+			}
+		},
 		{
 			"name": "Accès Public",
 			"item": [
@@ -568,7 +604,10 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token') || pm.environment.get('csrf_token');",
+					"if (csrfToken) {",
+					"  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+					"}"
 				]
 			}
 		},
@@ -577,7 +616,10 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"const csrfToken = pm.cookies.get('csrfToken');",
+					"if (csrfToken) {",
+					"  pm.collectionVariables.set('csrf_token', csrfToken);",
+					"}"
 				]
 			}
 		}
@@ -585,7 +627,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8000",
+			"value": "http://localhost:8000/api",
 			"type": "string"
 		}
 	]

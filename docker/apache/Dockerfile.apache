@@ -3,12 +3,13 @@
 FROM httpd:2.4
 
 
-# Activer les modules Apache nécessaires pour le reverse proxy vers PHP-FPM, la réécriture d'URL et SSL
+# Activer les modules Apache nécessaires pour le reverse proxy vers PHP-FPM, la réécriture d'URL, SSL et headers
 RUN sed -i \
     -e 's/^#\(LoadModule .*mod_proxy.so\)/\1/' \
     -e 's/^#\(LoadModule .*mod_proxy_fcgi.so\)/\1/' \
     -e 's/^#\(LoadModule .*mod_rewrite.so\)/\1/' \
     -e 's/^#\(LoadModule .*mod_ssl.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_headers.so\)/\1/' \
     conf/httpd.conf
 
 

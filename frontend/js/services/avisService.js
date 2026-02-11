@@ -9,7 +9,7 @@ class AvisService {
     static async createAvis(data) {
         const response = await fetch(this.API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(data),
             credentials: 'include'
         });
@@ -47,7 +47,7 @@ class AvisService {
     static async validateAvis(id) {
         const response = await fetch(`${this.API_URL}/${id}/validate`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: AuthService.addCsrfHeader({ 'Content-Type': 'application/json' }),
             credentials: 'include'
         });
 
@@ -62,6 +62,7 @@ class AvisService {
     static async deleteAvis(id) {
         const response = await fetch(`${this.API_URL}/${id}`, {
             method: 'DELETE',
+            headers: AuthService.addCsrfHeader(),
             credentials: 'include'
         });
 

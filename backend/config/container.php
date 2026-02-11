@@ -26,8 +26,13 @@ return function (array $config): ContainerInterface {
         App\Controllers\Auth\AuthController::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
 
+        App\Services\CsrfService::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
+
         App\Middlewares\AuthMiddleware::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
+
+        App\Middlewares\CsrfMiddleware::class => DI\autowire(),
 
         App\Services\AuthService::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
@@ -40,6 +45,10 @@ return function (array $config): ContainerInterface {
 
         // CorsMiddleware est instancié et exécuté globalement dans public/index.php
         App\Middlewares\CorsMiddleware::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
+
+        // SecurityHeadersMiddleware (CSP) — global dans public/index.php
+        App\Middlewares\SecurityHeadersMiddleware::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
 
         // 3. Définition pour la connexion PDO (nécessite une configuration manuelle).

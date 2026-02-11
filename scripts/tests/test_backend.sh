@@ -3,29 +3,30 @@
 # Usage : ./scripts/tests/test_backend.sh
 set -euo pipefail
 
-# 1) Variables d'environnement TEST
-export APP_ENV=test
-export APP_DEBUG=false
-export ENV=test
-export DEBUG=false
+# 1) Charger les variables depuis .env.test (secrets exclus du repo)
+ENV_FILE="$(dirname "$0")/../../.env.test"
+if [ ! -f "$ENV_FILE" ]; then
+  echo "❌ Fichier .env.test introuvable ($ENV_FILE)"
+  echo "   Copier .env.test.example vers .env.test et renseigner les valeurs."
+  exit 1
+fi
 
-export JWT_SECRET="dGVzdC1qd3Qtc2VjcmV0LWtleS1taW5pbXVtLTMyLWNoYXJhY3RlcnMtbG9uZy1mb3ItSFMyNTYtYWxnb3JpdGhtLXRlc3Rpbmc="
+# Exporter chaque ligne KEY=VALUE (ignorer commentaires et lignes vides)
+set -a
+while IFS='=' read -r key value; do
+  # Ignorer commentaires, lignes vides et clés invalides
+  [[ -z "$key" || "$key" =~ ^# ]] && continue
+  # Supprimer espaces autour de la clé
+  key="$(echo "$key" | xargs)"
+  # Ne pas écraser une variable déjà définie (ex: CI)
+  if [ -z "${!key:-}" ]; then
+    export "$key"="$value"
+  fi
+done < "$ENV_FILE"
+set +a
 
-export DB_HOST=127.0.0.1
-export DB_PORT=3307
-export DB_NAME=vite_gourmand_test
-export DB_USER=root
-export DB_PASSWORD=root_password_test
-export DB_PASS=root_password_test
-
-export MONGO_HOST=127.0.0.1
-export MONGO_PORT=27018
-export MONGO_DB=vite_gourmand_test
-export MONGO_USERNAME=root
-export MONGO_PASSWORD=mongo_root_password_test
-export MONGO_USER=root
-export MONGO_PASS=mongo_root_password_test
-export MONGO_URI="mongodb://root:mongo_root_password_test@127.0.0.1:27018/vite_gourmand_test?authSource=admin"
+# JWT_SECRET : toujours généré dynamiquement (ne jamais committer un secret)
+export JWT_SECRET="$(openssl rand -hex 32)"
 
 # 2) Reset base de test
 ./scripts/tests/reset_test_db.sh
@@ -36,7 +37,10 @@ export MONGO_URI="mongodb://root:mongo_root_password_test@127.0.0.1:27018/vite_g
   ./vendor/bin/phpunit --colors=always
 )
 
-# 4) Démarrer l'API en mode test pour Newman (+ logs)
+# 4) Nettoyer le rate limiter avant les tests API
+rm -rf /tmp/vg_rate_limit/
+
+# 5) Démarrer l'API en mode test pour Newman (+ logs)
 LOG=/tmp/php-test-server.log
 ERR=/tmp/php-test-server-errors.log
 rm -f "$LOG" "$ERR"
@@ -61,18 +65,24 @@ trap cleanup EXIT
 
 sleep 0.3
 
-# 5) Newman - Tests API (inscription + login + logout)
+# 6) Newman - Tests API (inscription + login + logout + password reset)
+# Le serveur tourne sur le port 8001 ; on override la variable base_url des collections
+NEWMAN_OPTS="--env-var base_url=http://127.0.0.1:8001/api --timeout-request 10000 --delay-request 200"
+
 set +e
-newman run backend/tests/postman/inscription.postman_collection.json
+newman run backend/tests/postman/inscription.postman_collection.json $NEWMAN_OPTS
 NEWMAN_EXIT_INSCRIPTION=$?
 
-newman run backend/tests/postman/login.postman_collection.json
+newman run backend/tests/postman/login.postman_collection.json $NEWMAN_OPTS
 NEWMAN_EXIT_LOGIN=$?
 
-newman run backend/tests/postman/logout.postman_collection.json
+newman run backend/tests/postman/logout.postman_collection.json $NEWMAN_OPTS
 NEWMAN_EXIT_LOGOUT=$?
 
-NEWMAN_EXIT=$((NEWMAN_EXIT_INSCRIPTION + NEWMAN_EXIT_LOGIN + NEWMAN_EXIT_LOGOUT))
+newman run backend/tests/postman/e2e_password_reset.postman_collection.json $NEWMAN_OPTS
+NEWMAN_EXIT_RESET=$?
+
+NEWMAN_EXIT=$((NEWMAN_EXIT_INSCRIPTION + NEWMAN_EXIT_LOGIN + NEWMAN_EXIT_LOGOUT + NEWMAN_EXIT_RESET))
 set -e
 
 if [ "$NEWMAN_EXIT" -ne 0 ]; then

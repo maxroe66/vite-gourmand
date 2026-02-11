@@ -141,7 +141,7 @@ jobs:
           echo "DB_PASS=vite_pass" >> .env.test
           echo "MONGODB_URI=mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin" >> .env.test
           echo "MONGODB_DB=vite_gourmand_test" >> .env.test
-          echo "JWT_SECRET=test_secret_key_for_ci" >> .env.test
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET_TEST }}" >> .env.test
           echo "ENVIRONMENT=test" >> .env.test
 
 
@@ -237,7 +237,7 @@ jobs:
           DB_PASS: vite_pass
           MONGODB_URI: mongodb://root:root@127.0.0.1:27017/vite_gourmand_test?authSource=admin
           MONGODB_DB: vite_gourmand_test
-          JWT_SECRET: test_secret_key_for_ci
+          JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
 
       - name: Run PHPUnit tests (with real email sending)
         run: |

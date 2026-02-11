@@ -170,6 +170,7 @@ async function fetchMenusList() {
 
 // Global state for modals
 let isMenuModalMsgInit = false;
+let commandesById = new Map();
 
 async function initMenuFormSelects() {
     // Ne charger qu'une fois
@@ -254,10 +255,11 @@ function addImageInput(value = '') {
             // Correction URL: utiliser le chemin relatif pour la prod, ou une config
             const response = await fetch('/api/upload', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: formData
+                headers: AuthService.addCsrfHeader({
+                    'Authorization': `Bearer ${token}`
+                }),
+                body: formData,
+                credentials: 'include'
             });
 
             if (!response.ok) throw new Error('Erreur upload');
@@ -916,7 +918,11 @@ async function fetchCommandesList() {
             return;
         }
 
+        commandesById = new Map(commandes.map(cmd => [String(cmd.id), cmd]));
+
         body.innerHTML = commandes.map(cmd => {
+            const safeId = escapeHtml(String(cmd.id ?? ''));
+            const safeUserId = escapeHtml(String(cmd.userId ?? ''));
             
             // Logique d'affichage des boutons
             let actions = '';
@@ -931,16 +937,16 @@ async function fetchCommandesList() {
             }
 
             actions += `
-                <button class="btn btn--sm btn--secondary btn-view-cmd" data-cmd='${JSON.stringify(cmd).replace(/'/g, "&#39;")}'><i class="fa-solid fa-eye"></i></button>
+                <button class="btn btn--sm btn--secondary btn-view-cmd" data-id="${safeId}"><i class="fa-solid fa-eye"></i></button>
             `;
 
 
             return `
             <tr>
-                <td>#${cmd.id}</td>
+                <td>#${safeId}</td>
                 <td>
                     <div><strong>${new Date(cmd.datePrestation).toLocaleDateString()}</strong></div>
-                    <small>Client #${cmd.userId}</small>
+                    <small>Client #${safeUserId}</small>
                 </td>
                 <td>${parseFloat(cmd.prixTotal).toFixed(2)} €</td>
                 <td>
@@ -1011,50 +1017,56 @@ async function fetchCommandesList() {
             btn.addEventListener('click', (e) => {
                 // Remonter au bouton si click sur icon
                 const target = e.target.closest('.btn-view-cmd');
-                const cmd = JSON.parse(target.dataset.cmd);
+                const cmdId = target.dataset.id;
+                const cmd = commandesById.get(cmdId);
+                if (!cmd) return;
                 openCmdDetails(cmd);
             });
         });
 
     } catch (e) {
         console.error(e);
-        body.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${e.message}</td></tr>`;
+        body.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${escapeHtml(e.message || 'Erreur')}</td></tr>`;
     }
 }
 
 function openCmdDetails(cmd) {
     const modal = document.getElementById('modal-view-cmd');
     document.getElementById('view-cmd-title').textContent = `Commande #${cmd.id} - ${cmd.statut}`;
+    const safe = (value) => escapeHtml(String(value ?? ''));
+    const datePrestation = new Date(cmd.datePrestation).toLocaleDateString();
+    const dateCommande = new Date(cmd.dateCommande).toLocaleString();
+    const distanceLabel = cmd.horsBordeaux ? 'Hors Zone' : 'Bordeaux';
     
     document.getElementById('view-cmd-body').innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
                 <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Info Client & Livraison</h4>
-                <p><strong>Client ID:</strong> ${cmd.userId}</p>
-                <p><strong>Adresse:</strong> ${cmd.adresseLivraison}</p>
-                <p><strong>Ville:</strong> ${cmd.codePostal} ${cmd.ville}</p>
-                <p><strong>Tel:</strong> ${cmd.gsm}</p>
-                <p><strong>Distance:</strong> ${cmd.distanceKm} km (${cmd.horsBordeaux ? 'Hors Zone' : 'Bordeaux'})</p>
+                <p><strong>Client ID:</strong> ${safe(cmd.userId)}</p>
+                <p><strong>Adresse:</strong> ${safe(cmd.adresseLivraison)}</p>
+                <p><strong>Ville:</strong> ${safe(cmd.codePostal)} ${safe(cmd.ville)}</p>
+                <p><strong>Tel:</strong> ${safe(cmd.gsm)}</p>
+                <p><strong>Distance:</strong> ${safe(cmd.distanceKm)} km (${safe(distanceLabel)})</p>
             </div>
             <div>
                 <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Prestation</h4>
-                <p><strong>Date Prestation:</strong> ${new Date(cmd.datePrestation).toLocaleDateString()}</p>
-                <p><strong>Heure:</strong> ${cmd.heureLivraison}</p>
-                <p><strong>Nb Personnes:</strong> ${cmd.nombrePersonnes} (Min: ${cmd.nombrePersonneMinSnapshot})</p>
+                <p><strong>Date Prestation:</strong> ${safe(datePrestation)}</p>
+                <p><strong>Heure:</strong> ${safe(cmd.heureLivraison)}</p>
+                <p><strong>Nb Personnes:</strong> ${safe(cmd.nombrePersonnes)} (Min: ${safe(cmd.nombrePersonneMinSnapshot)})</p>
                 <p><strong>Matériel Prêt:</strong> ${cmd.materielPret ? 'Oui' : 'Non'}</p>
             </div>
         </div>
         <div style="margin-top:20px;">
             <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Détails Financiers</h4>
             <table style="width:100%; text-align:left;">
-                <tr><td>Prix Unitaire Menu:</td> <td>${cmd.prixMenuUnitaire} €</td></tr>
-                <tr><td>Réduction:</td> <td style="color:green;">-${cmd.montantReduction} € ${cmd.reductionAppliquee ? '(APPLIQUÉE)' : ''}</td></tr>
-                <tr><td>Frais Livraison:</td> <td>${cmd.fraisLivraison} €</td></tr>
-                <tr style="font-weight:bold; font-size:1.1em;"><td>TOTAL:</td> <td>${cmd.prixTotal} €</td></tr>
+                <tr><td>Prix Unitaire Menu:</td> <td>${safe(cmd.prixMenuUnitaire)} €</td></tr>
+                <tr><td>Réduction:</td> <td style="color:green;">-${safe(cmd.montantReduction)} € ${cmd.reductionAppliquee ? '(APPLIQUÉE)' : ''}</td></tr>
+                <tr><td>Frais Livraison:</td> <td>${safe(cmd.fraisLivraison)} €</td></tr>
+                <tr style="font-weight:bold; font-size:1.1em;"><td>TOTAL:</td> <td>${safe(cmd.prixTotal)} €</td></tr>
             </table>
         </div>
         <div style="margin-top:15px; font-size:0.9em; color:#666;">
-            Commande passée le ${new Date(cmd.dateCommande).toLocaleString()}
+            Commande passée le ${safe(dateCommande)}
         </div>
     `;
     
@@ -1062,6 +1074,7 @@ function openCmdDetails(cmd) {
 }
 
 function renderStatusSelect(id, currentStatus) {
+    const safeId = escapeHtml(String(id ?? ''));
     const statuses = ['EN_ATTENTE', 'ACCEPTE', 'EN_PREPARATION', 'EN_LIVRAISON', 'LIVRE', 'EN_ATTENTE_RETOUR', 'TERMINEE', 'ANNULEE'];
     const options = statuses.map(s => `
         <option value="${s}" ${s === currentStatus ? 'selected' : ''}>${s}</option>
@@ -1073,7 +1086,7 @@ function renderStatusSelect(id, currentStatus) {
     if(currentStatus === 'ACCEPTE') color = '#28a745';
     if(currentStatus === 'ANNULEE') color = '#dc3545';
     
-    return `<select class="input input--sm cmd-status-select" data-id="${id}" style="border-left: 5px solid ${color}">${options}</select>`;
+    return `<select class="input input--sm cmd-status-select" data-id="${safeId}" style="border-left: 5px solid ${color}">${options}</select>`;
 }
 
 // --- AVIS VIEW ---
@@ -1139,12 +1152,13 @@ async function fetchAndRenderAvis(status, container) {
                 ? new Date(avis.date_creation).toLocaleDateString('fr-FR')
                 : 'N/A';
             const noteHtml = renderStars(avis.note);
+            const safeComment = escapeHtml(avis.commentaire || '');
             
             return `
                 <tr>
                     <td>${dateStr}</td>
                     <td>${noteHtml}</td>
-                    <td><p class="text-truncate" title="${avis.commentaire}">${avis.commentaire}</p></td>
+                    <td><p class="text-truncate" title="${safeComment}">${safeComment}</p></td>
                     <td>
                         ${renderAvisActions(avis, status)}
                     </td>
@@ -1350,7 +1364,7 @@ async function fetchEquipeList() {
             tr.innerHTML = `
                 <td data-label="Nom">${escapeHtml(user.nom)} ${escapeHtml(user.prenom)}</td>
                 <td data-label="Email">${escapeHtml(user.email)}</td>
-                <td data-label="Rôle"><span class="badge badge--info">${user.role}</span></td>
+                <td data-label="Rôle"><span class="badge badge--info">${escapeHtml(user.role)}</span></td>
                 <td data-label="Statut">${isActif ? '<span class="badge badge--success">Actif</span>' : '<span class="badge badge--secondary">Inactif</span>'}</td>
                 <td data-label="Actions">${actionBtn}</td>
             `;
@@ -1372,7 +1386,7 @@ async function fetchEquipeList() {
         });
 
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${escapeHtml(error.message || 'Erreur')}</td></tr>`;
     }
 }
 

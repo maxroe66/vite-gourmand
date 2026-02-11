@@ -77,9 +77,19 @@ $container = $createContainer($config);
 $corsMiddleware = $container->get(\App\Middlewares\CorsMiddleware::class);
 $corsMiddleware->handle();
 
+// 5.1) Middleware CSP global — Content-Security-Policy
+$securityHeadersMiddleware = $container->get(\App\Middlewares\SecurityHeadersMiddleware::class);
+$securityHeadersMiddleware->handle();
+
 // 6) Détermination de la méthode et du chemin de la requête
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+// 6.1) Initialiser le cookie CSRF pour les requetes non mutatrices
+if (in_array($method, ['GET', 'HEAD'], true)) {
+    $csrfService = $container->get(\App\Services\CsrfService::class);
+    $csrfService->ensureTokenCookie();
+}
 
 // 7) Initialisation du routeur
 $router = new Router();
@@ -103,13 +113,13 @@ $router->addGroup('/api', function ($router) use ($container, $config) {
 if ($method === 'GET' && strpos($path, '/api') !== 0) {
     $staticPagePath = null;
     if ($path === '/' || $path === '/home' || $path === '/accueil') {
-        $staticPagePath = __DIR__ . '/frontend/frontend/pages/home.html';
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/home.html';
     } elseif ($path === '/inscription') {
-        $staticPagePath = __DIR__ . '/frontend/frontend/pages/inscription.html';
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/inscription.html';
     } elseif ($path === '/connexion') {
-        $staticPagePath = __DIR__ . '/frontend/frontend/pages/connexion.html';
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/connexion.html';
     } elseif ($path === '/reset-password') {
-        $staticPagePath = __DIR__ . '/frontend/frontend/pages/motdepasse-oublie.html';
+        $staticPagePath = __DIR__ . '/../frontend/frontend/pages/motdepasse-oublie.html';
     }
 
     
