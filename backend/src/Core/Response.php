@@ -22,6 +22,7 @@ final class Response
     public const HTTP_METHOD_NOT_ALLOWED = 405;
     public const HTTP_CONFLICT = 409;
     public const HTTP_UNPROCESSABLE_ENTITY = 422;
+    public const HTTP_TOO_MANY_REQUESTS = 429;
     public const HTTP_INTERNAL_SERVER_ERROR = 500;
 
     private array $headers = [];

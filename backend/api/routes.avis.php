@@ -3,6 +3,7 @@
 use App\Controllers\AvisController;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\CsrfMiddleware;
+use App\Middlewares\RateLimitMiddleware;
 use App\Middlewares\RoleMiddleware;
 use App\Exceptions\AuthException;
 use App\Core\Request;
@@ -15,7 +16,9 @@ $router->post('/avis', function (ContainerInterface $container, array $params, R
     
     $controller = $container->get(AvisController::class);
     return $controller->create($request);
-})->middleware(CsrfMiddleware::class);
+})
+->middleware(RateLimitMiddleware::class, ['maxRequests' => 5, 'windowSeconds' => 3600, 'prefix' => 'avis-create'])
+->middleware(CsrfMiddleware::class);
 
 // Lister les avis (Admin dashboard ou public)
 $router->get('/avis', function (ContainerInterface $container, array $params, Request $request) {

@@ -6,6 +6,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\CsrfMiddleware;
+use App\Middlewares\RateLimitMiddleware;
 use App\Middlewares\RoleMiddleware;
 use Psr\Container\ContainerInterface;
 
@@ -14,6 +15,7 @@ $router->post('/commandes', function (ContainerInterface $container, array $para
     $controller = $container->get(CommandeController::class);
     return $controller->create($request);
 })
+->middleware(RateLimitMiddleware::class, ['maxRequests' => 10, 'windowSeconds' => 60, 'prefix' => 'commande-create'])
 ->middleware(CsrfMiddleware::class)
 ->middleware(AuthMiddleware::class);
 

@@ -7,6 +7,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\CsrfMiddleware;
+use App\Middlewares\RateLimitMiddleware;
 use App\Services\CsrfService;
 use Psr\Container\ContainerInterface;
 
@@ -14,13 +15,17 @@ $router->post('/auth/register', function (ContainerInterface $container, array $
     $authController = $container->get(AuthController::class);
     // Le contrôleur retourne directement un objet Response
     return $authController->register($request);
-})->middleware(CsrfMiddleware::class);
+})
+->middleware(RateLimitMiddleware::class, ['maxRequests' => 5, 'windowSeconds' => 3600, 'prefix' => 'register'])
+->middleware(CsrfMiddleware::class);
 
 $router->post('/auth/login', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     // Le contrôleur retourne directement un objet Response
     return $authController->login($request);
-})->middleware(CsrfMiddleware::class);
+})
+->middleware(RateLimitMiddleware::class, ['maxRequests' => 5, 'windowSeconds' => 900, 'prefix' => 'login'])
+->middleware(CsrfMiddleware::class);
 
 $router->post('/auth/logout', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
@@ -39,12 +44,16 @@ $router->get('/auth/logout', function () {
 $router->post('/auth/forgot-password', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     return $authController->forgotPassword($request);
-})->middleware(CsrfMiddleware::class);
+})
+->middleware(RateLimitMiddleware::class, ['maxRequests' => 3, 'windowSeconds' => 900, 'prefix' => 'forgot-pwd'])
+->middleware(CsrfMiddleware::class);
 
 $router->post('/auth/reset-password', function (ContainerInterface $container, array $params, Request $request) {
     $authController = $container->get(AuthController::class);
     return $authController->resetPassword($request);
-})->middleware(CsrfMiddleware::class);
+})
+->middleware(RateLimitMiddleware::class, ['maxRequests' => 5, 'windowSeconds' => 900, 'prefix' => 'reset-pwd'])
+->middleware(CsrfMiddleware::class);
 
 $router->get('/auth/check', function (ContainerInterface $container, array $params, Request $request) {
     // Le middleware a déjà été exécuté et a enrichi l'objet $request.

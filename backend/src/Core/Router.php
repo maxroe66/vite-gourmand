@@ -6,6 +6,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Exceptions\AuthException;
 use App\Exceptions\ForbiddenException;
+use App\Exceptions\TooManyRequestsException;
 use Psr\Container\ContainerInterface;
 
 class Router
@@ -139,6 +140,11 @@ class Router
                 } catch (ForbiddenException $e) {
                     // Exception d'autorisation (rôle) : on retourne une réponse 403
                     return (new Response())->setStatusCode(Response::HTTP_FORBIDDEN)
+                                          ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
+                } catch (TooManyRequestsException $e) {
+                    // Rate limit dépassé : on retourne 429 avec Retry-After
+                    return (new Response())->setStatusCode(Response::HTTP_TOO_MANY_REQUESTS)
+                                          ->setHeader('Retry-After', (string)$e->getRetryAfter())
                                           ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
                 } catch (\Exception $e) {
                     // Autres exceptions : on retourne une réponse 500
