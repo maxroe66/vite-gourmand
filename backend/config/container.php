@@ -47,6 +47,10 @@ return function (array $config): ContainerInterface {
         App\Middlewares\CorsMiddleware::class => DI\autowire()
             ->constructorParameter('config', DI\get('config')),
 
+        // SecurityHeadersMiddleware (CSP) — global dans public/index.php
+        App\Middlewares\SecurityHeadersMiddleware::class => DI\autowire()
+            ->constructorParameter('config', DI\get('config')),
+
         // 3. Définition pour la connexion PDO (nécessite une configuration manuelle).
         PDO::class => function (ContainerInterface $c) {
             $dbConfig = $c->get('config')['db'];

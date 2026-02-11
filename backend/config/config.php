@@ -226,6 +226,18 @@ return [
         'token_bytes' => 32,
         'ttl' => 7200,
     ],
+    'csp' => [
+        'default_src' => ["'self'"],
+        'script_src'  => ["'self'", 'https://cdn.jsdelivr.net'],
+        'style_src'   => ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
+        'img_src'     => ["'self'", 'data:'],
+        'font_src'    => ["'self'", 'https://cdnjs.cloudflare.com'],
+        'connect_src' => ["'self'"],
+        'frame_src'   => ["'none'"],
+        'object_src'  => ["'none'"],
+        'base_uri'    => ["'self'"],
+        'form_action' => ["'self'"],
+    ],
     'mail' => [
         'provider' => $mailProvider,
         'api_key'  => $mailApiKey,

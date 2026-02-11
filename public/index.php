@@ -77,6 +77,10 @@ $container = $createContainer($config);
 $corsMiddleware = $container->get(\App\Middlewares\CorsMiddleware::class);
 $corsMiddleware->handle();
 
+// 5.1) Middleware CSP global — Content-Security-Policy
+$securityHeadersMiddleware = $container->get(\App\Middlewares\SecurityHeadersMiddleware::class);
+$securityHeadersMiddleware->handle();
+
 // 6) Détermination de la méthode et du chemin de la requête
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';

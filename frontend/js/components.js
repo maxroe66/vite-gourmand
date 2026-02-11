@@ -38,6 +38,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Charger le footer
     await loadComponent('footer-placeholder', 'footer.html');
     
+    // Mise à jour de l'année dans le footer (remplace le script inline)
+    const yearEl = document.getElementById('currentYear');
+    if (yearEl) {
+        yearEl.textContent = new Date().getFullYear();
+    }
+
     // Dispatcher un event pour signaler que les composants sont chargés
     document.dispatchEvent(new Event('componentsLoaded'));
 });
