@@ -8,6 +8,12 @@ require __DIR__ . '/routes.admin.php';
 require __DIR__ . '/routes.materiel.php'; // Routes matériel
 require __DIR__ . '/routes.diagnostic.php'; // Route de diagnostic MongoDB
 
+// Routes de test : accessibles uniquement en environnement test/development
+$appEnv = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'production';
+if (in_array($appEnv, ['test', 'development'], true)) {
+    require __DIR__ . '/routes.test.php';
+}
+
 use App\Controllers\UploadController;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\CsrfMiddleware;

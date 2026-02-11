@@ -41,6 +41,12 @@ class RateLimitMiddleware
      */
     public function handle(Request $request, array $args = []): void
     {
+        // Désactiver le rate limiting en environnement de test
+        $env = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: null;
+        if ($env === 'test') {
+            return;
+        }
+
         $maxRequests   = (int)($args['maxRequests']   ?? 60);
         $windowSeconds = (int)($args['windowSeconds'] ?? 60);
         $prefix        = (string)($args['prefix']     ?? 'global');

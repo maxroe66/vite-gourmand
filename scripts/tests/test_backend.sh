@@ -9,23 +9,24 @@ export APP_DEBUG=false
 export ENV=test
 export DEBUG=false
 
-export JWT_SECRET="4efd16790bfec508f370d4383aa98834c519200e31a038a3ebb7772a63f6f58c"
+# JWT_SECRET généré dynamiquement (ne jamais committer un secret en dur)
+export JWT_SECRET="$(openssl rand -hex 32)"
 
-export DB_HOST=127.0.0.1
-export DB_PORT=3307
-export DB_NAME=vite_gourmand_test
-export DB_USER=root
-export DB_PASSWORD=root_password_test
-export DB_PASS=root_password_test
+export DB_HOST=${DB_HOST:-127.0.0.1}
+export DB_PORT=${DB_PORT:-3307}
+export DB_NAME=${DB_NAME:-vite_gourmand_test}
+export DB_USER=${DB_USER:-root}
+export DB_PASSWORD=${DB_PASSWORD:-root_password_test}
+export DB_PASS=${DB_PASS:-$DB_PASSWORD}
 
-export MONGO_HOST=127.0.0.1
-export MONGO_PORT=27018
-export MONGO_DB=vite_gourmand_test
-export MONGO_USERNAME=root
-export MONGO_PASSWORD=mongo_root_password_test
-export MONGO_USER=root
-export MONGO_PASS=mongo_root_password_test
-export MONGO_URI="mongodb://root:mongo_root_password_test@127.0.0.1:27018/vite_gourmand_test?authSource=admin"
+export MONGO_HOST=${MONGO_HOST:-127.0.0.1}
+export MONGO_PORT=${MONGO_PORT:-27018}
+export MONGO_DB=${MONGO_DB:-vite_gourmand_test}
+export MONGO_USERNAME=${MONGO_USERNAME:-root}
+export MONGO_PASSWORD=${MONGO_PASSWORD:-mongo_root_password_test}
+export MONGO_USER=${MONGO_USER:-$MONGO_USERNAME}
+export MONGO_PASS=${MONGO_PASS:-$MONGO_PASSWORD}
+export MONGO_URI=${MONGO_URI:-"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=admin"}
 
 # 2) Reset base de test
 ./scripts/tests/reset_test_db.sh
@@ -36,7 +37,10 @@ export MONGO_URI="mongodb://root:mongo_root_password_test@127.0.0.1:27018/vite_g
   ./vendor/bin/phpunit --colors=always
 )
 
-# 4) Démarrer l'API en mode test pour Newman (+ logs)
+# 4) Nettoyer le rate limiter avant les tests API
+rm -rf /tmp/vg_rate_limit/
+
+# 5) Démarrer l'API en mode test pour Newman (+ logs)
 LOG=/tmp/php-test-server.log
 ERR=/tmp/php-test-server-errors.log
 rm -f "$LOG" "$ERR"
@@ -61,18 +65,24 @@ trap cleanup EXIT
 
 sleep 0.3
 
-# 5) Newman - Tests API (inscription + login + logout)
+# 6) Newman - Tests API (inscription + login + logout + password reset)
+# Le serveur tourne sur le port 8001 ; on override la variable base_url des collections
+NEWMAN_OPTS="--env-var base_url=http://127.0.0.1:8001/api --timeout-request 10000 --delay-request 200"
+
 set +e
-newman run backend/tests/postman/inscription.postman_collection.json
+newman run backend/tests/postman/inscription.postman_collection.json $NEWMAN_OPTS
 NEWMAN_EXIT_INSCRIPTION=$?
 
-newman run backend/tests/postman/login.postman_collection.json
+newman run backend/tests/postman/login.postman_collection.json $NEWMAN_OPTS
 NEWMAN_EXIT_LOGIN=$?
 
-newman run backend/tests/postman/logout.postman_collection.json
+newman run backend/tests/postman/logout.postman_collection.json $NEWMAN_OPTS
 NEWMAN_EXIT_LOGOUT=$?
 
-NEWMAN_EXIT=$((NEWMAN_EXIT_INSCRIPTION + NEWMAN_EXIT_LOGIN + NEWMAN_EXIT_LOGOUT))
+newman run backend/tests/postman/e2e_password_reset.postman_collection.json $NEWMAN_OPTS
+NEWMAN_EXIT_RESET=$?
+
+NEWMAN_EXIT=$((NEWMAN_EXIT_INSCRIPTION + NEWMAN_EXIT_LOGIN + NEWMAN_EXIT_LOGOUT + NEWMAN_EXIT_RESET))
 set -e
 
 if [ "$NEWMAN_EXIT" -ne 0 ]; then
