@@ -40,22 +40,26 @@ class MenuValidator
             $errors['prix'] = 'Le prix doit être un nombre positif.';
         }
 
-        // Nombre de personnes minimum (obligatoire, entier, positif)
+        // Nombre de personnes minimum (obligatoire, entier, positif, max 500)
         if (empty($data['nb_personnes_min'])) {
             $errors['nb_personnes_min'] = 'Le nombre de personnes minimum est requis.';
-        } elseif (!is_int($data['nb_personnes_min'])) {
+        } elseif (filter_var($data['nb_personnes_min'], FILTER_VALIDATE_INT) === false) {
             $errors['nb_personnes_min'] = 'Le nombre de personnes doit être un entier.';
-        } elseif ($data['nb_personnes_min'] <= 0) {
+        } elseif ((int)$data['nb_personnes_min'] <= 0) {
             $errors['nb_personnes_min'] = 'Le nombre de personnes doit être un entier positif.';
+        } elseif ((int)$data['nb_personnes_min'] > 500) {
+            $errors['nb_personnes_min'] = 'Le nombre de personnes ne peut pas dépasser 500.';
         }
 
-        // Stock (obligatoire, entier, positif ou nul)
+        // Stock (obligatoire, entier, positif ou nul, max 10000)
         if (!isset($data['stock'])) {
             $errors['stock'] = 'Le stock est requis.';
-        } elseif (!is_int($data['stock'])) {
+        } elseif (filter_var($data['stock'], FILTER_VALIDATE_INT) === false && $data['stock'] !== 0 && $data['stock'] !== '0') {
             $errors['stock'] = 'Le stock doit être un entier.';
-        } elseif ($data['stock'] < 0) {
+        } elseif ((int)$data['stock'] < 0) {
             $errors['stock'] = 'Le stock ne peut pas être négatif.';
+        } elseif ((int)$data['stock'] > 10000) {
+            $errors['stock'] = 'Le stock ne peut pas dépasser 10000.';
         }
         
         // Conditions (optionnel, string)
@@ -63,18 +67,22 @@ class MenuValidator
             $errors['conditions'] = 'Les conditions doivent être une chaîne de caractères.';
         }
 
-        // id_theme (obligatoire, entier)
+        // id_theme (obligatoire, entier positif)
         if (empty($data['id_theme'])) {
             $errors['id_theme'] = 'Le thème est requis.';
-        } elseif (!is_int($data['id_theme'])) {
+        } elseif (filter_var($data['id_theme'], FILTER_VALIDATE_INT) === false) {
             $errors['id_theme'] = 'L\'ID du thème doit être un entier.';
+        } elseif ((int)$data['id_theme'] <= 0) {
+            $errors['id_theme'] = 'L\'ID du thème doit être un entier positif.';
         }
 
-        // id_regime (obligatoire, entier)
+        // id_regime (obligatoire, entier positif)
         if (empty($data['id_regime'])) {
             $errors['id_regime'] = 'Le régime est requis.';
-        } elseif (!is_int($data['id_regime'])) {
+        } elseif (filter_var($data['id_regime'], FILTER_VALIDATE_INT) === false) {
             $errors['id_regime'] = 'L\'ID du régime doit être un entier.';
+        } elseif ((int)$data['id_regime'] <= 0) {
+            $errors['id_regime'] = 'L\'ID du régime doit être un entier positif.';
         }
 
         return [
