@@ -110,6 +110,8 @@ if ($dbSslEnabled) {
 $mongoDb = $env('MONGO_DB', 'vite_gourmand');
 
 $mongoUri = $env('MONGO_URI', '');
+$isCosmosDb = false;
+
 if ($mongoUri === '') {
     $mongoHost = $env('MONGO_HOST', '127.0.0.1');
     $mongoPort = $env('MONGO_PORT', '27017');
@@ -122,7 +124,7 @@ if ($mongoUri === '') {
         
         if ($isCosmosDb) {
             // Cosmos DB nécessite ssl=true et retrywrites=false
-            $mongoUri = "mongodb://{$mongoUser}:{$mongoPass}@{$mongoHost}:{$mongoPort}/{$mongoDb}?ssl=true&retrywrites=false";
+            $mongoUri = "mongodb://{$mongoUser}:{$mongoPass}@{$mongoHost}:{$mongoPort}/{$mongoDb}?ssl=true&retrywrites=false&retryReads=false";
         } else {
             // MongoDB standard
             $mongoUri = "mongodb://{$mongoUser}:{$mongoPass}@{$mongoHost}:{$mongoPort}/{$mongoDb}?authSource=admin";
@@ -130,6 +132,9 @@ if ($mongoUri === '') {
     } else {
         $mongoUri = "mongodb://{$mongoHost}:{$mongoPort}/{$mongoDb}";
     }
+} else {
+    // Détection Cosmos DB depuis l'URI fournie (port 10255 ou ssl=true)
+    $isCosmosDb = (str_contains($mongoUri, ':10255') || str_contains($mongoUri, 'cosmos'));
 }
 
 
@@ -214,6 +219,7 @@ return [
     'mongo' => [
         'uri'      => $mongoUri,
         'database' => $mongoDb,
+        'is_cosmos' => $isCosmosDb,
     ],
     'jwt' => [
         'secret' => $jwtSecret,
