@@ -10,7 +10,6 @@ readme.ennonce.md
 # Dossiers ignorés
 fichiers_perso/
 plugins/
-
 # Fichiers ignorés
 # (package-lock.json doit être versionné pour le cache npm CI)
 .env
@@ -19,6 +18,9 @@ plugins/
 .env.azure
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
+
+# Node
+node_modules/
 
 # Composer
 backend/vendor/
