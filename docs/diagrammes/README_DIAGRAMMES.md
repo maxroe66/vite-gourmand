@@ -45,7 +45,7 @@ GitHub affiche automatiquement les diagrammes Mermaid dans les fichiers Markdown
 
 **Instructions pour le jury** :
 1. Accédez au dépôt GitHub du projet
-2. Naviguez vers `Docs/`
+2. Naviguez vers `docs/`
 3. Cliquez sur `diagramme_mcd.md` ou `diagramme_mld.md`
 4. Le diagramme est automatiquement rendu à l'écran
 
@@ -54,19 +54,19 @@ GitHub affiche automatiquement les diagrammes Mermaid dans les fichiers Markdown
 **Méthode A - Depuis VS Code** :
 1. Ouvrez la prévisualisation Mermaid (`Ctrl+Shift+P` → "Mermaid: Preview")
 2. Clic droit sur le diagramme → **"Save as PNG"**
-3. Sauvegardez dans `Docs/images/`
+3. Sauvegardez dans `docs/images/`
 
 **Méthode B - En ligne** :
 1. Allez sur https://mermaid.live/
 2. Collez le code du diagramme (entre les balises \`\`\`mermaid et \`\`\`)
 3. Cliquez sur "Actions" → "Download PNG" ou "Download SVG"
-4. Sauvegardez dans `Docs/images/`
+4. Sauvegardez dans `docs/images/`
 
 **Méthode C - CLI (si Node.js installé)** :
 ```bash
 npm install -g @mermaid-js/mermaid-cli
-mmdc -i Docs/diagramme_mcd.md -o Docs/images/mcd.png
-mmdc -i Docs/diagramme_mld.md -o Docs/images/mld.png
+mmdc -i docs/diagramme_mcd.md -o docs/images/mcd.png
+mmdc -i docs/diagramme_mld.md -o docs/images/mld.png
 ```
 
 ---

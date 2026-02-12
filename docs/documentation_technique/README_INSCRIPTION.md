@@ -126,7 +126,7 @@ Ce document détaille le fonctionnement, l’API, la logique métier, les tests 
 
 ## 6. Diagramme de séquence
 
-Voir : `Docs/diagrammes/diagramme_sequences/sequence_01_inscription_connexion.md`
+Voir : `docs/diagrammes/diagramme_sequences/sequence_01_inscription_connexion.md`
 
 ---
 

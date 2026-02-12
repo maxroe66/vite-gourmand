@@ -28,7 +28,7 @@ cd vite-et-gourmand
 - Docker (optionnel)
 
 ## 📂 Structure Initiale
-- `Docs/` : Diagrammes et documentation
+- `docs/` : Diagrammes et documentation
 - `sql/` : Scripts SQL
 - `mongoDB/` : Setup MongoDB
 - `src/` : Code source
