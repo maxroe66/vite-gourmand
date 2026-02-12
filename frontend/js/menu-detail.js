@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentMenu = menu;
             renderMenu(menu, themes, regimes);
-            loader.style.display = 'none';
-            content.style.display = 'flex';
+            loader.classList.add('u-hidden');
+            content.classList.add('is-visible');
 
         } catch (error) {
             console.error(error);
@@ -105,8 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elStock.className = "stock-critical";
             btnOrder.disabled = true;
             btnOrder.textContent = "Indisponible";
-            btnOrder.style.backgroundColor = "#ccc";
-            btnOrder.style.cursor = "not-allowed";
+            btnOrder.classList.add('is-disabled');
         } else if (stock < 5) {
             elStock.textContent = `Vite ! Plus que ${stock} commandes restantes`;
             elStock.className = "stock-warning";
@@ -167,9 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (allAllergens.size > 0) {
                 elAllergensList.textContent = Array.from(allAllergens).join(', ');
-                elAllergensBox.style.display = 'block';
+                elAllergensBox.classList.add('is-visible');
             } else {
-                elAllergensBox.style.display = 'none'; 
+                elAllergensBox.classList.remove('is-visible'); 
             }
 
         } else {
@@ -203,18 +202,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentImageIndex >= menuImages.length) currentImageIndex = 0;
 
         // Fade effect
-        elMainImage.style.opacity = '0.5';
+        elMainImage.classList.add('is-fading');
         
         setTimeout(() => {
             elMainImage.src = menuImages[currentImageIndex];
-            elMainImage.style.opacity = '1';
+            elMainImage.classList.remove('is-fading');
         }, 200);
 
         // Hide buttons if only 1 image
         if (menuImages.length <= 1) {
-            galleryControls.style.display = 'none';
+            galleryControls.classList.add('u-hidden');
         } else {
-            galleryControls.style.display = 'flex';
+            galleryControls.classList.remove('u-hidden');
         }
     }
 

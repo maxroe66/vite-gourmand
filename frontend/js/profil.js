@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) {
             ordersList.innerHTML = `<p class="error-text">Erreur: ${e.message}</p>`;
         } finally {
-            ordersLoader.style.display = 'none';
+            ordersLoader.classList.add('u-hidden');
         }
     }
 
@@ -134,14 +134,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('edit-date-prestation').value = '';
             }
             // Afficher la modale
-            modalEditOrder.style.display = 'flex';
+            modalEditOrder.classList.add('is-visible');
         } catch (e) {
             alert("Impossible de charger la commande à modifier.");
         }
     }
 
     closeEditOrder.addEventListener('click', () => {
-        modalEditOrder.style.display = 'none';
+        modalEditOrder.classList.remove('is-visible');
     });
 
     formEditOrder.addEventListener('submit', async (e) => {
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             await CommandeService.updateOrder(id, data);
             alert('Commande modifiée avec succès.');
-            modalEditOrder.style.display = 'none';
+            modalEditOrder.classList.remove('is-visible');
             loadOrders();
         } catch (err) {
             alert(err.message || 'Erreur lors de la modification.');
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function openAvisModal(id) {
         document.getElementById('avis-cmd-id').value = id;
         formAvis.reset(); 
-        modalAvis.style.display = 'flex';
+        modalAvis.classList.add('is-visible');
     }
 
     formAvis.addEventListener('submit', async (e) => {
@@ -182,17 +182,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             await AvisService.createAvis(data);
             alert("Merci ! Votre avis a été enregistré et sera publié après validation.");
-            modalAvis.style.display = 'none';
+            modalAvis.classList.remove('is-visible');
             loadOrders(); // Refresh to hide button
         } catch (err) {
             alert(err.message);
         }
     });
 
-    closeAvis.addEventListener('click', () => modalAvis.style.display = 'none');
+    closeAvis.addEventListener('click', () => modalAvis.classList.remove('is-visible'));
 
     async function showDetail(id) {
-        modal.style.display = 'flex';
+        modal.classList.add('is-visible');
         modalBody.innerHTML = '<p>Chargement...</p>';
         
         try {
@@ -248,11 +248,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Modal behavior
     closeModal.addEventListener('click', () => {
-        modal.style.display = 'none';
+        modal.classList.remove('is-visible');
     });
     window.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-        if (e.target === modalAvis) modalAvis.style.display = 'none';
+        if (e.target === modal) modal.classList.remove('is-visible');
+        if (e.target === modalAvis) modalAvis.classList.remove('is-visible');
     });
 
     function formatPrice(amount) {

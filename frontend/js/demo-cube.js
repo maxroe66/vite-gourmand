@@ -13,15 +13,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (flipped) return;
     flipped = true;
     cubes.forEach(cube => cube.classList.add('is-flipped'));
-    btnDown.style.display = 'none';
-    btnUp.style.display = 'flex';
+    btnDown.classList.add('is-hidden');
+    btnUp.classList.add('is-active');
   });
 
   btnUp.addEventListener('click', function() {
     if (!flipped) return;
     flipped = false;
     cubes.forEach(cube => cube.classList.remove('is-flipped'));
-    btnUp.style.display = 'none';
-    btnDown.style.display = 'flex';
+    btnUp.classList.remove('is-active');
+    btnUp.classList.add('is-hidden');
+    btnDown.classList.remove('is-hidden');
+    btnDown.classList.add('is-active');
   });
 });

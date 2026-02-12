@@ -65,6 +65,8 @@
 }
 .arrow-btn--down { margin-bottom: 0; }
 .arrow-btn--up { margin-top: 0; display: none; }
+.arrow-btn.is-active { display: flex; }
+.arrow-btn.is-hidden { display: none; }
 
 
 

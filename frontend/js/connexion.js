@@ -132,7 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = forgotEmail.value.trim();
             if (!email) {
                 forgotMsg.textContent = 'Veuillez saisir votre email.';
-                forgotMsg.style.color = '#dc3545';
+                forgotMsg.classList.remove('u-text-success');
+                forgotMsg.classList.add('u-text-error');
                 return;
             }
             try {
@@ -144,14 +145,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 if (response.ok && data.success) {
                     forgotMsg.textContent = 'Si cet email existe, un lien de réinitialisation a été envoyé.';
-                    forgotMsg.style.color = '#28a745';
+                    forgotMsg.classList.remove('u-text-error');
+                    forgotMsg.classList.add('u-text-success');
                 } else {
                     forgotMsg.textContent = data.message || 'Erreur lors de la demande.';
-                    forgotMsg.style.color = '#dc3545';
+                    forgotMsg.classList.remove('u-text-success');
+                    forgotMsg.classList.add('u-text-error');
                 }
             } catch (err) {
                 forgotMsg.textContent = 'Erreur réseau. Veuillez réessayer.';
-                forgotMsg.style.color = '#dc3545';
+                forgotMsg.classList.remove('u-text-success');
+                forgotMsg.classList.add('u-text-error');
             }
         });
     }

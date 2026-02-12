@@ -45,12 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       prev.disabled = atStart;
       next.disabled = atEnd;
-      
-      // Style visuel pour disabled si le CSS ne le gère pas auto via :disabled
-      prev.style.opacity = atStart ? '0.5' : '1';
-      next.style.opacity = atEnd ? '0.5' : '1';
-      prev.style.cursor = atStart ? 'default' : 'pointer';
-      next.style.cursor = atEnd ? 'default' : 'pointer';
     }
 
     // Action de scroll

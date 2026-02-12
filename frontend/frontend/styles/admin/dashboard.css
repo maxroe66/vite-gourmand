@@ -548,6 +548,9 @@
     margin-bottom: 0;
 }
 
+/* Admin-only : affiché par JS */
+.admin-only.is-visible { display: block; }
+
 /* Cellule tableau centrée */
 .data-table__cell--center {
     text-align: center;

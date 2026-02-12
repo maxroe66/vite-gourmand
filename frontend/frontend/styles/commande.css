@@ -2,7 +2,9 @@
 
 /* État initial caché — affiché par JS après chargement */
 #commande-content { display: none; }
+#commande-content.is-visible { display: grid; }
 #reduction-row { display: none; }
+#reduction-row.is-visible { display: flex; }
 
 .commande-page {
     padding-block: var(--space-8);

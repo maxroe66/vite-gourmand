@@ -23,7 +23,12 @@ html, body {
 
 /* État initial caché — affiché par JS après chargement */
 #menu-detail-content { display: none; }
+#menu-detail-content.is-visible { display: flex; }
 #allergens-box { display: none; }
+#allergens-box.is-visible { display: block; }
+
+.menu-detail__image.is-fading { opacity: 0.5; }
+.gallery-controls--hidden { display: none; }
 
 .container--flex {
     display: flex;

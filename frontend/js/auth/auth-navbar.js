@@ -27,7 +27,7 @@ document.addEventListener('componentsLoaded', async () => {
         // --- 2. Mobile Actions existantes ---
         // On masque les li "connexion" et "inscription" du mobile (qui ont la classe .navbar__mobile-action)
         const mobileActions = document.querySelectorAll('.navbar__mobile-action');
-        mobileActions.forEach(el => el.style.display = 'none');
+        mobileActions.forEach(el => el.classList.add('u-hidden'));
 
         // Ajout Lien Profil Mobile
         const mobileMenu = document.querySelector('.navbar__menu--mobile');
@@ -62,7 +62,7 @@ document.addEventListener('componentsLoaded', async () => {
         // --- 4. Ajout du bouton Déconnexion sur Mobile ---
         if (mobileMenu) {
             const liLogout = document.createElement('li');
-            liLogout.style.textAlign = 'center';
+            liLogout.classList.add('u-text-center');
             liLogout.innerHTML = `
                 <button class="button button--ghost" id="logoutBtnMobile">
                     Déconnexion

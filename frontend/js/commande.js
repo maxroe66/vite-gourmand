@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         minGuestsMsg.textContent = `Minimum ${minGuests} personnes.`;
 
         // Hide loader, show content
-        loader.style.display = 'none';
-        content.style.display = 'grid';
+        loader.classList.add('u-hidden');
+        content.classList.add('is-visible');
 
         // Initial Calculation
         calculate();
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             elSubTotal.textContent = formatPrice(sub);
             elDeliveryFee.textContent = "...";
             elTotalPrice.textContent = "...";
-            elReductionRow.style.display = 'none';
+            elReductionRow.classList.remove('is-visible');
             return;
         }
 
@@ -164,10 +164,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         elSubTotal.textContent = formatPrice(pricing.prixMenuTotal);
         
         if (pricing.reductionAppliquee) {
-            elReductionRow.style.display = 'flex';
+            elReductionRow.classList.add('is-visible');
             elReductionAmount.textContent = `- ${formatPrice(pricing.montantReduction)}`;
         } else {
-            elReductionRow.style.display = 'none';
+            elReductionRow.classList.remove('is-visible');
         }
 
         const fraisText = pricing.horsBordeaux 

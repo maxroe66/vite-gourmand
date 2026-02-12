@@ -75,16 +75,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             nb_personnes: filterNbPers.value
         };
 
-        // État de chargement (optionnel, peut être disruptif si trop fréquent)
-        // menusList.style.opacity = '0.5';
-
         try {
             const menus = await MenuService.getMenus(filters);
             renderMenus(menus);
         } catch (error) {
             menusList.innerHTML = `<p class="error-msg">${error.message}</p>`;
-        } finally {
-            // menusList.style.opacity = '1';
         }
     }
 

@@ -23,7 +23,7 @@ function initUserInfo(user) {
 
     // Affiches les éléments ADMIN ONLY
     if (user.role === 'ADMINISTRATEUR') {
-        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('.admin-only').forEach(el => el.classList.add('is-visible'));
     }
 }
 
@@ -469,11 +469,11 @@ async function openMenuModal(menuId = null) {
         addImageInput();
     }
 
-    modal.style.display = 'flex';
+    modal.classList.add('is-visible');
 }
 
 function closeMenuModal() {
-    document.getElementById('modal-menu').style.display = 'none';
+    document.getElementById('modal-menu').classList.remove('is-visible');
 }
 
 async function saveMenu() {
@@ -697,11 +697,11 @@ async function openPlatModal(platId = null) {
         document.getElementById('modal-plat-title').textContent = 'Nouveau Plat';
     }
 
-    modal.style.display = 'flex';
+    modal.classList.add('is-visible');
 }
 
 function closePlatModal() {
-    document.getElementById('modal-plat').style.display = 'none';
+    document.getElementById('modal-plat').classList.remove('is-visible');
 }
 
 async function loadAllergenesCheckboxes() {
@@ -863,11 +863,11 @@ async function loadCommandesView(container, headerActions) {
     
     // Init Modal Cancel
     const modalCancel = document.getElementById('modal-cancel-cmd');
-    document.getElementById('close-cancel-cmd').addEventListener('click', () => modalCancel.style.display = 'none');
+    document.getElementById('close-cancel-cmd').addEventListener('click', () => modalCancel.classList.remove('is-visible'));
     
     // Init Modal View
     const modalView = document.getElementById('modal-view-cmd');
-    document.getElementById('close-view-cmd').addEventListener('click', () => modalView.style.display = 'none');
+    document.getElementById('close-view-cmd').addEventListener('click', () => modalView.classList.remove('is-visible'));
 
     document.getElementById('form-cancel-cmd').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -878,7 +878,7 @@ async function loadCommandesView(container, headerActions) {
         
         try {
             await CommandeService.updateStatus(id, 'ANNULEE', motif, mode);
-            modalCancel.style.display = 'none';
+            modalCancel.classList.remove('is-visible');
             fetchCommandesList();
             alert("Commande annulée avec succès.");
         } catch (err) {
@@ -957,7 +957,7 @@ async function fetchCommandesList() {
                 if (newStat === 'ANNULEE') {
                     // Open Modal
                     document.getElementById('cancel-cmd-id').value = cmdId;
-                    document.getElementById('modal-cancel-cmd').style.display = 'flex';
+                    document.getElementById('modal-cancel-cmd').classList.add('is-visible');
                 } else {
                     if (confirm(`Passer la commande #${cmdId} à ${newStat} ?`)) {
                         try {
@@ -1057,7 +1057,7 @@ function openCmdDetails(cmd) {
         </div>
     `;
     
-    modal.style.display = 'flex';
+    modal.classList.add('is-visible');
 }
 
 function renderStatusSelect(id, currentStatus) {
@@ -1298,10 +1298,10 @@ async function loadEquipeView(container, headerActions) {
 
     document.getElementById('btn-add-employee').addEventListener('click', () => {
         form.reset();
-        modal.style.display = 'flex';
+        modal.classList.add('is-visible');
     });
 
-    const closeModal = () => modal.style.display = 'none';
+    const closeModal = () => modal.classList.remove('is-visible');
     document.getElementById('btn-close-employee-modal').addEventListener('click', closeModal);
     document.getElementById('btn-cancel-employee').addEventListener('click', closeModal);
 
