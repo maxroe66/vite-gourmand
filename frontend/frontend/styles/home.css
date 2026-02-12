@@ -138,7 +138,7 @@ section {
 .avis-card__author {
     text-align: right;
     font-weight: bold;
-    color: var(--primary-color);
+    color: var(--color-primary);
 }
 
 /* Restauration du style pour le container dynamique */
@@ -183,7 +183,7 @@ section {
 .avis-clients__item span {
     text-align: right;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--color-primary);
 }
 
 .avis-clients__stars {
