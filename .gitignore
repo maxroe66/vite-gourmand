@@ -1,6 +1,9 @@
 .env
 .env.*
+!.env.example
+!.env.compose.example
 !.env.test.example
+!.env.azure.example
 DigiCertGlobalRootCA.crt.pem
 test_mysql_connexion.php
 AZURE_CONFIG_CHECKLIST.md
@@ -17,10 +20,6 @@ plugins/
 # Copilot instructions (local uniquement)
 .github/copilot-instructions.md
 
-.env
-.env.compose
-.env.test
-.env.azure
 # Fichiers de métadonnées Windows
 *:Zone.Identifier
 

@@ -20,18 +20,43 @@ Vite & Gourmand permet :
 ---
 
 ## ⚡ Démarrage rapide (DEV)
-**Prérequis** : Docker + Docker Compose
-```bash
-# Lancer tous les services (backend, BDD, outils)
-docker compose up -d
 
+**Prérequis :** Docker + Docker Compose
+
+### 1. Cloner le dépôt
+```bash
+git clone https://github.com/maxroe66/vite-gourmand.git
+cd vite-gourmand
 ```
 
-- Application : http://localhost:8000
-- phpMyAdmin : http://localhost:8081
-- Mongo Express : http://localhost:8082
+### 2. Configurer les variables d'environnement
+```bash
+# Copier les templates
+cp .env.example .env
+cp .env.compose.example .env.compose
 
-**Bases utilisées en DEV :**
+# Éditer les fichiers et renseigner vos valeurs
+# (.env pour l'application PHP, .env.compose pour Docker)
+```
+
+### 3. Lancer les services
+```bash
+docker compose up -d
+```
+
+### 4. Initialiser le compte administrateur
+```bash
+docker exec vite-php-app php scripts/setup-admin-password.php
+```
+
+### Accès locaux
+| Service | URL |
+|---|---|
+| Application | http://localhost:8000 |
+| phpMyAdmin | http://localhost:8081 |
+| Mongo Express | http://localhost:8082 |
+
+**Bases de données DEV :**
 - MySQL : `vite_gourmand` (port 3306)
 - MongoDB : `vite_gourmand` (port 27017)
 
@@ -39,13 +64,18 @@ docker compose up -d
 
 ## 🧪 Tests backend (DB de test + API)
 
-Lance tout (reset DB test + PHPUnit + Newman) :
+**Configuration :**
+```bash
+cp .env.test.example .env.test
+# Renseigner les mots de passe MySQL/MongoDB de test
+```
 
+**Lancer les tests :**
 ```bash
 ./scripts/tests/test_backend.sh
 ```
 
-**Bases utilisées en TEST :**
+**Bases de données TEST :**
 - MySQL : `vite_gourmand_test` (port 3307)
 - MongoDB : `vite_gourmand_test` (port 27018)
 
@@ -105,6 +135,17 @@ Lance tout (reset DB test + PHPUnit + Newman) :
 
 ## ⚙️ Configuration
 
-- `.env.example` : template (à copier vers `.env`)
-- `.env` : configuration DEV (base réelle)
-- `.env.test` : configuration TEST (base test)
+Le projet utilise plusieurs fichiers d'environnement, un par contexte :
+
+| Fichier | Rôle | Versionné |
+|---|---|---|
+| `.env.example` | Template pour le développement local | ✅ Oui |
+| `.env.compose.example` | Template pour Docker Compose | ✅ Oui |
+| `.env.test.example` | Template pour les tests | ✅ Oui |
+| `.env.azure.example` | Template pour le déploiement Azure | ✅ Oui |
+| `.env` | Configuration DEV (secrets réels) | ❌ Ignoré |
+| `.env.compose` | Variables Docker Compose | ❌ Ignoré |
+| `.env.test` | Configuration tests | ❌ Ignoré |
+| `.env.azure` | Configuration production Azure | ❌ Ignoré |
+
+> **Sécurité :** Les fichiers contenant des secrets réels (`.env`, `.env.compose`, `.env.test`, `.env.azure`) sont exclus du dépôt via `.gitignore`. Seuls les templates avec placeholders sont versionnés.
