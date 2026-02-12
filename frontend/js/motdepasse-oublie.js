@@ -60,14 +60,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Password show/hide toggles for reset page
-    document.querySelectorAll('.password-toggle').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const input = btn.closest('.password-field').querySelector('input');
-            if (!input) return;
-            const isPwd = input.type === 'password';
-            input.type = isPwd ? 'text' : 'password';
-            btn.setAttribute('aria-pressed', isPwd ? 'true' : 'false');
-        });
-    });
+    // Password show/hide toggles
+    initPasswordToggles();
 });
