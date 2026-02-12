@@ -183,7 +183,7 @@ function addImageInput(value = '') {
 
         } catch (err) {
             Logger.error(err);
-            alert("Echec de l'upload : " + err.message);
+            showToast(escapeHtml(err.message), 'error');
             textInput.value = ""; 
         } finally {
             textInput.disabled = false;
@@ -353,7 +353,7 @@ async function openMenuModal(menuId = null) {
 
         } catch (error) {
             Logger.error("Erreur chargement menu", error);
-            alert("Impossible de charger les détails du menu.");
+            showToast('Impossible de charger les détails du menu.', 'error');
             return;
         }
 
@@ -421,15 +421,15 @@ async function saveMenu() {
     try {
         if (id) {
             await MenuService.updateMenu(id, data);
-            alert('Menu mis à jour !');
+            showToast('Menu mis à jour !', 'success');
         } else {
             await MenuService.createMenu(data);
-            alert('Menu créé avec succès !');
+            showToast('Menu créé avec succès !', 'success');
         }
         closeMenuModal();
         fetchMenusList(); 
     } catch (e) {
-        alert('Erreur : ' + e.message);
+        showToast(escapeHtml(e.message), 'error');
     }
 }
 
@@ -439,6 +439,6 @@ async function deleteMenu(id) {
         await MenuService.deleteMenu(id);
         fetchMenusList();
     } catch(e) {
-        alert('Erreur suppression : ' + e.message);
+        showToast(escapeHtml(e.message), 'error');
     }
 }

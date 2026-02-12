@@ -137,7 +137,7 @@ function bindAvisActions() {
                  const activeBtn = document.querySelector('#header-actions .filters .active');
                  if(activeBtn) activeBtn.click();
              } catch(e) {
-                 alert('Erreur : ' + e.message);
+                 showToast(escapeHtml(e.message), 'error');
              }
         };
     });
@@ -152,7 +152,7 @@ function bindAvisActions() {
                  const activeBtn = document.querySelector('#header-actions .filters .active');
                  if(activeBtn) activeBtn.click();
              } catch(e) {
-                 alert('Erreur : ' + e.message);
+                 showToast(escapeHtml(e.message), 'error');
              }
         };
     });

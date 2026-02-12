@@ -122,7 +122,7 @@ async function openPlatModal(platId = null) {
 
         } catch (e) {
             Logger.error(e);
-            alert('Erreur chargement plat');
+            showToast('Erreur chargement plat', 'error');
             return;
         }
 
@@ -184,15 +184,15 @@ async function savePlat() {
     try {
         if (id) {
             await PlatService.updatePlat(id, data);
-            alert('Plat mis à jour !');
+            showToast('Plat mis à jour !', 'success');
         } else {
             await PlatService.createPlat(data);
-            alert('Plat créé avec succès !');
+            showToast('Plat créé avec succès !', 'success');
         }
         closePlatModal();
         fetchPlatsList();
     } catch (e) {
-        alert('Erreur: ' + e.message);
+        showToast(escapeHtml(e.message), 'error');
     }
 }
 
@@ -202,6 +202,6 @@ async function deletePlat(id) {
         await PlatService.deletePlat(id);
         fetchPlatsList();
     } catch(e) {
-        alert('Erreur suppression : ' + e.message);
+        showToast(escapeHtml(e.message), 'error');
     }
 }

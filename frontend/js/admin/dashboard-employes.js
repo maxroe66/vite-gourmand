@@ -80,11 +80,11 @@ async function loadEquipeView(container, headerActions) {
 
         try {
             await AdminService.createEmployee(data);
-            alert('Compte employé créé avec succès. Un email a été envoyé.');
+            showToast('Compte employé créé avec succès. Un email a été envoyé.', 'success');
             closeModal();
             fetchEquipeList(); // Refresh list
         } catch (error) {
-            alert('Erreur: ' + error.message);
+            showToast(escapeHtml(error.message), 'error');
         }
     });
 
@@ -134,7 +134,7 @@ async function fetchEquipeList() {
                         await AdminService.disableUser(btn.dataset.id);
                         fetchEquipeList();
                     } catch (e) {
-                        alert("Erreur: " + e.message);
+                        showToast(escapeHtml(e.message), 'error');
                     }
                 }
             });

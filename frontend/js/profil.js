@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Afficher la modale
             modalEditOrder.classList.add('is-visible');
         } catch (e) {
-            alert("Impossible de charger la commande à modifier.");
+            showToast('Impossible de charger la commande à modifier.', 'error');
         }
     }
 
@@ -156,11 +156,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         try {
             await CommandeService.updateOrder(id, data);
-            alert('Commande modifiée avec succès.');
+            showToast('Commande modifiée avec succès.', 'success');
             modalEditOrder.classList.remove('is-visible');
             loadOrders();
         } catch (err) {
-            alert(err.message || 'Erreur lors de la modification.');
+            showToast(escapeHtml(err.message || 'Erreur lors de la modification.'), 'error');
         }
     });
 
@@ -181,11 +181,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         try {
             await AvisService.createAvis(data);
-            alert("Merci ! Votre avis a été enregistré et sera publié après validation.");
+            showToast('Merci ! Votre avis a été enregistré et sera publié après validation.', 'success');
             modalAvis.classList.remove('is-visible');
             loadOrders(); // Refresh to hide button
         } catch (err) {
-            alert(err.message);
+            showToast(escapeHtml(err.message), 'error');
         }
     });
 
@@ -239,10 +239,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         try {
             await CommandeService.cancelOrder(id);
-            alert("Commande annulée.");
+            showToast('Commande annulée.', 'success');
             loadOrders(); // Refresh
         } catch (e) {
-            alert(e.message);
+            showToast(escapeHtml(e.message), 'error');
         }
     }
 

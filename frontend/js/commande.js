@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let calculationTimer = null;
 
     if (!menuId) {
-        alert("Menu non spécifié.");
+        showToast('Menu non spécifié.', 'error');
         window.location.href = '/';
         return;
     }
@@ -107,8 +107,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const result = await CommandeService.createOrder(formData);
             if (result.success) {
                 // Success -> Redirect to My Orders or Confirmation
-                alert("Commande validée avec succès !");
-                window.location.href = '/frontend/pages/profil.html'; // Or separate confirmation page
+                showToast('Commande validée avec succès !', 'success');
+                setTimeout(() => { window.location.href = '/frontend/pages/profil.html'; }, 1500); // Or separate confirmation page
             }
         } catch (err) {
             Logger.error(err);

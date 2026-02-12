@@ -107,9 +107,9 @@ async function loadCommandesView(container, headerActions) {
             await CommandeService.updateStatus(id, 'ANNULEE', motif, mode);
             modalCancel.classList.remove('is-visible');
             fetchCommandesList();
-            alert("Commande annulée avec succès.");
+            showToast('Commande annulée avec succès.', 'success');
         } catch (err) {
-            alert(err.message);
+            showToast(escapeHtml(err.message), 'error');
         }
     });
 
@@ -191,7 +191,7 @@ async function fetchCommandesList() {
                             await CommandeService.updateStatus(cmdId, newStat);
                             fetchCommandesList(); // Refresh to confirm backend state
                         } catch (err) {
-                            alert(err.message);
+                            showToast(escapeHtml(err.message), 'error');
                             fetchCommandesList(); // Reset
                         }
                     } else {
@@ -214,10 +214,10 @@ async function fetchCommandesList() {
 
                         await CommandeService.returnMaterial(btn.dataset.id);
                         
-                        alert('Retour validé avec succès !');
+                        showToast('Retour validé avec succès !', 'success');
                         fetchCommandesList();
                     } catch (e) {
-                         alert('Erreur : ' + e.message);
+                         showToast(escapeHtml(e.message), 'error');
                          btn.innerHTML = originalContent;
                          btn.disabled = false;
                     }
