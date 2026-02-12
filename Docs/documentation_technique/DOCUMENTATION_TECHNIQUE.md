@@ -153,11 +153,11 @@ MySQL (transactionnel)  ←→  MongoDB (analytics)
 ```php
 // Login
 $token = Auth::generateToken($userId, $userRole);
-// Frontend stocke en localStorage
-// Chaque requête : Authorization: Bearer $token
+// JWT envoyé via cookie HttpOnly (setcookie)
+// Chaque requête : cookie envoyé automatiquement (credentials: 'include')
 
 // Logout
-// Frontend supprime localStorage
+// Suppression du cookie HttpOnly côté serveur
 // Ou : Liste noire JWT si token pas expiré
 
 // Refresh
@@ -167,8 +167,7 @@ $token = Auth::generateToken($userId, $userRole);
 **Sécurité :**
 - ✅ Token signé avec HS256 (HMAC) ou RS256 (RSA)
 - ✅ Expiration automatique (24h)
-- ✅ Stored in localStorage (accessible JS mais HTTPS only)
-- ✅ HttpOnly cookies pour sensible (contre XSS)
+- ✅ Stored in cookie HttpOnly + Secure + SameSite (inaccessible au JS, protection XSS)
 
 ### 6️⃣ API Géolocalisation : Google Maps API
 

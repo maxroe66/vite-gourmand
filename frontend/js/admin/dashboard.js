@@ -249,15 +249,10 @@ function addImageInput(value = '') {
         formData.append('image', file);
 
         try {
-            // Utilisation du token auth si besoin
-            const token = localStorage.getItem('authToken'); 
-            
-            // Correction URL: utiliser le chemin relatif pour la prod, ou une config
+            // Authentification via cookie HttpOnly (credentials: 'include')
             const response = await fetch('/api/upload', {
                 method: 'POST',
-                headers: AuthService.addCsrfHeader({
-                    'Authorization': `Bearer ${token}`
-                }),
+                headers: AuthService.addCsrfHeader({}),
                 body: formData,
                 credentials: 'include'
             });

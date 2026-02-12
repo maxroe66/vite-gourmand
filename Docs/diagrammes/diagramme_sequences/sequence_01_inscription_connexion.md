@@ -67,9 +67,9 @@ sequenceDiagram
     
     alt Mot de passe correct
         Auth->>Auth: generateToken(user.id, user.role)
-        Auth-->>Backend: {success: true, token, user: {id, email, role}}
-        Backend-->>Frontend: {token, user, redirect_to: "/dashboard"}
-        Frontend->>Frontend: Stocke token en localStorage
+        Auth-->>Backend: {success: true, user: {id, email, role}}
+        Backend-->>Frontend: {user, redirect_to: "/dashboard"} + cookie HttpOnly authToken
+        Frontend->>Frontend: Token stocké automatiquement en cookie HttpOnly
         Frontend->>Frontend: Redirige vers dashboard
         Visiteur->>Visiteur: ✓ Connecté!
     else Mot de passe incorrect
@@ -124,7 +124,7 @@ sequenceDiagram
 ✅ **Validation côté client** (email, password fort)  
 ✅ **Hash password** (bcrypt via Auth::hashPassword)  
 ✅ **JWT token** pour authentification stateless  
-✅ **Stockage localStorage** du token  
+✅ **Stockage cookie HttpOnly** du token (protection XSS)  
 ✅ **Validation côté serveur** de tous les inputs
 
 ---

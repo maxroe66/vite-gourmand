@@ -288,7 +288,6 @@ class AuthController
                                   ->setJsonContent([
                                       'success' => true,
                                       'userId' => $user['id'],
-                                      'token' => $token,
                                       'message' => 'Connexion réussie.'
                                   ]);
 

@@ -135,7 +135,7 @@
 | Étape | Status | Détail |
 |---|---|---|
 | Inscription | ✅ | Formulaire → UserService → Hash password → INSERT user → Email bienvenue |
-| Login | ✅ | Email + Password → Auth → Verify → JWT token → localStorage → Dashboard |
+| Login | ✅ | Email + Password → Auth → Verify → JWT token → cookie HttpOnly → Dashboard |
 | Réinit Password | ✅ | Email → RESET_TOKEN → Lien → Nouveau password → UPDATE user |
 | Sécurité | ✅ | Password hash, JWT stateless, validation client+serveur |
 
