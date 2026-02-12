@@ -53,7 +53,7 @@
   /* ── Colonne image décorative ── */
   .auth-image-wrapper {
     position: relative;
-    background-image: url('/assets/images/hero-inscritpion.png');
+    background-image: url('/assets/images/hero-inscription.png');
     background-size: cover;
     background-position: center;
     color: var(--color-text-secondary);

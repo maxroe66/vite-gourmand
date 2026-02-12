@@ -19,9 +19,10 @@ if ($appEnv === 'test' && file_exists(__DIR__ . '/../.env.test')) {
     $dotenv->load();
 }
 
-// 3) Configuration des erreurs pour le développement
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// 3) Configuration des erreurs selon l'environnement
+$isDevEnv = in_array(($appEnv ?: 'production'), ['development', 'test'], true);
+ini_set('display_errors', $isDevEnv ? '1' : '0');
+ini_set('display_startup_errors', $isDevEnv ? '1' : '0');
 error_reporting(E_ALL);
 
 // 3.1) Configuration encodage UTF-8 (prioritaire)
@@ -132,8 +133,6 @@ if ($method === 'GET' && strpos($path, '/api') !== 0) {
 // 9) Dispatching de la requête et envoi de la réponse
 try {
     // Le routeur trouve la bonne route, exécute le handler et retourne un objet Response
-    // DEBUG: log temporaire pour vérifier la valeur de LOG_FILE sur Azure
-    error_log('LOG_FILE=' . getenv('LOG_FILE'));
     $response = $router->dispatch($method, $path, $container);
 
 } catch (\App\Exceptions\AuthException $e) {

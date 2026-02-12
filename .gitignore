@@ -33,6 +33,12 @@ backend/var/
 docker/certs/
 
 # ========================
+# Uploads utilisateurs (données runtime)
+# ========================
+public/assets/uploads/*
+!public/assets/uploads/.gitkeep
+
+# ========================
 # Copilot instructions (local uniquement)
 # ========================
 .github/copilot-instructions.md
