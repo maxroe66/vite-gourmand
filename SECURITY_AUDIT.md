@@ -22,7 +22,7 @@
 
 | Sévérité | Nombre | Status |
 |----------|--------|--------|
-| 🔴 Critique | 3 (1 corrigée) | À corriger immédiatement |
+| 🔴 Critique | 3 (2 corrigées) | À corriger immédiatement |
 | 🟠 Élevée | 5 | À corriger avant production |
 | 🟡 Moyenne | 6 | À planifier |
 | 🔵 Faible | 4 | Amélioration continue |
@@ -52,7 +52,7 @@
 
 ---
 
-### CRIT-02 : Password Hashing — Incohérence Argon2 vs bcrypt
+### CRIT-02 : Password Hashing — Incohérence Argon2 vs bcrypt — ✅ CORRIGÉ
 
 **Fichiers concernés :**
 - `Docs/documentation_technique/DOCUMENTATION_TECHNIQUE.md` (ligne ~564) → mentionne `PASSWORD_ARGON2ID`
@@ -60,10 +60,15 @@
 
 **Risque :** La documentation prétend utiliser Argon2ID, mais les fixtures utilisent bcrypt (`$2y$`). Si le code de production utilise réellement bcrypt, ce n'est pas critique en soi (bcrypt reste acceptable), mais l'incohérence documentaire pourrait masquer un problème de configuration.
 
-**Action :** Vérifier quel algorithme est réellement utilisé dans `AuthService` ou le service d'inscription. Si c'est bcrypt, mettre à jour la documentation. Si c'est Argon2, mettre à jour les fixtures.
+**Résolution appliquée :**
+- ✅ Migration du code vers `PASSWORD_ARGON2ID` dans `AuthService::hashPassword()` et `User::__construct()`
+- ✅ Regénération des hash Argon2ID dans les fixtures SQL (`database_fixtures.sql`)
+- ✅ Regénération du hash Argon2ID dans le seed de production (`database_seed.sql`)
+- ✅ Documentation technique désormais cohérente avec le code
+- ✅ `password_verify()` reste rétro-compatible avec les anciens hash bcrypt en base
 
 **Impact :** Potentiel affaiblissement du hashing si mauvaise configuration  
-**CVSS estimé :** 7.5
+**CVSS estimé :** 7.5 → **Résolu**
 
 ---
 
@@ -265,7 +270,7 @@ Les routes `/api/auth/login`, `/api/auth/register`, `/api/auth/forgot-password` 
 | **Validation côté serveur** | ✅ | Validators dédiés |
 | **Rôles via middleware** | ✅ | RoleMiddleware (EMPLOYE/ADMIN) |
 | **HTTPS + HSTS** | ✅ | Headers dans Dockerfile.azure |
-| **Mots de passe hashés** | ✅ | bcrypt au minimum |
+| **Mots de passe hashés** | ✅ | Argon2ID (recommandé OWASP) |
 | **`.env` dans `.gitignore`** | ✅ | Secrets non versionnés |
 | **CSP configurée** | ✅ | SecurityHeadersMiddleware |
 | **Fallback MongoDB → MySQL** | ✅ | AVIS_FALLBACK pour résilience |

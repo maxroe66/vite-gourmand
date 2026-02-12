@@ -211,7 +211,7 @@
 ## ✅ **VÉRIFICATIONS POINTS CRITIQUES**
 
 ### **Sécurité**
-- ✅ Password hash (bcrypt/Argon2)
+- ✅ Password hash (Argon2ID — recommandé OWASP)
 - ✅ JWT tokens (stateless)
 - ✅ Validation input client + serveur
 - ✅ API key en .env (jamais exposée)

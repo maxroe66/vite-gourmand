@@ -39,7 +39,7 @@ final class User
             $this->mot_de_passe = (string)$data['passwordHash'];
         } else {
             $plainPassword = (string)($data['password'] ?? '');
-            $this->mot_de_passe = password_hash($plainPassword, PASSWORD_BCRYPT);
+            $this->mot_de_passe = password_hash($plainPassword, PASSWORD_ARGON2ID);
         }
 
         if (isset($data['role']) && is_string($data['role']) && $data['role'] !== '') {

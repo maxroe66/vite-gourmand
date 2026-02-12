@@ -176,7 +176,7 @@ class AuthServiceTest extends TestCase
         $hash = $this->authService->hashPassword($password);
 
         $this->assertNotEmpty($hash);
-        $this->assertStringStartsWith('$2y$', $hash); // bcrypt
+        $this->assertStringStartsWith('$argon2id$', $hash); // Argon2ID (recommandé OWASP)
         $this->assertNotEquals($password, $hash);
 
         echo "\n🔒 Password hashé: " . substr($hash, 0, 30) . "...\n";

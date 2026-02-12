@@ -21,7 +21,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Mot de passe initial : Jose@VG-Prod2025  (à changer après 1er login)
 
 INSERT IGNORE INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_postal, mot_de_passe, role, actif, date_creation) VALUES
-('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$2y$10$9LG9MCElnJ4Z22uFdN3r7eM3L9QVQwKrSLXpLH0Oeov/UWG20Ptni', 'ADMINISTRATEUR', TRUE, NOW());
+('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$YlJqazVJbTM1ck9LZ2Jyeg$sPHfSqHCJWUGf/01X4XCgjAUjyNnXQWv1BoPZcbUbI0', 'ADMINISTRATEUR', TRUE, NOW());
 
 -- ============================================================
 -- THÈMES & RÉGIMES
