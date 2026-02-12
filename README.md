@@ -87,7 +87,7 @@ cp .env.test.example .env.test
 
 ### CD (build & publication de l’image Docker)
 - Workflow : `.github/workflows/publish-image.yml`
-- Build l’image Docker via `Dockerfile.azure`
+- Build l'image Docker via `docker/azure/Dockerfile.azure`
 - Push l’image sur GitHub Container Registry (GHCR) :
   - `ghcr.io/maxroe66/vite-gourmand:develop`
   - `ghcr.io/maxroe66/vite-gourmand:<sha>`

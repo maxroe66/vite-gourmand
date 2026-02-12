@@ -60,7 +60,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile.azure
+          file: docker/azure/Dockerfile.azure
           push: true
           tags: |
             ghcr.io/maxroe66/vite-gourmand:develop
