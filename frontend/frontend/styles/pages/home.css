@@ -1,13 +1,10 @@
+@layer pages {
 /* =========================================
 Home Page Styles (full viewport sections)
 ========================================= */
 
-/* Remove any stray margin that could create white gap */
-body, html {
-	background-color: var(--color-bg, #ffffff);
-}
-
 main {
+    flex: none; /* Override flex: 1 de @layer base — incompatible avec height: 100vh */
     height: 100vh;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
@@ -91,20 +88,6 @@ section {
     overflow-x: hidden; /* Cache la scrollbar */
 }
 
-.avis-clients__track {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    gap: 1.5rem;
-    padding-bottom: 1rem; /* Espace pour un éventuel scrollbar natif invisible */
-    -ms-overflow-style: none; /* Cache scrollbar IE/Edge */
-    scrollbar-width: none; /* Cache scrollbar Firefox */
-}
-
-.avis-clients__track::-webkit-scrollbar {
-    display: none; /* Cache scrollbar Chrome/Safari */
-}
-
 .avis-card {
     flex: 0 0 300px; /* Largeur fixe carte */
     background: white;
@@ -149,7 +132,6 @@ section {
     gap: 1.5rem;
     padding-bottom: 0.5rem;
     /* Masquer scrollbar */
-    -ms-overflow-style: none;  
     scrollbar-width: none;  
 }
 
@@ -190,3 +172,4 @@ section {
     color: #ffc107;
     margin-left: 5px;
 }
+} /* end @layer pages */

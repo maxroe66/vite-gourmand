@@ -1,24 +1,10 @@
+@layer pages {
 /* Styles spécifiques à la page de détail menu */
 
-/* --- 1. Neutralisation du Scroll Snap global --- */
-/* On reset les propriétés de base.css pour cette page spécifique */
-/* Ces règles surchargent celles de base.css car elles sont hors @layer */
-html, body {
-    height: auto;
-    overflow-y: visible;
-}
-
 .menu-detail-page {
-    /* Reset du main défini dans base.css */
-    height: auto;
-    overflow-y: visible;
-    scroll-snap-type: none;
-    display: block;
-    
-    /* Compensation pour la navbar fixed (80px) + marge (40px) */
-    /* On utilise une valeur fixe de sécurité au cas où les variables CSS échouent */
+    /* Compensation pour la navbar fixed (80px) */
     padding-top: 80px;
-    background-color: #f9f9f9; 
+    background-color: var(--color-surface);
 }
 
 /* État initial caché — affiché par JS après chargement */
@@ -293,7 +279,7 @@ html, body {
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
     .menu-detail-page {
         padding-inline: var(--space-3);
         padding-top: calc(var(--navbar-height, 80px) + var(--space-4));
@@ -352,7 +338,7 @@ html, body {
 }
 
 /* Très petits écrans (Mobile étroit) */
-@media (max-width: 450px) {
+@media (max-width: 480px) {
     .menu-detail-page {
         padding-inline: 0.5rem; /* Réduction des marges page */
     }
@@ -391,3 +377,4 @@ html, body {
         padding-top: 0;
     }
 }
+} /* end @layer pages */

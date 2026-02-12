@@ -1,3 +1,4 @@
+@layer pages {
 /* Styles pour la page commande.html */
 
 /* État initial caché — affiché par JS après chargement */
@@ -8,10 +9,6 @@
 
 .commande-page {
     padding-block: var(--space-8);
-    /* Désactiver le scroll snap et le comportement height: 100vh du base.css */
-    height: auto;
-    overflow-y: visible;
-    scroll-snap-type: none;
 }
 .commande-grid {
     display: grid;
@@ -90,3 +87,4 @@ small {
     margin-top: 0.25rem;
     display: block;
 }
+} /* end @layer pages */

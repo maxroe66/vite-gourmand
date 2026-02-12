@@ -70,7 +70,6 @@
   /* ── Scrollbar cachée ── */
   .u-scrollbar-hidden {
     scrollbar-width: none;
-    -ms-overflow-style: none;
   }
   .u-scrollbar-hidden::-webkit-scrollbar { display: none; }
 

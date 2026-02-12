@@ -1,3 +1,6 @@
+/* Ordre des @layer — déclaré une seule fois, en premier */
+@layer base, utilities, components, layouts, pages;
+
 /* Garantir le sticky de la navbar même avec injection dynamique */
 #header-placeholder {
   position: static;
@@ -29,12 +32,8 @@
     flex-direction: column;
   }
   main {
-    height: 100vh;
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-
+    flex: 1;
     scroll-behavior: smooth;
-    /* On retire flex:1 ici pour éviter les conflits avec height:100vh */
     margin-bottom: 0;
   }
   img, svg { display: block; max-width: 100%; height: auto; }

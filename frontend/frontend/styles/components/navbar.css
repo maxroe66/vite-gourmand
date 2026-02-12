@@ -7,7 +7,7 @@
   
 /* Navbar wrapper */
    .navbar {
-        position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: 50;
+        position: fixed; top: 0; left: 0; right: 0; width: 100%; z-index: var(--z-fixed);
     background: var(--color-secondary, #2C3E50);
     box-shadow: var(--shadow-100);
     }
@@ -302,49 +302,6 @@
     /* Dropdown plus étroit sur très petit écran */
     .navbar__collapse {
         width: 260px;
-    }
-    }
-
-    /* Très petit écran (320px) */
-    @media (max-width: 320px) {
-    :root { --navbar-height: 56px; }
-    .navbar__inner {
-        padding-inline: var(--space-2);
-        gap: var(--space-3);
-    }
-
-    .navbar__brand-logo {
-        height: 48px;
-        width: auto;
-        max-width: 125px;
-    }
-
-    .navbar__brand-text {
-        font-size: 0.875rem;
-    }
-
-    .navbar__toggle {
-        padding: 10px 14px;
-        font-size: 1.5rem;
-    }
-
-    /* Dropdown encore plus compact */
-    .navbar__collapse {
-        width: 240px;
-    }
-
-    .navbar__menu--mobile .navbar__link {
-        padding: 14px var(--space-4);
-        font-size: 0.95rem;
-    }
-
-    .navbar__mobile-action {
-        padding-inline: var(--space-3);
-    }
-
-    .navbar__mobile-action .button {
-        padding: 12px var(--space-3);
-        font-size: 0.95rem;
     }
     }
 

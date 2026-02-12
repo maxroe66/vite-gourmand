@@ -1,14 +1,9 @@
+@layer pages {
 /* Styles pour la page profil.html */
 
-/* Cible spécifiquement le main pour surcharger les règles du base.css */
+/* Cible spécifiquement le main pour la page profil */
 main.profil-page {
     padding-block: var(--space-8);
-    /* Désactiver le scroll snap et restaurer le flex behavior */
-    height: auto;
-    min-height: 0; /* Fix flexbox scrolling issues if any */
-    overflow-y: visible;
-    scroll-snap-type: none;
-    flex: 1; /* Pour pousser le footer vers le bas */
 }
 
 .error-text {
@@ -93,7 +88,7 @@ main.profil-page {
 
 /* Modal : styles partagés via modals.css */
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .order-card {
         flex-direction: column;
         align-items: flex-start;
@@ -167,3 +162,4 @@ main.profil-page {
 .star-rating label:hover ~ label {
     color: #fbbf24;
 }
+} /* end @layer pages */
