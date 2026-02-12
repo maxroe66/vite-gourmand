@@ -22,7 +22,7 @@
 
 | Sévérité | Nombre | Status |
 |----------|--------|--------|
-| 🔴 Critique | 3 (2 corrigées) | À corriger immédiatement |
+| 🔴 Critique | 3 (3 corrigées) | ✅ Toutes résolues |
 | 🟠 Élevée | 5 | À corriger avant production |
 | 🟡 Moyenne | 6 | À planifier |
 | 🔵 Faible | 4 | Amélioration continue |
@@ -72,15 +72,22 @@
 
 ---
 
-### CRIT-03 : Mot de passe admin en clair dans le seed de production
+### CRIT-03 : Mot de passe admin en clair dans le seed de production — ✅ CORRIGÉ
 
 **Fichier concerné :**
 - `backend/database/sql/database_seed.sql` (ligne ~14) → *"Mot de passe initial admin : Jose@VG-Prod2025"*
 
 **Risque :** Le mot de passe admin de production est documenté **en clair** dans un fichier versionné et public sur Git. Même s'il est hashé dans le SQL, le commentaire en clair permet à quiconque ayant accès au dépôt de connaître le mot de passe initial.
 
-**Impact :** Compromission du compte administrateur si le mot de passe n'est pas changé après déploiement  
-**CVSS estimé :** 9.1 (Critique)
+**Résolution appliquée :**
+- ✅ Suppression des 2 commentaires contenant le mot de passe en clair dans `database_seed.sql`
+- ✅ Remplacement du hash par un fallback aléatoire (mot de passe inconnu)
+- ✅ Création du script `scripts/setup-admin-password.php` pour définir le mot de passe via variable d'environnement `ADMIN_INITIAL_PASSWORD`
+- ✅ Intégration dans le workflow de déploiement Azure (`deploy-azure.yml`)
+- ✅ Validation du mot de passe (12 caractères min, majuscule, minuscule, chiffre, spécial)
+
+**Impact :** Compromission du compte administrateur si le mot de passe n’est pas changé après déploiement  
+**CVSS estimé :** 9.1 (Critique) → **Résolu**
 
 ---
 

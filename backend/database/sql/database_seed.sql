@@ -8,8 +8,8 @@
 -- ⚠️  Ne contient AUCUNE donnée de test (commandes, avis,
 --     contacts, utilisateurs fictifs).
 --
--- Mot de passe initial admin : Jose@VG-Prod2025
--- → À CHANGER impérativement après le premier déploiement.
+-- ⚠️  Le mot de passe admin est défini via la variable d'environnement
+--     ADMIN_INITIAL_PASSWORD (voir scripts/setup-admin-password.php)
 -- ============================================================
 
 -- Désactivation temporaire des vérifications de clés étrangères
@@ -18,10 +18,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ============================================================
 -- ADMINISTRATEUR
 -- ============================================================
--- Mot de passe initial : Jose@VG-Prod2025  (à changer après 1er login)
+-- Le hash ci-dessous est un fallback aléatoire (mot de passe inconnu).
+-- Après le seed, exécuter scripts/setup-admin-password.php pour définir
+-- le vrai mot de passe admin via la variable ADMIN_INITIAL_PASSWORD.
 
 INSERT IGNORE INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_postal, mot_de_passe, role, actif, date_creation) VALUES
-('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$YlJqazVJbTM1ck9LZ2Jyeg$sPHfSqHCJWUGf/01X4XCgjAUjyNnXQWv1BoPZcbUbI0', 'ADMINISTRATEUR', TRUE, NOW());
+('Admin', 'José', '0556123456', 'jose@vite-gourmand.fr', '12 rue des Halles', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$V1BVaU1wbjMveW1mNnRoNg$8gDWqTut9ZYVva8NTRESqTcdln+mqtcNUE1eiYOg698', 'ADMINISTRATEUR', TRUE, NOW());
 
 -- ============================================================
 -- THÈMES & RÉGIMES
