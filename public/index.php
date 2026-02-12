@@ -5,8 +5,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../backend/vendor/autoload.php';
 
 // 2) Chargement des variables d'environnement
-// On vérifie d'abord si APP_ENV est défini (ex: via serveur web ou CLI)
-$appEnv = getenv('APP_ENV');
+// Détection de l'environnement (CLI, serveur web, ou défaut production)
+$appEnv = getenv('APP_ENV') ?: ($_SERVER['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'production'));
 
 if ($appEnv === 'test' && file_exists(__DIR__ . '/../.env.test')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.test');
@@ -25,7 +25,7 @@ ini_set('display_errors', $isDevEnv ? '1' : '0');
 ini_set('display_startup_errors', $isDevEnv ? '1' : '0');
 error_reporting(E_ALL);
 
-// 3.1) Configuration encodage UTF-8 (prioritaire)
+// 3.1) Configuration encodage UTF-8
 if (function_exists('mb_internal_encoding')) {
     mb_internal_encoding('UTF-8');
 }
@@ -38,7 +38,7 @@ use App\Core\Response;
 use App\Core\Router;
 use Psr\Log\LoggerInterface;
 
-// 3.1) Forcer HTTPS et ajouter HSTS
+// 3.2) Forcer HTTPS et ajouter HSTS en production
 function _is_request_secure(): bool
 {
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
@@ -53,9 +53,7 @@ function _is_request_secure(): bool
     return false;
 }
 
-// Redirect to HTTPS if request is not secure
-// Only enforce in production to avoid breaking local dev / CI tests
-$appEnv = getenv('APP_ENV') ?: ($_SERVER['APP_ENV'] ?? ($_ENV['APP_ENV'] ?? 'production'));
+// Redirection HTTPS uniquement en production (ne pas casser le dev local / CI)
 if ($appEnv === 'production' && php_sapi_name() !== 'cli' && !empty($_SERVER['HTTP_HOST'])) {
     if (!_is_request_secure()) {
         $host = $_SERVER['HTTP_HOST'];
@@ -63,7 +61,7 @@ if ($appEnv === 'production' && php_sapi_name() !== 'cli' && !empty($_SERVER['HT
         header('Location: https://' . $host . $uri, true, 301);
         exit;
     }
-    // Add HSTS header for secure requests
+    // En-tête HSTS pour les requêtes sécurisées
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
 }
 
@@ -73,12 +71,10 @@ $config = require __DIR__ . '/../backend/config/config.php';
 $createContainer = require __DIR__ . '/../backend/config/container.php';
 $container = $createContainer($config);
 
-// 5) Middleware CORS global
-// On instancie et exécute le middleware CORS avant toute autre chose.
+// 5) Middlewares globaux (CORS + Security Headers)
 $corsMiddleware = $container->get(\App\Middlewares\CorsMiddleware::class);
 $corsMiddleware->handle();
 
-// 5.1) Middleware CSP global — Content-Security-Policy
 $securityHeadersMiddleware = $container->get(\App\Middlewares\SecurityHeadersMiddleware::class);
 $securityHeadersMiddleware->handle();
 
@@ -86,7 +82,7 @@ $securityHeadersMiddleware->handle();
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-// 6.1) Initialiser le cookie CSRF pour les requetes non mutatrices
+// 6.1) Initialiser le cookie CSRF pour les requêtes non mutantes
 if (in_array($method, ['GET', 'HEAD'], true)) {
     $csrfService = $container->get(\App\Services\CsrfService::class);
     $csrfService->ensureTokenCookie();
@@ -95,19 +91,10 @@ if (in_array($method, ['GET', 'HEAD'], true)) {
 // 7) Initialisation du routeur
 $router = new Router();
 
-// 8) Chargement des définitions de routes
-// Les routes API sont préfixées par /api
+// 8) Chargement des définitions de routes API (préfixe /api)
+// Le fichier routes.php centralise le chargement de toutes les routes
 $router->addGroup('/api', function ($router) use ($container, $config) {
     require __DIR__ . '/../backend/api/routes.php';
-    require __DIR__ . '/../backend/api/routes.auth.php';
-    require __DIR__ . '/../backend/api/routes.menus.php';
-    require __DIR__ . '/../backend/api/routes.commandes.php';
-    require __DIR__ . '/../backend/api/routes.avis.php';
-
-    // Charger les routes de test uniquement si on est en environnement de test ou développement
-    if (in_array(($config['env'] ?? 'production'), ['test', 'development'])) {
-        require __DIR__ . '/../backend/api/routes.test.php';
-    }
 });
 
 // Les routes "pages" qui servent du HTML statique (simpliste)
@@ -123,7 +110,6 @@ if ($method === 'GET' && strpos($path, '/api') !== 0) {
         $staticPagePath = __DIR__ . '/../frontend/pages/motdepasse-oublie.html';
     }
 
-    
     if ($staticPagePath && file_exists($staticPagePath)) {
         require $staticPagePath;
         exit;
@@ -132,7 +118,6 @@ if ($method === 'GET' && strpos($path, '/api') !== 0) {
 
 // 9) Dispatching de la requête et envoi de la réponse
 try {
-    // Le routeur trouve la bonne route, exécute le handler et retourne un objet Response
     $response = $router->dispatch($method, $path, $container);
 
 } catch (\App\Exceptions\AuthException $e) {
