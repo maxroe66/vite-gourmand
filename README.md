@@ -31,12 +31,11 @@ cd vite-gourmand
 
 ### 2. Configurer les variables d'environnement
 ```bash
-# Copier les templates
+# Copier le template
 cp .env.example .env
-cp .env.compose.example .env.compose
 
-# Éditer les fichiers et renseigner vos valeurs
-# (.env pour l'application PHP, .env.compose pour Docker)
+# Éditer le fichier et renseigner vos valeurs
+# (mots de passe MySQL/MongoDB, clés API, etc.)
 ```
 
 ### 3. Lancer les services
@@ -139,13 +138,10 @@ Le projet utilise plusieurs fichiers d'environnement, un par contexte :
 
 | Fichier | Rôle | Versionné |
 |---|---|---|
-| `.env.example` | Template pour le développement local | ✅ Oui |
-| `.env.compose.example` | Template pour Docker Compose | ✅ Oui |
+| `.env.example` | Template pour le développement local + Docker | ✅ Oui |
 | `.env.test.example` | Template pour les tests | ✅ Oui |
 | `.env.azure.example` | Template pour le déploiement Azure | ✅ Oui |
 | `.env` | Configuration DEV (secrets réels) | ❌ Ignoré |
-| `.env.compose` | Variables Docker Compose | ❌ Ignoré |
 | `.env.test` | Configuration tests | ❌ Ignoré |
-| `.env.azure` | Configuration production Azure | ❌ Ignoré |
 
 > **Sécurité :** Les fichiers contenant des secrets réels (`.env`, `.env.compose`, `.env.test`, `.env.azure`) sont exclus du dépôt via `.gitignore`. Seuls les templates avec placeholders sont versionnés.

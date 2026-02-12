@@ -2,8 +2,6 @@ version: '3.8'
 
 services:
   php-app:
-    env_file:
-      - .env.compose
     build:
       context: .
       dockerfile: docker/php/Dockerfile.php

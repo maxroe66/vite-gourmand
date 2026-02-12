@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 
 echo "🐳 Démarrage des conteneurs Docker..."
-docker-compose --env-file .env.compose up -d
+docker compose up -d
 
 echo "✅ Conteneurs démarrés !"
 echo ""
