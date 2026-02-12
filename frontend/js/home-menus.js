@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
      */
     function renderMenus(menus) {
         if (!menus || menus.length === 0) {
-            menusList.innerHTML = '<p class="empty-msg" style="width:100%; text-align:center; padding: 2rem;">Aucun menu ne correspond à votre recherche.</p>';
+            menusList.innerHTML = '<p class="empty-msg">Aucun menu ne correspond \u00e0 votre recherche.</p>';
             if (window.refreshMenuCarousel) window.refreshMenuCarousel();
             return;
         }

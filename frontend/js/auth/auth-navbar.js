@@ -15,7 +15,7 @@ document.addEventListener('componentsLoaded', async () => {
         if (desktopActions) {
             // Ajout du bouton Mon Profil + Déconnexion
             desktopActions.innerHTML = `
-                <a href="/frontend/frontend/pages/profil.html" class="button button--ghost" style="margin-right: 8px;">
+                <a href="/frontend/frontend/pages/profil.html" class="button button--ghost u-mr-sm">
                     Mon Profil
                 </a>
                 <button class="button button--primary" id="logoutBtnDesktop">
@@ -51,7 +51,7 @@ document.addEventListener('componentsLoaded', async () => {
                 // On ajoute une classe pour pouvoir le cibler si besoin
                 li.className = 'navbar__management-link';
                 li.innerHTML = `
-                    <a href="/frontend/frontend/pages/admin/dashboard.html" class="navbar__link" style="color: #e67e22; font-weight: bold;">
+                    <a href="/frontend/frontend/pages/admin/dashboard.html" class="navbar__link navbar__link--admin">
                         Espace Gestion
                     </a>
                 `;

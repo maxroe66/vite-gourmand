@@ -73,4 +73,7 @@
     -ms-overflow-style: none;
   }
   .u-scrollbar-hidden::-webkit-scrollbar { display: none; }
+
+  /* ── Marges inline ── */
+  .u-mr-sm        { margin-right: var(--space-2); }
 }

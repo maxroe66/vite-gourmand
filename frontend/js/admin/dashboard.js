@@ -100,7 +100,7 @@ async function loadMenusView(container, headerActions) {
                     </tr>
                 </thead>
                 <tbody id="menus-table-body">
-                    <tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>
+                    <tr><td colspan="4" class="data-table__cell--center">Chargement...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -116,7 +116,7 @@ async function loadMenusView(container, headerActions) {
     } catch (error) {
         console.error("Erreur chargement menus:", error);
         document.getElementById('menus-table-body').innerHTML = `
-            <tr><td colspan="4" style="color: red; text-align:center;">Erreur de chargement: ${error.message}</td></tr>
+            <tr><td colspan="4" class="data-table__cell--error">Erreur de chargement: ${error.message}</td></tr>
         `;
     }
     
@@ -131,7 +131,7 @@ async function fetchMenusList() {
     tbody.innerHTML = ''; 
 
     if (menus.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucun menu trouvé.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="data-table__cell--center">Aucun menu trouvé.</td></tr>';
         return;
     }
 
@@ -139,8 +139,8 @@ async function fetchMenusList() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td data-label="Titre">
-                <div style="font-weight: bold;">${escapeHtml(menu.titre)}</div>
-                <small style="color: #888;">${menu.description ? menu.description.substring(0, 50) + '...' : ''}</small>
+                <div class="u-text-bold">${escapeHtml(menu.titre)}</div>
+                <small class="u-text-muted">${menu.description ? menu.description.substring(0, 50) + '...' : ''}</small>
             </td>
             <td data-label="Prix">${parseFloat(menu.prix).toFixed(2)} €</td>
             <td data-label="Pers. Min">${menu.nombre_personne_min}</td>
@@ -211,16 +211,14 @@ async function initMenuFormSelects() {
 function addImageInput(value = '') {
     const container = document.getElementById('menu-images-list');
     const div = document.createElement('div');
-    div.style.display = 'flex';
-    div.style.gap = '0.5rem';
-    div.style.alignItems = 'center';
+    div.className = 'image-url-list__item u-flex u-gap-sm u-items-center';
     
     div.innerHTML = `
-        <div style="flex:1; display:flex; gap:0.5rem;">
-            <input type="text" name="menu_images[]" class="menu-image-input" placeholder="URL ou Upload..." value="${escapeHtml(value)}" style="flex:1;">
-            <label class="btn btn--sm btn--secondary" style="margin:0; cursor:pointer;" title="Uploader depuis PC">
+        <div class="image-row">
+            <input type="text" name="menu_images[]" class="menu-image-input" placeholder="URL ou Upload..." value="${escapeHtml(value)}">
+            <label class="btn btn--sm btn--secondary" title="Uploader depuis PC">
                 <i class="fa-solid fa-upload"></i>
-                <input type="file" class="file-upload-input" accept="image/*" style="display:none;">
+                <input type="file" class="file-upload-input u-hidden" accept="image/*">
             </label>
         </div>
         <button type="button" class="btn btn--sm btn--outline-danger btn-remove-image" title="Supprimer">
@@ -322,12 +320,10 @@ async function loadMenuDishesSelectors(selectedIds = []) {
             const isChecked = selectedIds.includes(plat.id_plat);
             
             const div = document.createElement('label');
-            div.style.display = 'flex';
-            div.style.alignItems = 'center';
-            div.style.marginBottom = '4px';
+            div.className = 'checkbox-item';
             
             div.innerHTML = `
-                <input type="checkbox" name="menu_plats" value="${plat.id_plat}" ${isChecked ? 'checked' : ''} style="margin-right: 6px;">
+                <input type="checkbox" name="menu_plats" value="${plat.id_plat}" ${isChecked ? 'checked' : ''}>
                 <span title="${escapeHtml(plat.description || '')}">${escapeHtml(plat.libelle)}</span>
             `;
             container.appendChild(div);
@@ -335,12 +331,12 @@ async function loadMenuDishesSelectors(selectedIds = []) {
         
         // Empty message
         Object.values(containers).forEach(c => {
-             if (c && c.children.length === 0) c.innerHTML = '<small style="color:#888; font-style:italic;">Aucun plat.</small>';
+             if (c && c.children.length === 0) c.innerHTML = '<small class="u-text-muted u-text-italic">Aucun plat.</small>';
         });
 
     } catch (e) {
         console.error(e);
-        Object.values(containers).forEach(c => c ? c.innerHTML = '<small style="color:red">Erreur chargement plats</small>' : null);
+        Object.values(containers).forEach(c => c ? c.innerHTML = '<small class="u-text-error">Erreur chargement plats</small>' : null);
     }
 }
 
@@ -358,7 +354,7 @@ async function loadMenuMaterialSelectors(selectedMaterials = []) {
         container.innerHTML = '';
 
         if (!materiels || materiels.length === 0) {
-            container.innerHTML = '<small style="color:#888;">Aucun matériel disponible.</small>';
+            container.innerHTML = '<small class="u-text-muted">Aucun matériel disponible.</small>';
             return;
         }
 
@@ -371,22 +367,18 @@ async function loadMenuMaterialSelectors(selectedMaterials = []) {
             const qty = selectedMap.get(mat.id_materiel) || 1; // Défaut 1
 
             const div = document.createElement('div');
-            div.style.display = 'flex';
-            div.style.alignItems = 'center';
-            div.style.marginBottom = '6px';
-            div.style.paddingBottom = '6px';
-            div.style.borderBottom = '1px solid #eee';
+            div.className = 'materiel-item';
 
             // HTML Structure: Checkbox | Nom | Input Qty
             div.innerHTML = `
-                <label style="flex: 1; display:flex; align-items:center;">
-                    <input type="checkbox" class="mat-check" value="${mat.id_materiel}" ${isSelected ? 'checked' : ''} style="margin-right:8px;">
+                <label class="materiel-item__label">
+                    <input type="checkbox" class="mat-check" value="${mat.id_materiel}" ${isSelected ? 'checked' : ''}>
                     <div>
-                        <span style="font-weight:500;">${escapeHtml(mat.libelle)}</span>
-                        <br><small style="color:#888;">Stock: ${mat.stock_disponible}</small>
+                        <span class="u-text-bold">${escapeHtml(mat.libelle)}</span>
+                        <br><small class="u-text-muted">Stock: ${mat.stock_disponible}</small>
                     </div>
                 </label>
-                <div style="width: 80px; margin-left:10px;">
+                <div class="materiel-item__qty">
                     <input type="number" class="mat-qty input input--sm" value="${qty}" min="1" max="100" ${!isSelected ? 'disabled' : ''} title="Quantité par personne">
                 </div>
             `;
@@ -405,7 +397,7 @@ async function loadMenuMaterialSelectors(selectedMaterials = []) {
 
     } catch (e) {
         console.error("Erreur chargement matériel", e);
-        container.innerHTML = '<small style="color:red">Impossible de charger le matériel.</small>';
+        container.innerHTML = '<small class="u-text-error">Impossible de charger le matériel.</small>';
     }
 }
 
@@ -589,7 +581,7 @@ async function loadPlatsView(container, headerActions) {
                     </tr>
                 </thead>
                 <tbody id="plats-table-body">
-                    <tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>
+                    <tr><td colspan="4" class="data-table__cell--center">Chargement...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -614,7 +606,7 @@ async function fetchPlatsList() {
     tbody.innerHTML = '';
 
     if (plats.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucun plat trouvé.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="data-table__cell--center">Aucun plat trouvé.</td></tr>';
         return;
     }
 
@@ -624,7 +616,7 @@ async function fetchPlatsList() {
     plats.forEach(plat => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td style="font-weight: bold;">${escapeHtml(plat.libelle)}</td>
+            <td class="u-text-bold">${escapeHtml(plat.libelle)}</td>
             <td><span class="badge badge--info">${types[plat.type] || plat.type}</span></td>
             <td>${escapeHtml(plat.description || '')}</td>
             <td>
@@ -729,7 +721,7 @@ async function loadAllergenesCheckboxes() {
         allergenes.forEach(a => {
             const div = document.createElement('div');
             div.innerHTML = `
-                <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; font-size: 0.9rem;">
+                <label class="allergene-label">
                     <input type="checkbox" name="allergenes" value="${a.id_allergene}" id="allergene-${a.id_allergene}">
                     ${escapeHtml(a.libelle)}
                 </label>
@@ -737,7 +729,7 @@ async function loadAllergenesCheckboxes() {
             container.appendChild(div);
         });
     } catch (e) {
-        container.innerHTML = '<p style="color:red">Erreur chargement allergènes</p>';
+        container.innerHTML = '<p class="u-text-error">Erreur chargement allergènes</p>';
     }
 }
 
@@ -792,7 +784,7 @@ async function loadCommandesView(container, headerActions) {
 
     // Filtres
     container.innerHTML = `
-        <div class="filters-bar" style="display:flex; gap:10px; margin-bottom:20px;">
+        <div class="filters-bar">
             <select id="filter-status" class="input">
                 <option value="">Tous les statuts</option>
                 <option value="EN_ATTENTE">En attente</option>
@@ -818,13 +810,13 @@ async function loadCommandesView(container, headerActions) {
                     </tr>
                 </thead>
                 <tbody id="cmd-table-body">
-                    <tr><td colspan="5" style="text-align:center;">Chargement...</td></tr>
+                    <tr><td colspan="5" class="data-table__cell--center">Chargement...</td></tr>
                 </tbody>
             </table>
         </div>
 
         <!-- Modal Changement Statut (Annulation) -->
-        <div id="modal-cancel-cmd" class="modal-overlay" style="display:none;">
+        <div id="modal-cancel-cmd" class="modal-overlay">
             <div class="modal">
                 <div class="modal__header">
                     <h3 class="modal__title">Annuler la commande</h3>
@@ -853,8 +845,8 @@ async function loadCommandesView(container, headerActions) {
         </div>
 
         <!-- Modal Détail Commande -->
-        <div id="modal-view-cmd" class="modal-overlay" style="display:none;">
-            <div class="modal" style="max-width: 700px;">
+        <div id="modal-view-cmd" class="modal-overlay">
+            <div class="modal modal--wide">
                 <div class="modal__header">
                     <h3 class="modal__title" id="view-cmd-title">Commande #...</h3>
                     <button class="modal__close" id="close-view-cmd">&times;</button>
@@ -900,7 +892,7 @@ async function loadCommandesView(container, headerActions) {
 async function fetchCommandesList() {
     const status = document.getElementById('filter-status').value;
     const body = document.getElementById('cmd-table-body');
-    body.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chargement...</td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="data-table__cell--center">Chargement...</td></tr>';
 
     try {
         const filters = {};
@@ -909,7 +901,7 @@ async function fetchCommandesList() {
         const commandes = await CommandeService.getAllOrders(filters);
         
         if (commandes.length === 0) {
-            body.innerHTML = '<tr><td colspan="5" style="text-align:center;">Aucune commande trouvée.</td></tr>';
+            body.innerHTML = '<tr><td colspan="5" class="data-table__cell--center">Aucune commande trouvée.</td></tr>';
             return;
         }
 
@@ -1021,7 +1013,7 @@ async function fetchCommandesList() {
 
     } catch (e) {
         console.error(e);
-        body.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${escapeHtml(e.message || 'Erreur')}</td></tr>`;
+        body.innerHTML = `<tr><td colspan="5" class="data-table__cell--error">${escapeHtml(e.message || 'Erreur')}</td></tr>`;
     }
 }
 
@@ -1034,33 +1026,33 @@ function openCmdDetails(cmd) {
     const distanceLabel = cmd.horsBordeaux ? 'Hors Zone' : 'Bordeaux';
     
     document.getElementById('view-cmd-body').innerHTML = `
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div>
-                <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Info Client & Livraison</h4>
+        <div class="cmd-detail-grid">
+            <div class="cmd-detail-section">
+                <h4>Info Client & Livraison</h4>
                 <p><strong>Client ID:</strong> ${safe(cmd.userId)}</p>
                 <p><strong>Adresse:</strong> ${safe(cmd.adresseLivraison)}</p>
                 <p><strong>Ville:</strong> ${safe(cmd.codePostal)} ${safe(cmd.ville)}</p>
                 <p><strong>Tel:</strong> ${safe(cmd.gsm)}</p>
                 <p><strong>Distance:</strong> ${safe(cmd.distanceKm)} km (${safe(distanceLabel)})</p>
             </div>
-            <div>
-                <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Prestation</h4>
+            <div class="cmd-detail-section">
+                <h4>Prestation</h4>
                 <p><strong>Date Prestation:</strong> ${safe(datePrestation)}</p>
                 <p><strong>Heure:</strong> ${safe(cmd.heureLivraison)}</p>
                 <p><strong>Nb Personnes:</strong> ${safe(cmd.nombrePersonnes)} (Min: ${safe(cmd.nombrePersonneMinSnapshot)})</p>
                 <p><strong>Matériel Prêt:</strong> ${cmd.materielPret ? 'Oui' : 'Non'}</p>
             </div>
         </div>
-        <div style="margin-top:20px;">
-            <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">Détails Financiers</h4>
-            <table style="width:100%; text-align:left;">
+        <div class="cmd-detail-financials">
+            <h4>Détails Financiers</h4>
+            <table>
                 <tr><td>Prix Unitaire Menu:</td> <td>${safe(cmd.prixMenuUnitaire)} €</td></tr>
-                <tr><td>Réduction:</td> <td style="color:green;">-${safe(cmd.montantReduction)} € ${cmd.reductionAppliquee ? '(APPLIQUÉE)' : ''}</td></tr>
+                <tr><td>Réduction:</td> <td class="u-text-success">-${safe(cmd.montantReduction)} € ${cmd.reductionAppliquee ? '(APPLIQUÉE)' : ''}</td></tr>
                 <tr><td>Frais Livraison:</td> <td>${safe(cmd.fraisLivraison)} €</td></tr>
-                <tr style="font-weight:bold; font-size:1.1em;"><td>TOTAL:</td> <td>${safe(cmd.prixTotal)} €</td></tr>
+                <tr class="cmd-detail-total"><td>TOTAL:</td> <td>${safe(cmd.prixTotal)} €</td></tr>
             </table>
         </div>
-        <div style="margin-top:15px; font-size:0.9em; color:#666;">
+        <div class="cmd-detail-meta">
             Commande passée le ${safe(dateCommande)}
         </div>
     `;
@@ -1075,13 +1067,13 @@ function renderStatusSelect(id, currentStatus) {
         <option value="${s}" ${s === currentStatus ? 'selected' : ''}>${s}</option>
     `).join('');
     
-    // Status color
-    let color = '#ccc';
-    if(currentStatus === 'EN_ATTENTE') color = '#ffc107';
-    if(currentStatus === 'ACCEPTE') color = '#28a745';
-    if(currentStatus === 'ANNULEE') color = '#dc3545';
+    // Status color via modifier class
+    let statusMod = 'default';
+    if(currentStatus === 'EN_ATTENTE') statusMod = 'pending';
+    else if(currentStatus === 'ACCEPTE') statusMod = 'accepted';
+    else if(currentStatus === 'ANNULEE') statusMod = 'cancelled';
     
-    return `<select class="input input--sm cmd-status-select" data-id="${safeId}" style="border-left: 5px solid ${color}">${options}</select>`;
+    return `<select class="input input--sm cmd-status-select cmd-status-select--${statusMod}" data-id="${safeId}">${options}</select>`;
 }
 
 // --- AVIS VIEW ---
@@ -1136,7 +1128,7 @@ async function fetchAndRenderAvis(status, container) {
                             <th>Date</th>
                             <th>Note</th>
                             <th>Commentaire</th>
-                            <th style="width: 150px">Actions</th>
+                            <th class="data-table__th--actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1260,13 +1252,13 @@ async function loadEquipeView(container, headerActions) {
                     </tr>
                 </thead>
                 <tbody id="equipe-table-body">
-                    <tr><td colspan="5" style="text-align:center;">Chargement...</td></tr>
+                    <tr><td colspan="5" class="data-table__cell--center">Chargement...</td></tr>
                 </tbody>
             </table>
         </div>
 
         <!-- Hidden Modal for Employee Creation -->
-        <div id="modal-employee" class="modal-overlay" style="display: none;">
+        <div id="modal-employee" class="modal-overlay">
             <div class="modal">
                 <div class="modal__header">
                     <h2 class="modal__title">Créer un Employé</h2>
@@ -1338,7 +1330,7 @@ async function fetchEquipeList() {
         tbody.innerHTML = '';
 
         if (users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Aucun employé trouvé.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="data-table__cell--center">Aucun employé trouvé.</td></tr>';
             return;
         }
 
@@ -1381,7 +1373,7 @@ async function fetchEquipeList() {
         });
 
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="5" style="color:red;text-align:center;">${escapeHtml(error.message || 'Erreur')}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="data-table__cell--error">${escapeHtml(error.message || 'Erreur')}</td></tr>`;
     }
 }
 
@@ -1391,12 +1383,12 @@ async function loadStatsView(container, headerActions) {
     headerActions.innerHTML = '';
     
     container.innerHTML = `
-        <div class="stats-controls" style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-end;">
-            <div class="form-group" style="margin-bottom:0;">
+        <div class="stats-controls">
+            <div class="form-group">
                 <label>Date Début</label>
                 <input type="date" id="stats-start" class="form-input">
             </div>
-            <div class="form-group" style="margin-bottom:0;">
+            <div class="form-group">
                 <label>Date Fin</label>
                 <input type="date" id="stats-end" class="form-input">
             </div>
@@ -1452,7 +1444,7 @@ async function fetchStatsData() {
         tbody.innerHTML = '';
         
         if (stats.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucune donnée (MongoDB)</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="data-table__cell--center">Aucune donnée (MongoDB)</td></tr>';
         } else {
             stats.forEach(item => {
                 const tr = document.createElement('tr');

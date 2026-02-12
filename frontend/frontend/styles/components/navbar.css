@@ -65,6 +65,10 @@
     transition: background-color var(--transition-normal), color var(--transition-normal);
     }
     .navbar__link:hover { background: rgba(255,255,255,0.08); }
+    .navbar__link--admin {
+        color: var(--color-primary) !important;
+        font-weight: bold;
+    }
     .navbar__link:focus-visible {
     outline: 2px solid var(--color-primary, #FC7200);
     outline-offset: 2px;

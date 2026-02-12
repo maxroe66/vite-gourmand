@@ -466,6 +466,147 @@
     border-radius: var(--radius-xs);
 }
 
+/* Label allergène dans le modal plat */
+.allergene-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+
+/* Checkbox item dans les listes (plats, matériel) */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+/* Item matériel dans le modal menu */
+.materiel-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.materiel-item__label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.materiel-item__label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.materiel-item__qty {
+    width: 80px;
+    margin-left: 10px;
+}
+
+/* Image row dans le modal menu */
+.image-row {
+    flex: 1;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.image-row input[type="text"] {
+    flex: 1;
+}
+
+.image-row label.btn {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Barre de filtres */
+.filters-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Contrôles statistiques */
+.stats-controls {
+    background: var(--color-bg);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.stats-controls .form-group {
+    margin-bottom: 0;
+}
+
+/* Cellule tableau centrée */
+.data-table__cell--center {
+    text-align: center;
+}
+
+/* Colonne actions (largeur fixe) */
+.data-table__th--actions {
+    width: 150px;
+}
+
+/* Cellule tableau erreur */
+.data-table__cell--error {
+    color: var(--color-error);
+    text-align: center;
+}
+
+/* Détail commande */
+.cmd-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.cmd-detail-section h4 {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 5px;
+}
+
+.cmd-detail-financials {
+    margin-top: 20px;
+}
+
+.cmd-detail-financials table {
+    width: 100%;
+    text-align: left;
+}
+
+.cmd-detail-total {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.cmd-detail-meta {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--color-muted);
+}
+
+/* Modal élargi */
+.modal--wide {
+    max-width: 700px;
+}
+
+/* Select statut commande avec couleur dynamique */
+.cmd-status-select--pending { border-left: 5px solid #ffc107; }
+.cmd-status-select--accepted { border-left: 5px solid #28a745; }
+.cmd-status-select--cancelled { border-left: 5px solid #dc3545; }
+.cmd-status-select--default { border-left: 5px solid #ccc; }
+
 .menu-section {
     background: #f9f9f9;
     padding: 0.8rem;

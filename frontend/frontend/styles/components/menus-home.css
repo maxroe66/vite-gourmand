@@ -261,3 +261,9 @@
 	}
 }
 
+/* Message vide pour recherche sans résultats */
+.empty-msg {
+	width: 100%;
+	text-align: center;
+	padding: 2rem;
+}
