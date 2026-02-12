@@ -21,7 +21,7 @@ class SecurityHeadersMiddlewareTest extends TestCase
             'csp' => [
                 'default_src' => ["'self'"],
                 'script_src'  => ["'self'", 'https://cdn.jsdelivr.net'],
-                'style_src'   => ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
+                'style_src'   => ["'self'", 'https://cdnjs.cloudflare.com'],
                 'img_src'     => ["'self'", 'data:'],
                 'font_src'    => ["'self'", 'https://cdnjs.cloudflare.com'],
                 'connect_src' => ["'self'"],
@@ -44,7 +44,7 @@ class SecurityHeadersMiddlewareTest extends TestCase
 
         $this->assertStringContainsString("default-src 'self'", $policy);
         $this->assertStringContainsString("script-src 'self' https://cdn.jsdelivr.net", $policy);
-        $this->assertStringContainsString("style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com", $policy);
+        $this->assertStringContainsString("style-src 'self' https://cdnjs.cloudflare.com", $policy);
         $this->assertStringContainsString("img-src 'self' data:", $policy);
         $this->assertStringContainsString("font-src 'self' https://cdnjs.cloudflare.com", $policy);
         $this->assertStringContainsString("connect-src 'self'", $policy);
@@ -90,7 +90,7 @@ class SecurityHeadersMiddlewareTest extends TestCase
         $this->assertStringNotContainsString("'unsafe-inline'", $scriptSrc);
     }
 
-    public function testUnsafeInlineRequiredForStyleSrc(): void
+    public function testNoUnsafeInlineInStyleSrc(): void
     {
         $middleware = new SecurityHeadersMiddleware($this->defaultConfig());
         $policy = $middleware->buildPolicy();
@@ -98,8 +98,8 @@ class SecurityHeadersMiddlewareTest extends TestCase
         preg_match('/style-src ([^;]+)/', $policy, $matches);
         $styleSrc = $matches[1] ?? '';
 
-        // unsafe-inline est nécessaire pour les attributs style="" dans le HTML
-        $this->assertStringContainsString("'unsafe-inline'", $styleSrc);
+        // unsafe-inline a été retiré : tous les inline styles ont été migrés vers des classes CSS
+        $this->assertStringNotContainsString("'unsafe-inline'", $styleSrc);
     }
 
     // ──────────────────────────────────────────────

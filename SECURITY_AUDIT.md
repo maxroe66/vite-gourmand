@@ -136,15 +136,16 @@ L'algorithme utilise une fenêtre glissante avec écriture atomique (rename) pou
 
 ---
 
-### HIGH-03 : CSP autorise `'unsafe-inline'` pour les styles
+### ~~HIGH-03 : CSP autorise `'unsafe-inline'` pour les styles~~ ✅ CORRIGÉ
 
 **Fichier concerné :**
-- `backend/tests/SecurityHeadersMiddlewareTest.php` (ligne ~25) → `'style_src' => ["'self'", "'unsafe-inline'", ...]`
+- `backend/src/Middlewares/SecurityHeadersMiddleware.php` → `'unsafe-inline'` retiré de `style-src`
+- `backend/tests/SecurityHeadersMiddlewareTest.php` → test inversé (`assertStringNotContainsString`)
 
-**Risque :** `'unsafe-inline'` dans `style-src` affaiblit la Content Security Policy et peut être exploité dans certains scénarios d'injection (CSS injection, data exfiltration via CSS).
+**Correction :** Tous les inline styles (`style=""` dans HTML, `style=""` dans innerHTML JS, `.style.xxx` dans JS) ont été migrés vers des classes CSS lors des phases 4-6 de la refonte CSS. `'unsafe-inline'` a été retiré de la directive `style-src` en phase 8.
 
-**Impact :** Contournement partiel de la CSP  
-**CVSS estimé :** 5.3
+**Impact :** Contournement partiel de la CSP → **Résolu**
+**CVSS estimé :** 5.3 → **0 (corrigé)**
 
 ---
 
