@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Services;
 
 use App\Exceptions\UserServiceException;
 use PHPUnit\Framework\TestCase;

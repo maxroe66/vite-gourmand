@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Controllers;
+
 use PHPUnit\Framework\TestCase;
 use App\Controllers\CommandeController;
 use App\Services\CommandeService;

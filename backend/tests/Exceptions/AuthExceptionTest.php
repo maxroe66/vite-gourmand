@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Exceptions;
 
 use App\Exceptions\AuthException;
 use PHPUnit\Framework\TestCase;

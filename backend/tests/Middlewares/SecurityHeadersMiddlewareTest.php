@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Middlewares;
 
 use PHPUnit\Framework\TestCase;
 use App\Middlewares\SecurityHeadersMiddleware;

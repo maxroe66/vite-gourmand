@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Controllers;
 
 use PHPUnit\Framework\TestCase;
 use App\Controllers\MenuController;

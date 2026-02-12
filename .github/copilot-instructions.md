@@ -103,7 +103,7 @@ vite_et_gourmand/
 ├── docker-compose.yml
 ├── Dockerfile.azure           # Build production Azure
 ├── scripts/                   # Scripts utilitaires
-├── Docs/                      # Documentation technique
+├── docs/                      # Documentation technique
 └── fichiers_perso/            # Notes internes et roadmap
 ```
 
@@ -573,9 +573,9 @@ js/
 - `frontend/tests/dom/reset-form.test.js` : modifier l'import `../../js/motdepasse-oublie.js` → `../../js/pages/motdepasse-oublie.js`
 
 **Documentation à mettre à jour :**
-- `Docs/fichiers_perso/avancement.md` (référence à `components.js`)
-- `Docs/fichiers_perso/README_CSRF.md` (référence à `components.js`)
-- `Docs/fichiers_perso/ROADMAP.md` (référence à `commande.js`)
+- `docs/fichiers_perso/avancement.md` (référence à `components.js`)
+- `docs/fichiers_perso/README_CSRF.md` (référence à `components.js`)
+- `docs/fichiers_perso/ROADMAP.md` (référence à `commande.js`)
 
 **Objectif :** Zéro fichier orphelin à la racine de `js/`. Chaque fichier est catégorisé dans un sous-dossier sémantique.
 

@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Validators;
+
 use PHPUnit\Framework\TestCase;
 use App\Validators\CommandeValidator;
 

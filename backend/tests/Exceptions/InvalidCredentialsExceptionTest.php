@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Exceptions;
 
 use PHPUnit\Framework\TestCase;
 use App\Exceptions\InvalidCredentialsException;

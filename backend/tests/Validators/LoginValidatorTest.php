@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Validators;
 
 use PHPUnit\Framework\TestCase;
 use App\Validators\LoginValidator;

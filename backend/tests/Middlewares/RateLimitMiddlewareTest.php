@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Middlewares;
+
 use PHPUnit\Framework\TestCase;
 use App\Middlewares\RateLimitMiddleware;
 use App\Exceptions\TooManyRequestsException;
