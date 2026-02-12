@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="/frontend/frontend/styles/components/navbar.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/components/footer.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/components/button.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/forms.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/modals.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/layouts/auth-layout.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/connexion.css">
 </head>
 <body>
@@ -30,11 +33,11 @@
             </form>
         </div>
     </div>
-    <main class="login-section">
-        <div class="login-container">
-            <div class="login-form-wrapper">
+    <main class="auth-section">
+        <div class="auth-container">
+            <div class="auth-form-wrapper">
                 <h1 class="h1">Connexion</h1>
-                <form id="loginForm" class="login-form">
+                <form id="loginForm" class="auth-form">
                     <div class="form-group">
                         <label for="email">Email *</label>
                         <input type="email" id="email" name="email" placeholder="jean.dupont@email.fr" required aria-required="true" autocomplete="email">
@@ -60,8 +63,8 @@
                     <button type="submit" class="button button--primary">Connexion</button>
                 </form>
             </div>
-            <div class="login-image-wrapper">
-                <div class="login-image-overlay">
+            <div class="auth-image-wrapper">
+                <div class="auth-image-overlay">
                     <h2 class="h1">Vite & Gourmand</h2>
                     <p>Menus Catering pour vos moments</p>
                     <a href="/frontend/frontend/pages/home.html#menus" class="button button--primary">Découvrir nos menus</a>

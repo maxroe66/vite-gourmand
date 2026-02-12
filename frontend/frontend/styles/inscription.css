@@ -1,22 +1,12 @@
-/* Spinner pour bouton de chargement inscription */
-.spinner {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    border: 2.5px solid #fff;
-    border-top: 2.5px solid #28a745;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-    margin-bottom: 2px;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-/* Message de succès spécifique à l'inscription */
-.signup-success-message {
+/* =========================================
+   Page: Inscription
+   Styles spécifiques (layout et composants partagés via auth-layout, forms)
+   ========================================= */
+
+@layer pages {
+
+  /* Message de succès spécifique à l'inscription */
+  .signup-success-message {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -24,236 +14,40 @@
     background: linear-gradient(90deg, #28a745 0%, #43e97b 100%);
     color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(40,167,69,0.08);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.08);
     padding: 1.2rem 1.5rem;
     font-size: 1.08rem;
     margin-bottom: 1.5rem;
     border: none;
-}
-.signup-success-icon {
+  }
+
+  .signup-success-icon {
     vertical-align: middle;
     margin-right: 8px;
     min-width: 32px;
     min-height: 32px;
-}
-.signup-success-icon circle {
+  }
+
+  .signup-success-icon circle {
     fill: #28a745;
-}
-.signup-success-icon path {
+  }
+
+  .signup-success-icon path {
     stroke: #fff;
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
-}
-.signup-success-text {
+  }
+
+  .signup-success-text {
     display: inline-block;
     vertical-align: middle;
     text-align: left;
-}
-.signup-success-secondary {
+  }
+
+  .signup-success-secondary {
     color: #e6ffe6;
     font-size: 0.98em;
-}
-/* =========================================
-   Styles pour la page d'inscription
-   ========================================= */
+  }
 
-.signup-section {
-    display: flex;
-    flex-grow: 1;
-    min-height: 100%;
-    flex: 1;
-}
-
-.signup-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: 100%;
-    min-height: 100%;
-    background-color: var(--color-bg);
-    overflow: hidden;
-}
-
-.signup-form-wrapper {
-    padding: var(--space-8);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.signup-form-wrapper .h1 {
-    color: var(--color-title-primary);
-    margin-bottom: var(--space-5);
-}
-
-.signup-form {
-    display: grid;
-    gap: var(--space-4);
-    width: 401px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: var(--space-2);
-    font-size: 14px;
-}
-
-.form-group input {
-    padding: var(--space-3);
-    border: 1px solid #CBD5E1;
-    border-radius: var(--radius-sm);
-    background-color: #F8FAFC;
-    color: var(--color-text);
-}
-
-.form-group input::placeholder {
-    color: var(--color-text-muted);
-}
-
-/* Désactiver les styles par défaut du navigateur pour :invalid */
-.form-group input:invalid {
-    box-shadow: none;
-    border-color: #CBD5E1; /* Garde la bordure normale */
-}
-
-/* Afficher la bordure rouge seulement après interaction (pas pendant la saisie) */
-.form-group input:invalid:not(:focus):not(:placeholder-shown) {
-    border-color: #dc3545;
-}
-
-/* IMPORTANT : Le focus garde la bordure normale, juste un léger effet */
-.form-group input:focus {
-    outline: none;
-    border-color: #CBD5E1; /* Garde la même couleur grise */
-    box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.3); /* Léger halo gris */
-}
-
-
-.signup-form .button--primary {
-    width: 100%;
-    height: 53px;
-    margin-top: var(--space-1);
-}
-
-.signup-image-wrapper {
-    position: relative;
-    background-image: url('/assets/images/hero-inscritpion.png');
-    background-size: cover;
-    background-position: center;
-    color: var(--color-text-secondary);
-}
-
-.signup-image-overlay {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: var(--space-6);
-}
-
-.signup-image-overlay .h1 {
-    color: var(--color-title-secondary);
-    font-size: var(--font-xxl);
-}
-
-.signup-image-overlay p {
-    font-size: var(--font-600);
-    margin-bottom: var(--space-5);
-    margin-top: var(--space-3);
-}
-.signup-image-overlay .button--primary {
-    height: 53px;
-}
-
-/* Bordure rouge pour les champs invalides */
-input.error {
-    border: 2px solid #dc3545;
-}
-
-/* Message de succès */
-.success-message {
-    background-color: #28a745; /* Vert */
-    color: white;
-    padding: 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    text-align: center;
-    font-weight: bold;
-}
-
-/* Message d'erreur sous les champs */
-.error-message {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-/* Message d'erreur général en haut du formulaire */
-.general-error {
-    background-color: #dc3545;
-    color: white;
-    padding: 2rem;
-    margin: 1rem 0;
-    border: none;
-    border-radius: 4px;
-    display: block;
-    position: relative;
-    z-index: 9999;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-    .signup-container {
-        grid-template-columns: 1fr;
-    }
-
-    .signup-image-wrapper {
-        display: none; /* On cache l'image sur les écrans plus petits pour se concentrer sur le formulaire */
-    }
-
-    .signup-form-wrapper {
-        padding: var(--space-6);
-    }
-}
-
-@media (max-width: 768px) {
-    .signup-form-wrapper {
-        padding: var(--space-4);
-        margin-bottom: var(--space-6);
-        margin-top: var(--space-6);
-    }
-}
-
-@media (max-width: 480px) {
-    .signup-form {
-        width: 100%;
-    }
-
-    .form-group input {
-        height: 40px;
-        font-size: 14px;
-    }
-
-    .signup-form-wrapper {
-        padding: 24px var(--space-4) var(--space-4);
-        justify-content: flex-start;
-    }
-
-    .signup-form-wrapper .h1 {
-        font-size: var(--font-500); /* 20px */
-        text-align: center;
-        margin-bottom: var(--space-6);
-    }
 }

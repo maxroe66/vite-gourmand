@@ -76,45 +76,8 @@
     color: var(--color-success);
 }
 
-/* --- Styles formulaire (inspirés de inscription.css / connexion.css) --- */
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: var(--space-4);
-}
-.form-group label {
-    font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: var(--space-2);
-    font-size: 14px;
-}
-.form-group input, 
-.form-group select, 
-.form-group textarea {
-    padding: var(--space-3);
-    border: 1px solid #CBD5E1;
-    border-radius: var(--radius-sm);
-    background-color: #F8FAFC;
-    color: var(--color-text);
-    width: 100%;
-}
-.form-group input:focus, 
-.form-group select:focus, 
-.form-group textarea:focus {
-    outline: none;
-    border-color: #CBD5E1;
-    box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.3);
-}
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-}
-@media (max-width: 600px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
+/* Formulaire : styles partagés via forms.css */
+
 small {
     color: var(--color-text-muted);
     font-size: 0.85rem;

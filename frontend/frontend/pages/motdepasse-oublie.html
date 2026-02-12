@@ -10,16 +10,18 @@
     <link rel="stylesheet" href="/frontend/frontend/styles/components/navbar.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/components/footer.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/components/button.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/components/forms.css">
+    <link rel="stylesheet" href="/frontend/frontend/styles/layouts/auth-layout.css">
     <link rel="stylesheet" href="/frontend/frontend/styles/motdepasse-oublie.css">
 </head>
 <body>
     <header id="header-placeholder"></header>
 
-    <main class="forgot-password-section">
-        <div class="forgot-password-container">
-            <div class="forgot-password-form-wrapper">
+    <main class="auth-section">
+        <div class="auth-container">
+            <div class="auth-form-wrapper">
                 <h1 class="h1">Réinitialisation du mot de passe</h1>
-                <form id="forgotPasswordForm" class="forgot-password-form">
+                <form id="forgotPasswordForm" class="auth-form">
                     <!-- Champ username (pour les gestionnaires de mot de passe) -->
                     <input type="email" id="username" name="username" autocomplete="username" class="visually-hidden" aria-hidden="true">
                     <div class="form-group">
@@ -55,8 +57,8 @@
                     <button type="submit" class="button button--primary">Réinitialiser mon mot de passe</button>
                 </form>
             </div>
-            <div class="forgot-password-image-wrapper">
-                <div class="forgot-password-image-overlay">
+            <div class="auth-image-wrapper">
+                <div class="auth-image-overlay">
                     <h2 class="h1">Vite & Gourmand</h2>
                     <p>Menus Catering pour vos moments</p>
                     <a href="#" class="button button--primary">Découvrir nos menus</a>

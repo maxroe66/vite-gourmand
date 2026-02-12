@@ -1,0 +1,100 @@
+/* =========================================
+   — Component: Modals
+   Styles partagés pour toutes les fenêtres modales
+   ========================================= */
+
+@layer components {
+
+  /* ── Overlay (fond sombre) ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-modal-backdrop);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-overlay.is-visible {
+    display: flex;
+  }
+
+  /* ── Variante .modal (connexion — utilise aria-hidden) ── */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: var(--z-modal);
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.45);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal[aria-hidden="false"] {
+    display: flex;
+  }
+
+  /* ── Contenu modal ── */
+  .modal-content {
+    background: var(--color-bg);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    box-shadow: var(--shadow-300);
+  }
+
+  .modal-content form button,
+  .modal-content form .button--primary {
+    margin-top: 18px;
+  }
+
+  /* ── Header modal (dashboard) ── */
+  .modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem;
+  }
+
+  .modal__title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .modal__close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-muted);
+  }
+
+  /* ── Bouton fermeture (profil, connexion) ── */
+  .close-modal {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+  }
+
+  .close-modal:hover {
+    color: var(--color-primary);
+  }
+}

@@ -1,0 +1,133 @@
+/* =========================================
+   — Layout: Auth (split image/formulaire)
+   Partagé entre connexion, inscription, motdepasse-oublie
+   ========================================= */
+
+@layer layouts {
+
+  /* ── Section wrapper ── */
+  .auth-section {
+    display: flex;
+    flex-grow: 1;
+    min-height: 100%;
+    flex: 1;
+  }
+
+  /* ── Container grid 2 colonnes ── */
+  .auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    min-height: 100%;
+    background-color: var(--color-bg);
+    overflow: hidden;
+  }
+
+  /* ── Colonne formulaire ── */
+  .auth-form-wrapper {
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .auth-form-wrapper .h1 {
+    color: var(--color-title-primary);
+    margin-bottom: var(--space-5);
+  }
+
+  /* ── Formulaire ── */
+  .auth-form {
+    display: grid;
+    gap: var(--space-4);
+    width: 401px;
+  }
+
+  .auth-form .button--primary {
+    width: 100%;
+    height: 53px;
+    margin-top: var(--space-1);
+  }
+
+  /* ── Colonne image décorative ── */
+  .auth-image-wrapper {
+    position: relative;
+    background-image: url('/assets/images/hero-inscritpion.png');
+    background-size: cover;
+    background-position: center;
+    color: var(--color-text-secondary);
+  }
+
+  .auth-image-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-6);
+  }
+
+  .auth-image-overlay .h1 {
+    color: var(--color-title-secondary);
+    font-size: var(--font-xxl);
+  }
+
+  .auth-image-overlay p {
+    font-size: var(--font-600);
+    margin-bottom: var(--space-5);
+    margin-top: var(--space-3);
+  }
+
+  .auth-image-overlay .button--primary {
+    height: 53px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 992px) {
+    .auth-container {
+      grid-template-columns: 1fr;
+    }
+
+    .auth-image-wrapper {
+      display: none;
+    }
+
+    .auth-form-wrapper {
+      padding: var(--space-6);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .auth-form-wrapper {
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+      margin-top: var(--space-6);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .auth-form {
+      width: 100%;
+    }
+
+    .form-group input {
+      height: 40px;
+      font-size: 14px;
+    }
+
+    .auth-form-wrapper {
+      padding: 24px var(--space-4) var(--space-4);
+      justify-content: flex-start;
+    }
+
+    .auth-form-wrapper .h1 {
+      font-size: var(--font-500);
+      text-align: center;
+      margin-bottom: var(--space-6);
+    }
+  }
+}
