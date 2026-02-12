@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!currentUser) {
             // Redirection Login
             const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.href = `/frontend/frontend/pages/connexion.html?redirect=${returnUrl}`;
+            window.location.href = `/frontend/pages/connexion.html?redirect=${returnUrl}`;
             return;
         }
 
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (result.success) {
                 // Success -> Redirect to My Orders or Confirmation
                 alert("Commande validée avec succès !");
-                window.location.href = '/frontend/frontend/pages/profil.html'; // Or separate confirmation page
+                window.location.href = '/frontend/pages/profil.html'; // Or separate confirmation page
             }
         } catch (err) {
             console.error(err);

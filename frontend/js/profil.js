@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const user = await AuthService.getUser();
         if (!user) {
-            window.location.href = '/frontend/frontend/pages/connexion.html';
+            window.location.href = '/frontend/pages/connexion.html';
             return;
         }
         await loadOrders();

@@ -5,7 +5,7 @@
 
 async function loadComponent(elementId, componentPath) {
     // Utilise un chemin absolu depuis la racine du projet
-    const basePath = '/frontend/frontend/pages/components/';
+    const basePath = '/frontend/pages/components/';
     const fullPath = basePath + componentPath;
     
     try {

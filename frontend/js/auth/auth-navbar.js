@@ -15,7 +15,7 @@ document.addEventListener('componentsLoaded', async () => {
         if (desktopActions) {
             // Ajout du bouton Mon Profil + Déconnexion
             desktopActions.innerHTML = `
-                <a href="/frontend/frontend/pages/profil.html" class="button button--ghost u-mr-sm">
+                <a href="/frontend/pages/profil.html" class="button button--ghost u-mr-sm">
                     Mon Profil
                 </a>
                 <button class="button button--primary" id="logoutBtnDesktop">
@@ -34,7 +34,7 @@ document.addEventListener('componentsLoaded', async () => {
         if (mobileMenu) {
             const liProfil = document.createElement('li');
             liProfil.innerHTML = `
-                <a href="/frontend/frontend/pages/profil.html" class="navbar__link">
+                <a href="/frontend/pages/profil.html" class="navbar__link">
                     Mon Profil
                 </a>
             `;
@@ -51,7 +51,7 @@ document.addEventListener('componentsLoaded', async () => {
                 // On ajoute une classe pour pouvoir le cibler si besoin
                 li.className = 'navbar__management-link';
                 li.innerHTML = `
-                    <a href="/frontend/frontend/pages/admin/dashboard.html" class="navbar__link navbar__link--admin">
+                    <a href="/frontend/pages/admin/dashboard.html" class="navbar__link navbar__link--admin">
                         Espace Gestion
                     </a>
                 `;

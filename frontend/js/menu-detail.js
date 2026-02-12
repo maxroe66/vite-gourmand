@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleError(msg) {
-        loader.innerHTML = `<p class="error-text">${msg}</p><a href="/frontend/frontend/pages/home.html" class="button button--secondary">Retour à l'accueil</a>`;
+        loader.innerHTML = `<p class="error-text">${msg}</p><a href="/frontend/pages/home.html" class="button button--secondary">Retour à l'accueil</a>`;
     }
 
     function renderMenu(menu, themes, regimes) {
@@ -237,12 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (user) {
             // Utilisateur connecté -> Page de commande
-            window.location.href = `/frontend/frontend/pages/commande.html?menuId=${currentMenu.id_menu}`;
+            window.location.href = `/frontend/pages/commande.html?menuId=${currentMenu.id_menu}`;
         } else {
             // Utilisateur non connecté -> Connexion avec redirection
             // On encode l'URL de retour pour revenir sur la commande après login
-            const returnUrl = encodeURIComponent(`/frontend/frontend/pages/commande.html?menuId=${currentMenu.id_menu}`);
-            window.location.href = `/frontend/frontend/pages/connexion.html?redirect=${returnUrl}`;
+            const returnUrl = encodeURIComponent(`/frontend/pages/commande.html?menuId=${currentMenu.id_menu}`);
+            window.location.href = `/frontend/pages/connexion.html?redirect=${returnUrl}`;
         }
     });
 

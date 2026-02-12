@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <h3>${escapeHtml(menu.titre)}</h3>
                     <div class="menu-card__price">${prix}€ / ${menu.nombre_personne_min} pers</div>
                     <p>${escapeHtml(menu.description || '')}</p>
-                    <a href="/frontend/frontend/pages/menu-detail.html?id=${menu.id_menu}" class="menu-card__cta">Voir détails</a>
+                    <a href="/frontend/pages/menu-detail.html?id=${menu.id_menu}" class="menu-card__cta">Voir détails</a>
                 </div>
             </div>
             `;

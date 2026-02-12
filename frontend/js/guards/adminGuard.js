@@ -16,7 +16,7 @@ const AdminGuard = {
             if (!authStatus || !authStatus.isAuthenticated || !authStatus.user) {
                 // Non connecté -> Redirection vers login avec URL de retour
                 const currentUrl = encodeURIComponent(window.location.pathname + window.location.search);
-                window.location.href = `/frontend/frontend/pages/connexion.html?redirect=${currentUrl}&msg=auth_required`;
+                window.location.href = `/frontend/pages/connexion.html?redirect=${currentUrl}&msg=auth_required`;
                 throw new Error('Non authentifié');
             }
 
