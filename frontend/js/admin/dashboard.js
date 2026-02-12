@@ -556,15 +556,6 @@ async function deleteMenu(id) {
     }
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
 
 async function loadPlatsView(container, headerActions) {
     headerActions.innerHTML = `<button class="btn btn--primary" id="btn-add-plat"><i class="fa-solid fa-plus"></i> Nouveau Plat</button>`;

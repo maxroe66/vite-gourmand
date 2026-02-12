@@ -255,7 +255,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.target === modalAvis) modalAvis.classList.remove('is-visible');
     });
 
-    function formatPrice(amount) {
-        return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
-    }
+
 });

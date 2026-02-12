@@ -123,19 +123,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    /**
-     * Utilitaire simple pour échapper le HTML (sécurité XSS)
-     */
-    function escapeHtml(text) {
-        if (!text) return '';
-        return text
-            .toString()
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
 
     // --- Écouteurs d'événements pour les filtres ---
     
