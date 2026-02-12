@@ -160,7 +160,6 @@ jobs:
             "$DB_NAME" < backend/database/sql/database_seed.sql
 
       - name: Configurer le mot de passe administrateur
-        if: ${{ secrets.ADMIN_INITIAL_PASSWORD != '' }}
         env:
           DB_HOST: ${{ secrets.AZURE_MYSQL_HOST }}
           DB_NAME: ${{ secrets.AZURE_MYSQL_DB }}
@@ -169,7 +168,11 @@ jobs:
           ADMIN_INITIAL_PASSWORD: ${{ secrets.ADMIN_INITIAL_PASSWORD }}
           MYSQL_SSL_CA: /etc/ssl/certs/DigiCertGlobalRootCA.crt.pem
         run: |
-          php scripts/setup-admin-password.php
+          if [ -n "$ADMIN_INITIAL_PASSWORD" ]; then
+            php scripts/setup-admin-password.php
+          else
+            echo "⚠️ ADMIN_INITIAL_PASSWORD non défini, le mot de passe admin reste inchangé."
+          fi
 
       - name: Install MongoDB Shell (mongosh)
         run: |
