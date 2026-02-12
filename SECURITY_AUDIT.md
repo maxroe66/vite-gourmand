@@ -23,7 +23,7 @@
 | Sévérité | Nombre | Status |
 |----------|--------|--------|
 | 🔴 Critique | 3 (3 corrigées) | ✅ Toutes résolues |
-| 🟠 Élevée | 5 | À corriger avant production |
+| 🟠 Élevée | 5 (2 corrigées, 1 faux positif) | À corriger avant production |
 | 🟡 Moyenne | 6 | À planifier |
 | 🔵 Faible | 4 | Amélioration continue |
 
@@ -93,35 +93,46 @@
 
 ## 🟠 Vulnérabilités Élevées
 
-### HIGH-01 : Fichiers `.env` potentiellement exposés
+### HIGH-01 : Fichiers `.env` potentiellement exposés — ℹ️ FAUX POSITIF
 
 **Fichiers concernés :**
 - `.gitignore` → `.env` est ignoré ✅
-- Mais `.env.test.example` n'est PAS ignoré et pourrait contenir des indices sur la structure des secrets
-- `Docs/documentation_technique/DOCUMENTATION_DEPLOIEMENT.md` (ligne ~722) → Template `.env.example` avec structure complète exposée
+- `.env.test.example` utilise des placeholders (`<VOTRE_MOT_DE_PASSE>`) — aucun secret réel ✅
+- `Docs/documentation_technique/DOCUMENTATION_DEPLOIEMENT.md` → Template avec placeholders ✅
 
-**Risque :** La structure des variables d'environnement est documentée publiquement. Combinée avec d'autres informations, cela facilite la reconnaissance pour un attaquant.
+**Analyse :** Tous les fichiers `.env` contenant des secrets sont gitignored. Les fichiers `.example` et la documentation n'exposent que la **structure** des variables (noms), pas les valeurs. C'est une pratique standard et acceptée dans l'industrie. La sécurité ne repose pas sur le secret des noms de variables.
 
-**Impact :** Fuite d'information structurelle  
-**CVSS estimé :** 6.5
+**Verdict :** Risque accepté — faux positif  
+**CVSS estimé :** 6.5 → **N/A (faux positif)**
 
 ---
 
-### HIGH-02 : Absence de rate limiting documenté sur les routes d'authentification
+### HIGH-02 : Absence de rate limiting documenté sur les routes d'authentification — ✅ CORRIGÉ
 
 **Fichiers concernés :**
 - `backend/api/routes.auth.php` (référencé dans la documentation)
+- `backend/src/Middlewares/RateLimitMiddleware.php`
 - `scripts/tests/test_backend.sh` (ligne ~31) → `rm -rf /tmp/vg_rate_limit/` — suggère un rate limiter basé sur le filesystem
 
-**Risque :** Le rate limiter semble stocké dans `/tmp/vg_rate_limit/`. Un stockage filesystem pour le rate limiting est :
-1. **Non persistant** entre redémarrages
-2. **Non partagé** entre instances (scale-out Azure)
-3. **Facilement contournable** si le dossier est supprimé
+**Constat :** Le rate limiting est **bien implémenté** sur les 3 routes critiques :
+- `/api/auth/register` → 5 req / heure
+- `/api/auth/login` → 5 req / 15 min
+- `/api/auth/forgot-password` → 3 req / 15 min
 
-Les routes `/api/auth/login`, `/api/auth/register`, `/api/auth/forgot-password` sont des cibles privilégiées pour le brute-force.
+L'algorithme utilise une fenêtre glissante avec écriture atomique (rename) pour éviter les race conditions.
+
+**Problème initial :** Le stockage utilisait `/tmp/vg_rate_limit/` (non persistant, purgeable, non partagé entre instances).
+
+**Résolution appliquée :**
+- ✅ Déplacement du stockage vers `backend/var/rate_limit/` (persistant, dans le projet)
+- ✅ Fallback automatique sur `/tmp` si le dossier projet n'est pas accessible
+- ✅ Ajout du dossier `backend/var/` dans le Dockerfile Azure (mkdir + chown + chmod)
+- ✅ Mise à jour du script de test pour nettoyer les deux emplacements
+- ✅ Ajout de `backend/var/` dans `.gitignore`
+- ⚠️ Limitation acceptée : stockage fichier = instance unique (pas de partage multi-instance). Migration Redis recommandée si scale-out nécessaire.
 
 **Impact :** Brute-force sur login, credential stuffing  
-**CVSS estimé :** 7.3
+**CVSS estimé :** 7.3 → **Résolu (risque résiduel mineur : single-instance)**
 
 ---
 

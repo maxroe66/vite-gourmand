@@ -35,6 +35,9 @@ backend/.phpunit.cache/
 backend/logs/*.log
 !backend/logs/.gitkeep
 
+# Rate limit storage (runtime data)
+backend/var/
+
 # Local Docker certs (mkcert) — do not commit
 docker/certs/
 docker/certs/*.pem
