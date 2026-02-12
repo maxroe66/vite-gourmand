@@ -31,12 +31,9 @@ cd vite-gourmand
 
 ### 2. Configurer les variables d'environnement
 ```bash
-# Copier le template
 cp .env.example .env
-
-# Éditer le fichier et renseigner vos valeurs
-# (mots de passe MySQL/MongoDB, clés API, etc.)
 ```
+> Les valeurs par défaut fonctionnent telles quelles. Aucune modification n'est nécessaire pour un usage local.
 
 ### 3. Lancer les services
 ```bash
@@ -66,8 +63,8 @@ docker exec vite-php-app php scripts/setup-admin-password.php
 **Configuration :**
 ```bash
 cp .env.test.example .env.test
-# Renseigner les mots de passe MySQL/MongoDB de test
 ```
+> Les valeurs par défaut correspondent aux containers Docker de test.
 
 **Lancer les tests :**
 ```bash
@@ -144,4 +141,4 @@ Le projet utilise plusieurs fichiers d'environnement, un par contexte :
 | `.env` | Configuration DEV (secrets réels) | ❌ Ignoré |
 | `.env.test` | Configuration tests | ❌ Ignoré |
 
-> **Sécurité :** Les fichiers contenant des secrets réels (`.env`, `.env.compose`, `.env.test`, `.env.azure`) sont exclus du dépôt via `.gitignore`. Seuls les templates avec placeholders sont versionnés.
+> **Sécurité :** Les fichiers contenant des secrets réels (`.env`, `.env.test`, `.env.azure`) sont exclus du dépôt via `.gitignore`. Seuls les templates (`.env.example`, `.env.test.example`, `.env.azure.example`) sont versionnés.
