@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const menus = await MenuService.getMenus(filters);
             renderMenus(menus);
         } catch (error) {
-            menusList.innerHTML = `<p class="error-msg">${error.message}</p>`;
+            menusList.innerHTML = `<p class="error-msg">${escapeHtml(error.message)}</p>`;
         }
     }
 

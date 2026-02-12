@@ -99,4 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = originalBtnText;
         }
     });
+
+    // Password show/hide toggles
+    initPasswordToggles();
 });

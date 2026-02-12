@@ -18,7 +18,7 @@ const MenuService = {
     async _handleResponse(response) {
         // Redirection si session expirée (401)
         if (response.status === 401) {
-            window.location.href = '/connexion.html?error=session_expired';
+            window.location.href = '/frontend/pages/connexion.html?error=session_expired';
             throw new Error('Session expirée');
         }
 
@@ -59,7 +59,8 @@ const MenuService = {
         try {
             const response = await fetch(`${this.API_URL}?${params.toString()}`, {
                 method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {
@@ -77,7 +78,8 @@ const MenuService = {
         try {
             const response = await fetch(`${this.API_URL}/${id}`, {
                 method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {
@@ -153,7 +155,8 @@ const MenuService = {
     async getThemes() {
         try {
             const response = await fetch(`${this.API_URL}/themes`, {
-                method: 'GET'
+                method: 'GET',
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {
@@ -169,7 +172,8 @@ const MenuService = {
     async getRegimes() {
         try {
             const response = await fetch(`${this.API_URL}/regimes`, {
-                method: 'GET'
+                method: 'GET',
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {

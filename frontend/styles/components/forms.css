@@ -109,9 +109,12 @@
     color: var(--color-text-muted);
   }
 
-  .password-field .password-toggle .icon-eye-off { display: none; }
-  .password-field .password-toggle[aria-pressed="true"] .icon-eye { display: none; }
-  .password-field .password-toggle[aria-pressed="true"] .icon-eye-off { display: block; }
+  /* État par défaut (mdp caché) : œil barré visible, œil ouvert caché */
+  .password-field .password-toggle .icon-eye { display: none; }
+  .password-field .password-toggle .icon-eye-off { display: block; }
+  /* État actif (mdp visible) : œil ouvert visible, œil barré caché */
+  .password-field .password-toggle[aria-pressed="true"] .icon-eye { display: block; }
+  .password-field .password-toggle[aria-pressed="true"] .icon-eye-off { display: none; }
 
   /* ── Bordure rouge pour champs invalides ── */
   input.error {

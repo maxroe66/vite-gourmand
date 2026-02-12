@@ -8,7 +8,7 @@ const PlatService = {
 
     async _handleResponse(response) {
         if (response.status === 401) {
-            window.location.href = '/connexion.html?error=session_expired';
+            window.location.href = '/frontend/pages/connexion.html?error=session_expired';
             throw new Error('Session expirée');
         }
         if (response.status === 403) {
@@ -32,7 +32,7 @@ const PlatService = {
      */
     async getPlats() {
         try {
-            const response = await fetch(this.API_URL);
+            const response = await fetch(this.API_URL, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
             console.error('Erreur getPlats:', error);
@@ -45,7 +45,7 @@ const PlatService = {
      */
     async getPlatDetails(id) {
         try {
-            const response = await fetch(`${this.API_URL}/${id}`);
+            const response = await fetch(`${this.API_URL}/${id}`, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
             console.error(`Erreur getPlatDetails(${id}):`, error);
@@ -112,7 +112,7 @@ const PlatService = {
      */
     async getAllergenes() {
         try {
-            const response = await fetch(`${this.API_URL}/allergenes`);
+            const response = await fetch(`${this.API_URL}/allergenes`, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
             console.error('Erreur getAllergenes:', error);
