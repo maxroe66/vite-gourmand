@@ -13,6 +13,10 @@ fichiers_perso/
 plugins/
 # Fichiers ignorés
 # (package-lock.json doit être versionné pour le cache npm CI)
+
+# Copilot instructions (local uniquement)
+.github/copilot-instructions.md
+
 .env
 .env.compose
 .env.test
