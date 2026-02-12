@@ -149,11 +149,6 @@
     background-color: var(--color-surface);
 }
 
-.dashboard-footer {
-    /* Removed custom footer styles as we use dynamic footer component */
-    display: none;
-}
-
 /* --- Loader --- */
 .loader-container {
     display: flex;
@@ -222,7 +217,6 @@
 }
 
 .badge--success { background-color: var(--color-success-bg); color: var(--color-success-text); }
-.badge--error { background-color: var(--color-error-bg); color: var(--color-error-text); }
 .badge--info { background-color: var(--color-info-bg); color: var(--color-info-text); }
 
 /* --- Modal & formulaires : styles partagés via modals.css et forms.css --- */

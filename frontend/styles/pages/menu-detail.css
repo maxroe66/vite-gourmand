@@ -14,7 +14,6 @@
 #allergens-box.is-visible { display: block; }
 
 .menu-detail__image.is-fading { opacity: 0.5; }
-.gallery-controls--hidden { display: none; }
 
 .container--flex {
     display: flex;
