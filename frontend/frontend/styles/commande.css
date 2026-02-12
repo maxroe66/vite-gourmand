@@ -1,5 +1,9 @@
 /* Styles pour la page commande.html */
 
+/* État initial caché — affiché par JS après chargement */
+#commande-content { display: none; }
+#reduction-row { display: none; }
+
 .commande-page {
     padding-block: var(--space-8);
     /* Désactiver le scroll snap et le comportement height: 100vh du base.css */

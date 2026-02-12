@@ -21,6 +21,10 @@ html, body {
     background-color: #f9f9f9; 
 }
 
+/* État initial caché — affiché par JS après chargement */
+#menu-detail-content { display: none; }
+#allergens-box { display: none; }
+
 .container--flex {
     display: flex;
     flex-wrap: wrap;

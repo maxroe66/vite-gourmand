@@ -71,7 +71,7 @@
             </li>
 
             <!-- ADMIN ONLY : Équipe -->
-            <li class="sidebar__item admin-only" style="display: none;">
+            <li class="sidebar__item admin-only">
                 <button class="sidebar__link" data-tab="equipe">
                     <i class="fa-solid fa-users-gear"></i>
                     <span>Équipe</span>
@@ -79,7 +79,7 @@
             </li>
 
             <!-- ADMIN ONLY : Stats -->
-            <li class="sidebar__item admin-only" style="display: none;">
+            <li class="sidebar__item admin-only">
                 <button class="sidebar__link" data-tab="stats">
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Statistiques</span>
@@ -110,7 +110,7 @@
 <div id="footer-placeholder"></div>
 
     <!-- Modal pour Création/Édition Menu -->
-    <div id="modal-menu" class="modal-overlay" style="display: none;">
+    <div id="modal-menu" class="modal-overlay">
         <div class="modal">
             <div class="modal__header">
                 <h2 class="modal__title" id="modal-menu-title">Nouveau Menu</h2>
@@ -183,19 +183,19 @@
                     <!-- Sélection du Matériel (Nouveau) -->
                     <div class="form-group">
                         <label>Matériel Inclus (Configuration par défaut)</label>
-                        <div class="menu-composition" style="border: 1px dashed #ccc; padding: 10px; background: #fafafa;">
+                        <div class="menu-composition menu-composition--dashed">
                             <div id="menu-materiel-list" class="checkbox-list">
                                 <!-- Injecté par JS : [Checkbox] [Nom] [Input Qte] -->
                                 <small>Chargement...</small>
                             </div>
                         </div>
-                        <small style="color: #666; font-style: italic;">Cochez pour inclure et définissez la quantité PAR PERSONNE.</small>
+                        <small class="u-text-muted u-text-italic">Cochez pour inclure et définissez la quantité PAR PERSONNE.</small>
                     </div>
 
                     <!-- Gestion Images -->
                     <div class="form-group">
                         <label>Galerie d'images (URLs)</label>
-                        <div id="menu-images-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <div id="menu-images-list" class="image-url-list"></div>
                         <button type="button" class="btn btn--sm btn--secondary" id="btn-add-image-url">
                             <i class="fa-solid fa-plus"></i> Ajouter une image
                         </button>
@@ -211,7 +211,7 @@
     </div>
 
     <!-- Modal pour Création/Édition Plat -->
-    <div id="modal-plat" class="modal-overlay" style="display: none;">
+    <div id="modal-plat" class="modal-overlay">
         <div class="modal">
             <div class="modal__header">
                 <h2 class="modal__title" id="modal-plat-title">Nouveau Plat</h2>
@@ -242,7 +242,7 @@
 
                     <div class="form-group">
                         <label>Allergènes</label>
-                        <div id="plat-allergenes-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; border: 1px solid #ddd; padding: 1rem; max-height: 150px; overflow-y: auto; background: #fafafa; border-radius: 4px;">
+                        <div id="plat-allergenes-list" class="allergenes-grid">
                             <!-- Checkboxes allergènes injectées ici -->
                             <p>Chargement des allergènes...</p>
                         </div>

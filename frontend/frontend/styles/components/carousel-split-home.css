@@ -63,11 +63,8 @@
 	background: var(--color-primary-600);
 	transform: scale(0.95);
 }
-.arrow-btn[style*="display:none"] {
-	display: none !important;
-}
 .arrow-btn--down { margin-bottom: 0; }
-.arrow-btn--up { margin-top: 0; }
+.arrow-btn--up { margin-top: 0; display: none; }
 
 
 
