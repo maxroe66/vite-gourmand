@@ -4,8 +4,6 @@
    ========================================= */
 
 @layer components {
-    /* Hauteur de la navbar utilisée par les sections pour le calcul viewport */
-    :root { --navbar-height: 80px; }
   
 /* Navbar wrapper */
    .navbar {

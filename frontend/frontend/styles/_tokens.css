@@ -76,6 +76,43 @@
   --bp-lg: 1024px;
   --bp-xl: 1280px;
 
+  /* Couleurs supplémentaires */
+  --color-border: #CBD5E1;
+  --color-surface: #F8FAFC;
+  --color-text-light: #95A5A6;
+  --color-primary-dark: #E56600;
+
+  /* Radius supplémentaire */
+  --radius-xs: 4px;
+
+  /* Ombre supplémentaire */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* Z-index — échelle organisée */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 50;
+  --z-modal-backdrop: 900;
+  --z-modal: 1000;
+  --z-toast: 1100;
+
+  /* Couleurs feedback (badges, messages) */
+  --color-warning-bg: #fff3cd;
+  --color-warning-text: #856404;
+  --color-success-bg: #d4edda;
+  --color-success-text: #155724;
+  --color-error-bg: #f8d7da;
+  --color-error-text: #721c24;
+  --color-info-bg: #d1ecf1;
+  --color-info-text: #0c5460;
+  --color-neutral-bg: #e2e3e5;
+  --color-neutral-text: #383d41;
+
+  /* Couleurs UI supplémentaires */
+  --color-muted: #666;
+  --color-star: #fbbf24;
+  --color-star-empty: #cbd5e1;
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
