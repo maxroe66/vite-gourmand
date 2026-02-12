@@ -5,8 +5,8 @@
 # Vite & Gourmand
 Application web de gestion de menus, commandes et avis.
 
-- **Backend** : PHP (MySQL + MongoDB)
-- **Frontend** : (à compléter)
+- **Backend** : PHP 8+ (MySQL + MongoDB), architecture MVC, API REST JSON
+- **Frontend** : HTML5 / CSS3 (architecture @layer) / JavaScript vanilla (ES6+)
 
 ---
 
@@ -42,7 +42,7 @@ docker compose up -d
 
 ### 4. Initialiser le compte administrateur
 ```bash
-docker exec vite-php-app php scripts/setup-admin-password.php
+docker exec vite-php-app php scripts/setup/setup-admin-password.php
 ```
 
 ### Accès locaux

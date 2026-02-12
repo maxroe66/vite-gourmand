@@ -9,7 +9,7 @@
  *
  * Usage :
  *   - Localhost : définir ADMIN_INITIAL_PASSWORD dans .env puis exécuter :
- *       php scripts/setup-admin-password.php
+ *       php scripts/setup/setup-admin-password.php
  *
  *   - Azure CI/CD : ajouté automatiquement après le seed dans le workflow
  *       de déploiement (via GitHub Secrets ADMIN_INITIAL_PASSWORD)

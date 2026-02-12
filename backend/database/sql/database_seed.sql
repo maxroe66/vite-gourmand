@@ -9,7 +9,7 @@
 --     contacts, utilisateurs fictifs).
 --
 -- ⚠️  Le mot de passe admin est défini via la variable d'environnement
---     ADMIN_INITIAL_PASSWORD (voir scripts/setup-admin-password.php)
+--     ADMIN_INITIAL_PASSWORD (voir scripts/setup/setup-admin-password.php)
 -- ============================================================
 
 -- Désactivation temporaire des vérifications de clés étrangères
@@ -19,7 +19,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ADMINISTRATEUR
 -- ============================================================
 -- Le hash ci-dessous est un fallback aléatoire (mot de passe inconnu).
--- Après le seed, exécuter scripts/setup-admin-password.php pour définir
+-- Après le seed, exécuter scripts/setup/setup-admin-password.php pour définir
 -- le vrai mot de passe admin via la variable ADMIN_INITIAL_PASSWORD.
 
 INSERT IGNORE INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville, code_postal, mot_de_passe, role, actif, date_creation) VALUES

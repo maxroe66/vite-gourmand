@@ -169,7 +169,7 @@ jobs:
           MYSQL_SSL_CA: /etc/ssl/certs/DigiCertGlobalRootCA.crt.pem
         run: |
           if [ -n "$ADMIN_INITIAL_PASSWORD" ]; then
-            php scripts/setup-admin-password.php
+            php scripts/setup/setup-admin-password.php
           else
             echo "⚠️ ADMIN_INITIAL_PASSWORD non défini, le mot de passe admin reste inchangé."
           fi
