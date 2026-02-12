@@ -1,445 +1,700 @@
-# Instructions Copilot — Refonte CSS Vite & Gourmand
+# Copilot Instructions — Vite & Gourmand
 
-> **Objectif** : Éliminer `'unsafe-inline'` de la CSP `style-src` tout en nettoyant l'architecture CSS.
-> **Contexte sécurité** : HIGH-03 du `SECURITY_AUDIT.md` — CSP affaiblie par `'unsafe-inline'` dans `style-src`.
+## 1. Présentation du projet
 
----
+**Vite & Gourmand** est une application web de traiteur/catering basée à Bordeaux.
+Elle permet aux clients de consulter des menus, passer des commandes, laisser des avis,
+et aux administrateurs/employés de gérer menus, plats, commandes, avis et statistiques.
 
-## 📊 État des lieux (audit du 12/02/2026)
-
-### Chiffres clés
-
-| Métrique | Valeur |
-|---|---|
-| Fichiers CSS | 18 |
-| Total lignes CSS | ~2 558 |
-| Lignes dupliquées | ~350 (~14%) |
-| Couleurs hardcodées uniques | ~45+ |
-| Tokens inexistants référencés | 13 |
-| Breakpoints distincts | 11 (au lieu de 4 définis) |
-| `!important` | 12 (4 justifiés) |
-| `style=""` dans HTML | 22 |
-| `style=""` dans JS (innerHTML) | 54 |
-| `.style.xxx` dans JS | 65 |
-| **Total inline styles à migrer** | **76** (HTML + innerHTML) |
-
-### Fichier le plus problématique
-
-`frontend/js/admin/dashboard.js` concentre **~80%** des inline styles (51 `style=""` dans innerHTML + 23 `.style.xxx`). C'est la priorité.
-
-### Architecture actuelle
-
-- **Aucun bundler** — chargement par `<link>` individuels par page
-- **Système de tokens** dans `_tokens.css` (couleurs, spacing, radius, shadows, breakpoints)
-- **@layer CSS** : utilisé partiellement (base.css, navbar, footer, button, hero-home) — 3 composants et toutes les pages manquants
-- **`utilities.css` : VIDE** (0 lignes) — fichier prévu mais jamais rempli
+- **Stack backend :** PHP 8+ (vanilla, sans framework), architecture MVC/Service/Repository, conteneur DI (PHP-DI), API REST JSON.
+- **Stack frontend :** HTML statique + CSS pur (architecture CSS @layer) + JavaScript vanilla (aucun framework JS).
+- **Base de données :** MySQL 8 (données relationnelles) + MongoDB 4.4 (logs, matériel).
+- **Infra :** Docker Compose (Apache + PHP-FPM + MySQL + MongoDB), déploiement Azure App Service.
+- **Tests backend :** PHPUnit.
+- **Tests frontend :** Vitest (fichiers dans `frontend/tests/`).
 
 ---
 
-## 🔴 Bugs CSS critiques à corriger en premier
+## 2. Arborescence du projet
 
-1. **Sélecteur global `h3`** dans `avis-clients-home.css` ligne 83 — affecte TOUS les h3 du site
-2. **Thème sombre cassé** dans `_tokens.css` ligne 91 — erreur de syntaxe (`--shadow-200` coupé)
-3. **`border: 5px solid red`** dans `connexion.css` sur `.general-error` — style de debug en prod
-4. **`.signup-success-message` défini 2 fois** dans `inscription.css` (lignes 19 et 50)
-5. **`.avis-clients` défini 2 fois** dans `avis-clients-home.css` (lignes 3 et 16)
-6. **`var(--primary-color)` au lieu de `var(--color-primary)`** dans `home.css` et `dashboard.css`
+```
+vite_et_gourmand/
+├── backend/                   # Code serveur PHP
+│   ├── api/                   # Définitions des routes (routes.*.php)
+│   ├── config/                # config.php, container.php (DI)
+│   ├── database/              # Scripts SQL (schema, fixtures) + MongoDB
+│   ├── src/
+│   │   ├── Controllers/       # Contrôleurs (MenuController, AuthController…)
+│   │   ├── Core/              # Router, Request, Response
+│   │   ├── Exceptions/        # Exceptions métier
+│   │   ├── Middlewares/       # CORS, CSRF, RateLimit, SecurityHeaders
+│   │   ├── Models/            # Entités (User, Menu, Commande…)
+│   │   ├── Repositories/      # Accès BDD (MySQL queries)
+│   │   ├── Services/          # Logique métier (AuthService, MailerService…)
+│   │   └── Validators/        # Validation des données entrantes
+│   ├── templates/emails/      # Templates HTML pour les emails
+│   ├── tests/                 # Tests PHPUnit
+│   └── vendor/                # Dépendances Composer (ignoré par git)
+│
+├── frontend/                  # Code client (HTML/CSS/JS)
+│   ├── pages/                 # Pages HTML
+│   │   ├── home.html
+│   │   ├── connexion.html
+│   │   ├── inscription.html
+│   │   ├── profil.html
+│   │   ├── commande.html
+│   │   ├── menu-detail.html
+│   │   ├── motdepasse-oublie.html
+│   │   ├── admin/
+│   │   │   └── dashboard.html
+│   │   └── components/        # Composants HTML réutilisables
+│   │       ├── navbar.html
+│   │       └── footer.html
+│   ├── styles/                # Feuilles de style CSS
+│   │   ├── _tokens.css        # Design tokens (variables CSS)
+│   │   ├── base.css           # Reset + typographie + @layer order
+│   │   ├── utilities.css      # Classes utilitaires
+│   │   ├── components/        # CSS par composant (navbar, footer, button…)
+│   │   ├── layouts/           # CSS layouts (auth-layout…)
+│   │   ├── pages/             # CSS spécifique par page
+│   │   └── admin/             # CSS admin (dashboard…)
+│   ├── js/                    # Scripts JavaScript
+│   │   ├── core/              # Infrastructure de l'app
+│   │   │   ├── components.js  # Chargement dynamique navbar/footer
+│   │   │   └── navbar.js      # Logique menu mobile
+│   │   ├── pages/             # Scripts de page (1 fichier = 1 page)
+│   │   │   ├── home-menus.js  # Affichage menus page d'accueil
+│   │   │   ├── connexion.js   # Logique page connexion
+│   │   │   ├── inscription.js # Logique page inscription
+│   │   │   ├── profil.js      # Logique page profil (commandes, avis)
+│   │   │   ├── commande.js    # Logique page commande
+│   │   │   ├── menu-detail.js # Logique page détail menu
+│   │   │   └── motdepasse-oublie.js # Logique reset mot de passe
+│   │   ├── widgets/           # Composants UI réutilisables
+│   │   │   ├── avis-carousel.js   # Carousel des avis clients
+│   │   │   ├── menus-carousel.js  # Carousel des menus
+│   │   │   └── demo-cube.js       # Animation Rubik's Cube 3D
+│   │   ├── auth/
+│   │   │   └── auth-navbar.js # Mise à jour navbar selon état auth
+│   │   ├── guards/
+│   │   │   └── adminGuard.js  # Protection pages admin (rôle)
+│   │   └── services/          # Services API (fetch wrappers)
+│   │       ├── authService.js
+│   │       ├── menuService.js
+│   │       ├── commandeService.js
+│   │       ├── avisService.js
+│   │       ├── platService.js
+│   │       └── adminService.js
+│   ├── tests/                 # Tests Vitest
+│   ├── package.json
+│   └── vitest.config.js
+│
+├── public/                    # Document root Apache
+│   ├── index.php              # Front controller (point d'entrée unique)
+│   └── assets/                # Images, logos, fichiers statiques
+│
+├── docker/                    # Configuration Docker
+│   ├── apache/                # vite.conf, vite-ssl.conf, Dockerfile
+│   ├── php/                   # Dockerfile PHP-FPM, php.ini
+│   ├── mysql/                 # my.cnf
+│   ├── mongodb/               # mongod.conf
+│   └── certs/                 # Certificats SSL auto-signés (dev)
+│
+├── docker-compose.yml
+├── Dockerfile.azure           # Build production Azure
+├── scripts/                   # Scripts utilitaires
+├── Docs/                      # Documentation technique
+└── fichiers_perso/            # Notes internes et roadmap
+```
 
 ---
 
-## 🏗️ Plan de refonte en 8 phases
+## 3. Conventions de chemins (CRITIQUE)
 
-### Phase 0 : Corriger les bugs critiques CSS
-> **Fichiers** : `avis-clients-home.css`, `_tokens.css`, `connexion.css`, `inscription.css`, `home.css`
-> **Effort** : ~15 min
+### Chemins dans les fichiers HTML (pages/)
 
-- [ ] Scoper le `h3` global dans `avis-clients-home.css` → `.avis-clients h3`
-- [ ] Corriger la syntaxe du thème sombre dans `_tokens.css` ligne 91
-- [ ] Supprimer `border: 5px solid red` de `.general-error` dans `connexion.css`
-- [ ] Supprimer le doublon `.signup-success-message` dans `inscription.css`
-- [ ] Supprimer le doublon `.avis-clients` dans `avis-clients-home.css`
-- [ ] Corriger `var(--primary-color)` → `var(--color-primary)` dans `home.css`
+Les pages HTML utilisent des chemins **absolus depuis la racine du serveur** :
+
+```html
+<!-- CSS -->
+<link rel="stylesheet" href="/frontend/styles/_tokens.css">
+<link rel="stylesheet" href="/frontend/styles/components/button.css">
+
+<!-- JS -->
+<script src="/frontend/js/components.js"></script>
+<script src="/frontend/js/services/authService.js"></script>
+
+<!-- Liens entre pages -->
+<a href="/frontend/pages/home.html#menus">Menu</a>
+<a href="/frontend/pages/connexion.html">Connexion</a>
+<a href="/frontend/pages/admin/dashboard.html">Espace Gestion</a>
+
+<!-- Images (assets publics) -->
+<img src="/assets/images/logo.png">
+```
+
+### Chemins dans les fichiers JS
+
+```javascript
+// Navigation / redirections
+window.location.href = '/frontend/pages/connexion.html';
+window.location.href = '/frontend/pages/profil.html';
+
+// Chargement composants HTML
+const basePath = '/frontend/pages/components/';
+
+// Appels API (chemins relatifs depuis la racine)
+fetch('/api/auth/login', { ... });
+fetch('/api/menus', { ... });
+```
+
+### Chemins dans le backend PHP
+
+```php
+// index.php — pages statiques
+$staticPagePath = __DIR__ . '/../frontend/pages/home.html';
+
+// MailerService — liens dans les emails
+$orderLink = rtrim($frontendUrl, '/') . '/frontend/pages/profil.html?orderId=' . $id;
+```
+
+### Pourquoi ça fonctionne
+
+Apache (vite.conf) définit un alias :
+```apache
+Alias /frontend /var/www/vite_gourmand/frontend
+```
+Toute requête `/frontend/*` est servie depuis le dossier `frontend/` du projet.
+
+> **IMPORTANT :** Ne jamais utiliser `frontend/frontend/` dans les chemins. Le sous-dossier redondant a été éliminé.
 
 ---
 
-### Phase 1 : Compléter les design tokens manquants
-> **Fichier** : `frontend/frontend/styles/_tokens.css`
-> **Effort** : ~20 min
+## 4. Architecture CSS
 
-Ajouter les tokens référencés dans le code mais non définis :
+### Système de layers
+
+Le CSS utilise `@layer` pour gérer la spécificité de manière prévisible (déclaré dans `base.css`) :
+
+```css
+@layer base, utilities, components, layouts, pages;
+```
+
+Ordre de priorité (du moins prioritaire au plus prioritaire) :
+1. **base** — Reset, typographie, éléments HTML natifs
+2. **utilities** — Classes utilitaires (`u-hidden`, `u-text-center`, `mt-lg`…)
+3. **components** — Composants réutilisables (`.button`, `.navbar`, `.footer`, `.form-group`…)
+4. **layouts** — Mises en page (`.auth-section`, `.auth-container`…)
+5. **pages** — Styles spécifiques à une page
+
+### Design tokens (`_tokens.css`)
+
+Toutes les valeurs de design sont centralisées dans des variables CSS :
 
 ```css
 :root {
-  /* Couleurs manquantes */
-  --color-border: #CBD5E1;
-  --color-surface: #F8FAFC;
-  --color-text-light: #95A5A6;
-  --color-primary-dark: #E56600;
-
-  /* Radius manquant */
-  --radius-xs: 4px;
-
-  /* Ombre manquante */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-
-  /* Z-index échelle organisée */
-  --z-dropdown: 10;
-  --z-sticky: 20;
-  --z-fixed: 50;
-  --z-modal-backdrop: 900;
-  --z-modal: 1000;
-  --z-toast: 1100;
-
-  /* Couleurs feedback (badges, messages) */
-  --color-warning-bg: #fff3cd;
-  --color-warning-text: #856404;
-  --color-success-bg: #d4edda;
-  --color-success-text: #155724;
-  --color-error-bg: #f8d7da;
-  --color-error-text: #721c24;
-  --color-info-bg: #d1ecf1;
-  --color-info-text: #0c5460;
-  --color-neutral-bg: #e2e3e5;
-  --color-neutral-text: #383d41;
-
-  /* Couleurs UI supplémentaires */
-  --color-muted: #666;
-  --color-star: #fbbf24;
-  --color-star-empty: #cbd5e1;
+  --color-primary: #FC7200;      /* Orange CTA */
+  --color-primary-600: #E65A00;  /* Hover CTA */
+  --color-secondary: #2C3E50;    /* Navbar, footer, textes */
+  --color-bg: #F5F5F5;
+  --font-family: 'Inter', sans-serif;
+  --radius-md: 0.5rem;
+  /* ... etc */
 }
 ```
 
-- [ ] Supprimer le doublon `--navbar-height` dans `navbar.css` (garder celui de `_tokens.css`)
-- [ ] Aligner `--navbar-bg` : soit l'ajouter aux tokens, soit utiliser une variable existante
+### Convention de nommage CSS
+
+- **BEM** : `.block__element--modifier` (ex: `.navbar__link--admin`, `.button--primary`)
+- **Préfixes utilitaires** : `u-` (ex: `u-hidden`, `u-mr-sm`)
+- **États** : `is-` (ex: `is-visible`, `is-fading`, `is-disabled`)
+
+### Règles CSS
+
+- Chaque composant a son propre fichier CSS dans `styles/components/`.
+- Chaque page a son propre fichier CSS dans `styles/pages/`.
+- Ne jamais mettre de styles inline dans le HTML.
+- Toujours utiliser les variables de `_tokens.css` pour couleurs, espacements, etc.
+- Chaque fichier CSS doit wraper ses styles dans le `@layer` correspondant.
 
 ---
 
-### Phase 2 : Créer les classes utilitaires (`utilities.css`)
-> **Fichier** : `frontend/frontend/styles/utilities.css`
-> **Effort** : ~30 min
+## 5. Architecture JavaScript
 
-Ce fichier est actuellement **VIDE**. Créer les classes nécessaires pour remplacer les inline styles :
+### Pattern de chargement
 
-```css
-@layer utilities {
-  /* ── Accessibilité ── */
-  .visually-hidden { /* déplacer depuis motdepasse-oublie.css */ }
-  .sr-only { /* alias */ }
+Les pages HTML chargent les scripts en bas de `<body>` dans cet ordre :
 
-  /* ── Affichage ── */
-  .u-hidden       { display: none !important; }
-  .is-visible     { display: flex; }  /* pour les modals */
-  .u-block        { display: block; }
-  .u-flex         { display: flex; }
-  .u-grid         { display: grid; }
-
-  /* ── Layout flex ── */
-  .u-flex-col     { flex-direction: column; }
-  .u-flex-center  { justify-content: center; align-items: center; }
-  .u-flex-between { justify-content: space-between; }
-  .u-items-center { align-items: center; }
-  .u-gap-xs       { gap: var(--space-1); }
-  .u-gap-sm       { gap: var(--space-2); }
-  .u-gap-md       { gap: var(--space-3); }
-
-  /* ── Texte ── */
-  .u-text-center  { text-align: center; }
-  .u-text-left    { text-align: left; }
-  .u-text-right   { text-align: right; }
-  .u-text-bold    { font-weight: 700; }
-  .u-text-italic  { font-style: italic; }
-
-  /* ── Couleurs texte ── */
-  .u-text-muted   { color: var(--color-muted); }
-  .u-text-error   { color: var(--color-error-text); }
-  .u-text-success { color: var(--color-success-text); }
-
-  /* ── Largeur ── */
-  .u-w-full       { width: 100%; }
-
-  /* ── Espacement ── */
-  .u-mb-sm        { margin-bottom: var(--space-2); }
-  .u-mb-md        { margin-bottom: var(--space-3); }
-  .u-p-sm         { padding: var(--space-2); }
-  .u-p-md         { padding: var(--space-3); }
-
-  /* ── Bordures ── */
-  .u-border-dashed { border: 1px dashed var(--color-border); }
-  .u-border-bottom { border-bottom: 1px solid var(--color-border); }
-
-  /* ── Scrollbar cachée ── */
-  .u-scrollbar-hidden {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .u-scrollbar-hidden::-webkit-scrollbar { display: none; }
-}
+```html
+<!-- 1. Loader de composants (navbar/footer) -->
+<script src="/frontend/js/core/components.js"></script>
+<!-- 2. Services API nécessaires -->
+<script src="/frontend/js/services/authService.js"></script>
+<!-- 3. Auth navbar (met à jour la navbar selon l'état connecté) -->
+<script src="/frontend/js/auth/auth-navbar.js"></script>
+<!-- 4. Script spécifique à la page -->
+<script src="/frontend/js/pages/connexion.js"></script>
+<!-- 5. Navbar mobile -->
+<script src="/frontend/js/core/navbar.js"></script>
 ```
 
----
+### Événements personnalisés
 
-### Phase 3 : Extraire les composants partagés
-> **Nouveaux fichiers** : `forms.css`, `modals.css`, `auth-layout.css`
-> **Effort** : ~45 min
+- `componentsLoaded` : émis par `core/components.js` après chargement du header/footer. Les scripts qui dépendent de la navbar (ex: `auth-navbar.js`, `core/navbar.js`) écoutent cet événement.
 
-#### 3a — `frontend/frontend/styles/components/forms.css`
+### Services (frontend/js/services/)
 
-Extraire les patterns dupliqués dans 6 fichiers :
-- `.form-group`, `.form-group label`, `.form-group input`
-- `.form-row`
-- `.error-message`, `.success-message`, `.general-error`
-- `input.error`
-- `.password-field`, `.password-toggle`
+Les services sont des objets/classes globaux qui encapsulent les appels API :
 
-**Ensuite supprimer** ces blocs de : `connexion.css`, `inscription.css`, `motdepasse-oublie.css`, `commande.css`, `profil.css`, `dashboard.css`
-
-#### 3b — `frontend/frontend/styles/components/modals.css`
-
-Unifier les 3 modals différentes :
-- `.modal-overlay` : fond sombre semi-transparent (connexion, profil, dashboard)
-- `.modal-content` : boîte blanche centrée
-- `.close-modal` : bouton de fermeture
-- `.modal-header`, `.modal-body`, `.modal-footer` : structure standard
-
-**Ensuite supprimer** les styles modal de : `connexion.css`, `profil.css`, `dashboard.css`
-
-#### 3c — `frontend/frontend/styles/layouts/auth-layout.css`
-
-Le layout split image/formulaire est identique entre connexion, inscription et motdepasse-oublie :
-- `.auth-container` : grid 2 colonnes
-- `.auth-form-wrapper` : colonne formulaire
-- `.auth-image-wrapper` : colonne image décorative
-
-**Réduction estimée** : ~200 lignes supprimées des 3 fichiers auth
-
----
-
-### Phase 4 : Migrer les `style=""` HTML → classes CSS
-> **Fichiers HTML** : `profil.html` (9), `dashboard.html` (8), `commande.html` (2), `menu-detail.html` (2), `home.html` (1)
-> **Effort** : ~30 min
-
-#### Règles de migration
-
-| Pattern inline | Classe de remplacement |
-|---|---|
-| `style="display:none"` | `class="u-hidden"` |
-| `style="display:flex"` | `class="u-flex"` |
-| `style="display:flex; flex-direction:column; gap:0.5rem"` | `class="u-flex u-flex-col u-gap-sm"` |
-| `style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem"` | Classe spécifique dans le CSS de la page |
-| `style="margin-bottom: 20px"` | `class="u-mb-md"` |
-| `style="width:100%"` | `class="u-w-full"` |
-| `style="display:block; margin-bottom:10px; font-weight:bold"` | `class="u-block u-mb-sm u-text-bold"` |
-| `style="color:#666; font-style:italic"` | `class="u-text-muted u-text-italic"` |
-| `style="border:1px dashed #ccc; padding:10px; background:#fafafa"` | Classe spécifique ou combinaison utilitaires |
-
-#### Ordre de migration
-1. `profil.html` — 9 occurrences (le plus d'inline styles)
-2. `dashboard.html` — 8 occurrences
-3. `commande.html` — 2 occurrences
-4. `menu-detail.html` — 2 occurrences
-5. `home.html` — 1 occurrence
-
----
-
-### Phase 5 : Migrer les innerHTML `style=""` dans le JS → classes CSS
-> **Fichiers JS** : `dashboard.js` (51), `auth-navbar.js` (2), `home-menus.js` (1)
-> **Effort** : ~1h30 (le plus long, surtout dashboard.js)
-
-#### dashboard.js — 51 occurrences
-
-Catégories à traiter :
-
-| Catégorie | Nb | Remplacement |
+| Service | Variable globale | Description |
 |---|---|---|
-| `text-align:center` | 12 | `class="u-text-center"` |
-| `color:red` / `color:#888` | 8 | `class="u-text-error"` / `class="u-text-muted"` |
-| `font-weight:bold` | 4 | `class="u-text-bold"` |
-| `display:none` / `display:flex` | 4 | `class="u-hidden"` / `class="u-flex"` |
-| Layout (flex, gap, margin) | 11 | Classes utilitaires ou CSS dashboard |
-| Bordures | 3 | `class="u-border-bottom"` |
-| Dimensions (width) | 3 | `class="u-w-full"` ou CSS spécifique |
-| Autres (background, padding) | 6 | Classes CSS spécifiques dans dashboard.css |
+| `authService.js` | `AuthService` | Auth (login, register, logout, check, CSRF) |
+| `menuService.js` | `MenuService` | Menus (CRUD, thèmes, régimes) |
+| `commandeService.js` | `CommandeService` | Commandes (create, list, calculate) |
+| `avisService.js` | `AvisService` | Avis clients |
+| `platService.js` | `PlatService` | Plats (CRUD) |
+| `adminService.js` | `AdminService` | Fonctions admin (employés, stats) |
 
-**Stratégie** : Ajouter les classes nécessaires dans `dashboard.css` ou `utilities.css`, puis remplacer chaque `style="..."` par `class="..."` dans les template literals JS.
+### Sécurité CSRF
 
-#### auth-navbar.js — 2 occurrences
-- `margin-right:8px` → classe utilitaire
-- `color:#e67e22; font-weight:bold` → `.navbar__admin-link` dans navbar.css
+Toutes les requêtes mutantes (POST, PUT, DELETE) doivent inclure le header `X-CSRF-Token` via `AuthService.addCsrfHeader()`. Le token est lu depuis le cookie `csrfToken`.
 
-#### home-menus.js — 1 occurrence
-- `width:100%; text-align:center; padding:2rem` → `class="u-w-full u-text-center u-p-md"`
+### Conventions JS
+
+- Pas de framework (vanilla JS uniquement).
+- Les scripts de page écoutent `DOMContentLoaded`.
+- Les scripts dépendant de la navbar écoutent `componentsLoaded`.
+- Utiliser `AuthService.getFetchOptions()` ou `AuthService.addCsrfHeader()` pour les requêtes authentifiées.
+- Utiliser `credentials: 'include'` sur tous les `fetch` vers l'API.
 
 ---
 
-### Phase 6 : Migrer les `.style.xxx` JS → `classList.toggle()`
-> **Fichiers JS** : `dashboard.js` (23), `profil.js` (11), `menu-detail.js` (10), `commande.js` (5), `connexion.js` (4), `menus-carousel.js` (4), `demo-cube.js` (4), `auth-navbar.js` (2)
-> **Effort** : ~1h
+## 6. Architecture Backend
 
-#### Patterns de migration
+### Routing
 
-**Display toggle (41 occurrences — 63% du total)** :
-```js
-// AVANT
-modal.style.display = 'flex';
-modal.style.display = 'none';
+Le front controller `public/index.php` :
+1. Charge Composer autoloader + `.env`
+2. Initialise le conteneur DI
+3. Exécute les middlewares globaux (CORS, CSP, CSRF)
+4. Route les requêtes API via `Router` (préfixe `/api`)
+5. Sert les pages HTML statiques pour les routes frontend (`/`, `/inscription`, `/connexion`, `/reset-password`)
 
-// APRÈS
-modal.classList.add('is-visible');
-modal.classList.remove('is-visible');
-```
+Les routes API sont définies dans `backend/api/routes.*.php`.
 
-Avec en CSS :
-```css
-.modal-overlay { display: none; }
-.modal-overlay.is-visible { display: flex; }
-```
+### Pattern des contrôleurs
 
-Pour les éléments non-modal :
-```js
-// AVANT
-element.style.display = 'none';
-element.style.display = 'block';
+```php
+class MenuController {
+    public function __construct(
+        private MenuService $menuService,
+        private MenuValidator $validator
+    ) {}
 
-// APRÈS
-element.classList.add('u-hidden');
-element.classList.remove('u-hidden');
-```
-
-**Opacity + cursor (7 occurrences)** :
-```js
-// AVANT
-btn.style.opacity = '0.5';
-btn.style.cursor = 'not-allowed';
-
-// APRÈS
-btn.classList.add('is-disabled');
-```
-
-Avec en CSS :
-```css
-.is-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
+    public function index(Request $request): Response { ... }
+    public function show(Request $request): Response { ... }
 }
 ```
 
-**Color dynamique (4 occurrences dans connexion.js)** :
-```js
-// AVANT
-forgotMsg.style.color = '#dc3545';
-forgotMsg.style.color = '#28a745';
+### Authentification
 
-// APRÈS
-forgotMsg.classList.remove('u-text-success', 'u-text-error');
-forgotMsg.classList.add('u-text-error');
+- Cookies `httpOnly` (pas de localStorage/JWT côté client)
+- Middleware CSRF sur toutes les requêtes mutantes
+- Guard côté frontend (`adminGuard.js`) pour protéger les pages admin
+
+### Base de données
+
+- MySQL : Utilisateurs, menus, plats, commandes, avis, thèmes, régimes, allergènes
+- MongoDB : Logs applicatifs, gestion matériel
+
+---
+
+## 7. Infrastructure Docker
+
+### Services
+
+| Service | Container | Port |
+|---|---|---|
+| PHP-FPM | `vite-php-app` | 9000 (interne) |
+| Apache | `vite-apache` | 8000 (HTTP), 8443 (HTTPS) |
+| MySQL | `vite-mysql` | 3306 |
+| MySQL Test | `vite-mysql-test` | 3307 |
+| MongoDB | `vite-mongodb` | 27017 |
+
+### Commandes utiles
+
+```bash
+docker compose up -d          # Démarrer tous les services
+docker compose down           # Arrêter
+docker compose logs -f apache # Logs Apache
+docker exec -it vite-php-app bash  # Shell PHP
 ```
 
-**Background dynamique (1 occurrence)** :
-```js
-// AVANT
-btn.style.backgroundColor = '#ccc';
+### Accès local
 
-// APRÈS — inclure dans la classe .is-disabled
+- Site : `http://localhost:8000` ou `https://localhost:8443`
+- API : `http://localhost:8000/api/...`
+
+---
+
+## 8. Règles pour Copilot
+
+### À faire
+
+- Toujours vérifier l'arborescence avant de créer un fichier.
+- Utiliser les chemins absolus `/frontend/...` (jamais relatifs) dans le HTML et JS.
+- Respecter l'architecture CSS @layer : chaque nouveau style doit être dans le bon layer.
+- Utiliser les design tokens de `_tokens.css` pour toute valeur de style.
+- Suivre le nommage BEM pour les classes CSS.
+- Ajouter `credentials: 'include'` et le header CSRF sur les requêtes mutantes.
+- Créer les fichiers CSS de page dans `styles/pages/`, les composants dans `styles/components/`.
+- Documenter les fonctions JS et PHP avec des JSDoc/PHPDoc.
+
+### À ne pas faire
+
+- **NE JAMAIS** utiliser le chemin `frontend/frontend/` (ancien chemin obsolète).
+- Ne pas ajouter de framework JS (React, Vue, etc.) — le projet est en vanilla JS.
+- Ne pas utiliser de CSS-in-JS ou de préprocesseur CSS (Sass, Less) — CSS pur avec @layer.
+- Ne pas stocker de tokens/sessions dans `localStorage` — utiliser les cookies httpOnly.
+- Ne pas modifier `base.css` pour des styles spécifiques à une page.
+- Ne pas créer de fichiers en dehors de l'arborescence définie sans demander.
+
+### Tests
+
+- **Backend :** `docker exec vite-php-app ./vendor/bin/phpunit` depuis la racine du backend.
+- **Frontend :** `cd frontend && npx vitest` pour les tests JS.
+
+### Langue
+
+- Le code (variables, fonctions, commentaires techniques) est en **anglais**.
+- L'interface utilisateur (textes, labels, messages d'erreur affichés) est en **français**.
+- Les commentaires explicatifs dans le code peuvent être en français.
+
+---
+
+## 9. Audit JS — Dette technique & améliorations planifiées
+
+> Audit réalisé le 12/02/2026 sur l'ensemble des fichiers `js/`. Les items ci-dessous constituent la roadmap de refactoring à appliquer progressivement.
+
+### 9.1 Nommage incohérent des services
+
+**Problème :** Le fichier `admin.service.js` (avec point) ne respecte pas la convention `camelCase.js` utilisée par tous les autres services (`authService.js`, `menuService.js`, etc.).
+
+**Action :** Renommer `admin.service.js` → `adminService.js` et mettre à jour toutes les balises `<script>` qui le référencent (dans `dashboard.html` et tout fichier qui le charge).
+
+### 9.2 Pattern mixte class / objet littéral pour les services
+
+**Problème :** `CommandeService` et `AvisService` sont définis avec `class` + instanciation (`new CommandeService()`), tandis que tous les autres (`AuthService`, `MenuService`, `PlatService`, `AdminService`) sont des objets littéraux `const XService = { ... }`.
+
+**Pattern cible (objet littéral) :**
+```javascript
+const CommandeService = {
+    async getAll() { ... },
+    async create(data) { ... },
+};
+```
+**Action :** Convertir `CommandeService` et `AvisService` du pattern `class` vers un objet littéral pour unifier le style.
+
+### 9.3 Code dupliqué — `escapeHtml()`
+
+**Problème :** La fonction `escapeHtml()` est copiée-collée dans **4 fichiers** : `pages/profil.js`, `pages/home-menus.js`, `pages/menu-detail.js`, `admin/dashboard.js`. Toute correction (ex: ajout de l'échappement de `"` et `'`) doit être propagée manuellement.
+
+**Action :** Créer `js/utils/helpers.js` contenant une version unique et complète :
+```javascript
+/**
+ * Échappe les caractères HTML dangereux pour prévenir les XSS.
+ * @param {string} str - Chaîne à échapper
+ * @returns {string} Chaîne sécurisée
+ */
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+```
+Charger ce fichier **avant** les scripts de page dans chaque HTML :
+```html
+<script src="/frontend/js/utils/helpers.js"></script>
+```
+Supprimer toutes les copies locales de `escapeHtml()`.
+
+### 9.4 Code dupliqué — `formatPrice()`
+
+**Problème :** La fonction `formatPrice()` est dupliquée dans `pages/commande.js` et `pages/menu-detail.js` avec des implémentations légèrement différentes.
+
+**Action :** Ajouter `formatPrice()` dans `js/utils/helpers.js` :
+```javascript
+/**
+ * Formate un nombre en prix EUR (ex: "12,50 €").
+ * @param {number} price
+ * @returns {string}
+ */
+function formatPrice(price) {
+    return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR'
+    }).format(price);
+}
 ```
 
----
+### 9.5 Code dupliqué — toggle visibilité mot de passe
 
-### Phase 7 : Aligner `dashboard.css` sur le design system
-> **Fichier** : `frontend/frontend/styles/admin/dashboard.css` (556 lignes)
-> **Effort** : ~45 min
+**Problème :** Le code de toggle password (icône œil) est dupliqué quasi identique dans `pages/connexion.js` et `pages/inscription.js`.
 
-1. **Supprimer les variables fantômes** : `--primary-color`, `--secondary-color`, `--border-color`, `--text-color`, `--surface-bg` → remplacer par les tokens officiels (`--color-primary`, `--color-secondary`, `--color-border`, `--color-text`, `--color-surface`)
-2. **Supprimer les `!important`** abusifs (`.dashboard-main` margin/padding)
-3. **Scoper les sélecteurs globaux** : `label`, `input[type="text"]` → `.dashboard label`, `.dashboard input[type="text"]`
-4. **Supprimer `@keyframes spin` dupliqué** (garder dans `forms.css` ou `utilities.css`)
-5. **Harmoniser les breakpoints** : `769px` → `768px`, `650px` → `600px` ou token
-6. **Supprimer les couleurs hardcodées** : remplacer les 20+ par des tokens
+**Action :** Créer `js/utils/password-toggle.js` :
+```javascript
+/**
+ * Initialise le toggle de visibilité sur un champ mot de passe.
+ * @param {string} inputId - ID du champ input
+ * @param {string} toggleId - ID du bouton/icône toggle
+ */
+function initPasswordToggle(inputId, toggleId) {
+    const input = document.getElementById(inputId);
+    const toggle = document.getElementById(toggleId);
+    if (!input || !toggle) return;
+    toggle.addEventListener('click', () => {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        toggle.classList.toggle('fa-eye');
+        toggle.classList.toggle('fa-eye-slash');
+    });
+}
+```
+Charger ce fichier dans les pages connexion et inscription, puis appeler `initPasswordToggle('password', 'togglePassword')`.
 
----
+### 9.6 Monolithe `dashboard.js` (1 525 lignes)
 
-### Phase 8 : Retirer `'unsafe-inline'` de la CSP
-> **Fichiers** : `SecurityHeadersMiddleware.php`, `SecurityHeadersMiddlewareTest.php`
-> **Effort** : ~15 min (une fois les phases 0-7 terminées)
+**Problème :** Le fichier `dashboard.js` concentre la logique de **tous les onglets admin** (menus, plats, commandes, avis, employés, stats) dans un seul fichier de 1 525 lignes. Cela rend la maintenance et le débogage très difficiles.
 
-1. Retirer `'unsafe-inline'` de la directive `style-src` dans `SecurityHeadersMiddleware.php`
-2. Mettre à jour les tests dans `SecurityHeadersMiddlewareTest.php` :
-   - `testDefaultPolicyContainsAllDirectives` : retirer `'unsafe-inline'` de l'assertion `style-src`
-   - `testUnsafeInlineRequiredForStyleSrc` : **supprimer ce test** ou le transformer en `testNoUnsafeInlineInStyleSrc`
-3. Lancer les tests PHPUnit → valider 248/248
-4. Tester manuellement le site dans le navigateur → vérifier qu'aucun style n'est cassé
-5. Mettre à jour `SECURITY_AUDIT.md` : marquer HIGH-03 comme ✅ CORRIGÉ
-6. Commit final
+**Action (refactoring progressif) :** Découper en modules par onglet :
+```
+js/admin/
+├── dashboard.js           # Orchestrateur (init, gestion onglets, fonctions communes)
+├── dashboard-menus.js     # Gestion des menus
+├── dashboard-plats.js     # Gestion des plats
+├── dashboard-commandes.js # Gestion des commandes
+├── dashboard-avis.js      # Gestion des avis
+├── dashboard-employes.js  # Gestion des employés
+└── dashboard-stats.js     # Statistiques et graphiques
+```
+Charger chaque module dans `dashboard.html`. Ce refactoring est **haute priorité** mais **haut effort**.
 
----
+### 9.7 Arborescence cible de `js/`
 
-## ⚠️ Nettoyages additionnels à faire pendant la refonte
-
-Ces éléments ne sont pas liés à `unsafe-inline` mais doivent être corrigés en même temps :
-
-- [ ] **Normaliser les breakpoints** : n'utiliser que les 4 tokens (`--bp-sm: 480px`, `--bp-md: 768px`, `--bp-lg: 1024px`, `--bp-xl: 1200px`)
-- [ ] **Compléter `@layer`** : ajouter `@layer components` à `menus-home.css`, `avis-clients-home.css`, `carousel-split-home.css`
-- [ ] **Créer `@layer pages`** pour les fichiers de page
-- [ ] **Supprimer les vendor prefixes obsolètes** : `-webkit-overflow-scrolling: touch`, `-ms-overflow-style: none`
-- [ ] **Organiser les z-index** via tokens au lieu de valeurs magiques
-- [ ] **Corriger le scroll-snap global** dans `base.css` → le conditionner via `.page--snap`
-- [ ] **Supprimer la surcharge globale `html, body`** dans `menu-detail.css` ligne 10
-
----
-
-## 📁 Structure CSS cible (après refonte)
+Structure finale organisée — **aucun fichier orphelin à la racine de `js/`** :
 
 ```
-styles/
-├── _tokens.css                  ← Design tokens (complets)
-├── base.css                     ← Reset + typo (@layer base)
-├── utilities.css                ← Classes utilitaires (@layer utilities)
-├── components/
-│   ├── navbar.css               ← @layer components
-│   ├── footer.css               ← @layer components
-│   ├── button.css               ← @layer components
-│   ├── forms.css                ← NOUVEAU — @layer components
-│   ├── modals.css               ← NOUVEAU — @layer components
-│   ├── hero-home.css            ← @layer components
-│   ├── menus-home.css           ← @layer components (à ajouter)
-│   ├── avis-clients-home.css    ← @layer components (à ajouter)
-│   └── carousel-split-home.css  ← @layer components (à ajouter)
-├── layouts/
-│   └── auth-layout.css          ← NOUVEAU — @layer layouts
-├── pages/
-│   ├── home.css                 ← @layer pages (épuré)
-│   ├── connexion.css            ← @layer pages (réduit à ~30 lignes)
-│   ├── inscription.css          ← @layer pages (réduit à ~20 lignes)
-│   ├── motdepasse-oublie.css    ← @layer pages (réduit à ~15 lignes)
-│   ├── profil.css               ← @layer pages
-│   ├── commande.css             ← @layer pages
-│   └── menu-detail.css          ← @layer pages
-└── admin/
-    └── dashboard.css            ← @layer pages (aligné sur tokens)
+js/
+├── core/                      # Infrastructure de l'app
+│   ├── components.js          # Chargement dynamique navbar/footer
+│   └── navbar.js              # Logique menu mobile
+│
+├── pages/                     # Scripts de page (1 fichier = 1 page)
+│   ├── home-menus.js
+│   ├── connexion.js
+│   ├── inscription.js
+│   ├── profil.js
+│   ├── commande.js
+│   ├── menu-detail.js
+│   └── motdepasse-oublie.js
+│
+├── widgets/                   # Composants UI réutilisables
+│   ├── avis-carousel.js
+│   ├── menus-carousel.js
+│   └── demo-cube.js
+│
+├── auth/
+│   └── auth-navbar.js
+├── guards/
+│   └── adminGuard.js
+├── services/
+│   ├── authService.js
+│   ├── menuService.js
+│   ├── commandeService.js
+│   ├── avisService.js
+│   ├── platService.js
+│   └── adminService.js
+├── utils/
+│   ├── helpers.js             # escapeHtml, formatPrice, formatDate
+│   ├── logger.js              # Logging conditionnel (dev/prod)
+│   ├── password-toggle.js     # Toggle visibilité mot de passe
+│   └── toast.js               # Notifications toast
+└── admin/                     # Découpage dashboard par onglet
+    ├── dashboard.js
+    ├── dashboard-menus.js
+    ├── dashboard-plats.js
+    ├── dashboard-commandes.js
+    ├── dashboard-avis.js
+    ├── dashboard-employes.js
+    └── dashboard-stats.js
 ```
 
-**Ordre des layers** : `@layer base, utilities, components, layouts, pages;`
+### 9.8 Réorganisation de `js/` — déplacement vers `core/`, `pages/`, `widgets/`
+
+**Problème :** Les 12 fichiers à la racine de `js/` mélangent 3 catégories (infrastructure, pages, widgets) sans organisation. Pour un projet professionnel, chaque fichier doit avoir sa place dans un sous-dossier par responsabilité.
+
+**Déplacements à effectuer :**
+
+| Fichier actuel (racine `js/`) | Destination | Catégorie |
+|---|---|---|
+| `components.js` | `core/components.js` | Infrastructure |
+| `navbar.js` | `core/navbar.js` | Infrastructure |
+| `home-menus.js` | `pages/home-menus.js` | Script de page |
+| `connexion.js` | `pages/connexion.js` | Script de page |
+| `inscription.js` | `pages/inscription.js` | Script de page |
+| `profil.js` | `pages/profil.js` | Script de page |
+| `commande.js` | `pages/commande.js` | Script de page |
+| `menu-detail.js` | `pages/menu-detail.js` | Script de page |
+| `motdepasse-oublie.js` | `pages/motdepasse-oublie.js` | Script de page |
+| `avis-carousel.js` | `widgets/avis-carousel.js` | Widget UI réutilisable |
+| `menus-carousel.js` | `widgets/menus-carousel.js` | Widget UI réutilisable |
+| `demo-cube.js` | `widgets/demo-cube.js` | Widget UI réutilisable |
+
+**Fichiers HTML à mettre à jour (balises `<script src>`) :**
+
+| Page HTML | Anciens chemins → Nouveaux chemins |
+|---|---|
+| `home.html` | `/frontend/js/components.js` → `/frontend/js/core/components.js` |
+| | `/frontend/js/navbar.js` → `/frontend/js/core/navbar.js` |
+| | `/frontend/js/demo-cube.js` → `/frontend/js/widgets/demo-cube.js` |
+| | `/frontend/js/avis-carousel.js` → `/frontend/js/widgets/avis-carousel.js` |
+| | `/frontend/js/menus-carousel.js` → `/frontend/js/widgets/menus-carousel.js` |
+| | `/frontend/js/home-menus.js` → `/frontend/js/pages/home-menus.js` |
+| `connexion.html` | `components.js` → `core/components.js`, `navbar.js` → `core/navbar.js`, `connexion.js` → `pages/connexion.js` |
+| `inscription.html` | `components.js` → `core/components.js`, `navbar.js` → `core/navbar.js`, `inscription.js` → `pages/inscription.js` |
+| `profil.html` | `components.js` → `core/components.js`, `navbar.js` → `core/navbar.js`, `profil.js` → `pages/profil.js` |
+| `commande.html` | `components.js` → `core/components.js`, `navbar.js` → `core/navbar.js`, `commande.js` → `pages/commande.js` |
+| `menu-detail.html` | `components.js` → `core/components.js`, `navbar.js` → `core/navbar.js`, `menu-detail.js` → `pages/menu-detail.js` |
+| `motdepasse-oublie.html` | `components.js` → `core/components.js`, `navbar.js` → `core/navbar.js`, `motdepasse-oublie.js` → `pages/motdepasse-oublie.js` |
+| `admin/dashboard.html` | `components.js` → `core/components.js`, `navbar.js` → `core/navbar.js` |
+
+**Test Vitest à mettre à jour :**
+- `frontend/tests/dom/reset-form.test.js` : modifier l'import `../../js/motdepasse-oublie.js` → `../../js/pages/motdepasse-oublie.js`
+
+**Documentation à mettre à jour :**
+- `Docs/fichiers_perso/avancement.md` (référence à `components.js`)
+- `Docs/fichiers_perso/README_CSRF.md` (référence à `components.js`)
+- `Docs/fichiers_perso/ROADMAP.md` (référence à `commande.js`)
+
+**Objectif :** Zéro fichier orphelin à la racine de `js/`. Chaque fichier est catégorisé dans un sous-dossier sémantique.
 
 ---
 
-## 🧪 Validation à chaque phase
+## 10. Audit JS — Vulnérabilités & corrections de sécurité
 
-Avant de passer à la phase suivante :
+> Classées par sévérité. À corriger **avant toute mise en production**.
 
-1. **Test visuel** : ouvrir chaque page dans le navigateur, vérifier qu'aucun style n'est cassé
-2. **Console navigateur** : vérifier l'absence d'erreurs CSP (une fois `unsafe-inline` retiré)
-3. **Tests PHPUnit** : `cd backend && ./vendor/bin/phpunit` → 248/248
-4. **Commit en français** avec le format : `refacto(css): phase N — description`
+### 10.1 XSS via `innerHTML` avec données non échappées (HAUTE)
+
+**Fichiers affectés :**
+- `pages/profil.js` (ligne ~32) : `innerHTML` avec `error.message` brut
+- `pages/home-menus.js` (ligne ~82) : `innerHTML` avec `error.message` brut
+- `pages/menu-detail.js` (ligne ~74) : `escapeHtml()` incomplète (ne gère pas `"` et `'`)
+- `admin/dashboard.js` (ligne ~1119) : `innerHTML` avec données potentiellement non échappées
+
+**Risque :** Un attaquant peut injecter du HTML/JS via les messages d'erreur renvoyés par l'API si celle-ci est compromise ou si un proxy intermédiaire modifie la réponse.
+
+**Correction :**
+```javascript
+// ❌ AVANT (dangereux)
+container.innerHTML = `<p class="error">${error.message}</p>`;
+
+// ✅ APRÈS (sécurisé)
+container.innerHTML = `<p class="error">${escapeHtml(error.message)}</p>`;
+```
+Utiliser `escapeHtml()` de `utils/helpers.js` systématiquement sur toute donnée dynamique injectée dans le DOM.
+
+### 10.2 `escapeHtml()` incomplète dans `pages/menu-detail.js` (HAUTE)
+
+**Problème :** L'implémentation locale de `escapeHtml()` dans `pages/menu-detail.js` ne gère que `&`, `<`, `>` mais **pas** `"` ni `'`. Cela laisse une porte ouverte aux injections via les attributs HTML.
+
+**Implémentation vulnérable :**
+```javascript
+// ❌ Incomplète
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+    return text.replace(/[&<>]/g, m => map[m]);
+}
+```
+
+**Correction :** Remplacer par la version centralisée dans `utils/helpers.js` (voir §9.3) qui utilise `document.createTextNode()` — méthode infaillible.
+
+### 10.3 Redirections 401 cassées (MOYENNE)
+
+**Fichiers affectés :**
+- `menuService.js` (ligne ~21) : redirige vers `/connexion.html?error=session_expired`
+- `platService.js` (ligne ~11) : redirige vers `/connexion.html?error=session_expired`
+
+**Problème :** Ces chemins manquent le préfixe `/frontend/pages/` → la redirection aboutit sur une 404.
+
+**Correction :**
+```javascript
+// ❌ AVANT (404)
+window.location.href = '/connexion.html?error=session_expired';
+
+// ✅ APRÈS
+window.location.href = '/frontend/pages/connexion.html?error=session_expired';
+```
+
+### 10.4 `credentials: 'include'` manquant sur certains `fetch` (MOYENNE)
+
+**Problème :** Certaines requêtes GET dans les services n'incluent pas `credentials: 'include'`. Sans ce flag, les cookies de session ne sont pas envoyés, et les endpoints protégés échouent silencieusement.
+
+**Règle :** **Tous** les `fetch()` vers `/api/*` doivent inclure `credentials: 'include'` :
+```javascript
+const response = await fetch('/api/menus', {
+    credentials: 'include'
+});
+```
+
+### 10.5 `console.error` en production (BASSE)
+
+**Problème :** De nombreux `catch` contiennent `console.error(...)` qui expose des détails techniques dans la console du navigateur en production.
+
+**Action :** Remplacer par un logging conditionnel ou supprimer :
+```javascript
+// Option 1 : Conditionnel
+if (window.location.hostname === 'localhost') {
+    console.error('Debug:', error);
+}
+
+// Option 2 : Supprimer et afficher un message utilisateur à la place
+showErrorToast('Une erreur est survenue. Réessayez plus tard.');
+```
+
+### 10.6 Utilisation de `alert()` natif (BASSE)
+
+**Fichiers :** `pages/connexion.js`, `pages/inscription.js`, `pages/profil.js`, `pages/commande.js`
+
+**Problème :** `alert()` est bloquant, non stylable, et donne un aspect non professionnel.
+
+**Action :** Remplacer par un système de toast/notification CSS :
+```javascript
+// ❌ AVANT
+alert('Inscription réussie !');
+
+// ✅ APRÈS
+showToast('Inscription réussie !', 'success');
+```
+Créer un composant `js/utils/toast.js` + `styles/components/toast.css` pour centraliser les notifications.
 
 ---
 
-## 📌 Conventions à respecter
+## 11. Priorités d'implémentation
 
-- **Nommage CSS** : BEM pour les composants (`.block__element--modifier`), préfixe `u-` pour les utilitaires
-- **Pas de `style=""`** dans le HTML — utiliser des classes CSS
-- **Pas de `.style.xxx`** dans le JS pour du styling statique — utiliser `classList`
-- **Pas de couleurs hardcodées** — utiliser les tokens `var(--color-xxx)`
-- **Pas de tailles hardcodées** — utiliser les tokens spacing/font
-- **Breakpoints** : uniquement `--bp-sm` (480px), `--bp-md` (768px), `--bp-lg` (1024px), `--bp-xl` (1200px)
-- **Z-index** : uniquement via tokens `--z-xxx`
-- **Pas de `!important`** sauf pour `.visually-hidden` et `.u-hidden`
+| # | Action | Sévérité | Effort | Fichiers |
+|---|--------|----------|--------|----------|
+| 1 | Corriger redirections 401 cassées (§10.3) | **Bug** | Faible | `menuService.js`, `platService.js` |
+| 2 | Échapper `error.message` dans innerHTML (§10.1) | **Haute** | Faible | `pages/profil.js`, `pages/home-menus.js` |
+| 3 | Compléter `escapeHtml` dans menu-detail (§10.2) | **Haute** | Faible | `pages/menu-detail.js` |
+| 4 | Créer `utils/helpers.js` + supprimer doublons (§9.3, §9.4) | Moyenne | Moyen | 6+ fichiers |
+| 5 | Ajouter `credentials: 'include'` manquants (§10.4) | Moyenne | Faible | Services |
+| 6 | Renommer `admin.service.js` → `adminService.js` (§9.1) | Cosmétique | Faible | 2 fichiers |
+| 7 | Créer `utils/password-toggle.js` (§9.5) | Cosmétique | Faible | 3 fichiers |
+| 8 | Unifier pattern class → objet (§9.2) | Cosmétique | Moyen | 2 fichiers |
+| 9 | Remplacer `alert()` par toasts (§10.6) | UX | Moyen | 4+ fichiers |
+| 10 | Découper `dashboard.js` (§9.6) | Maintenabilité | **Élevé** | 7+ fichiers |
+| 11 | Réorganiser `js/` en `core/`, `pages/`, `widgets/` (§9.8) | Architecture | Moyen | 12 fichiers + 8 HTML + 1 test |
+
+> **Stratégie recommandée :** Corriger les items 1-3 immédiatement (bugs/sécu), puis 4-7 (qualité rapide), puis 8-10 (refactoring profond).

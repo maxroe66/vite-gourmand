@@ -17,7 +17,7 @@ describe('reset password form (client validation)', () => {
     })
 
     // Importer le script (il attend le DOMContentLoaded)
-    await import('../../js/motdepasse-oublie.js')
+    await import('../../js/pages/motdepasse-oublie.js')
     // Simuler DOMContentLoaded pour initialiser les listeners
     document.dispatchEvent(new Event('DOMContentLoaded'))
 
