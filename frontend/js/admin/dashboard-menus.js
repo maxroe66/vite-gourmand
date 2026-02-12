@@ -37,7 +37,7 @@ async function loadMenusView(container, headerActions) {
     try {
         await fetchMenusList();
     } catch (error) {
-        console.error("Erreur chargement menus:", error);
+        Logger.error("Erreur chargement menus:", error);
         document.getElementById('menus-table-body').innerHTML = `
             <tr><td colspan="4" class="data-table__cell--error">Erreur de chargement: ${escapeHtml(error.message)}</td></tr>
         `;
@@ -120,7 +120,7 @@ async function initMenuFormSelects() {
         });
 
     } catch(e) {
-        console.error("Erreur chargement selects", e);
+        Logger.error("Erreur chargement selects", e);
     }
 }
 
@@ -182,7 +182,7 @@ function addImageInput(value = '') {
             }
 
         } catch (err) {
-            console.error(err);
+            Logger.error(err);
             alert("Echec de l'upload : " + err.message);
             textInput.value = ""; 
         } finally {
@@ -252,7 +252,7 @@ async function loadMenuDishesSelectors(selectedIds = []) {
         });
 
     } catch (e) {
-        console.error(e);
+        Logger.error(e);
         Object.values(containers).forEach(c => c ? c.innerHTML = '<small class="u-text-error">Erreur chargement plats</small>' : null);
     }
 }
@@ -307,7 +307,7 @@ async function loadMenuMaterialSelectors(selectedMaterials = []) {
         });
 
     } catch (e) {
-        console.error("Erreur chargement matériel", e);
+        Logger.error("Erreur chargement matériel", e);
         container.innerHTML = '<small class="u-text-error">Impossible de charger le matériel.</small>';
     }
 }
@@ -352,7 +352,7 @@ async function openMenuModal(menuId = null) {
             }
 
         } catch (error) {
-            console.error("Erreur chargement menu", error);
+            Logger.error("Erreur chargement menu", error);
             alert("Impossible de charger les détails du menu.");
             return;
         }

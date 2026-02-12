@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (currentUser.gsm) document.getElementById('gsm').value = currentUser.gsm;
 
     } catch (e) {
-        console.error("Auth Error", e);
+        Logger.error("Auth Error", e);
     }
 
     // 2. Load Menu Details
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (e) {
         loader.textContent = "Erreur de chargement du menu.";
-        console.error(e);
+        Logger.error(e);
     }
 
     // 3. Listeners for Calculation
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.location.href = '/frontend/pages/profil.html'; // Or separate confirmation page
             }
         } catch (err) {
-            console.error(err);
+            Logger.error(err);
             errorMsg.textContent = err.message || "Une erreur est survenue.";
             btnSubmit.disabled = false;
             btnSubmit.textContent = "Valider la commande";
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateSummaryDisplay(pricing);
 
         } catch (e) {
-            console.warn("Calculation error", e);
+            Logger.warn("Calculation error", e);
             // Maybe show error in summary?
         }
     }

@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadOrders();
         checkQueryOrderParam();
     } catch (e) {
-        console.error(e);
+        Logger.error(e);
     }
 
     // Load Orders
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showDetail(orderId);
             }
         } catch (e) {
-            console.error('Param orderId present but impossible de charger la commande', e);
+            Logger.error('Param orderId present but impossible de charger la commande', e);
         }
     }
 

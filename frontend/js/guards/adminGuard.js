@@ -34,7 +34,7 @@ const AdminGuard = {
             return user;
 
         } catch (error) {
-            console.warn("AdminGuard blocked access:", error);
+            Logger.warn("AdminGuard blocked access:", error);
             // On laisse le throw pour arrêter l'exécution des scripts appelants si besoin
             throw error; 
         }

@@ -239,7 +239,7 @@ async function fetchCommandesList() {
         });
 
     } catch (e) {
-        console.error(e);
+        Logger.error(e);
         body.innerHTML = `<tr><td colspan="5" class="data-table__cell--error">${escapeHtml(e.message || 'Erreur')}</td></tr>`;
     }
 }

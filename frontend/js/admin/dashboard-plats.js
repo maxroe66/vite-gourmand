@@ -34,7 +34,7 @@ async function loadPlatsView(container, headerActions) {
     try {
         await fetchPlatsList();
     } catch (error) {
-        console.error("Erreur chargement plats:", error);
+        Logger.error("Erreur chargement plats:", error);
     }
 
     initPlatModalLogic();
@@ -121,7 +121,7 @@ async function openPlatModal(platId = null) {
             }
 
         } catch (e) {
-            console.error(e);
+            Logger.error(e);
             alert('Erreur chargement plat');
             return;
         }

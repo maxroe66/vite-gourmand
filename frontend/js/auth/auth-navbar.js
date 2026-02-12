@@ -85,6 +85,6 @@ document.addEventListener('componentsLoaded', async () => {
         if (btnLogoutMobile) btnLogoutMobile.addEventListener('click', handleLogout);
 
     } catch (e) {
-        console.error("Erreur lors de la mise à jour de la navbar :", e);
+        Logger.error("Erreur lors de la mise à jour de la navbar :", e);
     }
 });

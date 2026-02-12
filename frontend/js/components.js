@@ -19,7 +19,7 @@ async function loadComponent(elementId, componentPath) {
             element.innerHTML = html;
         }
     } catch (error) {
-        console.error('Error loading component:', error);
+        Logger.error('Error loading component:', error);
     }
 }
 
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         await fetch('/api/csrf', { credentials: 'include' });
     } catch (error) {
-        console.warn('CSRF init failed:', error);
+        Logger.warn('CSRF init failed:', error);
     }
 
     // Charger le header

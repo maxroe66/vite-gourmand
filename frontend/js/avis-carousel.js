@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             reviews = data.data || [];
         }
     } catch (e) {
-        console.error("Erreur chargement avis public", e);
+        Logger.error("Erreur chargement avis public", e);
     }
 
     if (reviews.length === 0) {

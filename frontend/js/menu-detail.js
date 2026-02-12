@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             content.classList.add('is-visible');
 
         } catch (error) {
-            console.error(error);
+            Logger.error(error);
             handleError("Impossible de charger le menu. Il n'existe peut-être plus.");
         }
     }

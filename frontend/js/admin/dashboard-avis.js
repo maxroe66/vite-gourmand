@@ -89,7 +89,7 @@ async function fetchAndRenderAvis(status, container) {
         bindAvisActions();
 
     } catch (error) {
-        console.error("Erreur chargement avis", error);
+        Logger.error("Erreur chargement avis", error);
         container.innerHTML = `<div class="error-banner">Erreur lors du chargement des avis.</div>`;
     }
 }

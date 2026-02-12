@@ -152,6 +152,6 @@ async function fetchStatsData() {
         });
 
     } catch (e) {
-        console.error("Erreur stats:", e);
+        Logger.error("Erreur stats:", e);
     }
 }

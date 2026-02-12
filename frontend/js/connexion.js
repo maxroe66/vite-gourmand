@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (error) {
-            console.error('❌ Erreur réseau:', error);
+            Logger.error('❌ Erreur réseau:', error);
             showGeneralError('Impossible de contacter le serveur. Vérifiez votre connexion.');
         }
     });

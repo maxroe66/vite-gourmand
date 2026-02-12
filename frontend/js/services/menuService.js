@@ -64,7 +64,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getMenus:', error);
+            Logger.error('Erreur getMenus:', error);
             throw error;
         }
     },
@@ -83,7 +83,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur getMenuDetails(${id}):`, error);
+            Logger.error(`Erreur getMenuDetails(${id}):`, error);
             throw error;
         }
     },
@@ -103,7 +103,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur createMenu:', error);
+            Logger.error('Erreur createMenu:', error);
             throw error;
         }
     },
@@ -124,7 +124,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur updateMenu(${id}):`, error);
+            Logger.error(`Erreur updateMenu(${id}):`, error);
             throw error;
         }
     },
@@ -143,7 +143,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur deleteMenu(${id}):`, error);
+            Logger.error(`Erreur deleteMenu(${id}):`, error);
             throw error;
         }
     },
@@ -160,7 +160,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getThemes:', error);
+            Logger.error('Erreur getThemes:', error);
             throw error;
         }
     },
@@ -177,7 +177,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getRegimes:', error);
+            Logger.error('Erreur getRegimes:', error);
             throw error;
         }
     },
@@ -202,7 +202,7 @@ const MenuService = {
             // On s'assure de gérer la réponse standard.
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getMaterials:', error);
+            Logger.error('Erreur getMaterials:', error);
             throw error;
         }
     }

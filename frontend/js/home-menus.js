@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadMenus()
             ]);
         } catch (error) {
-            console.error("Erreur lors de l'initialisation des menus:", error);
+            Logger.error("Erreur lors de l'initialisation des menus:", error);
             menusList.innerHTML = '<p class="error-msg">Impossible de charger les menus.</p>';
         }
     }
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 filterTheme.appendChild(option);
             });
         } catch (e) {
-            console.warn('Erreur chargement thèmes', e);
+            Logger.warn('Erreur chargement thèmes', e);
         }
     }
 
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 filterRegime.appendChild(option);
             });
         } catch (e) {
-            console.warn('Erreur chargement régimes', e);
+            Logger.warn('Erreur chargement régimes', e);
         }
     }
 

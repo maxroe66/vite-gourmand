@@ -35,7 +35,7 @@ const PlatService = {
             const response = await fetch(this.API_URL, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getPlats:', error);
+            Logger.error('Erreur getPlats:', error);
             throw error;
         }
     },
@@ -48,7 +48,7 @@ const PlatService = {
             const response = await fetch(`${this.API_URL}/${id}`, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur getPlatDetails(${id}):`, error);
+            Logger.error(`Erreur getPlatDetails(${id}):`, error);
             throw error;
         }
     },
@@ -67,7 +67,7 @@ const PlatService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur createPlat:', error);
+            Logger.error('Erreur createPlat:', error);
             throw error;
         }
     },
@@ -85,7 +85,7 @@ const PlatService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur updatePlat:', error);
+            Logger.error('Erreur updatePlat:', error);
             throw error;
         }
     },
@@ -102,7 +102,7 @@ const PlatService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur deletePlat:', error);
+            Logger.error('Erreur deletePlat:', error);
             throw error;
         }
     },
@@ -115,7 +115,7 @@ const PlatService = {
             const response = await fetch(`${this.API_URL}/allergenes`, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getAllergenes:', error);
+            Logger.error('Erreur getAllergenes:', error);
             throw error;
         }
     }
