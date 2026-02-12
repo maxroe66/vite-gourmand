@@ -6,7 +6,7 @@ import path from 'path'
 describe('reset password form (client validation)', () => {
   it('affiche une erreur si les mots de passe ne correspondent pas', async () => {
     // Charger le HTML de la page (chemin relatif depuis frontend/)
-    const htmlPath = path.resolve(process.cwd(), 'frontend/pages/motdepasse-oublie.html')
+    const htmlPath = path.resolve(process.cwd(), 'pages/motdepasse-oublie.html')
     const html = fs.readFileSync(htmlPath, 'utf-8')
     document.body.innerHTML = html
 
@@ -15,6 +15,9 @@ describe('reset password form (client validation)', () => {
       value: new URL('http://localhost/reset-password?token=abc'),
       writable: true
     })
+
+    // Stub des fonctions globales chargées via des scripts externes dans le HTML
+    globalThis.initPasswordToggles = () => {}
 
     // Importer le script (il attend le DOMContentLoaded)
     await import('../../js/pages/motdepasse-oublie.js')
