@@ -81,41 +81,15 @@ section {
    ========================================= */
 
 /* Tablette et petits ordinateurs (jusqu'à 1175px) */
-/* Restauration du style pour le container dynamique */
-.avis-clients__list {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    gap: 1.5rem;
-    padding-bottom: 0.5rem;
-    /* Masquer scrollbar */
-    scrollbar-width: none;  
-}
-
-.avis-clients__list::-webkit-scrollbar {
-    display: none;
-}
-
-/* Assurer que le track se comporte comme un conteneur flex inline */
+/* Le track utilise display:contents pour que ses enfants soient gérés par .avis-clients__list */
 .avis-clients__track {
-    display: contents; /* Les enfants directs (.avis-clients__item) deviennent enfants de .avis-clients__list */
+    display: contents;
 }
 
-/* Style item original supposé (basé sur le HTML example) */
-.avis-clients__item {
-    flex: 0 0 300px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
+/* Surcharges page-level pour les cartes avis (italic, couleur auteur) */
 .avis-clients__item p {
     font-style: italic;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-2);
     color: #333;
 }
 

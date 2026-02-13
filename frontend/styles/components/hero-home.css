@@ -41,6 +41,35 @@
 		text-shadow: 0 1px 4px rgba(44,62,80,0.18);
 	}
 
+	/* Animations d'apparition échelonnées au chargement */
+	.hero__content h1 {
+		animation: heroFadeIn 0.8s ease-out 0.2s both;
+	}
+	.hero__content p {
+		animation: heroFadeIn 0.8s ease-out 0.5s both;
+	}
+	.hero__content .button {
+		animation: heroFadeIn 0.8s ease-out 0.8s both, heroPulse 2.5s ease-in-out 2s infinite;
+	}
+
+	@keyframes heroFadeIn {
+		from { opacity: 0; transform: translateY(25px); }
+		to   { opacity: 1; transform: translateY(0); }
+	}
+
+	@keyframes heroPulse {
+		0%, 100% { box-shadow: 0 0 0 0 rgba(252, 114, 0, 0.4); }
+		50%      { box-shadow: 0 0 0 14px rgba(252, 114, 0, 0); }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero__content h1,
+		.hero__content p,
+		.hero__content .button {
+			animation: none;
+		}
+	}
+
 	@media(max-width: 1024px) {
 		.hero {
 			padding: var(--space-7) var(--space-5);

@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/frontend/styles/components/carousel-split-home.css">
     <link rel="stylesheet" href="/frontend/styles/components/avis-clients-home.css">
     <link rel="stylesheet" href="/frontend/styles/components/menus-home.css">
+    <link rel="stylesheet" href="/frontend/styles/components/scroll-reveal.css">
     <link rel="stylesheet" href="/frontend/styles/pages/home.css">
     <link rel="stylesheet" href="/frontend/styles/components/footer.css">
 </head>
@@ -33,7 +34,7 @@
 
         <!-- Section Présentation & Avis -->
         <section class="presentation" id="presentation">
-            <div class="presentation__content">
+            <div class="presentation__content reveal">
                 <!-- Flèches navigation Rubik's Cube -->
                 <div class="presentation__arrows">
                     <button id="demo-cube-btn" class="arrow-btn arrow-btn--down" aria-label="Voir le Rubik's Cube" tabindex="0">
@@ -75,7 +76,7 @@
                 <!-- Script démo Rubik's Cube 3D -->
                 <script src="/frontend/js/widgets/demo-cube.js"></script>
             </div>
-            <div class="avis-clients">
+            <div class="avis-clients reveal reveal--delay">
                 <h3>Avis Clients</h3>
                 <div class="avis-clients__meta" aria-label="Note moyenne">
                     <div class="avis-clients__rating-line">
@@ -99,7 +100,7 @@
 
         <!-- Section Menus -->
         <section class="menus" id="menus">
-            <div class="menus__header">
+            <div class="menus__header reveal">
                 <h2>Nos Menus</h2>
                 <div class="menus__mobile-toolbar" aria-label="Filtres menus">
                     <button class="menus__filters-toggle" type="button">Filtres</button>
@@ -166,6 +167,7 @@
     <script src="/frontend/js/auth/auth-navbar.js"></script>
     <script src="/frontend/js/core/navbar.js"></script>
     <script src="/frontend/js/utils/helpers.js"></script>
+    <script src="/frontend/js/utils/scroll-reveal.js"></script>
     <script src="/frontend/js/widgets/avis-carousel.js"></script>
     <script src="/frontend/js/widgets/menus-carousel.js"></script>
     <script src="/frontend/js/pages/home-menus.js"></script>

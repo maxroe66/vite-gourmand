@@ -86,4 +86,41 @@ function initCarousel() {
     prevBtn.addEventListener('click', () => {
         list.scrollBy({ left: -300, behavior: 'smooth' });
     });
+
+    // Auto-scroll avec pause au survol
+    const AUTO_SCROLL_DELAY = 4000;
+    let autoScrollTimer = null;
+
+    function doAutoScroll() {
+        const maxScroll = list.scrollWidth - list.clientWidth;
+        if (list.scrollLeft >= maxScroll - 10) {
+            list.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            list.scrollBy({ left: 320, behavior: 'smooth' });
+        }
+    }
+
+    function startAutoScroll() {
+        stopAutoScroll();
+        autoScrollTimer = setInterval(doAutoScroll, AUTO_SCROLL_DELAY);
+    }
+
+    function stopAutoScroll() {
+        if (autoScrollTimer) {
+            clearInterval(autoScrollTimer);
+            autoScrollTimer = null;
+        }
+    }
+
+    // Pause au survol de la zone avis
+    const avisSection = document.querySelector('.avis-clients');
+    if (avisSection) {
+        avisSection.addEventListener('mouseenter', stopAutoScroll);
+        avisSection.addEventListener('mouseleave', startAutoScroll);
+    }
+
+    // Respecter prefers-reduced-motion
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        startAutoScroll();
+    }
 }
