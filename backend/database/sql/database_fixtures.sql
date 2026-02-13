@@ -29,7 +29,13 @@ INSERT IGNORE INTO UTILISATEUR (nom, prenom, gsm, email, adresse_postale, ville,
 ('Martin', 'Pierre', '0612345678', 'pierre.martin@email.fr', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-03-05 16:20:00'),
 ('Bernard', 'Sophie', '0623456789', 'sophie.bernard@email.fr', '15 place de la Victoire', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-04-12 11:15:00'),
 ('Lefebvre', 'Thomas', '0634567890', 'thomas.lefebvre@email.fr', '8 avenue Victor Hugo', 'Bordeaux', '33200', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-05-20 09:45:00'),
-('Moreau', 'Claire', '0645678901', 'claire.moreau@email.fr', '22 rue de la Devise', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-06-08 15:30:00');
+('Moreau', 'Claire', '0645678901', 'claire.moreau@email.fr', '22 rue de la Devise', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-06-08 15:30:00'),
+('Dubois', 'Lucas', '0656789012', 'lucas.dubois@email.fr', '10 allée de Tourny', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-07-01 10:00:00'),
+('Petit', 'Emma', '0667890123', 'emma.petit@email.fr', '5 place Gambetta', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-07-15 14:20:00'),
+('Garcia', 'Antoine', '0678901234', 'antoine.garcia@email.fr', '33 rue Fondaudège', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-08-02 09:30:00'),
+('Roux', 'Camille', '0689012345', 'camille.roux@email.fr', '18 quai des Chartrons', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-08-20 11:45:00'),
+('Laurent', 'Nicolas', '0690123456', 'nicolas.laurent@email.fr', '7 rue du Pas-Saint-Georges', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-09-05 16:10:00'),
+('Girard', 'Isabelle', '0601234567', 'isabelle.girard@email.fr', '42 cours de Verdun', 'Bordeaux', '33000', '$argon2id$v=19$m=65536,t=4,p=1$R0dWOEZlNnJYSW5zN3IxaQ$7NKRC5FxYjY6QLYC8xrPtf+KBZwHEq+61ozJwUdkYGA', 'UTILISATEUR', TRUE, '2024-09-18 13:00:00');
 
 -- ============================================================
 -- THÈMES & RÉGIMES
@@ -262,6 +268,38 @@ INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande
 INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
 (7, 4, 1, '2024-11-15 15:30:00', '2024-12-01', '17:00:00', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '0612345678', 10, 6, 25.00, 25.00, TRUE, 5.00, 255.00, FALSE, 0.00, 'EN_ATTENTE_RETOUR', FALSE, TRUE, '2024-12-01 16:50:00');
 
+-- Commande 8 : Lucas Dubois - Menu Noël - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(8, 8, 1, '2024-11-01 10:00:00', '2024-11-20', '18:00:00', '10 allée de Tourny', 'Bordeaux', '33000', '0656789012', 8, 6, 25.00, 20.00, TRUE, 5.00, 205.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-11-20 17:45:00');
+
+-- Commande 9 : Emma Petit - Menu Végétarien - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(9, 9, 3, '2024-06-15 14:00:00', '2024-07-01', '12:30:00', '5 place Gambetta', 'Bordeaux', '33000', '0667890123', 4, 4, 23.75, 0.00, FALSE, 5.00, 100.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-07-01 12:20:00');
+
+-- Commande 10 : Antoine Garcia - Menu Classique - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(10, 10, 4, '2024-08-10 09:00:00', '2024-08-25', '19:00:00', '33 rue Fondaudège', 'Bordeaux', '33000', '0678901234', 6, 4, 27.50, 16.50, TRUE, 5.00, 178.50, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-08-25 18:50:00');
+
+-- Commande 11 : Pierre Martin - Menu Pâques - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(11, 4, 2, '2024-03-20 11:30:00', '2024-04-10', '12:00:00', '48 rue Sainte-Catherine', 'Bordeaux', '33000', '0612345678', 6, 4, 30.00, 18.00, TRUE, 5.00, 185.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-04-10 11:50:00');
+
+-- Commande 12 : Camille Roux - Menu Estival - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(12, 11, 5, '2024-06-01 08:30:00', '2024-06-20', '18:30:00', '18 quai des Chartrons', 'Bordeaux', '33000', '0689012345', 6, 6, 21.67, 0.00, FALSE, 5.00, 135.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-06-20 18:20:00');
+
+-- Commande 13 : Sophie Bernard - Menu Vegan - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(13, 5, 6, '2024-05-10 15:00:00', '2024-05-28', '19:00:00', '15 place de la Victoire', 'Bordeaux', '33000', '0623456789', 4, 4, 26.25, 0.00, FALSE, 5.00, 110.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-05-28 18:45:00');
+
+-- Commande 14 : Nicolas Laurent - Menu Noël - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(14, 12, 1, '2024-12-01 09:00:00', '2024-12-20', '17:30:00', '7 rue du Pas-Saint-Georges', 'Bordeaux', '33000', '0690123456', 6, 6, 25.00, 0.00, FALSE, 5.00, 155.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-12-20 17:15:00');
+
+-- Commande 15 : Isabelle Girard - Menu Végétarien - TERMINEE
+INSERT IGNORE INTO COMMANDE (id_commande, id_utilisateur, id_menu, date_commande, date_prestation, heure_livraison, adresse_livraison, ville, code_postal, gsm, nombre_personnes, nombre_personne_min_snapshot, prix_menu_unitaire, montant_reduction, reduction_appliquee, frais_livraison, prix_total, hors_bordeaux, distance_km, statut, has_avis, materiel_pret, date_livraison_effective) VALUES
+(15, 13, 3, '2024-09-25 12:00:00', '2024-10-12', '12:30:00', '42 cours de Verdun', 'Bordeaux', '33000', '0601234567', 4, 4, 23.75, 0.00, FALSE, 5.00, 100.00, FALSE, 0.00, 'TERMINEE', TRUE, FALSE, '2024-10-12 12:20:00');
+
 -- ============================================================
 -- MATÉRIEL PRÊTÉ
 -- ============================================================
@@ -337,19 +375,53 @@ INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifi
 (7, 'LIVRE', '2024-12-01 16:50:00', 2, 'Livraison effectuée avec matériel'),
 (7, 'EN_ATTENTE_RETOUR', '2024-12-01 17:00:00', 2, 'En attente retour matériel');
 
+-- Historique Commandes 8-15 (TERMINEE)
+INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifie_par, commentaire) VALUES
+(8, 'EN_ATTENTE', '2024-11-01 10:00:00', 8, 'Commande créée'),
+(8, 'ACCEPTE', '2024-11-02 09:00:00', 2, 'Commande validée'),
+(8, 'TERMINEE', '2024-11-20 18:00:00', 2, 'Prestation terminée'),
+(9, 'EN_ATTENTE', '2024-06-15 14:00:00', 9, 'Commande créée'),
+(9, 'ACCEPTE', '2024-06-16 10:00:00', 2, 'Commande validée'),
+(9, 'TERMINEE', '2024-07-01 13:00:00', 2, 'Prestation terminée'),
+(10, 'EN_ATTENTE', '2024-08-10 09:00:00', 10, 'Commande créée'),
+(10, 'ACCEPTE', '2024-08-11 09:30:00', 2, 'Commande validée'),
+(10, 'TERMINEE', '2024-08-25 19:30:00', 2, 'Prestation terminée'),
+(11, 'EN_ATTENTE', '2024-03-20 11:30:00', 4, 'Commande créée'),
+(11, 'ACCEPTE', '2024-03-21 10:00:00', 2, 'Commande validée'),
+(11, 'TERMINEE', '2024-04-10 12:30:00', 2, 'Prestation terminée'),
+(12, 'EN_ATTENTE', '2024-06-01 08:30:00', 11, 'Commande créée'),
+(12, 'ACCEPTE', '2024-06-02 09:00:00', 2, 'Commande validée'),
+(12, 'TERMINEE', '2024-06-20 19:00:00', 2, 'Prestation terminée'),
+(13, 'EN_ATTENTE', '2024-05-10 15:00:00', 5, 'Commande créée'),
+(13, 'ACCEPTE', '2024-05-11 10:00:00', 2, 'Commande validée'),
+(13, 'TERMINEE', '2024-05-28 19:30:00', 2, 'Prestation terminée'),
+(14, 'EN_ATTENTE', '2024-12-01 09:00:00', 12, 'Commande créée'),
+(14, 'ACCEPTE', '2024-12-02 10:00:00', 2, 'Commande validée'),
+(14, 'TERMINEE', '2024-12-20 18:00:00', 2, 'Prestation terminée'),
+(15, 'EN_ATTENTE', '2024-09-25 12:00:00', 13, 'Commande créée'),
+(15, 'ACCEPTE', '2024-09-26 09:30:00', 2, 'Commande validée'),
+(15, 'TERMINEE', '2024-10-12 13:00:00', 2, 'Prestation terminée');
+
 -- ============================================================
--- AVIS CLIENTS
+-- AVIS CLIENTS (11 avis : 10 validés, 1 en attente)
 -- ============================================================
 
--- Avis validés (page d'accueil)
+-- Avis validés (~10 mots chacun pour affichage uniforme)
 INSERT IGNORE INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
-(1, 5, 'Prestation exceptionnelle ! Les plats étaient délicieux et la présentation soignée. Je recommande vivement pour vos événements.', 'VALIDE', '2024-10-06 10:30:00', 7, 5, 6, 2, '2024-10-06 14:00:00'),
-(2, 5, 'Menu estival parfait pour notre réception. Produits frais, saveurs au rendez-vous. La livraison à Arcachon s\'est très bien passée.', 'VALIDE', '2024-08-16 09:15:00', 3, 6, 5, 2, '2024-08-16 15:30:00'),
-(3, 4, 'Très bon rapport qualité-prix. Quelques petits détails à améliorer sur la présentation mais les saveurs étaient au top !', 'VALIDE', '2024-09-10 16:20:00', 6, 4, 2, 2, '2024-09-11 09:00:00');
+(1, 5, 'Plats délicieux et présentation soignée, je recommande vivement !', 'VALIDE', '2024-10-06 10:30:00', 7, 5, 6, 2, '2024-10-06 14:00:00'),
+(2, 5, 'Menu estival parfait, produits frais et livraison impeccable.', 'VALIDE', '2024-08-16 09:15:00', 3, 6, 5, 2, '2024-08-16 15:30:00'),
+(3, 4, 'Bon rapport qualité-prix, des saveurs vraiment excellentes !', 'VALIDE', '2024-09-10 16:20:00', 6, 4, 2, 2, '2024-09-11 09:00:00'),
+(5, 5, 'Noël en famille réussi grâce à ce menu raffiné.', 'VALIDE', '2024-11-22 11:00:00', 8, 8, 1, 2, '2024-11-22 15:00:00'),
+(6, 5, 'Menu végétarien créatif et savoureux, mes invités ont adoré.', 'VALIDE', '2024-07-03 09:30:00', 9, 9, 3, 2, '2024-07-03 14:00:00'),
+(7, 4, 'Classique mais efficace, le magret était parfaitement cuit.', 'VALIDE', '2024-08-27 16:00:00', 10, 10, 4, 2, '2024-08-28 09:00:00'),
+(8, 5, 'Agneau fondant et tarte tatin extraordinaire, bravo au chef !', 'VALIDE', '2024-04-12 10:15:00', 4, 11, 2, 2, '2024-04-12 14:30:00'),
+(9, 4, 'Événement estival réussi, fraîcheur et qualité au rendez-vous.', 'VALIDE', '2024-06-22 14:45:00', 11, 12, 5, 2, '2024-06-23 09:00:00'),
+(10, 5, 'Menu vegan surprenant et gourmand, même les carnivores approuvent !', 'VALIDE', '2024-05-30 17:00:00', 5, 13, 6, 2, '2024-05-31 10:00:00'),
+(11, 5, 'Chapon de Noël exceptionnel, toute la famille était ravie.', 'VALIDE', '2024-12-22 11:30:00', 12, 14, 1, 2, '2024-12-22 16:00:00');
 
 -- Avis en attente de modération
 INSERT IGNORE INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
-(4, 5, 'Commande pour Noël en cours mais contact très professionnel et réactif.', 'EN_ATTENTE', '2024-12-06 11:00:00', 3, 1, 1, NULL, NULL);
+(12, 5, 'Risotto crémeux et salade divine, parfait pour un déjeuner.', 'EN_ATTENTE', '2024-10-14 10:00:00', 13, 15, 3, NULL, NULL);
 
 -- ============================================================
 -- CONTACTS
@@ -379,9 +451,9 @@ SELECT 'MENUS', COUNT(*), '6 menus (Noël, Pâques, Végétarien, Classique, Est
 UNION ALL
 SELECT 'PLATS', COUNT(*), '17 plats (entrées, plats, desserts)' FROM PLAT
 UNION ALL
-SELECT 'COMMANDES', COUNT(*), '7 commandes (différents statuts pour tester tous les parcours)' FROM COMMANDE
+SELECT 'COMMANDES', COUNT(*), '15 commandes (différents statuts pour tester tous les parcours)' FROM COMMANDE
 UNION ALL
-SELECT 'AVIS', COUNT(*), '4 avis (3 validés pour page accueil, 1 en attente)' FROM AVIS_FALLBACK
+SELECT 'AVIS', COUNT(*), '11 avis (10 validés pour page accueil, 1 en attente)' FROM AVIS_FALLBACK
 UNION ALL
 SELECT 'CONTACTS', COUNT(*), '3 messages de contact (1 traité, 2 en attente)' FROM CONTACT;
 
