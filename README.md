@@ -119,13 +119,42 @@ cp .env.test.example .env.test
   DB_USER=vgadmin (sans suffixe @server)
   DB_PASSWORD=********
   DB_SSL=true
+
+  # Stockage des images uploadées (optionnel mais recommandé)
+  AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net
+  AZURE_STORAGE_CONTAINER=uploads
   ```
+
+  > **Note :** Sans `AZURE_STORAGE_CONNECTION_STRING`, les images uploadées par les administrateurs sont stockées dans le filesystem du conteneur et **seront perdues à chaque redéploiement**. Avec cette variable configurée, les images sont persistées dans Azure Blob Storage.
 
 - **Endpoints de vérification**
   ```http
   GET /health
   GET /api/auth/test
   ```
+
+---
+
+## 🖼️ Stockage des images
+
+Les images des menus sont gérées via un `StorageService` à double stratégie :
+
+| Environnement | Stratégie | Persistance |
+|---|---|---|
+| **Dev local** (Docker Compose) | Filesystem hôte via bind mount (`public/assets/uploads/`) | ✅ Persistent |
+| **Production Azure** (avec Blob Storage) | Azure Blob Storage (conteneur `uploads`) | ✅ Persistent |
+| **Production Azure** (sans Blob Storage) | Filesystem du conteneur | ❌ Perdu au redéploiement |
+
+**Fonctionnement :**
+- L'admin peut uploader une image (JPEG, PNG, WebP, GIF — max 5 Mo) ou coller une URL externe
+- L'upload passe par `POST /api/upload` (protégé CSRF + auth + rôle employé/admin)
+- Les URLs des images sont stockées en base de données (table `IMAGE_MENU`), pas les fichiers
+- Les images statiques du site (hero, logos) sont versionnées dans Git (`public/assets/images/`) et embarquées dans l'image Docker
+
+**Pour configurer Azure Blob Storage en production :**
+1. Créer un Storage Account Azure
+2. Créer un conteneur Blob nommé `uploads` (accès public Blob)
+3. Définir `AZURE_STORAGE_CONNECTION_STRING` et `AZURE_STORAGE_CONTAINER` dans les variables d'environnement de l'App Service
 
 ---
 
