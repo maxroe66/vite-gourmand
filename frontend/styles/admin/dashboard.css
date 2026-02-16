@@ -221,12 +221,6 @@
 
 /* --- Modal & formulaires : styles partagés via modals.css et forms.css --- */
 
-/* Style spécifique dashboard : modal avec scroll */
-.dashboard .modal {
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
 /* TABLET ADJUSTMENTS (768px - 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
     .sidebar {
@@ -590,11 +584,6 @@
     color: var(--color-muted);
 }
 
-/* Modal élargi */
-.modal--wide {
-    max-width: 700px;
-}
-
 /* Select statut commande avec couleur dynamique */
 .cmd-status-select--pending { border-left: 5px solid var(--color-warning); }
 .cmd-status-select--accepted { border-left: 5px solid var(--color-success); }
@@ -635,10 +624,4 @@
     margin-top: 3px;
 }
 
-.modal-actions {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-}
 } /* end @layer pages */

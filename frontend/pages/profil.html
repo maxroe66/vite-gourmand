@@ -30,18 +30,18 @@
         <div id="orders-list" class="mt-md"></div>
         
         <!-- Modal ou Zone pour détail commande -->
-        <div id="order-detail-modal" class="modal-overlay">
-             <div class="modal-content">
-                 <span id="close-modal" class="close-modal">&times;</span>
+        <div id="order-detail-modal" class="modal" aria-hidden="true">
+             <div class="modal__dialog">
+                 <button id="close-modal" class="modal__close" aria-label="Fermer">&times;</button>
                  <h2 id="modal-title">Détail Commande</h2>
                  <div id="modal-body"></div>
              </div>
         </div>
 
         <!-- Modal pour donner un avis -->
-        <div id="modal-avis" class="modal-overlay">
-            <div class="modal-content">
-                <span id="close-avis" class="close-modal">&times;</span>
+        <div id="modal-avis" class="modal" aria-hidden="true">
+            <div class="modal__dialog">
+                <button id="close-avis" class="modal__close" aria-label="Fermer">&times;</button>
                 <h2>Donner mon avis</h2>
                 <form id="form-avis">
                     <input type="hidden" id="avis-cmd-id" name="commandeId">
@@ -69,9 +69,9 @@
         </div>
 
         <!-- Modal pour modifier une commande -->
-        <div id="modal-edit-order" class="modal-overlay">
-            <div class="modal-content">
-                <span id="close-edit-order" class="close-modal">&times;</span>
+        <div id="modal-edit-order" class="modal" aria-hidden="true">
+            <div class="modal__dialog">
+                <button id="close-edit-order" class="modal__close" aria-label="Fermer">&times;</button>
                 <h2>Modifier ma commande</h2>
                 <form id="form-edit-order">
                     <input type="hidden" id="edit-order-id" name="commandeId">

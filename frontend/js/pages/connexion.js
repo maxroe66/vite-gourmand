@@ -111,19 +111,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (forgotLink && modal && closeModal && forgotForm && forgotEmail && forgotMsg) {
         forgotLink.addEventListener('click', function (e) {
             e.preventDefault();
+            modal.classList.add('is-visible');
             modal.setAttribute('aria-hidden', 'false');
             forgotMsg.textContent = '';
             forgotForm.reset();
             forgotEmail.focus();
         });
         closeModal.addEventListener('click', function () {
+            modal.classList.remove('is-visible');
             modal.setAttribute('aria-hidden', 'true');
         });
         window.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') modal.setAttribute('aria-hidden', 'true');
+            if (e.key === 'Escape') {
+                modal.classList.remove('is-visible');
+                modal.setAttribute('aria-hidden', 'true');
+            }
         });
         window.addEventListener('click', function (e) {
-            if (e.target === modal) modal.setAttribute('aria-hidden', 'true');
+            if (e.target === modal) {
+                modal.classList.remove('is-visible');
+                modal.setAttribute('aria-hidden', 'true');
+            }
         });
 
         forgotForm.addEventListener('submit', async function (e) {

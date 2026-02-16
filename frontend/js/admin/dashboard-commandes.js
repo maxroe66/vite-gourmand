@@ -43,8 +43,8 @@ async function loadCommandesView(container, headerActions) {
         </div>
 
         <!-- Modal Changement Statut (Annulation) -->
-        <div id="modal-cancel-cmd" class="modal-overlay">
-            <div class="modal">
+        <div id="modal-cancel-cmd" class="modal" aria-hidden="true">
+            <div class="modal__dialog">
                 <div class="modal__header">
                     <h3 class="modal__title">Annuler la commande</h3>
                     <button class="modal__close" id="close-cancel-cmd">&times;</button>
@@ -72,8 +72,8 @@ async function loadCommandesView(container, headerActions) {
         </div>
 
         <!-- Modal Détail Commande -->
-        <div id="modal-view-cmd" class="modal-overlay">
-            <div class="modal modal--wide">
+        <div id="modal-view-cmd" class="modal" aria-hidden="true">
+            <div class="modal__dialog modal__dialog--wide">
                 <div class="modal__header">
                     <h3 class="modal__title" id="view-cmd-title">Commande #...</h3>
                     <button class="modal__close" id="close-view-cmd">&times;</button>

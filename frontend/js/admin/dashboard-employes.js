@@ -26,8 +26,8 @@ async function loadEquipeView(container, headerActions) {
         </div>
 
         <!-- Hidden Modal for Employee Creation -->
-        <div id="modal-employee" class="modal-overlay">
-            <div class="modal">
+        <div id="modal-employee" class="modal" aria-hidden="true">
+            <div class="modal__dialog">
                 <div class="modal__header">
                     <h2 class="modal__title">Créer un Employé</h2>
                     <button class="modal__close" id="btn-close-employee-modal">&times;</button>
@@ -51,7 +51,7 @@ async function loadEquipeView(container, headerActions) {
                         <input type="text" id="emp-lastName" name="lastName" class="form-input">
                     </div>
                     
-                    <div class="modal-actions">
+                    <div class="modal__actions">
                         <button type="button" class="btn btn--secondary" id="btn-cancel-employee">Annuler</button>
                         <button type="submit" class="btn btn--primary">Créer</button>
                     </div>
