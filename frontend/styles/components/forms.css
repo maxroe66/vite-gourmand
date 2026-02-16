@@ -17,6 +17,7 @@
     color: var(--color-text);
     margin-bottom: var(--space-2);
     font-size: 14px;
+    transition: color var(--transition-fast);
   }
 
   .form-group input,
@@ -30,6 +31,8 @@
     width: 100%;
     box-sizing: border-box;
     font-family: inherit;
+    transition: border-color var(--transition-normal),
+                box-shadow var(--transition-normal);
   }
 
   .form-group input::placeholder {

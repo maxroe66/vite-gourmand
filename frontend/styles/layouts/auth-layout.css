@@ -30,11 +30,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    animation: fadeInUp var(--transition-slow) both;
   }
 
   .auth-form-wrapper .h1 {
     color: var(--color-title-primary);
     margin-bottom: var(--space-5);
+    animation: fadeInUp var(--transition-slow) both;
+    animation-delay: 0.05s;
   }
 
   /* ── Formulaire ── */
@@ -42,6 +45,8 @@
     display: grid;
     gap: var(--space-4);
     width: 401px;
+    animation: fadeInUp var(--transition-slow) both;
+    animation-delay: 0.15s;
   }
 
   .auth-form .button--primary {
@@ -57,6 +62,12 @@
     background-size: cover;
     background-position: center;
     color: var(--color-text-secondary);
+    animation: authKenBurns 20s ease-in-out infinite alternate;
+  }
+
+  @keyframes authKenBurns {
+    from { background-size: 100% auto; }
+    to   { background-size: 108% auto; }
   }
 
   .auth-image-overlay {
@@ -69,6 +80,7 @@
     align-items: center;
     text-align: center;
     padding: var(--space-6);
+    animation: fadeIn 0.6s ease both 0.3s;
   }
 
   .auth-image-overlay .h1 {
@@ -128,6 +140,17 @@
       font-size: var(--font-500);
       text-align: center;
       margin-bottom: var(--space-6);
+    }
+  }
+
+  /* ── Respect prefers-reduced-motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .auth-form-wrapper,
+    .auth-form-wrapper .h1,
+    .auth-form,
+    .auth-image-overlay,
+    .auth-image-wrapper {
+      animation: none;
     }
   }
 }

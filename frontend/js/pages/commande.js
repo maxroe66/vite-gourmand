@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnSubmit = form.querySelector('button[type="submit"]');
     const errorMsg = document.getElementById('error-message');
 
+    // Afficher un skeleton pendant le chargement
+    loader.textContent = '';
+    Skeleton.renderForm(loader, 3);
+
     // Summary Elements
     const elUnitPrice = document.getElementById('unit-price');
     const elNbPersons = document.getElementById('nb-persons');
@@ -64,9 +68,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         inputGuests.value = minGuests; // Default to min
         minGuestsMsg.textContent = `Minimum ${minGuests} personnes.`;
 
-        // Hide loader, show content
+        // Hide loader, show content with animation
         loader.classList.add('u-hidden');
+        Skeleton.clear(loader);
         content.classList.add('is-visible');
+        content.classList.add('anim-fade-in-up');
 
         // Initial Calculation
         calculate();
@@ -177,6 +183,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         elDeliveryFee.textContent = fraisText;
         elTotalPrice.textContent = formatPrice(pricing.prixTotal);
     }
-
 
 });

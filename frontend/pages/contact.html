@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="/frontend/styles/components/button.css">
     <link rel="stylesheet" href="/frontend/styles/components/forms.css">
     <link rel="stylesheet" href="/frontend/styles/components/toast.css">
+    <link rel="stylesheet" href="/frontend/styles/components/scroll-reveal.css">
+    <link rel="stylesheet" href="/frontend/styles/components/animations.css">
     <link rel="stylesheet" href="/frontend/styles/pages/contact.css">
 </head>
 <body>
@@ -28,7 +30,7 @@
 
         <!-- Section Formulaire -->
         <section class="contact-section">
-            <div class="contact-container">
+            <div class="contact-container reveal">
                 <h2 class="contact-section__title">Envoyez-nous un message</h2>
                 <form id="contactForm" class="contact-form" novalidate>
                     <div class="form-group">
@@ -76,7 +78,7 @@
 
         <!-- Section Informations de contact -->
         <section class="contact-info">
-            <div class="contact-info__grid">
+            <div class="contact-info__grid reveal">
                 <div class="contact-info__card">
                     <div class="contact-info__icon" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
@@ -119,6 +121,7 @@
     <script src="/frontend/js/services/authService.js"></script>
     <script src="/frontend/js/auth/auth-navbar.js"></script>
     <script src="/frontend/js/utils/toast.js"></script>
+    <script src="/frontend/js/utils/scroll-reveal.js"></script>
     <script src="/frontend/js/pages/contact.js"></script>
     <script src="/frontend/js/core/navbar.js"></script>
 </body>

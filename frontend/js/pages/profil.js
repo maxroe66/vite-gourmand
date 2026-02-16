@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeAvis = document.getElementById('close-avis');
     const formAvis = document.getElementById('form-avis');
 
+    // Afficher des skeletons de chargement
+    Skeleton.renderCards(ordersList, 3);
+    ordersLoader.classList.add('u-hidden');
+
     // Init
     try {
         const user = await AuthService.getUser();
@@ -29,9 +33,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const orders = await CommandeService.getMyOrders();
             renderOrders(orders);
         } catch (e) {
-            ordersList.innerHTML = `<p class="error-text">Erreur: ${e.message}</p>`;
+            ordersList.innerHTML = `<p class="error-text">Erreur: ${escapeHtml(e.message)}</p>`;
         } finally {
             ordersLoader.classList.add('u-hidden');
+            Skeleton.clear(ordersList);
+            Skeleton.staggerChildren(ordersList, '.order-card');
         }
     }
 
@@ -191,46 +197,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     closeAvis.addEventListener('click', () => modalAvis.classList.remove('is-visible'));
 
-    async function showDetail(id) {
+    // Modal detail: skeleton loading
+    async function showDetail(orderId) {
         modal.classList.add('is-visible');
-        modalBody.innerHTML = '<p>Chargement...</p>';
-        
+        modalBody.textContent = '';
+        Skeleton.renderModalContent(modalBody);
+
         try {
-            const data = await CommandeService.getOrder(id);
+            const data = await CommandeService.getOrder(orderId);
             const { commande, timeline, materiels } = data;
 
-            let timelineHtml = timeline.map(t => `
+            const timelineHtml = timeline.map(t => `
                 <div class="timeline-item">
-                    <strong>${t.statut}</strong><br>
+                    <strong>${escapeHtml(t.statut)}</strong><br>
                     <small>${new Date(t.date).toLocaleString()}</small>
-                    ${t.commentaire ? `<br><em>${t.commentaire}</em>` : ''}
+                    ${t.commentaire ? `<br><em>${escapeHtml(t.commentaire)}</em>` : ''}
                 </div>
             `).join('');
-            
+
             let materielHtml = '';
             if (materiels && materiels.length > 0) {
-                 materielHtml = '<h3>Matériel Prêté</h3><ul>' + materiels.map(m => 
-                    `<li>${m.libelle} (x${m.quantite}) - Retour prévu : ${new Date(m.date_retour_prevu).toLocaleDateString()}</li>`
-                 ).join('') + '</ul>';
+                materielHtml = '<h3>Matériel Prêté</h3><ul>' + materiels.map(m =>
+                    `<li>${escapeHtml(m.libelle)} (x${m.quantite}) - Retour prévu : ${new Date(m.date_retour_prevu).toLocaleDateString()}</li>`
+                ).join('') + '</ul>';
             }
 
+            Skeleton.clear(modalBody);
             modalBody.innerHTML = `
-                <div class="order-detail-view">
+                <div class="order-detail-view anim-fade-in-up">
                     <p><strong>Menu :</strong> Commande #${commande.id}</p>
-                    <p><strong>Adresse :</strong> ${commande.adresseLivraison}, ${commande.codePostal} ${commande.ville}</p>
+                    <p><strong>Adresse :</strong> ${escapeHtml(commande.adresseLivraison)}, ${escapeHtml(commande.codePostal)} ${escapeHtml(commande.ville)}</p>
                     <p><strong>Prix Total :</strong> ${formatPrice(commande.prixTotal)}</p>
-                    
                     ${materielHtml}
-
                     <h3>Historique</h3>
                     <div class="timeline-container">
                         ${timelineHtml}
                     </div>
                 </div>
             `;
-
         } catch (e) {
-            modalBody.innerHTML = `<p class="error-text">Impossible de charger le détail.</p>`;
+            Skeleton.clear(modalBody);
+            modalBody.innerHTML = '<p class="error-text">Impossible de charger le détail.</p>';
         }
     }
 

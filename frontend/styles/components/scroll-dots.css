@@ -1,0 +1,89 @@
+/* =========================================
+   — Component: Scroll Dots
+   Indicateur de navigation pour scroll-snap (homepage).
+   Points fixes sur le côté droit indiquant la section active.
+   ========================================= */
+
+@layer components {
+
+  .scroll-dots {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: var(--z-sticky);
+    padding: 0.5rem;
+  }
+
+  .scroll-dots__dot {
+    position: relative;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: rgba(44, 62, 80, 0.25);
+    border: 1.5px solid var(--color-secondary);
+    cursor: pointer;
+    transition: background var(--transition-normal),
+                transform var(--transition-normal),
+                border-color var(--transition-normal),
+                box-shadow var(--transition-normal);
+    display: block;
+    padding: 0;
+  }
+
+  .scroll-dots__dot:hover:not(.is-active) {
+    background: rgba(252, 114, 0, 0.45);
+    border-color: var(--color-primary);
+    transform: scale(1.2);
+  }
+
+  .scroll-dots__dot.is-active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: scale(1.35);
+    box-shadow: 0 0 0 3px rgba(252, 114, 0, 0.25);
+  }
+
+  /* Tooltip (nom de section) au hover */
+  .scroll-dots__dot::before {
+    content: attr(data-label);
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    background: var(--color-secondary);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: var(--radius-xs);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+  }
+
+  .scroll-dots__dot:hover::before {
+    opacity: 1;
+  }
+
+  /* Masquer sur mobile/tablette (scroll-snap désactivé) */
+  @media (max-width: 1024px) {
+    .scroll-dots {
+      display: none;
+    }
+  }
+
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-dots__dot {
+      transition: none;
+    }
+    .scroll-dots__dot::before {
+      transition: none;
+    }
+  }
+}
