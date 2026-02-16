@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouveau message de contact</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 8px 0 0;
+            font-size: 14px;
+            opacity: 0.85;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .content h2 {
+            color: #2C3E50;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        .field-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #95A5A6;
+            margin-bottom: 4px;
+        }
+        .field-value {
+            font-size: 15px;
+            color: #333;
+        }
+        .field-value a {
+            color: #FC7200;
+            text-decoration: none;
+        }
+        .field-value a:hover {
+            text-decoration: underline;
+        }
+        .message-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #FC7200;
+            padding: 16px 20px;
+            border-radius: 0 6px 6px 0;
+            margin: 20px 0;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #34495E;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .footer a {
+            color: #FC7200;
+            text-decoration: none;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 10px 24px;
+            margin: 16px 0;
+            background: #FC7200;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📩 Nouveau message de contact</h1>
+            <p>Un visiteur a envoyé un message depuis le site</p>
+        </div>
+
+        <div class="content">
+            <div class="field">
+                <div class="field-label">Expéditeur</div>
+                <div class="field-value">
+                    <a href="mailto:{senderEmail}">{senderEmail}</a>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="field-label">Objet</div>
+                <div class="field-value"><strong>{titre}</strong></div>
+            </div>
+
+            <div class="field">
+                <div class="field-label">Message</div>
+                <div class="message-box">
+                    {description}
+                </div>
+            </div>
+
+            <p style="font-size: 14px; color: #666; margin-top: 24px;">
+                Vous pouvez répondre directement à cet email — la réponse sera envoyée à <strong>{senderEmail}</strong>.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Ce message a été généré automatiquement par le formulaire de contact du site <a href="https://vitegourmand.fr">Vite &amp; Gourmand</a>.</p>
+        </div>
+    </div>
+</body>
+</html>

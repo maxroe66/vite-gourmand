@@ -552,4 +552,96 @@ class MailerService
             return false;
         }
     }
+
+    /**
+     * Envoie un email de notification de contact à l'entreprise.
+     * Appelé lorsqu'un visiteur soumet le formulaire de contact.
+     *
+     * @param string $senderEmail Email du visiteur (utilisé en Reply-To)
+     * @param string $titre       Titre / objet du message
+     * @param string $description Contenu du message
+     * @return bool
+     */
+    public function sendContactNotification(string $senderEmail, string $titre, string $description): bool
+    {
+        try {
+            if (empty($this->config['mail']['host']) || empty($this->config['mail']['user'])) {
+                $this->logger->warning('Configuration SMTP manquante, email contact non envoyé', [
+                    'senderEmail' => $senderEmail
+                ]);
+                return false;
+            }
+
+            $mail = $this->createMailer();
+
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = [
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    ]
+                ];
+            }
+
+            // Expéditeur = adresse de l'entreprise (pour éviter le spam)
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand — Contact');
+            // Reply-To = adresse du visiteur pour faciliter la réponse
+            $mail->addReplyTo($senderEmail);
+            // Destinataire = l'entreprise elle-même
+            $mail->addAddress($this->config['mail']['from'], 'Vite & Gourmand');
+
+            $mail->isHTML(true);
+            $mail->Subject = '📩 Nouveau message de contact — ' . mb_substr($titre, 0, 80);
+
+            // Charger le template HTML
+            $templatePath = __DIR__ . '/../../templates/emails/contact_notification.html';
+            if (file_exists($templatePath)) {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace(
+                    ['{senderEmail}', '{titre}', '{description}'],
+                    [
+                        htmlspecialchars($senderEmail, ENT_QUOTES, 'UTF-8'),
+                        htmlspecialchars($titre, ENT_QUOTES, 'UTF-8'),
+                        nl2br(htmlspecialchars($description, ENT_QUOTES, 'UTF-8'))
+                    ],
+                    $htmlBody
+                );
+                $mail->Body = $htmlBody;
+            } else {
+                $mail->Body = "<h2>Nouveau message de contact</h2>"
+                    . "<p><strong>De :</strong> " . htmlspecialchars($senderEmail) . "</p>"
+                    . "<p><strong>Objet :</strong> " . htmlspecialchars($titre) . "</p>"
+                    . "<hr>"
+                    . "<p>" . nl2br(htmlspecialchars($description)) . "</p>";
+            }
+
+            $mail->AltBody = "Nouveau message de contact\n\n"
+                . "De : {$senderEmail}\n"
+                . "Objet : {$titre}\n\n"
+                . "Message :\n{$description}\n";
+
+            $mail->send();
+            $this->logger->info('Email de notification contact envoyé', [
+                'senderEmail' => $senderEmail,
+                'titre' => $titre
+            ]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur envoi email contact: {$e->getMessage()}", [
+                'senderEmail' => $senderEmail
+            ]);
+            return false;
+        }
+    }
 }

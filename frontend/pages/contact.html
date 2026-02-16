@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Vite & Gourmand</title>
+    <link rel="stylesheet" href="/frontend/styles/_tokens.css">
+    <link rel="stylesheet" href="/frontend/styles/base.css">
+    <link rel="stylesheet" href="/frontend/styles/utilities.css">
+    <link rel="stylesheet" href="/frontend/styles/components/navbar.css">
+    <link rel="stylesheet" href="/frontend/styles/components/footer.css">
+    <link rel="stylesheet" href="/frontend/styles/components/button.css">
+    <link rel="stylesheet" href="/frontend/styles/components/forms.css">
+    <link rel="stylesheet" href="/frontend/styles/components/toast.css">
+    <link rel="stylesheet" href="/frontend/styles/pages/contact.css">
+</head>
+<body>
+    <header id="header-placeholder"></header>
+
+    <main>
+        <!-- Section Héro -->
+        <section class="contact-hero">
+            <div class="contact-hero__content">
+                <h1>Contactez-nous</h1>
+                <p>Une question, un événement à organiser ou une demande particulière&nbsp;?<br>Notre équipe vous répond dans les plus brefs délais.</p>
+            </div>
+        </section>
+
+        <!-- Section Formulaire -->
+        <section class="contact-section">
+            <div class="contact-container">
+                <h2 class="contact-section__title">Envoyez-nous un message</h2>
+                <form id="contactForm" class="contact-form" novalidate>
+                    <div class="form-group">
+                        <label for="contactTitle">Titre *</label>
+                        <input
+                            type="text"
+                            id="contactTitle"
+                            name="titre"
+                            placeholder="Ex : Demande de devis pour un événement"
+                            maxlength="150"
+                            required
+                            aria-required="true"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Adresse email *</label>
+                        <input
+                            type="email"
+                            id="contactEmail"
+                            name="email"
+                            placeholder="votre@email.fr"
+                            required
+                            aria-required="true"
+                            autocomplete="email"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="contactDescription">Votre message *</label>
+                        <textarea
+                            id="contactDescription"
+                            name="description"
+                            placeholder="Décrivez votre demande en détail…"
+                            rows="6"
+                            required
+                            aria-required="true"
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="button button--primary contact-form__submit">
+                        <span class="contact-form__submit-text">Envoyer le message</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Section Informations de contact -->
+        <section class="contact-info">
+            <div class="contact-info__grid">
+                <div class="contact-info__card">
+                    <div class="contact-info__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/>
+                            <path d="M22 4l-10 8L2 4"/>
+                        </svg>
+                    </div>
+                    <h3 class="contact-info__label">Email</h3>
+                    <a href="mailto:contact@vite-gourmand.fr" class="contact-info__value contact-info__link">contact@vite-gourmand.fr</a>
+                </div>
+
+                <div class="contact-info__card">
+                    <div class="contact-info__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                    </div>
+                    <h3 class="contact-info__label">Téléphone</h3>
+                    <a href="tel:+33556000000" class="contact-info__value contact-info__link">05 56 00 00 00</a>
+                </div>
+
+                <div class="contact-info__card">
+                    <div class="contact-info__icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <h3 class="contact-info__label">Adresse</h3>
+                    <p class="contact-info__value">Bordeaux, 33000<br>Gironde, France</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+    <script src="/frontend/js/utils/logger.js"></script>
+    <script src="/frontend/js/core/components.js"></script>
+    <script src="/frontend/js/services/authService.js"></script>
+    <script src="/frontend/js/auth/auth-navbar.js"></script>
+    <script src="/frontend/js/utils/toast.js"></script>
+    <script src="/frontend/js/pages/contact.js"></script>
+    <script src="/frontend/js/core/navbar.js"></script>
+</body>
+</html>

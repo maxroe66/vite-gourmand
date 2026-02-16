@@ -268,4 +268,214 @@ class MailerServiceTest extends TestCase
         // Note: Ce test nécessiterait de capturer Body via un mock plus sophistiqué
         // ou de refactoriser MailerService pour rendre le template testable
     }
+
+    // ========================================================================
+    // Tests — sendContactNotification()
+    // ========================================================================
+
+    public function testSendContactNotificationReturnsFalseWhenSmtpConfigMissing(): void
+    {
+        $config = [
+            'mail' => [
+                'host' => '',
+                'user' => '',
+                'pass' => '',
+                'from' => 'contact@viteetgourmand.fr'
+            ]
+        ];
+
+        $this->logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'Configuration SMTP manquante, email contact non envoyé',
+                ['senderEmail' => 'visitor@example.com']
+            );
+
+        $mailerService = new MailerService($this->logger, $config);
+        $result = $mailerService->sendContactNotification(
+            'visitor@example.com',
+            'Question sur un menu',
+            'Bonjour, je souhaite en savoir plus sur vos menus.'
+        );
+
+        $this->assertFalse($result);
+    }
+
+    public function testSendContactNotificationReturnsFalseWhenUserConfigMissing(): void
+    {
+        $config = [
+            'mail' => [
+                'host' => 'smtp.example.com',
+                'user' => '',
+                'pass' => 'password',
+                'from' => 'contact@viteetgourmand.fr'
+            ]
+        ];
+
+        $this->logger->expects($this->once())
+            ->method('warning');
+
+        $mailerService = new MailerService($this->logger, $config);
+        $result = $mailerService->sendContactNotification(
+            'visitor@example.com',
+            'Test',
+            'Message de test pour la configuration.'
+        );
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test avec mock PHPMailer : vérifie que send() est appelé
+     * avec la bonne configuration (From, Reply-To, Destinataire).
+     */
+    public function testSendContactNotificationWithMockSuccessfulSend(): void
+    {
+        $config = [
+            'mail' => [
+                'host' => 'smtp.example.com',
+                'user' => 'test@example.com',
+                'pass' => 'password',
+                'from' => 'contact@viteetgourmand.fr'
+            ]
+        ];
+
+        $mailerService = $this->getMockBuilder(MailerService::class)
+            ->setConstructorArgs([$this->logger, $config])
+            ->onlyMethods(['createMailer'])
+            ->getMock();
+
+        $mockMailer = $this->createMock(PHPMailer::class);
+
+        $mockMailer->expects($this->once())
+            ->method('isSMTP');
+
+        // From = adresse de l'entreprise (pas celle du visiteur)
+        $mockMailer->expects($this->once())
+            ->method('setFrom')
+            ->with('contact@viteetgourmand.fr', 'Vite & Gourmand — Contact');
+
+        // Reply-To = adresse du visiteur
+        $mockMailer->expects($this->once())
+            ->method('addReplyTo')
+            ->with('visitor@example.com');
+
+        // Destinataire = l'entreprise
+        $mockMailer->expects($this->once())
+            ->method('addAddress')
+            ->with('contact@viteetgourmand.fr', 'Vite & Gourmand');
+
+        $mockMailer->expects($this->once())
+            ->method('send')
+            ->willReturn(true);
+
+        $this->logger->expects($this->once())
+            ->method('info')
+            ->with(
+                'Email de notification contact envoyé',
+                ['senderEmail' => 'visitor@example.com', 'titre' => 'Question traiteur']
+            );
+
+        $mailerService->expects($this->once())
+            ->method('createMailer')
+            ->willReturn($mockMailer);
+
+        $result = $mailerService->sendContactNotification(
+            'visitor@example.com',
+            'Question traiteur',
+            'Bonjour, je souhaite organiser un événement pour 50 personnes.'
+        );
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test avec mock PHPMailer : vérifie le comportement en cas d'échec d'envoi.
+     */
+    public function testSendContactNotificationWithMockFailedSend(): void
+    {
+        $config = [
+            'mail' => [
+                'host' => 'smtp.example.com',
+                'user' => 'test@example.com',
+                'pass' => 'password',
+                'from' => 'contact@viteetgourmand.fr'
+            ]
+        ];
+
+        $mailerService = $this->getMockBuilder(MailerService::class)
+            ->setConstructorArgs([$this->logger, $config])
+            ->onlyMethods(['createMailer'])
+            ->getMock();
+
+        $mockMailer = $this->createMock(PHPMailer::class);
+
+        $mockMailer->expects($this->once())
+            ->method('send')
+            ->willThrowException(new \PHPMailer\PHPMailer\Exception('SMTP connection refused'));
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with(
+                $this->callback(function ($msg) {
+                    return str_contains($msg, 'Erreur envoi email contact');
+                }),
+                $this->callback(function ($context) {
+                    return isset($context['senderEmail'])
+                        && $context['senderEmail'] === 'visitor@example.com';
+                })
+            );
+
+        $mailerService->expects($this->once())
+            ->method('createMailer')
+            ->willReturn($mockMailer);
+
+        $result = $mailerService->sendContactNotification(
+            'visitor@example.com',
+            'Demande de devis',
+            'Je souhaite réserver pour un mariage le 15 juin.'
+        );
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test vérifiant l'échappement HTML dans le sujet et le corps de l'email contact.
+     */
+    public function testSendContactNotificationEscapesHtmlInContent(): void
+    {
+        $config = [
+            'mail' => [
+                'host' => 'smtp.example.com',
+                'user' => 'test@example.com',
+                'pass' => 'password',
+                'from' => 'contact@viteetgourmand.fr'
+            ]
+        ];
+
+        $mailerService = $this->getMockBuilder(MailerService::class)
+            ->setConstructorArgs([$this->logger, $config])
+            ->onlyMethods(['createMailer'])
+            ->getMock();
+
+        $mockMailer = $this->createMock(PHPMailer::class);
+
+        $mockMailer->method('send')->willReturn(true);
+
+        $this->logger->expects($this->once())
+            ->method('info');
+
+        $mailerService->expects($this->once())
+            ->method('createMailer')
+            ->willReturn($mockMailer);
+
+        // Le titre contient du HTML malicieux — ne doit pas provoquer d'erreur
+        $result = $mailerService->sendContactNotification(
+            'hacker@example.com',
+            '<script>alert("xss")</script>',
+            'Message avec <b>tags HTML</b> et "guillemets".'
+        );
+
+        $this->assertTrue($result);
+    }
 }
