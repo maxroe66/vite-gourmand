@@ -75,6 +75,7 @@
 	/* Limite la hauteur du texte pour s'adapter aux viewports serrés */
 	display: -webkit-box;
 	-webkit-line-clamp: 4;
+	line-clamp: 4;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 	line-height: var(--lh-normal);
@@ -153,6 +154,7 @@
 	.avis-clients__item p {
 		font-size: var(--font-300);
 		-webkit-line-clamp: 3;
+		line-clamp: 3;
 	}
 
 	.avis-clients__stars {
@@ -218,6 +220,7 @@
 
 	.avis-clients__item p {
 		-webkit-line-clamp: 4;
+		line-clamp: 4;
 		font-size: var(--font-300);
 	}
 }
