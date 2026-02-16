@@ -18,10 +18,22 @@ class AuthServiceTest extends TestCase
     private UserRepository $userRepository;
     private ResetTokenRepository $resetTokenRepository;
     private MailerService $mailerService;
+    private array $config;
 
     protected function setUp(): void
     {
-        $config = require __DIR__ . '/../config/config.php';
+        // Config inline de test — aucun fichier externe requis (isolation)
+        $this->config = [
+            'jwt' => [
+                'secret' => getenv('JWT_SECRET') ?: '4efd16790bfec508f370d4383aa98834c519200e31a038a3ebb7772a63f6f58c',
+                'expire' => 3600,
+            ],
+            'app' => [
+                'frontend_url' => 'http://localhost:8000',
+            ],
+        ];
+
+        $config = $this->config;
 
         // Mock du logger pour les tests
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -40,47 +52,26 @@ class AuthServiceTest extends TestCase
 
     public function testGenerateToken(): void
     {
-        // Debug : afficher le secret chargé
-        $config = require __DIR__ . '/../config/config.php';
-        $secret = $config['jwt']['secret'];
-        echo "\n🔍 JWT_SECRET chargé: " . $secret . " (longueur: " . strlen($secret) . " bytes)\n";
-
-        // Générer un token
         $token = $this->authService->generateToken(123, 'client');
 
-        // Vérifier que le token n'est pas vide
         $this->assertNotEmpty($token);
         $this->assertIsString($token);
-
-        echo "🔑 Token généré: " . substr($token, 0, 50) . "...\n";
     }
 
     public function testTokenCanBeDecoded(): void
     {
-        // Générer un token
         $userId = 456;
         $role = 'admin';
         $token = $this->authService->generateToken($userId, $role);
 
-        // Charger la config pour obtenir le secret
-        $config = require __DIR__ . '/../config/config.php';
-        $secret = $config['jwt']['secret'];
-
-        // Décoder le token
+        $secret = $this->config['jwt']['secret'];
         $decoded = JWT::decode($token, new Key($secret, 'HS256'));
 
-        // Vérifier le contenu
         $this->assertEquals($userId, $decoded->sub);
         $this->assertEquals($role, $decoded->role);
         $this->assertEquals('vite-gourmand', $decoded->iss);
-        $this->assertGreaterThan(time() - 5, $decoded->iat); // émis il y a moins de 5 secondes
-        $this->assertGreaterThan(time(), $decoded->exp); // pas encore expiré
-
-        echo "\n✅ Token décodé avec succès:\n";
-        echo "   - User ID: {$decoded->sub}\n";
-        echo "   - Role: {$decoded->role}\n";
-        echo "   - Émis à: " . date('Y-m-d H:i:s', $decoded->iat) . "\n";
-        echo "   - Expire à: " . date('Y-m-d H:i:s', $decoded->exp) . "\n";
+        $this->assertGreaterThan(time() - 5, $decoded->iat);
+        $this->assertGreaterThan(time(), $decoded->exp);
     }
 
     public function testRequestPasswordReset_Success(): void
@@ -166,7 +157,7 @@ class AuthServiceTest extends TestCase
             ->with($token)
             ->willReturn(null);
 
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Token invalide ou expiré');
 
         $this->authService->resetPassword($token, $newPassword);
@@ -178,10 +169,8 @@ class AuthServiceTest extends TestCase
         $hash = $this->authService->hashPassword($password);
 
         $this->assertNotEmpty($hash);
-        $this->assertStringStartsWith('$argon2id$', $hash); // Argon2ID (recommandé OWASP)
+        $this->assertStringStartsWith('$argon2id$', $hash);
         $this->assertNotEquals($password, $hash);
-
-        echo "\n🔒 Password hashé: " . substr($hash, 0, 30) . "...\n";
     }
 
     public function test_verifyPassword_success(): void
