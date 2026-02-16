@@ -21,6 +21,12 @@ main {
     scroll-snap-align: start;
 }
 
+.menus,
+.presentation {
+	/* Contenu aligné en haut, espace vide en bas (plus cohérent visuellement) */
+	justify-content: flex-start;
+}
+
 section {
 	scroll-snap-align: start;
 	width: 100%;

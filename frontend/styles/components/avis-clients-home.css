@@ -2,11 +2,11 @@
 /* Avis Clients Home Component */
 
 .avis-clients {
-	flex: 1 1 auto; /* grow to take remaining vertical space */
+	flex: 2 1 0%; /* Proportion réduite : 2/5 de l'espace vs 3/5 pour le cube */
 	display: flex;
 	flex-direction: column; /* Place title above the list */
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	gap: var(--space-4);
 	min-height: 0; /* Permet au flex de shrink librement */
 	margin: 0 auto;
@@ -30,7 +30,6 @@
 	z-index: 3;
 	background: transparent;
 	color: var(--color-title-secondary);
-	margin-bottom: var(--space-2);
 	text-shadow: 0 1px 4px rgba(44,62,80,0.18);
 }
 .avis-clients__list {
@@ -125,6 +124,7 @@
 }
 .avis-clients h3 {
 	font-size: var(--font-700);
+	margin-bottom: 0; /* Reset base.css (h3 = space-6), le gap du parent gère l'espacement */
 }
 /* =========================================
    Responsive Design
@@ -133,17 +133,13 @@
 /* Desktop faible hauteur (≤830px) : compacter pour éviter la coupe (scroll-snap conservé) */
 @media (min-width: 1025px) and (max-height: 830px) {
 	.avis-clients {
-		justify-content: center;
+		justify-content: flex-start;
 		padding: var(--space-4);
 		gap: var(--space-3);
 	}
 	.avis-clients h3 {
 		font-size: var(--font-600);
 	}
-	.avis-clients > * {
-		margin-bottom: var(--space-1);
-	}
-
 	.avis-clients__list {
 		gap: var(--space-4);
 	}
@@ -200,10 +196,6 @@
 		justify-content: flex-start;
 		gap: var(--space-3);
 		padding: var(--space-5) var(--space-5);
-	}
-
-	.avis-clients > * {
-		margin-bottom: var(--space-1);
 	}
 
 	.avis-clients h3 {
