@@ -41,7 +41,7 @@ Production (LIVE)
 ├─ Cloud (AWS, Azure, Digital Ocean, OVH)
 ├─ Kubernetes (optionnel scalabilité)
 ├─ MySQL 8.0 managed
-├─ MongoDB managed
+├─ Azure Cosmos DB Serverless (API MongoDB 4.2)
 ├─ CDN (images, assets)
 ├─ Load balancer
 └─ HTTPS (Let's Encrypt auto-renew)
@@ -489,12 +489,12 @@ DB_NAME=vite_gourmand_prod
 DB_USER=vite_prod_user
 DB_PASSWORD=<very_strong_password>
 
-# MongoDB Production
-MONGO_HOST=mongodb.prod.aws.com
-MONGO_PORT=27017
+# MongoDB Production — Azure Cosmos DB Serverless (API MongoDB)
+# Connection string récupérable via :
+#   az cosmosdb keys list --name vite-gourmand-mongo --resource-group rg-vite-gourmand-prod --type connection-strings
+MONGO_URI=mongodb://<COMPTE>:<CLE>@<COMPTE>.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@<COMPTE>@
 MONGO_DB=vite_gourmand_prod
-MONGO_USER=vite_mongo
-MONGO_PASSWORD=<very_strong_password>
+# Script d'init : backend/database/mongoDB/database_mongodb_setup_cosmosdb.js
 
 # API Géolocalisation
 GOOGLE_MAPS_API_KEY=<your_production_key>

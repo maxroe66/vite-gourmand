@@ -11,6 +11,7 @@ LICENSE
 
 # Docker configs (pas dans l'image elle-même)
 docker/
+!docker/certs/DigiCertGlobalRootCA.crt.pem
 docker-compose.yml
 
 # Scripts d'administration

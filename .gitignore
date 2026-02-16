@@ -47,7 +47,6 @@ public/assets/uploads/*
 # Fichiers personnels / brouillons (non versionnés)
 # ========================
 fichiers_perso/
-DigiCertGlobalRootCA.crt.pem
 test_mysql_connexion.php
 
 # ========================

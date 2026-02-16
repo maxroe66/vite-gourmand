@@ -139,7 +139,7 @@ return function (array $config): ContainerInterface {
                 // retryWrites=false est déjà dans l'URI DocumentDB vCore
                 error_log("[MongoDB Init] Options DocumentDB vCore activées (timeouts cloud)");
             } elseif ($isCosmos) {
-                // Ancien Cosmos DB RU (port 10255) : nécessite des hacks spécifiques
+                // Cosmos DB Serverless RU (port 10255) : nécessite TLS + options spécifiques
                 $uriOptions['serverSelectionTimeoutMS'] = 15000;
                 $uriOptions['connectTimeoutMS'] = 10000;
                 $uriOptions['socketTimeoutMS'] = 30000;
