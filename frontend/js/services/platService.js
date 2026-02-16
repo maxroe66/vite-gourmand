@@ -8,7 +8,7 @@ const PlatService = {
 
     async _handleResponse(response) {
         if (response.status === 401) {
-            window.location.href = '/connexion.html?error=session_expired';
+            window.location.href = '/frontend/pages/connexion.html?error=session_expired';
             throw new Error('Session expirée');
         }
         if (response.status === 403) {
@@ -32,10 +32,10 @@ const PlatService = {
      */
     async getPlats() {
         try {
-            const response = await fetch(this.API_URL);
+            const response = await fetch(this.API_URL, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getPlats:', error);
+            Logger.error('Erreur getPlats:', error);
             throw error;
         }
     },
@@ -45,10 +45,10 @@ const PlatService = {
      */
     async getPlatDetails(id) {
         try {
-            const response = await fetch(`${this.API_URL}/${id}`);
+            const response = await fetch(`${this.API_URL}/${id}`, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur getPlatDetails(${id}):`, error);
+            Logger.error(`Erreur getPlatDetails(${id}):`, error);
             throw error;
         }
     },
@@ -67,7 +67,7 @@ const PlatService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur createPlat:', error);
+            Logger.error('Erreur createPlat:', error);
             throw error;
         }
     },
@@ -85,7 +85,7 @@ const PlatService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur updatePlat:', error);
+            Logger.error('Erreur updatePlat:', error);
             throw error;
         }
     },
@@ -102,7 +102,7 @@ const PlatService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur deletePlat:', error);
+            Logger.error('Erreur deletePlat:', error);
             throw error;
         }
     },
@@ -112,10 +112,10 @@ const PlatService = {
      */
     async getAllergenes() {
         try {
-            const response = await fetch(`${this.API_URL}/allergenes`);
+            const response = await fetch(`${this.API_URL}/allergenes`, { credentials: 'include' });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getAllergenes:', error);
+            Logger.error('Erreur getAllergenes:', error);
             throw error;
         }
     }

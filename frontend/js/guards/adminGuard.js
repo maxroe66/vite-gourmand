@@ -16,7 +16,7 @@ const AdminGuard = {
             if (!authStatus || !authStatus.isAuthenticated || !authStatus.user) {
                 // Non connecté -> Redirection vers login avec URL de retour
                 const currentUrl = encodeURIComponent(window.location.pathname + window.location.search);
-                window.location.href = `/frontend/frontend/pages/connexion.html?redirect=${currentUrl}&msg=auth_required`;
+                window.location.href = `/frontend/pages/connexion.html?redirect=${currentUrl}&msg=auth_required`;
                 throw new Error('Non authentifié');
             }
 
@@ -34,7 +34,7 @@ const AdminGuard = {
             return user;
 
         } catch (error) {
-            console.warn("AdminGuard blocked access:", error);
+            Logger.warn("AdminGuard blocked access:", error);
             // On laisse le throw pour arrêter l'exécution des scripts appelants si besoin
             throw error; 
         }

@@ -1,0 +1,78 @@
+/* =========================================
+   Utilities — Classes utilitaires réutilisables
+   ========================================= */
+
+@layer utilities {
+
+  /* ── Accessibilité ── */
+  .visually-hidden,
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  /* ── Affichage ── */
+  .u-hidden       { display: none !important; }
+  .is-visible     { display: flex; }
+  .u-block        { display: block; }
+  .u-flex         { display: flex; }
+  .u-grid         { display: grid; }
+
+  /* ── Layout flex ── */
+  .u-flex-col     { flex-direction: column; }
+  .u-flex-center  { justify-content: center; align-items: center; }
+  .u-flex-between { justify-content: space-between; }
+  .u-items-center { align-items: center; }
+  .u-gap-xs       { gap: var(--space-1); }
+  .u-gap-sm       { gap: var(--space-2); }
+  .u-gap-md       { gap: var(--space-3); }
+
+  /* ── Texte ── */
+  .u-text-center  { text-align: center; }
+  .u-text-left    { text-align: left; }
+  .u-text-right   { text-align: right; }
+  .u-text-bold    { font-weight: 700; }
+  .u-text-italic  { font-style: italic; }
+
+  /* ── Couleurs texte ── */
+  .u-text-muted   { color: var(--color-muted); }
+  .u-text-error   { color: var(--color-error-text); }
+  .u-text-success { color: var(--color-success-text); }
+
+  /* ── Largeur ── */
+  .u-w-full       { width: 100%; }
+
+  /* ── Espacement ── */
+  .u-mb-sm        { margin-bottom: var(--space-2); }
+  .u-mb-md        { margin-bottom: var(--space-3); }
+  .u-mt-md        { margin-top: var(--space-3); }
+  .u-p-sm         { padding: var(--space-2); }
+  .u-p-md         { padding: var(--space-3); }
+
+  /* ── Bordures ── */
+  .u-border-dashed { border: 1px dashed var(--color-border); }
+  .u-border-bottom { border-bottom: 1px solid var(--color-border); }
+
+  /* ── État interactif ── */
+  .is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ── Scrollbar cachée ── */
+  .u-scrollbar-hidden {
+    scrollbar-width: none;
+  }
+  .u-scrollbar-hidden::-webkit-scrollbar { display: none; }
+
+  /* ── Marges inline ── */
+  .u-mr-sm        { margin-right: var(--space-2); }
+}

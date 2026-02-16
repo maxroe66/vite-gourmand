@@ -94,7 +94,7 @@ const AuthService = {
             }
             return true; // succès
         } catch (error) {
-            console.error('Erreur lors de la déconnexion:', error);
+            Logger.error('Erreur lors de la déconnexion:', error);
             throw error; // laisse l'appelant gérer l'erreur
         }
     },

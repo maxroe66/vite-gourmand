@@ -39,7 +39,7 @@ class SecurityHeadersMiddleware
      * Directives :
      * - default-src 'self'          : tout restreint à l'origine par défaut
      * - script-src  'self' + CDN    : scripts locaux + Chart.js (CDN)
-     * - style-src   'self' 'unsafe-inline' + CDN : styles locaux + attributs style="" + FontAwesome
+ * - style-src   'self' + CDN    : styles locaux + FontAwesome (plus de style="" inline)
      * - img-src     'self' data:    : images locales + data-URI (icônes inline)
      * - font-src    'self' + CDN    : polices locales + FontAwesome webfonts
      * - connect-src 'self'          : fetch/XHR vers l'API locale uniquement
@@ -61,7 +61,7 @@ class SecurityHeadersMiddleware
         $directives = [
             'default-src' => $csp['default_src'] ?? ["'self'"],
             'script-src'  => $csp['script_src']  ?? ["'self'", 'https://cdn.jsdelivr.net'],
-            'style-src'   => $csp['style_src']   ?? ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
+            'style-src'   => $csp['style_src']   ?? ["'self'", 'https://cdnjs.cloudflare.com'],
             'img-src'     => $csp['img_src']      ?? ["'self'", 'data:'],
             'font-src'    => $csp['font_src']     ?? ["'self'", 'https://cdnjs.cloudflare.com'],
             'connect-src' => $csp['connect_src']  ?? ["'self'"],

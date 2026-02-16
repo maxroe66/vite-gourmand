@@ -1,0 +1,122 @@
+/* =========================================
+   — Component: Modals
+   Système unique de modale BEM.
+   Backdrop = .modal  |  Boîte = .modal__dialog
+   Toggle  = .is-visible + aria-hidden
+   ========================================= */
+
+@layer components {
+
+  /* ── Backdrop (fond sombre) ── */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-modal-backdrop);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal.is-visible {
+    display: flex;
+  }
+
+  /* ── Dialog (boîte blanche centrée) ── */
+  .modal__dialog {
+    background: var(--color-bg);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow-300);
+    z-index: var(--z-modal);
+  }
+
+  .modal__dialog--wide {
+    max-width: 700px;
+  }
+
+  /* ── Header ── */
+  .modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem;
+  }
+
+  .modal__title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  /* ── Bouton fermeture ── */
+  .modal__close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-muted);
+  }
+
+  .modal__close:hover {
+    color: var(--color-primary);
+  }
+
+  /* ── Actions (boutons bas de modale) ── */
+  .modal__actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  /* ── Form elements inside dialog ── */
+  .modal__dialog .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .modal__dialog label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .modal__dialog input[type="text"],
+  .modal__dialog input[type="number"],
+  .modal__dialog input[type="email"],
+  .modal__dialog input[type="password"],
+  .modal__dialog input[type="date"],
+  .modal__dialog select,
+  .modal__dialog textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xs);
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+
+  .modal__dialog .form-row {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .modal__dialog .form-row .form-group {
+    flex: 1;
+  }
+
+  .modal__dialog .button {
+    margin-top: 0.75rem;
+  }
+}

@@ -1,13 +1,13 @@
-    
-class CommandeService {
-    static API_URL = '/api/commandes';
+
+const CommandeService = {
+    API_URL: '/api/commandes',
 
     /**
      * Calcule le prix de la commande (Simulation)
      * @param {Object} data { menuId, nombrePersonnes, adresseLivraison }
      * @returns {Promise<Object>} Détails du prix
      */
-    static async calculatePrice(data) {
+    async calculatePrice(data) {
         // Authentification via Cookie HttpOnly, pas de token LocalStorage
         const headers = AuthService.addCsrfHeader({
             'Content-Type': 'application/json'
@@ -26,14 +26,14 @@ class CommandeService {
         }
 
         return await response.json();
-    }
+    },
 
     /**
      * Crée une nouvelle commande
      * @param {Object} data Données du formulaire
      * @returns {Promise<Object>} Résultat { success, id }
      */
-    static async createOrder(data) {
+    async createOrder(data) {
         // Authentification via Cookie HttpOnly
         const response = await fetch(this.API_URL, {
             method: 'POST',
@@ -56,36 +56,36 @@ class CommandeService {
         }
 
         return result;
-    }
+    },
 
     /**
      * Récupère mes commandes
      */
-    static async getMyOrders() {
+    async getMyOrders() {
         const response = await fetch('/api/my-orders', {
             credentials: 'include'
         });
 
         if (!response.ok) throw new Error("Impossible de récupérer les commandes");
         return await response.json();
-    }
+    },
 
     /**
      * Récupère une commande par ID (avec timeline)
      */
-    static async getOrder(id) {
+    async getOrder(id) {
         const response = await fetch(`${this.API_URL}/${id}`, {
             credentials: 'include'
         });
 
         if (!response.ok) throw new Error("Impossible de récupérer la commande");
         return await response.json();
-    }
+    },
 
     /**
      * Annule une commande (Client)
      */
-    static async cancelOrder(id) {
+    async cancelOrder(id) {
         const response = await fetch(`${this.API_URL}/${id}`, {
             method: 'PATCH',
             headers: AuthService.addCsrfHeader({
@@ -101,7 +101,7 @@ class CommandeService {
         }
 
         return await response.json();
-    }
+    },
 
     /**
      * Met à jour une commande (Client)
@@ -109,7 +109,7 @@ class CommandeService {
      * @param {Object} data
      * @returns {Promise<Object>}
      */
-    static async updateOrder(id, data) {
+    async updateOrder(id, data) {
         const response = await fetch(`${this.API_URL}/${id}`, {
             method: 'PATCH',
             headers: AuthService.addCsrfHeader({
@@ -123,13 +123,13 @@ class CommandeService {
             throw new Error(result.error || 'Erreur lors de la modification de la commande');
         }
         return result;
-    }
+    },
 
     /**
      * Récupère toutes les commandes (Admin/Employé)
      * @param {Object} filters { status, user, date }
      */
-    static async getAllOrders(filters = {}) {
+    async getAllOrders(filters = {}) {
         const params = new URLSearchParams(filters).toString();
         const response = await fetch(`${this.API_URL}?${params}`, {
             credentials: 'include'
@@ -137,12 +137,12 @@ class CommandeService {
 
         if (!response.ok) throw new Error("Impossible de récupérer les commandes");
         return await response.json();
-    }
+    },
 
     /**
      * Met à jour le statut d'une commande (Admin/Employé)
      */
-    static async updateStatus(id, status, motif = null, modeContact = null) {
+    async updateStatus(id, status, motif = null, modeContact = null) {
         const body = { status };
         if (motif) body.motif = motif;
         if (modeContact) body.modeContact = modeContact;
@@ -161,14 +161,14 @@ class CommandeService {
             throw new Error(err.error || "Erreur mise à jour statut");
         }
         return await response.json();
-    }
+    },
 
     /**
      * Valide le retour du matériel pour une commande
      * @param {number|string} id 
      * @returns {Promise<Object>}
      */
-    static async returnMaterial(id) {
+    async returnMaterial(id) {
         const response = await fetch(`${this.API_URL}/${id}/return-material`, {
             method: 'POST',
             headers: AuthService.addCsrfHeader({
@@ -184,6 +184,6 @@ class CommandeService {
         }
         return await response.json();
     }
-}
+};
 
 window.CommandeService = CommandeService;

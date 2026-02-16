@@ -1,0 +1,71 @@
+/* Ordre des @layer — déclaré une seule fois, en premier */
+@layer base, utilities, components, layouts, pages;
+
+/* Garantir le sticky de la navbar même avec injection dynamique */
+#header-placeholder {
+  position: static;
+  overflow: visible;
+  width: 100%;
+  z-index: auto;
+}
+
+/* =========================================
+   Base styles
+   Reset light + base typographique + éléments HTML
+   ========================================= */
+
+@layer base {
+  /* Reset light (inspiré de modern-normalize) */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { 
+    line-height: var(--lh-normal); 
+    -webkit-text-size-adjust: 100%;
+    height: 100%;
+  }
+  body { 
+    margin: 0; 
+    font-family: var(--font-family); 
+    color: var(--color-text); 
+    background: var(--color-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  main {
+    flex: 1;
+    scroll-behavior: smooth;
+    margin-bottom: 0;
+  }
+  img, svg { display: block; max-width: 100%; height: auto; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  h1, h2, h3, h4 { margin: 0 0 var(--space-6); font-weight: 700; line-height: var(--lh-tight); }
+
+  /* Focus visible accessible */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Liens */
+  a { color: var(--color-text-secondary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Container centré */
+  .container {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--space-5);
+    max-width: var(--container-lg);
+  }
+
+  /* Sections
+  section { padding-block: var(--space-6); }
+  .section--muted { background: var(--color-surface); }
+   */
+
+  /* Titres (adaptables selon Figma) */
+  .h1 { font-size: 2rem; }  /* ~32px */
+  .h2 { font-size: 1.75rem; } /* ~28px */
+  .h3 { font-size: 1.25rem; } /* ~20px */
+}

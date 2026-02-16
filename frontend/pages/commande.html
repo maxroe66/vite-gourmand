@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite & Gourmand - Commander</title>
+    <link rel="stylesheet" href="/frontend/styles/_tokens.css">
+    <link rel="stylesheet" href="/frontend/styles/base.css">
+    <link rel="stylesheet" href="/frontend/styles/utilities.css">
+    <link rel="stylesheet" href="/frontend/styles/components/button.css">
+    <link rel="stylesheet" href="/frontend/styles/components/navbar.css">
+    <link rel="stylesheet" href="/frontend/styles/components/footer.css">
+    <link rel="stylesheet" href="/frontend/styles/components/forms.css">
+    <link rel="stylesheet" href="/frontend/styles/components/toast.css">
+    <link rel="stylesheet" href="/frontend/styles/pages/commande.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="commande-page container">
+        <h1>Finaliser votre commande</h1>
+        
+        <div id="loader">Chargement...</div>
+
+        <div id="commande-content" class="commande-grid">
+            <!-- Formulaire de commande -->
+            <div class="commande-form card">
+                <form id="order-form">
+                    <h2 class="h3">Informations de livraison</h2>
+                    
+                    <div class="form-group">
+                        <label for="address">Adresse de livraison *</label>
+                        <input type="text" id="address" name="address" class="input" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zipcode">Code Postal *</label>
+                            <input type="text" id="zipcode" name="zipcode" class="input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Ville *</label>
+                            <input type="text" id="city" name="city" class="input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gsm">Téléphone (GSM) *</label>
+                        <input type="tel" id="gsm" name="gsm" class="input" pattern="[0-9+ ]{10,15}" required>
+                        <small>Format: 10 chiffres (ex: 0612345678)</small>
+                    </div>
+
+                    <h2 class="h3 mt-lg">Détails de la prestation</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">Date de la prestation *</label>
+                            <input type="date" id="date" name="date" class="input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="time">Heure souhaitée *</label>
+                            <input type="time" id="time" name="time" class="input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guests">Nombre de personnes *</label>
+                        <input type="number" id="guests" name="guests" class="input" min="1" required>
+                        <small id="min-guests-msg" class="text-muted"></small>
+                    </div>
+
+                    <div class="alert alert--info mt-sm">
+                        <p>💡 Astuce : Invitez 5 personnes de plus que le minimum pour obtenir -10% !</p>
+                    </div>
+
+                    <button type="submit" class="button button--primary w-100 mt-lg">Valider la commande</button>
+                    <p id="error-message" class="error-text mt-sm"></p>
+                </form>
+            </div>
+
+            <!-- Récapitulatif dynamique -->
+            <div class="order-summary">
+                <h2>Récapitulatif</h2>
+                <h3 id="menu-title-summary" class="h4">Menu ...</h3>
+                
+                <div class="summary-details mt-md">
+                    <div class="summary-row">
+                        <span>Prix unitaire</span>
+                        <span id="unit-price">0.00 €</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Nombre de personnes</span>
+                        <span id="nb-persons">0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Sous-total</span>
+                        <span id="sub-total">0.00 €</span>
+                    </div>
+                    <div class="summary-row reduction-row" id="reduction-row">
+                        <span>Réduction (-10%)</span>
+                        <span id="reduction-amount">-0.00 €</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Frais de livraison</span>
+                        <span id="delivery-fee">...</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>TOTAL À PAYER</span>
+                        <span id="total-price">0.00 €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="/frontend/js/utils/logger.js"></script>
+    <script src="/frontend/js/core/components.js"></script>
+    <script src="/frontend/js/services/authService.js"></script>
+    <script src="/frontend/js/services/menuService.js"></script>
+    <script src="/frontend/js/services/commandeService.js"></script>
+    <script src="/frontend/js/auth/auth-navbar.js"></script>
+    <script src="/frontend/js/core/navbar.js"></script>
+    <script src="/frontend/js/utils/helpers.js"></script>
+    <script src="/frontend/js/utils/toast.js"></script>
+    <script src="/frontend/js/pages/commande.js"></script>
+</body>
+</html>

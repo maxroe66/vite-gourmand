@@ -1,0 +1,106 @@
+@layer pages {
+/* =========================================
+Home Page Styles (full viewport sections)
+========================================= */
+
+main {
+    flex: none; /* Override flex: 1 de @layer base — incompatible avec height: 100vh */
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: var(--navbar-height, 80px);
+    scroll-behavior: smooth;
+    /* Empêche le contenu de passer sous le header sticky/fixed */
+    padding-top: var(--navbar-height, 80px);
+}
+.hero,
+.presentation,
+.menus {
+	/* Hauteur dynamique : toute la zone visible sous le header sticky/fixed */
+	height: calc(100vh - var(--navbar-height, 80px));
+    scroll-snap-align: start;
+}
+
+section {
+	scroll-snap-align: start;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+}
+
+/* =========================================
+   Mobile & Tablette (jusqu'à 1024px)
+   - Désactive le scroll-snap (trop contraignant sur mobile/tablette)
+   - Supprime les hauteurs figées en viewport
+   - Laisse la page scroller naturellement
+   ========================================= */
+
+@media (max-width: 1024px) {
+    main {
+        height: auto;
+        overflow-y: visible;
+        scroll-snap-type: none;
+        scroll-padding-top: 0;
+        scroll-behavior: auto;
+        /* La navbar est responsive (souvent non-fixed en mobile) : pas de padding forcé */
+        padding-top: 0;
+    }
+
+    .hero,
+    .presentation,
+    .menus {
+        height: auto;
+        scroll-snap-align: none;
+    }
+	.hero {
+		justify-content: center;
+	}
+
+    section {
+        scroll-snap-align: none;
+        justify-content: flex-start;
+    }
+}
+
+/* Zone de transition (769-1024px) : navbar desktop (80px) mais layout mobile */
+@media (min-width: 769px) and (max-width: 1024px) {
+    main {
+        /* Compense la navbar desktop qui fait 80px */
+        padding-top: var(--navbar-height, 80px);
+    }
+    .hero {
+        /* Ajuste la hauteur minimale pour compenser */
+        min-height: calc(60vh - var(--navbar-height, 80px));
+    }
+}
+
+/* =========================================
+   Responsive Design
+   ========================================= */
+
+/* Tablette et petits ordinateurs (jusqu'à 1175px) */
+/* Le track utilise display:contents pour que ses enfants soient gérés par .avis-clients__list */
+.avis-clients__track {
+    display: contents;
+}
+
+/* Surcharges page-level pour les cartes avis (italic, couleur auteur) */
+.avis-clients__item p {
+    font-style: italic;
+    margin-bottom: var(--space-2);
+    color: #333;
+}
+
+.avis-clients__item span {
+    text-align: right;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.avis-clients__stars {
+    color: #ffc107;
+    margin-left: 5px;
+}
+} /* end @layer pages */

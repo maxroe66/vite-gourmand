@@ -81,7 +81,7 @@ $dbPass = $env('DB_PASSWORD') ?? $env('DB_PASS') ?? '';
 /**
  * SSL MySQL (optionnel)
  * - DB_SSL=1/true/yes/on => active TLS
- * - DB_SSL_CA => chemin du CA (par défaut celui ajouté dans Dockerfile.azure)
+ * - DB_SSL_CA => chemin du CA (par défaut celui ajouté dans docker/azure/Dockerfile.azure)
  */
 $dbSslRaw = $env('DB_SSL', '0') ?? '0';
 $dbSslEnabled = in_array(strtolower((string)$dbSslRaw), ['1', 'true', 'yes', 'on'], true);

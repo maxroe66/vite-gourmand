@@ -99,8 +99,8 @@ class AuthService
      */
     public function hashPassword(string $password): string
     {
-        // Utilise password_hash avec l'algorithme par défaut (bcrypt ou Argon2)
-        return password_hash($password, PASSWORD_DEFAULT);
+        // Utilise Argon2ID : résistant aux attaques GPU, recommandé par OWASP
+        return password_hash($password, PASSWORD_ARGON2ID);
     }
 
     /**

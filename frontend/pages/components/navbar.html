@@ -1,0 +1,45 @@
+<!-- Header / Navbar Component -->
+<header class="navbar">
+    <div class="navbar__inner">
+        <!-- Brand -->
+        <a href="/" class="navbar__brand">
+            <img src="/assets/logos/logo.png" alt="Logo Vite &amp; Gourmand" class="navbar__brand-logo">
+        </a>
+
+        <!-- Navigation et Actions regroupés -->
+        <div class="navbar__right">
+            <!-- Menu -->
+            <nav class="navbar__nav" aria-label="Navigation principale">
+                <ul class="navbar__menu">
+                    <li><a href="/" class="navbar__link">Accueil</a></li>
+                    <li><a href="/frontend/pages/home.html#menus" class="navbar__link">Menu</a></li>
+                    <li><a href="/contact" class="navbar__link">Contact</a></li>
+                </ul>
+            </nav>
+
+            <!-- Actions -->
+            <div class="navbar__actions">
+                <a href="/inscription" class="button button--ghost">Inscription</a>
+                <a href="/connexion" class="button button--primary">Connexion</a>
+            </div>
+        </div>
+
+        <!-- Mobile toggle -->
+        <button class="navbar__toggle" aria-controls="navMenu" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
+    </div>
+
+    <!-- Collapsible menu for mobile -->
+    <div id="navMenu" class="navbar__collapse" hidden>
+        <ul class="navbar__menu navbar__menu--mobile">
+            <li><a href="/" class="navbar__link">Accueil</a></li>
+            <li><a href="/menus" class="navbar__link">Menu</a></li>
+            <li><a href="/contact" class="navbar__link">Contact</a></li>
+            <li class="navbar__mobile-action">
+                <a href="/inscription" class="button button--ghost">Inscription</a>
+            </li>
+            <li class="navbar__mobile-action">
+                <a href="/connexion" class="button button--primary">Connexion</a>
+            </li>
+        </ul>
+    </div>
+</header>

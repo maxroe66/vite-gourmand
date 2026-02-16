@@ -38,7 +38,7 @@ export JWT_SECRET="$(openssl rand -hex 32)"
 )
 
 # 4) Nettoyer le rate limiter avant les tests API
-rm -rf /tmp/vg_rate_limit/
+rm -rf /tmp/vg_rate_limit/ "$(cd "$(dirname "$0")/../.." && pwd)/backend/var/rate_limit/"
 
 # 5) Démarrer l'API en mode test pour Newman (+ logs)
 LOG=/tmp/php-test-server.log

@@ -3,22 +3,47 @@
 .gitignore
 .gitattributes
 
+# Documentation & CI (inutile dans l'image)
+.github/
+docs/
+*.md
+LICENSE
 
+# Docker configs (pas dans l'image elle-même)
+docker/
+docker-compose.yml
+
+# Scripts d'administration
+scripts/
+
+# Environnement (secrets)
+.env
+.env.*
 
 # Node
 node_modules
 
-# Vendor
-# Ignore top-level vendor but allow backend/vendor to be copied into the image context
+# Vendor — ignore top-level, keep backend/vendor
 /vendor
 !backend/vendor
 
-# Logs
+# Tests
+backend/tests/
+frontend/tests/
+
+# Caches & logs
+backend/.php-cs-fixer.cache
+backend/.php-cs-fixer.dist.php
+backend/.phpunit.result.cache
+backend/.phpunit.cache/
+backend/logs/
+backend/var/
 *.log
 
 # OS
 .DS_Store
 Thumbs.db
+*:Zone.Identifier
 
 # IDE
 .idea

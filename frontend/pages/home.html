@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite & Gourmand - Accueil</title>
+    <link rel="stylesheet" href="/frontend/styles/_tokens.css">
+    <link rel="stylesheet" href="/frontend/styles/base.css">
+    <link rel="stylesheet" href="/frontend/styles/utilities.css">
+    <link rel="stylesheet" href="/frontend/styles/components/button.css">
+    <link rel="stylesheet" href="/frontend/styles/components/navbar.css">
+    <link rel="stylesheet" href="/frontend/styles/components/hero-home.css">
+    <link rel="stylesheet" href="/frontend/styles/components/carousel-split-home.css">
+    <link rel="stylesheet" href="/frontend/styles/components/avis-clients-home.css">
+    <link rel="stylesheet" href="/frontend/styles/components/menus-home.css">
+    <link rel="stylesheet" href="/frontend/styles/components/scroll-reveal.css">
+    <link rel="stylesheet" href="/frontend/styles/pages/home.css">
+    <link rel="stylesheet" href="/frontend/styles/components/footer.css">
+</head>
+<body>
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Section Hero -->
+        <section class="hero">
+            <div class="hero__content">
+                <h1>Vite &amp; Gourmand</h1>
+                <p>Menus Catering pour vos moments !</p>
+                <a href="/frontend/pages/home.html#menus" class="button button--primary">Découvrir nos menus</a>
+            </div>
+        </section>
+
+        <!-- Section Présentation & Avis -->
+        <section class="presentation" id="presentation">
+            <div class="presentation__content reveal">
+                <!-- Flèches navigation Rubik's Cube -->
+                <div class="presentation__arrows">
+                    <button id="demo-cube-btn" class="arrow-btn arrow-btn--down" aria-label="Voir le Rubik's Cube" tabindex="0">
+                        <span aria-hidden="true">&#8595;</span>
+                    </button>
+                    <button id="demo-cube-btn-back" class="arrow-btn arrow-btn--up" aria-label="Revenir à la vue initiale" tabindex="0">
+                        <span aria-hidden="true">&#8593;</span>
+                    </button>
+                </div>
+                <!-- Demi-cube gauche (texte) -->
+                <div class="cube cube--split cube--left">
+                    <div class="cube__face cube__face--front">
+                        <div class="cube__split-content">
+                            <h3>Notre Histoire</h3>
+                            <p>Vite &amp; Gourmand, traiteur à Bordeaux depuis plus de 25 ans, c'est avant tout une aventure humaine et culinaire. Julie et Joël, deux passionnés de gastronomie, ont fondé cette entreprise avec une idée simple : offrir des repas savoureux qui transforment chaque événement en un moment unique.<br>
+                            Depuis nos débuts, nous avons accompagné des centaines de familles, entreprises et associations, en proposant des menus variés, créatifs et adaptés à chaque occasion.</p>
+                        </div>
+                    </div>
+                    <div class="cube__face cube__face--back">
+                        <div class="cube__split-content">
+                            <h3>Notre Professionnalisme</h3>
+                            <p>Une équipe à votre service, réactive et attentive à vos besoins. Nous mettons un point d’honneur à vous offrir une expérience fluide et agréable, depuis la prise de contact jusqu’à la livraison. Chaque détail compte : qualité des produits, respect des délais, et écoute permanente pour répondre à vos attentes. Notre engagement ? Vous garantir des prestations fiables, adaptées à vos envies, avec un suivi personnalisé pour que chaque événement soit une réussite.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Demi-cube droite (image) -->
+                <div class="cube cube--split cube--right">
+                    <div class="cube__face cube__face--front">
+                        <div class="cube__split-content">
+                            <img src="/assets/images/notre-histoire.webp" alt="Photo du chef en cuisine">
+                        </div>
+                    </div>
+                    <div class="cube__face cube__face--back">
+                        <div class="cube__split-content">
+                            <img src="/assets/images/menu-noel.webp" alt="Photo illustrant le professionnalisme" />
+                        </div>
+                    </div>
+                </div>
+                <!-- Script démo Rubik's Cube 3D -->
+                <script src="/frontend/js/widgets/demo-cube.js"></script>
+            </div>
+            <div class="avis-clients reveal reveal--delay">
+                <h3>Avis Clients</h3>
+                <div class="avis-clients__meta" aria-label="Note moyenne">
+                    <div class="avis-clients__rating-line">
+                        <span class="avis-clients__rating">4.8 ★ / 5</span>
+                        <span class="avis-clients__count">(148 avis)</span>
+                    </div>
+                </div>
+                
+                <div class="avis-clients__list">
+                    <div class="avis-clients__track">
+                        <!-- Avis chargés dynamiquement par JS -->
+                    </div>
+                </div>
+
+                <div class="avis-clients__controls" aria-label="Navigation des avis">
+                    <button class="avis-clients__arrow avis-clients__arrow--prev" type="button" aria-label="Avis précédent">&#8249;</button>
+                    <button class="avis-clients__arrow avis-clients__arrow--next" type="button" aria-label="Avis suivant">&#8250;</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Menus -->
+        <section class="menus" id="menus">
+            <div class="menus__header reveal">
+                <h2>Nos Menus</h2>
+                <div class="menus__mobile-toolbar" aria-label="Filtres menus">
+                    <button class="menus__filters-toggle" type="button">Filtres</button>
+                </div>
+                <div class="menus__filters">
+                    <input type="number" id="filter-price-max" placeholder="Prix max (€)" min="0">
+                    <select id="filter-theme">
+                        <option value="">Thème</option>
+                        <!-- Rempli par JS -->
+                    </select>
+                    <select id="filter-regime">
+                        <option value="">Régime</option>
+                        <!-- Rempli par JS -->
+                    </select>
+                    <input type="number" id="filter-nb-pers" placeholder="Nb pers. min" min="1">
+                </div>
+            </div>
+            <div class="menus__list" id="menus-list">
+                <!-- Les cartes menus seront injectées ici par JS -->
+                <p class="menus__loading">Chargement des menus...</p>
+            </div>
+
+            <div class="menus__controls" aria-label="Navigation des menus">
+                <button class="menus__arrow menus__arrow--prev" type="button" aria-label="Menu précédent">&#8249;</button>
+                <button class="menus__arrow menus__arrow--next" type="button" aria-label="Menu suivant">&#8250;</button>
+            </div>
+            
+        </section>
+        
+        <!-- Footer as its own snap section -->
+        <section class="footer-section" id="footer-section">
+            <footer class="footer">
+                <div class="footer__inner">
+                    <div class="footer__brand">
+                        <a href="/">
+                            <img src="/assets/logos/logo.png" alt="Logo Vite & Gourmand" class="footer__logo">
+                        </a>
+                    </div>
+
+                    <div class="footer__center">
+                        <p class="footer__info">Horaires: Lun-Dim 9h-19h</p>
+                        <p class="footer__info">Contact: <a href="mailto:contact@vite-gourmand.fr" class="footer__link">contact@vite-gourmand.fr</a></p>
+                    </div>
+
+                    <div class="footer__legal">
+                        <a href="/mentions-legales" class="footer__link">Mentions légales</a>
+                    </div>
+                </div>
+
+                <div class="footer__bottom">
+                    <p>&copy; <span id="currentYear"></span> Vite & Gourmand. Tous droits réservés</p>
+                </div>
+            </footer>
+
+        </section>
+    </main>
+
+
+    <!-- Scripts -->
+    <script src="/frontend/js/utils/logger.js"></script>
+    <script src="/frontend/js/core/components.js"></script>
+    <script src="/frontend/js/services/authService.js"></script>
+    <script src="/frontend/js/services/menuService.js"></script>
+    <script src="/frontend/js/auth/auth-navbar.js"></script>
+    <script src="/frontend/js/core/navbar.js"></script>
+    <script src="/frontend/js/utils/helpers.js"></script>
+    <script src="/frontend/js/utils/scroll-reveal.js"></script>
+    <script src="/frontend/js/widgets/avis-carousel.js"></script>
+    <script src="/frontend/js/widgets/menus-carousel.js"></script>
+    <script src="/frontend/js/pages/home-menus.js"></script>
+</body>
+</html>

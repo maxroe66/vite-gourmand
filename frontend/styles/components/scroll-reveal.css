@@ -1,0 +1,32 @@
+/* =========================================
+   — Component: Scroll Reveal
+   Animations d'apparition au scroll via IntersectionObserver.
+   Ajoutez la classe .reveal sur tout élément à animer.
+   ========================================= */
+
+@layer components {
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Variante : décalage pour effet cascade entre éléments frères */
+  .reveal--delay {
+    transition-delay: 0.25s;
+  }
+
+  /* Respecter les préférences utilisateur */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}

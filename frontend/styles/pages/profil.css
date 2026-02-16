@@ -1,0 +1,127 @@
+@layer pages {
+/* Styles pour la page profil.html */
+
+/* Cible spécifiquement le main pour la page profil */
+main.profil-page {
+    padding-block: var(--space-8);
+}
+
+.error-text {
+    color: var(--color-error, red);
+    font-weight: bold;
+}
+
+.order-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    background: var(--color-bg-secondary, #f8f9fa); /* fallback to bg-secondary or white */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* responsive */
+    gap: var(--space-4);
+}
+
+.order-info h3 { 
+    margin: 0; 
+    font-size: 1.1rem; 
+    color: var(--color-title-primary);
+}
+
+.order-meta { 
+    color: var(--color-text-muted); 
+    font-size: 0.9rem; 
+    margin-top: 4px; 
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.badge-en_attente { background: #fff3cd; color: #856404; }
+.badge-accepte { background: #d4edda; color: #155724; }
+.badge-annulee { background: #f8d7da; color: #721c24; }
+.badge-terminee { background: #cce5ff; color: #004085; }
+.badge-en_preparation { background: #e2e3e5; color: #383d41; }
+.badge-livre { background: #d1ecf1; color: #0c5460; }
+
+
+.action-group {
+    display: flex;
+    gap: 10px;
+}
+
+/* Timeline */
+.timeline-container {
+    margin-top: 20px;
+    padding-left: 20px;
+    border-left: 2px solid var(--color-primary);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px; /* Ajusté pour centrer sur la ligne (2px width) : -20 padding - 1px border - 5px radius? */
+    /* border-left is at 0px inside container (padding-left 20px). 
+       Actually container has padding-left 20px and border-left. 
+       Wait, border-left is on container. 
+       Let's keep simple positioning roughly correct or tweak later.
+    */
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    outline: 2px solid white; 
+}
+
+/* Modal : styles partagés via modals.css */
+
+@media (max-width: 768px) {
+    .order-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .action-group {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Star Rating */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    gap: 0.2rem;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 2rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+/* Color stars when checked or hovered */
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #fbbf24;
+}
+} /* end @layer pages */

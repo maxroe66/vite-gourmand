@@ -15,7 +15,7 @@ document.addEventListener('componentsLoaded', async () => {
         if (desktopActions) {
             // Ajout du bouton Mon Profil + Déconnexion
             desktopActions.innerHTML = `
-                <a href="/frontend/frontend/pages/profil.html" class="button button--ghost" style="margin-right: 8px;">
+                <a href="/frontend/pages/profil.html" class="button button--ghost u-mr-sm">
                     Mon Profil
                 </a>
                 <button class="button button--primary" id="logoutBtnDesktop">
@@ -27,14 +27,14 @@ document.addEventListener('componentsLoaded', async () => {
         // --- 2. Mobile Actions existantes ---
         // On masque les li "connexion" et "inscription" du mobile (qui ont la classe .navbar__mobile-action)
         const mobileActions = document.querySelectorAll('.navbar__mobile-action');
-        mobileActions.forEach(el => el.style.display = 'none');
+        mobileActions.forEach(el => el.classList.add('u-hidden'));
 
         // Ajout Lien Profil Mobile
         const mobileMenu = document.querySelector('.navbar__menu--mobile');
         if (mobileMenu) {
             const liProfil = document.createElement('li');
             liProfil.innerHTML = `
-                <a href="/frontend/frontend/pages/profil.html" class="navbar__link">
+                <a href="/frontend/pages/profil.html" class="navbar__link">
                     Mon Profil
                 </a>
             `;
@@ -51,7 +51,7 @@ document.addEventListener('componentsLoaded', async () => {
                 // On ajoute une classe pour pouvoir le cibler si besoin
                 li.className = 'navbar__management-link';
                 li.innerHTML = `
-                    <a href="/frontend/frontend/pages/admin/dashboard.html" class="navbar__link" style="color: #e67e22; font-weight: bold;">
+                    <a href="/frontend/pages/admin/dashboard.html" class="navbar__link navbar__link--admin">
                         Espace Gestion
                     </a>
                 `;
@@ -62,7 +62,7 @@ document.addEventListener('componentsLoaded', async () => {
         // --- 4. Ajout du bouton Déconnexion sur Mobile ---
         if (mobileMenu) {
             const liLogout = document.createElement('li');
-            liLogout.style.textAlign = 'center';
+            liLogout.classList.add('u-text-center');
             liLogout.innerHTML = `
                 <button class="button button--ghost" id="logoutBtnMobile">
                     Déconnexion
@@ -85,6 +85,6 @@ document.addEventListener('componentsLoaded', async () => {
         if (btnLogoutMobile) btnLogoutMobile.addEventListener('click', handleLogout);
 
     } catch (e) {
-        console.error("Erreur lors de la mise à jour de la navbar :", e);
+        Logger.error("Erreur lors de la mise à jour de la navbar :", e);
     }
 });

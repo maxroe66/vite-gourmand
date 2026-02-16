@@ -29,7 +29,15 @@ class RateLimitMiddleware
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->storageDir = sys_get_temp_dir() . '/vg_rate_limit';
+        // Stockage persistant dans backend/var/rate_limit/ (survit aux redémarrages)
+        // Fallback sur /tmp si le dossier projet n'est pas accessible
+        $projectDir = realpath(__DIR__ . '/../../var/rate_limit');
+        if ($projectDir === false) {
+            $candidate = __DIR__ . '/../../var/rate_limit';
+            @mkdir($candidate, 0700, true);
+            $projectDir = realpath($candidate);
+        }
+        $this->storageDir = $projectDir ?: sys_get_temp_dir() . '/vg_rate_limit';
     }
 
     /**

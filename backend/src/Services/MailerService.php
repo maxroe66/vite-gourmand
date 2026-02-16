@@ -233,7 +233,7 @@ class MailerService
             $frontendUrl = $this->config['app_url'] ?? 'http://localhost:5173';
             // Lien direct vers la page Profil avec l'ID de la commande et un fragment utile pour le scroll/identifiant
             // Pointer vers la page profil statique (chemin utilisé par le frontend)
-            $orderLink = rtrim($frontendUrl, '/') . '/frontend/frontend/pages/profil.html?orderId=' . $commandeId . '#order-' . $commandeId;
+            $orderLink = rtrim($frontendUrl, '/') . '/frontend/pages/profil.html?orderId=' . $commandeId . '#order-' . $commandeId;
 
             $templatePath = __DIR__ . '/../../templates/emails/review_available.html';
             if (!file_exists($templatePath)) {

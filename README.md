@@ -5,8 +5,8 @@
 # Vite & Gourmand
 Application web de gestion de menus, commandes et avis.
 
-- **Backend** : PHP (MySQL + MongoDB)
-- **Frontend** : (à compléter)
+- **Backend** : PHP 8+ (MySQL + MongoDB), architecture MVC, API REST JSON
+- **Frontend** : HTML5 / CSS3 (architecture @layer) / JavaScript vanilla (ES6+)
 
 ---
 
@@ -20,18 +20,39 @@ Vite & Gourmand permet :
 ---
 
 ## ⚡ Démarrage rapide (DEV)
-**Prérequis** : Docker + Docker Compose
-```bash
-# Lancer tous les services (backend, BDD, outils)
-docker compose up -d
 
+**Prérequis :** Docker + Docker Compose
+
+### 1. Cloner le dépôt
+```bash
+git clone https://github.com/maxroe66/vite-gourmand.git
+cd vite-gourmand
 ```
 
-- Application : http://localhost:8000
-- phpMyAdmin : http://localhost:8081
-- Mongo Express : http://localhost:8082
+### 2. Configurer les variables d'environnement
+```bash
+cp .env.example .env
+```
+> Les valeurs par défaut fonctionnent telles quelles. Aucune modification n'est nécessaire pour un usage local.
 
-**Bases utilisées en DEV :**
+### 3. Lancer les services
+```bash
+docker compose up -d
+```
+
+### 4. Initialiser le compte administrateur
+```bash
+docker exec vite-php-app php scripts/setup/setup-admin-password.php
+```
+
+### Accès locaux
+| Service | URL |
+|---|---|
+| Application | http://localhost:8000 |
+| phpMyAdmin | http://localhost:8081 |
+| Mongo Express | http://localhost:8082 |
+
+**Bases de données DEV :**
 - MySQL : `vite_gourmand` (port 3306)
 - MongoDB : `vite_gourmand` (port 27017)
 
@@ -39,13 +60,18 @@ docker compose up -d
 
 ## 🧪 Tests backend (DB de test + API)
 
-Lance tout (reset DB test + PHPUnit + Newman) :
+**Configuration :**
+```bash
+cp .env.test.example .env.test
+```
+> Les valeurs par défaut correspondent aux containers Docker de test.
 
+**Lancer les tests :**
 ```bash
 ./scripts/tests/test_backend.sh
 ```
 
-**Bases utilisées en TEST :**
+**Bases de données TEST :**
 - MySQL : `vite_gourmand_test` (port 3307)
 - MongoDB : `vite_gourmand_test` (port 27018)
 
@@ -61,7 +87,7 @@ Lance tout (reset DB test + PHPUnit + Newman) :
 
 ### CD (build & publication de l’image Docker)
 - Workflow : `.github/workflows/publish-image.yml`
-- Build l’image Docker via `Dockerfile.azure`
+- Build l'image Docker via `docker/azure/Dockerfile.azure`
 - Push l’image sur GitHub Container Registry (GHCR) :
   - `ghcr.io/maxroe66/vite-gourmand:develop`
   - `ghcr.io/maxroe66/vite-gourmand:<sha>`
@@ -105,6 +131,14 @@ Lance tout (reset DB test + PHPUnit + Newman) :
 
 ## ⚙️ Configuration
 
-- `.env.example` : template (à copier vers `.env`)
-- `.env` : configuration DEV (base réelle)
-- `.env.test` : configuration TEST (base test)
+Le projet utilise plusieurs fichiers d'environnement, un par contexte :
+
+| Fichier | Rôle | Versionné |
+|---|---|---|
+| `.env.example` | Template pour le développement local + Docker | ✅ Oui |
+| `.env.test.example` | Template pour les tests | ✅ Oui |
+| `.env.azure.example` | Template pour le déploiement Azure | ✅ Oui |
+| `.env` | Configuration DEV (secrets réels) | ❌ Ignoré |
+| `.env.test` | Configuration tests | ❌ Ignoré |
+
+> **Sécurité :** Les fichiers contenant des secrets réels (`.env`, `.env.test`, `.env.azure`) sont exclus du dépôt via `.gitignore`. Seuls les templates (`.env.example`, `.env.test.example`, `.env.azure.example`) sont versionnés.

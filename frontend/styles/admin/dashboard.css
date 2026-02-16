@@ -1,0 +1,627 @@
+@layer pages {
+/* Éléments admin cachés par défaut (affichés par JS si admin) */
+.admin-only { display: none; }
+
+/* --- Layout --- */
+.dashboard-body {
+    display: flex;
+    flex-direction: column; 
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--color-surface);
+    overflow: hidden; 
+    margin: 0;
+    padding-top: 80px; /* Default for Desktop Fixed Navbar */
+}
+
+/* Base definitions (Desktop first) */
+.dashboard-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex: 1; /* Take remaining height */
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+    width: 250px;
+    background-color: var(--color-secondary);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.3s ease;
+    height: 100%; /* Fill wrapper */
+    overflow-y: auto;
+}
+
+.sidebar__user {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background-color: rgba(0,0,0,0.1);
+}
+
+.sidebar__user-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.sidebar__user-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar__user-name {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar__user-role {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.sidebar__menu {
+    flex: 1;
+    list-style: none;
+    padding: 1rem 0;
+    overflow-y: auto;
+}
+
+.sidebar__item {
+    margin-bottom: 0.2rem;
+}
+
+.sidebar__link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1.5rem;
+    color: rgba(255,255,255,0.8);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.sidebar__link:hover {
+    background-color: rgba(255,255,255,0.05);
+    color: white;
+}
+
+.sidebar__link.active {
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: 500;
+    border-left: 4px solid white;
+}
+
+/* --- Main Content --- */
+.dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%; 
+    min-width: 0; /* CRITICAL: Allows flex child (table container) to shrink/scroll */
+    margin: 0; 
+    padding: 0; 
+}
+
+.dashboard-header {
+    background-color: var(--color-bg);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    height: 70px;
+}
+
+.dashboard-header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--color-text);
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    position: relative;
+    background-color: var(--color-surface);
+}
+
+/* --- Loader --- */
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+.loader {
+    border: 5px solid var(--color-bg-secondary);
+    border-top: 5px solid var(--color-primary);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+/* @keyframes spin déjà défini dans forms.css */
+
+/* --- Data Tables --- */
+.table-responsive {
+    overflow-x: auto;
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-100);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.data-table th, 
+.data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.data-table th {
+    background-color: var(--color-surface);
+    font-weight: 600;
+    color: var(--color-text);
+    position: sticky;
+    top: 0;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr:hover {
+    background-color: var(--color-surface);
+}
+
+.data-table__actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.badge--success { background-color: var(--color-success-bg); color: var(--color-success-text); }
+.badge--info { background-color: var(--color-info-bg); color: var(--color-info-text); }
+
+/* --- Modal & formulaires : styles partagés via modals.css et forms.css --- */
+
+/* TABLET ADJUSTMENTS (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 80px; 
+    }
+
+    .sidebar__user {
+        padding: 1rem 0.5rem;
+        justify-content: center;
+    }
+    
+    .sidebar__user-avatar {
+        width: 35px;
+        height: 35px;
+        margin: 0;
+    }
+
+    .sidebar__user-info,
+    .sidebar__link span {
+        display: none;
+    }
+
+    .sidebar__link {
+        justify-content: center;
+        padding: 1rem 0.5rem;
+    }
+
+    .sidebar__link i {
+        margin: 0;
+        font-size: 1.3rem; 
+    }
+    
+    .dashboard-content {
+        padding: 1rem;
+    }
+}
+
+
+/* MOBILE CARDS VIEW (<768px) */
+@media (max-width: 768px) {
+    /* Hide Table Headers */
+    .data-table thead {
+        display: none;
+    }
+    .data-table {
+        min-width: 0; /* Allow full responsiveness */
+    }
+    /* Make Rows look like Cards */
+    .data-table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-bg);
+        box-shadow: var(--shadow-100);
+    }
+    
+    .data-table tr:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-200);
+        transition: all var(--transition-fast);
+    }
+
+    /* Make Cells behave like flex rows */
+    .data-table td {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid var(--color-border);
+        text-align: right; /* Content aligns right */
+    }
+
+    .data-table td:last-child {
+        border-bottom: none;
+        background-color: var(--color-surface);
+        border-bottom-left-radius: var(--radius-md);
+        border-bottom-right-radius: var(--radius-md);
+    }
+
+    /* Pseudo-label for column name */
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--color-muted);
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        margin-right: 1rem;
+        text-align: left;
+    }
+
+    /* Specific adjustments */
+    .data-table td[data-label="Titre"] {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        background-color: var(--color-surface);
+        border-top-left-radius: var(--radius-md);
+        border-top-right-radius: var(--radius-md);
+    }
+    
+    .data-table td[data-label="Titre"]::before {
+        display: none; /* Hide label for Title, self-evident */
+    }
+}
+
+/* Original Mobile Adjustments (<768px) */
+@media (max-width: 768px) {
+    /* Mobile: Navbar becomes relative in navbar.css, so body padding useless */
+    .dashboard-body {
+        padding-top: 0;
+        height: auto; 
+        overflow: auto; /* Allow full page scroll */
+    }
+
+    /* Wrapper becomes Column (Sidebar Top -> Main Bottom) */
+    .dashboard-wrapper {
+        flex-direction: column;
+        height: auto; 
+        overflow: visible;
+    }
+
+    /* Sidebar becomes Horizontal Banner */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-shrink: 0;
+        overflow-y: visible;
+        flex-direction: row; /* Horizontal layout */
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem;
+    }
+
+    .sidebar__menu {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto; /* Scrollable horizontal icons */
+        padding: 0;
+        margin: 0;
+        flex: 1;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .sidebar__item {
+        margin: 0;
+    }
+
+    .sidebar__link span {
+        display: none; /* Hide text, Icons only */
+    }
+    
+    .sidebar__link {
+        padding: 0.5rem;
+        font-size: 1.2rem;
+        justify-content: center;
+        border-left: none; /* Remove left border active style */
+        border-bottom: 3px solid transparent; /* Use bottom border for active */
+    }
+    
+    .sidebar__link.active {
+        border-left: none;
+        border-bottom-color: var(--color-primary);
+        background: none;
+        color: var(--color-primary);
+    }
+
+    /* Show mini user profile or hide */
+    .sidebar__user {
+        display: none; 
+    }
+
+    /* Main Content Unlocks Scroll */
+    .dashboard-main {
+        height: auto;
+        overflow: visible;
+    }
+
+    .dashboard-content {
+        padding: 1rem;
+        overflow: visible;
+    }
+    
+    /* Table Responsive fixes */
+    .table-responsive {
+        border: 1px solid var(--color-border);
+    }
+    
+    .data-table th, .data-table td {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* --- Menu Composition in Modal --- */
+.menu-composition {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.menu-composition--dashed {
+    border: 1px dashed var(--color-border);
+    padding: var(--space-3);
+    background: var(--color-surface);
+}
+
+/* Liste d'URLs d'images dans le modal menu */
+.image-url-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Grille allergènes dans le modal plat */
+.allergenes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    border: 1px solid var(--color-border);
+    padding: 1rem;
+    max-height: 150px;
+    overflow-y: auto;
+    background: var(--color-surface);
+    border-radius: var(--radius-xs);
+}
+
+/* Label allergène dans le modal plat */
+.allergene-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+
+/* Checkbox item dans les listes (plats, matériel) */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+/* Item matériel dans le modal menu */
+.materiel-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.materiel-item__label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.materiel-item__label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.materiel-item__qty {
+    width: 80px;
+    margin-left: 10px;
+}
+
+/* Image row dans le modal menu */
+.image-row {
+    flex: 1;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.image-row input[type="text"] {
+    flex: 1;
+}
+
+.image-row label.btn {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Barre de filtres */
+.filters-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Contrôles statistiques */
+.stats-controls {
+    background: var(--color-bg);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.stats-controls .form-group {
+    margin-bottom: 0;
+}
+
+/* Admin-only : affiché par JS */
+.admin-only.is-visible { display: block; }
+
+/* Cellule tableau centrée */
+.data-table__cell--center {
+    text-align: center;
+}
+
+/* Colonne actions (largeur fixe) */
+.data-table__th--actions {
+    width: 150px;
+}
+
+/* Cellule tableau erreur */
+.data-table__cell--error {
+    color: var(--color-error);
+    text-align: center;
+}
+
+/* Détail commande */
+.cmd-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.cmd-detail-section h4 {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 5px;
+}
+
+.cmd-detail-financials {
+    margin-top: 20px;
+}
+
+.cmd-detail-financials table {
+    width: 100%;
+    text-align: left;
+}
+
+.cmd-detail-total {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.cmd-detail-meta {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--color-muted);
+}
+
+/* Select statut commande avec couleur dynamique */
+.cmd-status-select--pending { border-left: 5px solid var(--color-warning); }
+.cmd-status-select--accepted { border-left: 5px solid var(--color-success); }
+.cmd-status-select--cancelled { border-left: 5px solid var(--color-error); }
+.cmd-status-select--default { border-left: 5px solid var(--color-border); }
+
+.menu-section {
+    background: var(--color-surface);
+    padding: 0.8rem;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--color-border);
+}
+
+.menu-section h6 {
+    margin-bottom: 0.5rem;
+    color: var(--color-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.checkbox-list {
+    max-height: 150px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.checkbox-list label {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.checkbox-list input[type="checkbox"] {
+    margin-top: 3px;
+}
+
+} /* end @layer pages */

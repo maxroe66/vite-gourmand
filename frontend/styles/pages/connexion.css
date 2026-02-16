@@ -1,0 +1,30 @@
+/* =========================================
+   Page: Connexion
+   Styles spécifiques (layout et composants partagés via auth-layout, forms, modals)
+   ========================================= */
+
+@layer pages {
+
+  /* Lien mot de passe oublié */
+  .forgot-password-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--color-primary, #007bff);
+    text-decoration: none;
+    font-size: 0.98rem;
+    transition: color 0.2s;
+  }
+
+  .forgot-password-link:hover {
+    color: var(--color-primary-dark, #0056b3);
+    text-decoration: underline;
+  }
+
+  /* Message état mot de passe oublié */
+  #forgotPasswordMessage {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-size: 0.98rem;
+  }
+
+}

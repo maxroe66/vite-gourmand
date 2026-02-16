@@ -1,43 +1,64 @@
+# ========================
+# Environnement (secrets)
+# ========================
 .env
 .env.*
+!.env.example
 !.env.test.example
-DigiCertGlobalRootCA.crt.pem
-test_mysql_connexion.php
-AZURE_CONFIG_CHECKLIST.md
-readme-correction-test.md
-README.env.md
-readme.correction.md
-readme.ennonce.md
-# Dossiers ignorés
-fichiers_perso/
-plugins/
-# Fichiers ignorés
-# (package-lock.json doit être versionné pour le cache npm CI)
-.env
-.env.compose
-.env.test
-.env.azure
-# Fichiers de métadonnées Windows
-*:Zone.Identifier
+!.env.azure.example
 
-# Node
+# ========================
+# Dépendances
+# ========================
 node_modules/
-
-# Composer
 backend/vendor/
 
-# Caches d'outils
+# ========================
+# Caches & builds
+# ========================
 backend/.php-cs-fixer.cache
 backend/.phpunit.result.cache
 backend/.phpunit.cache/
 
-# Logs
+# ========================
+# Logs & runtime data
+# ========================
 backend/logs/*.log
 !backend/logs/.gitkeep
+backend/var/
 
-# Local Docker certs (mkcert) — do not commit
+# ========================
+# Docker — certificats SSL locaux (mkcert)
+# ========================
 docker/certs/
-docker/certs/*.pem
-docker/certs/*.key
-docker/certs/*.crt
-docker/certs/*.pfx
+
+# ========================
+# Uploads utilisateurs (données runtime)
+# ========================
+public/assets/uploads/*
+!public/assets/uploads/.gitkeep
+
+# ========================
+# Copilot instructions (local uniquement)
+# ========================
+.github/copilot-instructions.md
+
+# ========================
+# Fichiers personnels / brouillons (non versionnés)
+# ========================
+fichiers_perso/
+DigiCertGlobalRootCA.crt.pem
+test_mysql_connexion.php
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+
+# ========================
+# IDE
+# ========================
+.idea/
+.vscode/

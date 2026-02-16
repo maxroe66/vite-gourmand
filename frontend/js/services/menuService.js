@@ -18,7 +18,7 @@ const MenuService = {
     async _handleResponse(response) {
         // Redirection si session expirée (401)
         if (response.status === 401) {
-            window.location.href = '/connexion.html?error=session_expired';
+            window.location.href = '/frontend/pages/connexion.html?error=session_expired';
             throw new Error('Session expirée');
         }
 
@@ -59,11 +59,12 @@ const MenuService = {
         try {
             const response = await fetch(`${this.API_URL}?${params.toString()}`, {
                 method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getMenus:', error);
+            Logger.error('Erreur getMenus:', error);
             throw error;
         }
     },
@@ -77,11 +78,12 @@ const MenuService = {
         try {
             const response = await fetch(`${this.API_URL}/${id}`, {
                 method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur getMenuDetails(${id}):`, error);
+            Logger.error(`Erreur getMenuDetails(${id}):`, error);
             throw error;
         }
     },
@@ -101,7 +103,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur createMenu:', error);
+            Logger.error('Erreur createMenu:', error);
             throw error;
         }
     },
@@ -122,7 +124,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur updateMenu(${id}):`, error);
+            Logger.error(`Erreur updateMenu(${id}):`, error);
             throw error;
         }
     },
@@ -141,7 +143,7 @@ const MenuService = {
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error(`Erreur deleteMenu(${id}):`, error);
+            Logger.error(`Erreur deleteMenu(${id}):`, error);
             throw error;
         }
     },
@@ -153,11 +155,12 @@ const MenuService = {
     async getThemes() {
         try {
             const response = await fetch(`${this.API_URL}/themes`, {
-                method: 'GET'
+                method: 'GET',
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getThemes:', error);
+            Logger.error('Erreur getThemes:', error);
             throw error;
         }
     },
@@ -169,11 +172,12 @@ const MenuService = {
     async getRegimes() {
         try {
             const response = await fetch(`${this.API_URL}/regimes`, {
-                method: 'GET'
+                method: 'GET',
+                credentials: 'include'
             });
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getRegimes:', error);
+            Logger.error('Erreur getRegimes:', error);
             throw error;
         }
     },
@@ -198,7 +202,7 @@ const MenuService = {
             // On s'assure de gérer la réponse standard.
             return this._handleResponse(response);
         } catch (error) {
-            console.error('Erreur getMaterials:', error);
+            Logger.error('Erreur getMaterials:', error);
             throw error;
         }
     }
