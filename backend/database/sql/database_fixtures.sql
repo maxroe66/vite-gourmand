@@ -153,6 +153,39 @@ INSERT IGNORE INTO MENU (id_menu, titre, description, nombre_personne_min, prix,
 (6, 'Menu Vegan Créatif', 'Menu 100% végétal, sans produits d\'origine animale, créatif et gourmand.', 4, 105.00, 10, 'Commande à passer au minimum 4 jours avant la prestation.', 3, 3, TRUE, '2024-03-10 10:00:00');
 
 -- ============================================================
+-- IMAGES DES MENUS
+-- ============================================================
+
+-- Menu de Noël Traditionnel
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(1, '/assets/images/menu-noel.webp', 'Menu de Noël Traditionnel', 1),
+(1, '/assets/images/menu-noel-2.jpg', 'Menu de Noël Traditionnel - photo 2', 2);
+
+-- Menu de Pâques Gourmand
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(2, '/assets/images/menu-paques-2.webp', 'Menu de Pâques Gourmand', 1);
+
+-- Menu Végétarien Raffiné
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(3, '/assets/images/menu-vegetarien.jpg', 'Menu Végétarien Raffiné', 1),
+(3, '/assets/images/menu-vegetarien-2.jpg', 'Menu Végétarien Raffiné - photo 2', 2);
+
+-- Menu Classique 4 Saisons
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(4, '/assets/images/menu-4-saisons.webp', 'Menu Classique 4 Saisons', 1),
+(4, '/assets/images/menu-4-saison-2.jpg', 'Menu Classique 4 Saisons - photo 2', 2);
+
+-- Menu Estival Léger
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(5, '/assets/images/menu-leger.jpg', 'Menu Estival Léger', 1),
+(5, '/assets/images/menu-leger-2.jpg', 'Menu Estival Léger - photo 2', 2);
+
+-- Menu Vegan Créatif
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(6, '/assets/images/menu-vegan.jpg', 'Menu Vegan Créatif', 1),
+(6, '/assets/images/menu-vegan-2.jpg', 'Menu Vegan Créatif - photo 2', 2);
+
+-- ============================================================
 -- ASSOCIATIONS MENUS - PLATS
 -- ============================================================
 
@@ -403,25 +436,26 @@ INSERT IGNORE INTO COMMANDE_STATUT (id_commande, statut, date_changement, modifi
 (15, 'TERMINEE', '2024-10-12 13:00:00', 2, 'Prestation terminée');
 
 -- ============================================================
--- AVIS CLIENTS (11 avis : 10 validés, 1 en attente)
+-- AVIS CLIENTS (12 avis : 11 validés, 1 en attente)
 -- ============================================================
 
 -- Avis validés (~10 mots chacun pour affichage uniforme)
 INSERT IGNORE INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
-(1, 5, 'Plats délicieux et présentation soignée, je recommande vivement !', 'VALIDE', '2024-10-06 10:30:00', 7, 5, 6, 2, '2024-10-06 14:00:00'),
-(2, 5, 'Menu estival parfait, produits frais et livraison impeccable.', 'VALIDE', '2024-08-16 09:15:00', 3, 6, 5, 2, '2024-08-16 15:30:00'),
-(3, 4, 'Bon rapport qualité-prix, des saveurs vraiment excellentes !', 'VALIDE', '2024-09-10 16:20:00', 6, 4, 2, 2, '2024-09-11 09:00:00'),
-(5, 5, 'Noël en famille réussi grâce à ce menu raffiné.', 'VALIDE', '2024-11-22 11:00:00', 8, 8, 1, 2, '2024-11-22 15:00:00'),
-(6, 5, 'Menu végétarien créatif et savoureux, mes invités ont adoré.', 'VALIDE', '2024-07-03 09:30:00', 9, 9, 3, 2, '2024-07-03 14:00:00'),
-(7, 4, 'Classique mais efficace, le magret était parfaitement cuit.', 'VALIDE', '2024-08-27 16:00:00', 10, 10, 4, 2, '2024-08-28 09:00:00'),
-(8, 5, 'Agneau fondant et tarte tatin extraordinaire, bravo au chef !', 'VALIDE', '2024-04-12 10:15:00', 4, 11, 2, 2, '2024-04-12 14:30:00'),
-(9, 4, 'Événement estival réussi, fraîcheur et qualité au rendez-vous.', 'VALIDE', '2024-06-22 14:45:00', 11, 12, 5, 2, '2024-06-23 09:00:00'),
-(10, 5, 'Menu vegan surprenant et gourmand, même les carnivores approuvent !', 'VALIDE', '2024-05-30 17:00:00', 5, 13, 6, 2, '2024-05-31 10:00:00'),
-(11, 5, 'Chapon de Noël exceptionnel, toute la famille était ravie.', 'VALIDE', '2024-12-22 11:30:00', 12, 14, 1, 2, '2024-12-22 16:00:00');
+(1, 5, 'Service impeccable et plats savoureux, une vraie réussite !', 'VALIDE', '2024-10-06 10:30:00', 7, 5, 6, 2, '2024-10-06 14:00:00'),
+(2, 5, 'Fraîcheur remarquable, livraison ponctuelle, convives ravis. Merci beaucoup !', 'VALIDE', '2024-08-16 09:15:00', 3, 6, 5, 2, '2024-08-16 15:30:00'),
+(3, 4, 'Agneau fondant à souhait, un vrai régal pour tous.', 'VALIDE', '2024-09-10 16:20:00', 6, 4, 2, 2, '2024-09-11 09:00:00'),
+(4, 5, 'Noël inoubliable grâce au chapon, toute la famille enchantée.', 'VALIDE', '2024-11-22 11:00:00', 8, 8, 1, 2, '2024-11-22 15:00:00'),
+(5, 5, 'Risotto crémeux parfait, mes invités en redemandent encore !', 'VALIDE', '2024-07-03 09:30:00', 9, 9, 3, 2, '2024-07-03 14:00:00'),
+(6, 4, 'Magret cuit à la perfection, accompagnements délicieux et généreux.', 'VALIDE', '2024-08-27 16:00:00', 10, 10, 4, 2, '2024-08-28 09:00:00'),
+(7, 5, 'Tarte tatin exceptionnelle, un dessert digne d''un grand chef.', 'VALIDE', '2024-04-12 10:15:00', 4, 11, 2, 2, '2024-04-12 14:30:00'),
+(8, 4, 'Repas estival léger et raffiné, idéal pour notre garden-party.', 'VALIDE', '2024-06-22 14:45:00', 11, 12, 5, 2, '2024-06-23 09:00:00'),
+(9, 5, 'Cuisine vegan créative et gourmande, même les sceptiques approuvent !', 'VALIDE', '2024-05-30 17:00:00', 5, 13, 6, 2, '2024-05-31 10:00:00'),
+(10, 5, 'Foie gras sublime et bûche divine, un Noël parfait.', 'VALIDE', '2024-12-22 11:30:00', 12, 14, 1, 2, '2024-12-22 16:00:00'),
+(11, 5, 'Présentation soignée, portions généreuses et saveurs authentiques. Bravo !', 'VALIDE', '2024-10-14 10:00:00', 13, 15, 3, 2, '2024-10-14 15:00:00');
 
 -- Avis en attente de modération
 INSERT IGNORE INTO AVIS_FALLBACK (id_avis_fallback, note, commentaire, statut_validation, date_avis, id_utilisateur, id_commande, id_menu, modere_par, date_validation) VALUES
-(12, 5, 'Risotto crémeux et salade divine, parfait pour un déjeuner.', 'EN_ATTENTE', '2024-10-14 10:00:00', 13, 15, 3, NULL, NULL);
+(12, 5, 'Qualité constante et équipe réactive, je recommande sans hésiter.', 'EN_ATTENTE', '2025-01-05 11:00:00', 3, 6, 5, NULL, NULL);
 
 -- ============================================================
 -- CONTACTS
@@ -453,7 +487,7 @@ SELECT 'PLATS', COUNT(*), '17 plats (entrées, plats, desserts)' FROM PLAT
 UNION ALL
 SELECT 'COMMANDES', COUNT(*), '15 commandes (différents statuts pour tester tous les parcours)' FROM COMMANDE
 UNION ALL
-SELECT 'AVIS', COUNT(*), '11 avis (10 validés pour page accueil, 1 en attente)' FROM AVIS_FALLBACK
+SELECT 'AVIS', COUNT(*), '12 avis (11 validés pour page accueil, 1 en attente)' FROM AVIS_FALLBACK
 UNION ALL
 SELECT 'CONTACTS', COUNT(*), '3 messages de contact (1 traité, 2 en attente)' FROM CONTACT;
 
