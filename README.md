@@ -1,5 +1,6 @@
 
 [![Tests backend automatisés](https://github.com/maxroe66/vite-gourmand/actions/workflows/test-backend.yml/badge.svg?branch=develop)](https://github.com/maxroe66/vite-gourmand/actions/workflows/test-backend.yml?query=branch%3Adevelop)
+[![Tests frontend automatisés](https://github.com/maxroe66/vite-gourmand/actions/workflows/frontend-tests.yml/badge.svg?branch=develop)](https://github.com/maxroe66/vite-gourmand/actions/workflows/frontend-tests.yml?query=branch%3Adevelop)
 [![Déploiement Azure](https://github.com/maxroe66/vite-gourmand/actions/workflows/deploy-azure.yml/badge.svg?branch=develop)](https://github.com/maxroe66/vite-gourmand/actions/workflows/deploy-azure.yml?query=branch%3Adevelop)
 
 # Vite & Gourmand
