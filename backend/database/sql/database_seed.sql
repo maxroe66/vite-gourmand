@@ -141,6 +141,39 @@ INSERT IGNORE INTO MENU (id_menu, titre, description, nombre_personne_min, prix,
 (6, 'Menu Vegan Créatif', 'Menu 100% végétal, sans produits d''origine animale, créatif et gourmand.', 4, 105.00, 10, 'Commande à passer au minimum 4 jours avant la prestation.', 3, 3, TRUE, '2024-03-10 10:00:00');
 
 -- ============================================================
+-- IMAGES DES MENUS
+-- ============================================================
+
+-- Menu de Noël Traditionnel
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(1, '/assets/images/menu-noel.webp', 'Menu de Noël Traditionnel', 1),
+(1, '/assets/images/menu-noel-2.jpg', 'Menu de Noël Traditionnel - photo 2', 2);
+
+-- Menu de Pâques Gourmand
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(2, '/assets/images/menu-paques-2.webp', 'Menu de Pâques Gourmand', 1);
+
+-- Menu Végétarien Raffiné
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(3, '/assets/images/menu-vegetarien.jpg', 'Menu Végétarien Raffiné', 1),
+(3, '/assets/images/menu-vegetarien-2.jpg', 'Menu Végétarien Raffiné - photo 2', 2);
+
+-- Menu Classique 4 Saisons
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(4, '/assets/images/menu-4-saisons.webp', 'Menu Classique 4 Saisons', 1),
+(4, '/assets/images/menu-4-saison-2.jpg', 'Menu Classique 4 Saisons - photo 2', 2);
+
+-- Menu Estival Léger
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(5, '/assets/images/menu-leger.jpg', 'Menu Estival Léger', 1),
+(5, '/assets/images/menu-leger-2.jpg', 'Menu Estival Léger - photo 2', 2);
+
+-- Menu Vegan Créatif
+INSERT IGNORE INTO IMAGE_MENU (id_menu, url, alt_text, position) VALUES
+(6, '/assets/images/menu-vegan.jpg', 'Menu Vegan Créatif', 1),
+(6, '/assets/images/menu-vegan-2.jpg', 'Menu Vegan Créatif - photo 2', 2);
+
+-- ============================================================
 -- ASSOCIATIONS MENUS - PLATS
 -- ============================================================
 

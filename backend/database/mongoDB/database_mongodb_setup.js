@@ -214,7 +214,7 @@ print("Insertion des avis clients...");
 db.avis.insertMany([
     {
         note: NumberInt(5),
-        commentaire: "Prestation exceptionnelle ! Les plats étaient délicieux et la présentation soignée. Je recommande vivement pour vos événements.",
+        commentaire: "Service impeccable et plats savoureux, une vraie réussite !",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-10-06T10:30:00Z"),
         id_utilisateur: NumberInt(7),  // Claire Moreau
@@ -227,7 +227,7 @@ db.avis.insertMany([
     },
     {
         note: NumberInt(5),
-        commentaire: "Menu estival parfait pour notre réception. Produits frais, saveurs au rendez-vous. La livraison à Arcachon s'est très bien passée.",
+        commentaire: "Fraîcheur remarquable, livraison ponctuelle, convives ravis. Merci beaucoup !",
         statut_validation: "VALIDE",
         date_avis: new Date("2024-08-16T09:15:00Z"),
         id_utilisateur: NumberInt(3),  // Marie Dupont
@@ -240,72 +240,137 @@ db.avis.insertMany([
     },
     {
         note: NumberInt(4),
-        commentaire: "Très bon rapport qualité-prix. Quelques petits détails à améliorer sur la présentation mais les saveurs étaient au top !",
+        commentaire: "Agneau fondant à souhait, un vrai régal pour tous.",
         statut_validation: "VALIDE",
-        date_avis: new Date("2024-11-11T16:20:00Z"),
+        date_avis: new Date("2024-09-10T16:20:00Z"),
         id_utilisateur: NumberInt(6),  // Thomas Lefebvre
         id_commande: NumberInt(4),     // Commande Menu Pâques LIVRE
         id_menu: NumberInt(2),          // Menu de Pâques Gourmand
         modere_par: NumberInt(2),       // Julie (Employée)
-        date_validation: new Date("2024-11-12T09:00:00Z"),
+        date_validation: new Date("2024-09-11T09:00:00Z"),
         mysql_synced: true,
         mysql_id: NumberInt(3)
     },
     {
         note: NumberInt(5),
-        commentaire: "Commande pour Noël en cours mais contact très professionnel et réactif. Hâte de goûter !",
-        statut_validation: "EN_ATTENTE",
-        date_avis: new Date("2024-12-06T11:00:00Z"),
-        id_utilisateur: NumberInt(3),  // Marie Dupont
-        id_commande: NumberInt(1),     // Commande Menu Noël EN_ATTENTE
+        commentaire: "Noël inoubliable grâce au chapon, toute la famille enchantée.",
+        statut_validation: "VALIDE",
+        date_avis: new Date("2024-11-22T11:00:00Z"),
+        id_utilisateur: NumberInt(8),  // Lucas Dubois
+        id_commande: NumberInt(8),     // Commande Menu Noël TERMINEE
         id_menu: NumberInt(1),          // Menu de Noël Traditionnel
-        modere_par: null,
-        date_validation: null,
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-11-22T15:00:00Z"),
         mysql_synced: true,
         mysql_id: NumberInt(4)
     },
     {
         note: NumberInt(5),
-        commentaire: "Équipe au top ! Le menu de Noël était succulent. Les convives ont adoré le chapon farci aux marrons.",
+        commentaire: "Risotto crémeux parfait, mes invités en redemandent encore !",
         statut_validation: "VALIDE",
-        date_avis: new Date("2024-12-02T20:30:00Z"),
-        id_utilisateur: NumberInt(4),  // Pierre Martin
-        id_commande: NumberInt(7),     // Commande Menu Noël EN_ATTENTE_RETOUR
-        id_menu: NumberInt(1),          // Menu de Noël Traditionnel
+        date_avis: new Date("2024-07-03T09:30:00Z"),
+        id_utilisateur: NumberInt(9),  // Emma Petit
+        id_commande: NumberInt(9),     // Commande Menu Végétarien TERMINEE
+        id_menu: NumberInt(3),          // Menu Végétarien Raffiné
         modere_par: NumberInt(2),       // Julie (Employée)
-        date_validation: new Date("2024-12-03T09:00:00Z"),
-        mysql_synced: false,
-        mysql_id: null
+        date_validation: new Date("2024-07-03T14:00:00Z"),
+        mysql_synced: true,
+        mysql_id: NumberInt(5)
     },
     {
         note: NumberInt(4),
-        commentaire: "Menu végétarien très créatif et savoureux. Seul bémol : le délai de livraison un peu long.",
+        commentaire: "Magret cuit à la perfection, accompagnements délicieux et généreux.",
         statut_validation: "VALIDE",
-        date_avis: new Date("2024-11-20T14:15:00Z"),
-        id_utilisateur: NumberInt(5),  // Sophie Bernard
-        id_commande: NumberInt(3),     // Commande Menu Végétarien EN_PREPARATION
-        id_menu: NumberInt(3),          // Menu Végétarien Raffiné
-        modere_par: NumberInt(2),       // Julie (Employée)
-        date_validation: new Date("2024-11-21T10:00:00Z"),
-        mysql_synced: false,
-        mysql_id: null
-    },
-    {
-        note: NumberInt(2),
-        commentaire: "Déçu par la qualité des produits. Le poisson n'était pas assez frais à mon goût.",
-        statut_validation: "REFUSE",
-        date_avis: new Date("2024-11-25T18:45:00Z"),
-        id_utilisateur: NumberInt(4),  // Pierre Martin
-        id_commande: NumberInt(2),     // Commande Menu Classique ACCEPTE
+        date_avis: new Date("2024-08-27T16:00:00Z"),
+        id_utilisateur: NumberInt(10), // Antoine Garcia
+        id_commande: NumberInt(10),    // Commande Menu Classique TERMINEE
         id_menu: NumberInt(4),          // Menu Classique 4 Saisons
         modere_par: NumberInt(2),       // Julie (Employée)
-        date_validation: new Date("2024-11-26T09:30:00Z"),
-        mysql_synced: false,
-        mysql_id: null
+        date_validation: new Date("2024-08-28T09:00:00Z"),
+        mysql_synced: true,
+        mysql_id: NumberInt(6)
+    },
+    {
+        note: NumberInt(5),
+        commentaire: "Tarte tatin exceptionnelle, un dessert digne d'un grand chef.",
+        statut_validation: "VALIDE",
+        date_avis: new Date("2024-04-12T10:15:00Z"),
+        id_utilisateur: NumberInt(4),  // Pierre Martin
+        id_commande: NumberInt(11),    // Commande Menu Pâques TERMINEE
+        id_menu: NumberInt(2),          // Menu de Pâques Gourmand
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-04-12T14:30:00Z"),
+        mysql_synced: true,
+        mysql_id: NumberInt(7)
+    },
+    {
+        note: NumberInt(4),
+        commentaire: "Repas estival léger et raffiné, idéal pour notre garden-party.",
+        statut_validation: "VALIDE",
+        date_avis: new Date("2024-06-22T14:45:00Z"),
+        id_utilisateur: NumberInt(11), // Camille Roux
+        id_commande: NumberInt(12),    // Commande Menu Estival TERMINEE
+        id_menu: NumberInt(5),          // Menu Estival Léger
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-06-23T09:00:00Z"),
+        mysql_synced: true,
+        mysql_id: NumberInt(8)
+    },
+    {
+        note: NumberInt(5),
+        commentaire: "Cuisine vegan créative et gourmande, même les sceptiques approuvent !",
+        statut_validation: "VALIDE",
+        date_avis: new Date("2024-05-30T17:00:00Z"),
+        id_utilisateur: NumberInt(5),  // Sophie Bernard
+        id_commande: NumberInt(13),    // Commande Menu Vegan TERMINEE
+        id_menu: NumberInt(6),          // Menu Vegan Créatif
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-05-31T10:00:00Z"),
+        mysql_synced: true,
+        mysql_id: NumberInt(9)
+    },
+    {
+        note: NumberInt(5),
+        commentaire: "Foie gras sublime et bûche divine, un Noël parfait.",
+        statut_validation: "VALIDE",
+        date_avis: new Date("2024-12-22T11:30:00Z"),
+        id_utilisateur: NumberInt(12), // Nicolas Laurent
+        id_commande: NumberInt(14),    // Commande Menu Noël TERMINEE
+        id_menu: NumberInt(1),          // Menu de Noël Traditionnel
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-12-22T16:00:00Z"),
+        mysql_synced: true,
+        mysql_id: NumberInt(10)
+    },
+    {
+        note: NumberInt(5),
+        commentaire: "Présentation soignée, portions généreuses et saveurs authentiques. Bravo !",
+        statut_validation: "VALIDE",
+        date_avis: new Date("2024-10-14T10:00:00Z"),
+        id_utilisateur: NumberInt(13), // Isabelle Girard
+        id_commande: NumberInt(15),    // Commande Menu Végétarien TERMINEE
+        id_menu: NumberInt(3),          // Menu Végétarien Raffiné
+        modere_par: NumberInt(2),       // Julie (Employée)
+        date_validation: new Date("2024-10-14T15:00:00Z"),
+        mysql_synced: true,
+        mysql_id: NumberInt(11)
+    },
+    {
+        note: NumberInt(5),
+        commentaire: "Qualité constante et équipe réactive, je recommande sans hésiter.",
+        statut_validation: "EN_ATTENTE",
+        date_avis: new Date("2025-01-05T11:00:00Z"),
+        id_utilisateur: NumberInt(3),  // Marie Dupont
+        id_commande: NumberInt(6),     // Commande Menu Estival TERMINEE
+        id_menu: NumberInt(5),          // Menu Estival Léger
+        modere_par: null,
+        date_validation: null,
+        mysql_synced: true,
+        mysql_id: NumberInt(12)
     }
 ]);
 
-print("✓ 7 avis insérés (4 validés, 1 en attente, 2 refusés)");
+print("✓ 12 avis insérés (11 validés, 1 en attente)");
 
 // --- STATISTIQUES COMMANDES ---
 
