@@ -36,28 +36,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showError(fieldId, message) {
         const field = document.getElementById(fieldId);
+        if (!field) return;
         field.classList.add('error');
         field.setAttribute('aria-invalid', 'true');
         const errorId = fieldId + '-error';
         field.setAttribute('aria-describedby', errorId);
+
+        // Éviter les doublons
+        const existing = document.getElementById(errorId);
+        if (existing) existing.remove();
+
         const errorDiv = document.createElement('div');
         errorDiv.id = errorId;
         errorDiv.className = 'error-message';
+        errorDiv.setAttribute('role', 'alert');
         errorDiv.textContent = message;
-        field.parentNode.appendChild(errorDiv);
+        field.closest('.form-group').appendChild(errorDiv);
     }
 
     function showGeneralError(message) {
-        // Supprimer les anciens messages généraux
         const oldError = document.querySelector('.general-error');
         if (oldError) oldError.remove();
-        
-        // Créer le bandeau
         const errorBanner = document.createElement('div');
         errorBanner.className = 'general-error';
+        errorBanner.setAttribute('role', 'alert');
         errorBanner.textContent = message;
-        
-        // Insérer en haut du formulaire
         form.parentNode.insertBefore(errorBanner, form);
     }
 
@@ -77,26 +80,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
+
+        // Validation côté client avant envoi
+        clearErrors();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
+        let isValid = true;
+        let firstInvalidField = null;
+
+        if (!email) {
+            showError('email', 'Veuillez saisir votre adresse email.');
+            isValid = false;
+            firstInvalidField = document.getElementById('email');
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showError('email', 'Veuillez saisir une adresse email valide.');
+            isValid = false;
+            firstInvalidField = document.getElementById('email');
+        }
+
+        if (!password) {
+            showError('password', 'Veuillez saisir votre mot de passe.');
+            isValid = false;
+            if (!firstInvalidField) firstInvalidField = document.getElementById('password');
+        }
+
+        if (!isValid) {
+            if (firstInvalidField) firstInvalidField.focus();
+            return;
+        }
+
+        // Anti-double-clic + spinner
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Connexion en cours…';
+
         try {
             const result = await AuthService.login(email, password);
-            if(result.ok && result.data.success) {
+            if (result.ok && result.data.success) {
                 showSuccessMessage('Connexion réussie ! Redirection en cours...');
                 setTimeout(() => {
                     window.location.href = '/home';
                 }, 2000);
             } else {
                 clearErrors();
-                if(result.data.errors) {
-                    for(let [fieldName, errorMessage] of Object.entries(result.data.errors)) {
+                if (result.data.errors) {
+                    let firstField = null;
+                    for (const [fieldName, errorMessage] of Object.entries(result.data.errors)) {
                         showError(fieldName, errorMessage);
+                        if (!firstField) firstField = document.getElementById(fieldName);
                     }
+                    if (firstField) firstField.focus();
                 }
             }
         } catch (error) {
-            Logger.error('❌ Erreur réseau:', error);
+            Logger.error('Erreur réseau connexion:', error);
             showGeneralError('Impossible de contacter le serveur. Vérifiez votre connexion.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
         }
     });
 
