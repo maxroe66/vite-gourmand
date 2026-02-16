@@ -24,20 +24,24 @@
                 <form id="inscriptionForm" class="auth-form">
                     <div class="form-group">
                         <label for="firstName">Prénom *</label>
-                        <input type="text" id="firstName" name="firstName" placeholder="Jean" required aria-required="true">
+                        <input type="text" id="firstName" name="firstName" placeholder="Jean" required aria-required="true"
+                               minlength="1" maxlength="100" pattern="[a-zA-ZÀ-ÖØ-öø-ÿ\-\s]+" autocomplete="given-name">
                     </div>
                     <div class="form-group">
                         <label for="lastName">Nom *</label>
-                        <input type="text" id="lastName" name="lastName" placeholder="Dupont" required aria-required="true">
+                        <input type="text" id="lastName" name="lastName" placeholder="Dupont" required aria-required="true"
+                               minlength="1" maxlength="100" autocomplete="family-name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" placeholder="jean.dupont@email.fr" required aria-required="true">
+                        <input type="email" id="email" name="email" placeholder="jean.dupont@email.fr" required aria-required="true"
+                               maxlength="255" autocomplete="email">
                     </div>
                     <div class="form-group">
                         <label for="password">Mot de passe *</label>
                         <div class="password-field">
-                            <input type="password" id="password" name="password" placeholder="********" required aria-required="true">
+                            <input type="password" id="password" name="password" placeholder="********" required aria-required="true"
+                                   minlength="8" maxlength="255" autocomplete="new-password">
                             <button type="button" class="password-toggle" aria-label="Afficher le mot de passe" aria-pressed="false">
                                 <svg class="icon icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                     <path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" fill="currentColor"/>
@@ -51,19 +55,23 @@
                     </div>
                     <div class="form-group">
                         <label for="phone">GSM *</label>
-                        <input type="tel" id="phone" name="phone" placeholder="06 12 34 56 78" required aria-required="true">
+                        <input type="tel" id="phone" name="phone" placeholder="06 12 34 56 78" required aria-required="true"
+                               minlength="10" maxlength="20" pattern="[0-9\s\-\+]{10,}" inputmode="tel" autocomplete="tel">
                     </div>
                     <div class="form-group">
                         <label for="address">Adresse *</label>
-                        <input type="text" id="address" name="address" placeholder="123 Rue de la Liberté" required aria-required="true">
+                        <input type="text" id="address" name="address" placeholder="123 Rue de la Liberté" required aria-required="true"
+                               minlength="5" maxlength="255" autocomplete="street-address">
                     </div>
                     <div class="form-group">
                         <label for="city">Ville *</label>
-                        <input type="text" id="city" name="city" placeholder="Bordeaux" required aria-required="true">
+                        <input type="text" id="city" name="city" placeholder="Bordeaux" required aria-required="true"
+                               minlength="1" maxlength="100" autocomplete="address-level2">
                     </div>
                     <div class="form-group">
                         <label for="postalCode">Code postal *</label>
-                        <input type="text" id="postalCode" name="postalCode" placeholder="33000" required aria-required="true">
+                        <input type="text" id="postalCode" name="postalCode" placeholder="33000" required aria-required="true"
+                               minlength="5" maxlength="5" pattern="\d{5}" inputmode="numeric" autocomplete="postal-code">
                     </div>
                     <button type="submit" class="button button--primary">Créer mon compte</button>
                 </form>
