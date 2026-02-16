@@ -6,6 +6,7 @@ require __DIR__ . '/routes.commandes.php';
 require __DIR__ . '/routes.avis.php';
 require __DIR__ . '/routes.admin.php';
 require __DIR__ . '/routes.materiel.php'; // Routes matériel
+require __DIR__ . '/routes.contact.php'; // Routes contact (formulaire public)
 require __DIR__ . '/routes.diagnostic.php'; // Route de diagnostic MongoDB
 
 // Routes de test : accessibles uniquement en environnement test/development

@@ -108,6 +108,8 @@ if ($method === 'GET' && strpos($path, '/api') !== 0) {
         $staticPagePath = __DIR__ . '/../frontend/pages/connexion.html';
     } elseif ($path === '/reset-password') {
         $staticPagePath = __DIR__ . '/../frontend/pages/motdepasse-oublie.html';
+    } elseif ($path === '/contact') {
+        $staticPagePath = __DIR__ . '/../frontend/pages/contact.html';
     }
 
     if ($staticPagePath && file_exists($staticPagePath)) {
