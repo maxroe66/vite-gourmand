@@ -8,7 +8,8 @@
 #reduction-row.is-visible { display: flex; }
 
 .commande-page {
-    padding-block: var(--space-8);
+    padding-top: calc(var(--navbar-height, 80px) + var(--space-8));
+    padding-bottom: var(--space-8);
 }
 .commande-grid {
     display: grid;

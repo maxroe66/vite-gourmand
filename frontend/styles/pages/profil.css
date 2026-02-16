@@ -3,7 +3,8 @@
 
 /* Cible spécifiquement le main pour la page profil */
 main.profil-page {
-    padding-block: var(--space-8);
+    padding-top: calc(var(--navbar-height, 80px) + var(--space-8));
+    padding-bottom: var(--space-8);
 }
 
 .error-text {

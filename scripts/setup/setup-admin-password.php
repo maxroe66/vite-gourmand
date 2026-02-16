@@ -91,10 +91,14 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ];
 
-    // Support SSL pour Azure
+    // Support SSL pour Azure MySQL (require_secure_transport=ON)
     $sslCert = getenv('MYSQL_SSL_CA');
     if ($sslCert && file_exists($sslCert)) {
         $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCert;
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+    } elseif (str_contains($dbHost, 'azure') || str_contains($dbHost, 'mysql.database')) {
+        // Azure MySQL requiert TLS — activer SSL sans CA spécifique (utilise le trust store système)
+        $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
     }
 
     $pdo = new PDO($dsn, $dbUser, $dbPass, $options);

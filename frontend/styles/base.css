@@ -35,6 +35,8 @@
     flex: 1;
     scroll-behavior: smooth;
     margin-bottom: 0;
+    /* Compense la navbar fixe pour toutes les pages */
+    padding-top: var(--navbar-height, 80px);
   }
   img, svg { display: block; max-width: 100%; height: auto; }
   button, input, select, textarea { font: inherit; color: inherit; }
