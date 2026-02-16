@@ -64,6 +64,22 @@ try {
     print("⚠️  " + e.message);
 }
 
+// Index date_avis (requis par Cosmos DB pour le sort dans getPublicAvis)
+try {
+    db.avis.createIndex({ "date_avis": -1 }, { name: "idx_date_avis_desc" });
+    print("✓ Index avis.date_avis (desc)");
+} catch (e) {
+    print("⚠️  " + e.message);
+}
+
+// Index composé statut + date (optimise la requête filtrée + triée)
+try {
+    db.avis.createIndex({ "statut_validation": 1, "date_avis": -1 }, { name: "idx_statut_date" });
+    print("✓ Index composé avis.statut_validation + date_avis");
+} catch (e) {
+    print("⚠️  " + e.message);
+}
+
 // Index pour statistiques
 try {
     db.statistiques_commandes.createIndex({ "commandeId": 1 }, { unique: true });
