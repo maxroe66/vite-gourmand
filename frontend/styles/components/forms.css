@@ -47,6 +47,11 @@
     border-color: var(--color-error);
   }
 
+  /* Bordure verte sur champs valides après interaction (touched) */
+  .form-group input.touched:valid:not(:focus) {
+    border-color: var(--color-success);
+  }
+
   /* Focus : bordure normale + léger halo */
   .form-group input:focus,
   .form-group select:focus,
