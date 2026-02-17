@@ -6,19 +6,23 @@ Home Page Styles (full viewport sections)
 main {
     flex: none; /* Override flex: 1 de @layer base — incompatible avec height: 100vh */
     height: 100vh;
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: var(--navbar-height, 80px);
-    scroll-behavior: smooth;
+    overflow-y: auto; /* Scroll piloté par JS (scroll-snap-controller) */
+    overscroll-behavior: none; /* Empêche le bounce natif du navigateur */
+    scroll-behavior: auto; /* Override smooth de base.css — le JS gère l'easing */
+    /* Masquer la scrollbar — le JS gère les transitions */
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* IE/Edge legacy */
     /* Empêche le contenu de passer sous le header sticky/fixed */
     padding-top: var(--navbar-height, 80px);
+}
+main::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge Chromium */
 }
 .hero,
 .presentation,
 .menus {
 	/* Hauteur dynamique : toute la zone visible sous le header sticky/fixed */
 	height: calc(100vh - var(--navbar-height, 80px));
-    scroll-snap-align: start;
 }
 
 .menus,
@@ -28,7 +32,6 @@ main {
 }
 
 section {
-	scroll-snap-align: start;
 	width: 100%;
 	display: flex;
 	flex-direction: column;
@@ -47,8 +50,7 @@ section {
     main {
         height: auto;
         overflow-y: visible;
-        scroll-snap-type: none;
-        scroll-padding-top: 0;
+        overscroll-behavior: auto;
         scroll-behavior: auto;
         /* La navbar est responsive (souvent non-fixed en mobile) : pas de padding forcé */
         padding-top: 0;
@@ -58,14 +60,12 @@ section {
     .presentation,
     .menus {
         height: auto;
-        scroll-snap-align: none;
     }
 	.hero {
 		justify-content: center;
 	}
 
     section {
-        scroll-snap-align: none;
         justify-content: flex-start;
     }
 }
