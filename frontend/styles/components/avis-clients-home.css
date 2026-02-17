@@ -2,7 +2,7 @@
 /* Avis Clients Home Component */
 
 .avis-clients {
-	flex: 2 1 0%; /* Proportion réduite : 2/5 de l'espace vs 3/5 pour le cube */
+	flex: 0 0 auto; /* Hauteur naturelle — ne grandit pas sur écrans hauts */
 	display: flex;
 	flex-direction: column; /* Place title above the list */
 	align-items: center;

@@ -38,46 +38,78 @@
         <!-- Section Présentation & Avis -->
         <section class="presentation" id="presentation">
             <div class="presentation__content reveal reveal--left">
-                <!-- Flèches navigation Rubik's Cube -->
+                <!-- Navigation cube 3D -->
                 <div class="presentation__arrows">
-                    <button id="demo-cube-btn" class="arrow-btn arrow-btn--down" aria-label="Voir le Rubik's Cube" tabindex="0">
-                        <span aria-hidden="true">&#8595;</span>
-                    </button>
-                    <button id="demo-cube-btn-back" class="arrow-btn arrow-btn--up" aria-label="Revenir à la vue initiale" tabindex="0">
+                    <button id="demo-cube-btn-back" class="arrow-btn arrow-btn--up" aria-label="Présentation précédente" tabindex="0">
                         <span aria-hidden="true">&#8593;</span>
                     </button>
+                    <button id="demo-cube-btn" class="arrow-btn arrow-btn--down" aria-label="Présentation suivante" tabindex="0">
+                        <span aria-hidden="true">&#8595;</span>
+                    </button>
+                    <div class="presentation__indicators" aria-label="Indicateurs de position">
+                        <span class="presentation__dot is-active" data-index="0"></span>
+                        <span class="presentation__dot" data-index="1"></span>
+                        <span class="presentation__dot" data-index="2"></span>
+                        <span class="presentation__dot" data-index="3"></span>
+                    </div>
                 </div>
-                <!-- Demi-cube gauche (texte) -->
+                <!-- Demi-cube gauche (texte) — 4 faces -->
                 <div class="cube cube--split cube--left">
-                    <div class="cube__face cube__face--front">
+                    <div class="cube__face cube__face--1">
                         <div class="cube__split-content">
                             <h3>Notre Histoire</h3>
                             <p>Vite &amp; Gourmand, traiteur à Bordeaux depuis plus de 25 ans, c'est avant tout une aventure humaine et culinaire. Julie et Joël, deux passionnés de gastronomie, ont fondé cette entreprise avec une idée simple : offrir des repas savoureux qui transforment chaque événement en un moment unique.<br>
                             Depuis nos débuts, nous avons accompagné des centaines de familles, entreprises et associations, en proposant des menus variés, créatifs et adaptés à chaque occasion.</p>
                         </div>
                     </div>
-                    <div class="cube__face cube__face--back">
+                    <div class="cube__face cube__face--2">
                         <div class="cube__split-content">
                             <h3>Notre Professionnalisme</h3>
-                            <p>Une équipe à votre service, réactive et attentive à vos besoins. Nous mettons un point d’honneur à vous offrir une expérience fluide et agréable, depuis la prise de contact jusqu’à la livraison. Chaque détail compte : qualité des produits, respect des délais, et écoute permanente pour répondre à vos attentes. Notre engagement ? Vous garantir des prestations fiables, adaptées à vos envies, avec un suivi personnalisé pour que chaque événement soit une réussite.</p>
+                            <p>Une équipe à votre service, réactive et attentive à vos besoins. Nous mettons un point d'honneur à vous offrir une expérience fluide et agréable, depuis la prise de contact jusqu'à la livraison. Chaque détail compte : qualité des produits, respect des délais, et écoute permanente pour répondre à vos attentes. Notre engagement ? Vous garantir des prestations fiables, adaptées à vos envies, avec un suivi personnalisé pour que chaque événement soit une réussite.</p>
+                        </div>
+                    </div>
+                    <div class="cube__face cube__face--3">
+                        <div class="cube__split-content">
+                            <h3>Nos Engagements</h3>
+                            <p>Des produits frais et de saison, sélectionnés auprès de producteurs locaux bordelais. Nous privilégions les circuits courts et les ingrédients de qualité pour vous offrir des plats authentiques et savoureux. Notre démarche responsable s'étend à la réduction du gaspillage alimentaire et à l'utilisation d'emballages éco-responsables pour chaque livraison.</p>
+                        </div>
+                    </div>
+                    <div class="cube__face cube__face--4">
+                        <div class="cube__split-content">
+                            <h3>Notre Équipe</h3>
+                            <p>Une brigade passionnée de 12 professionnels, formés aux techniques culinaires les plus exigeantes. Du chef exécutif aux commis, chaque membre apporte son savoir-faire et sa créativité pour sublimer vos événements. Ensemble, nous partageons une même vision : faire de chaque repas un moment d'exception qui rassemble et crée des souvenirs inoubliables.</p>
                         </div>
                     </div>
                 </div>
-                <!-- Demi-cube droite (image) -->
+                <!-- Demi-cube droite (image) — 4 faces, rotation opposée -->
                 <div class="cube cube--split cube--right">
-                    <div class="cube__face cube__face--front">
+                    <div class="cube__face cube__face--1">
                         <div class="cube__split-content">
                             <img src="/assets/images/notre-histoire.webp" alt="Photo du chef en cuisine">
                         </div>
                     </div>
-                    <div class="cube__face cube__face--back">
+                    <div class="cube__face cube__face--2">
                         <div class="cube__split-content">
-                            <img src="/assets/images/menu-noel.webp" alt="Photo illustrant le professionnalisme" />
+                            <img src="/assets/images/menu-noel.webp" alt="Photo illustrant le professionnalisme">
+                        </div>
+                    </div>
+                    <div class="cube__face cube__face--3">
+                        <div class="cube__split-content">
+                            <img src="/assets/images/notre-histoire.webp" alt="Photo illustrant nos engagements">
+                        </div>
+                    </div>
+                    <div class="cube__face cube__face--4">
+                        <div class="cube__split-content">
+                            <img src="/assets/images/menu-noel.webp" alt="Photo de notre équipe">
                         </div>
                     </div>
                 </div>
-                <!-- Script démo Rubik's Cube 3D -->
+                <!-- Script cube 3D -->
                 <script src="/frontend/js/widgets/demo-cube.js"></script>
+            </div>
+            <!-- Chevron animé — visible sur écrans hauts (>= 850px) -->
+            <div class="presentation__scroll-hint" aria-hidden="true">
+                <span class="presentation__chevron"></span>
             </div>
             <div class="avis-clients reveal reveal--right">
                 <div class="avis-clients__header">

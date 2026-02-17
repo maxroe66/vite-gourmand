@@ -25,8 +25,14 @@ main::-webkit-scrollbar {
 	height: calc(100vh - var(--navbar-height, 80px));
 }
 
-.menus,
 .presentation {
+	/* Cube en haut, avis en bas — l'espace supplémentaire va entre les deux */
+	justify-content: space-between;
+	padding: clamp(2.5rem, 5vh, 4.5rem) 0 0;
+	gap: clamp(1.5rem, 3vh, 2.5rem);
+}
+
+.menus {
 	/* Contenu aligné en haut, espace vide en bas (plus cohérent visuellement) */
 	justify-content: flex-start;
 }
