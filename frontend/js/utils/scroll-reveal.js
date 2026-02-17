@@ -10,6 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const reveals = document.querySelectorAll('.reveal');
     if (!reveals.length) return;
 
+    // Sur la homepage, le scroll se fait dans <main> (overflow-y: hidden, piloté par JS).
+    // L'IntersectionObserver doit utiliser <main> comme root pour détecter la visibilité.
+    // Sur les autres pages, on garde le viewport document (root: null) par défaut.
+    const mainEl = document.querySelector('main');
+    const isScrollHijacked = mainEl &&
+        getComputedStyle(mainEl).overflowY === 'hidden' &&
+        mainEl.scrollHeight > mainEl.clientHeight;
+    const observerRoot = isScrollHijacked ? mainEl : null;
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -18,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }, {
+        root: observerRoot,
         threshold: 0.15
     });
 

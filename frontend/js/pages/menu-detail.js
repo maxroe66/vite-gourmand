@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let menuImages = [];
 
     // --- Initialisation ---
+    loader.textContent = '';
+    Skeleton.renderDetail(loader);
     init();
 
     async function init() {
@@ -62,7 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
             currentMenu = menu;
             renderMenu(menu, themes, regimes);
             loader.classList.add('u-hidden');
+            Skeleton.clear(loader);
             content.classList.add('is-visible');
+            content.classList.add('anim-fade-in-up');
 
         } catch (error) {
             Logger.error(error);
