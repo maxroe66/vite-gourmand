@@ -114,8 +114,10 @@ describe('demo-cube.js', () => {
         expect(cubeLeft.style.transform).toBe('rotateX(-90deg)');
     });
 
-    it('met à jour is-active-face pour le mobile', () => {
+    it('met à jour is-active-face pour le mobile', async () => {
         document.getElementById('demo-cube-btn').click();
+        // Attendre le fade out (300ms) + marge pour le switch de face
+        await new Promise(r => setTimeout(r, 400));
         const faces = document.querySelectorAll('.cube--left .cube__face');
         expect(faces[0].classList.contains('is-active-face')).toBe(false);
         expect(faces[1].classList.contains('is-active-face')).toBe(true);

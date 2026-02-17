@@ -42,8 +42,8 @@
 		}
 	}
 
-	/* Affiche le chevron uniquement sur écrans assez hauts */
-	@media (min-height: 850px) {
+	/* Affiche le chevron uniquement sur écrans desktop assez hauts */
+	@media (min-height: 850px) and (min-width: 1025px) {
 		.presentation__scroll-hint {
 			display: flex;
 		}
@@ -349,6 +349,7 @@
 			gap: var(--space-4);
 		}
 
+		/* C — Relief carte mobile */
 		.presentation__content {
 			display: flex;
 			flex-direction: column;
@@ -361,6 +362,8 @@
 			padding-bottom: 0;
 			perspective: none;
 			overflow: hidden;
+			box-shadow: 0 4px 20px rgba(44,62,80,0.12);
+			border-left: 3px solid var(--color-primary);
 		}
 
 		.cube--split.cube--right {
@@ -384,12 +387,17 @@
 			display: none;
 			overflow: visible;
 			border-radius: 0;
+			/* A — Transition fade/slide */
+			opacity: 0;
+			transition: opacity 0.4s ease;
 		}
 		.cube__face.is-active-face {
 			display: flex;
+			opacity: 1;
 		}
 		.cube:not([data-step]) .cube__face--1 {
 			display: flex;
+			opacity: 1;
 		}
 
 		.cube__split-content {
@@ -405,16 +413,19 @@
 			color: var(--color-title-primary);
 			font-size: var(--font-500);
 		}
+		/* D — Aérer le texte mobile */
 		.cube__split-content p {
 			margin: 0;
 			color: var(--color-text);
-			font-size: var(--font-300);
-			line-height: var(--lh-relaxed);
+			font-size: 15px;
+			line-height: 1.8;
 		}
 
 		.presentation__arrows {
 			flex-direction: row;
-			gap: var(--space-4);
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: var(--space-3);
 		}
 		.arrow-btn {
 			width: 40px;
@@ -427,10 +438,53 @@
 			transform: rotate(-90deg);
 		}
 
+		/* E — Dots améliorés mobile : ligne séparée sous les flèches */
 		.presentation__indicators {
 			flex-direction: row;
+			flex-basis: 100%; /* force les dots sur une nouvelle ligne */
+			justify-content: center;
 			margin-top: 0;
-			margin-left: 4px;
+			margin-left: 0;
+			gap: 8px;
+		}
+		.presentation__dot {
+			width: 10px;
+			height: 10px;
+			transition: background 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+		}
+		.presentation__dot.is-active {
+			transform: scale(1.5);
+			box-shadow: 0 0 6px rgba(252, 114, 0, 0.4);
+		}
+	}
+
+	/* Petits mobiles (≤ 500px) — suppression du style carte, texte pleine largeur */
+	@media (max-width: 500px) {
+		.presentation__cube-wrapper {
+			padding: 0;
+		}
+
+		.presentation__content {
+			width: 100%;
+			max-width: none;
+			background: transparent;
+			box-shadow: none;
+			border-left: none;
+			border-radius: 0;
+			margin: 0 auto;
+			overflow: visible;
+		}
+
+		.cube__split-content {
+			padding: var(--space-4) var(--space-4);
+		}
+
+		.cube__split-content h3 {
+			font-size: var(--font-600);
+		}
+
+		.cube--left .cube__face {
+			border-radius: 0;
 		}
 	}
 } /* end @layer components */

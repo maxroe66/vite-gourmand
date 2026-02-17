@@ -135,14 +135,42 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ─── Mobile : afficher la bonne face (sans 3D) ───
+  // ─── Mobile : afficher la bonne face avec transition fade ───
 
   function updateMobileFace(step) {
     var facesLeft = cubeLeft.querySelectorAll('.cube__face');
-    facesLeft.forEach(function (face, i) {
-      face.classList.toggle('is-active-face', i === step);
-    });
-    cubeLeft.setAttribute('data-step', step);
+    var isMobile = window.innerWidth <= 1024;
+
+    if (isMobile) {
+      // Fade out la face courante, puis switch et fade in
+      var currentFace = cubeLeft.querySelector('.cube__face.is-active-face') ||
+                        cubeLeft.querySelector('.cube__face--1');
+      var nextFace = facesLeft[step];
+
+      if (currentFace && currentFace !== nextFace) {
+        currentFace.style.opacity = '0';
+        setTimeout(function () {
+          facesLeft.forEach(function (face, i) {
+            face.classList.toggle('is-active-face', i === step);
+          });
+          cubeLeft.setAttribute('data-step', step);
+          // Force reflow pour que la transition opacity s'applique
+          void nextFace.offsetHeight;
+          nextFace.style.opacity = '1';
+        }, 300); // durée du fade out
+      } else {
+        facesLeft.forEach(function (face, i) {
+          face.classList.toggle('is-active-face', i === step);
+        });
+        cubeLeft.setAttribute('data-step', step);
+      }
+    } else {
+      // Desktop : toggle simple (la 3D gère l'animation)
+      facesLeft.forEach(function (face, i) {
+        face.classList.toggle('is-active-face', i === step);
+      });
+      cubeLeft.setAttribute('data-step', step);
+    }
   }
 
   // Init

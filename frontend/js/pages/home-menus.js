@@ -127,6 +127,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    // --- Toggle filtres mobile ---
+    const filtersToggle = document.querySelector('.menus__filters-toggle');
+    const filtersPanel = document.querySelector('.menus__filters');
+    if (filtersToggle && filtersPanel) {
+        filtersToggle.addEventListener('click', () => {
+            filtersPanel.classList.toggle('is-open');
+            filtersToggle.classList.toggle('is-active');
+            filtersToggle.textContent = filtersPanel.classList.contains('is-open') ? 'Fermer' : 'Filtres';
+        });
+    }
+
     // --- Écouteurs d'événements pour les filtres ---
     
     // Debounce pour éviter de spammer l'API quand on tape dans les champs texte
