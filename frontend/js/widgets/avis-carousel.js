@@ -20,10 +20,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Render avis - en respectant le style original (avis-clients__item)
-    track.innerHTML = reviews.map(review => {
+    // Stagger delay pour animation d'entrée en cascade
+    track.innerHTML = reviews.map((review, index) => {
         const stars = renderStars(review.note); // ★★★★★
+        const staggerDelay = Math.min(index * 0.12, 0.6);
         return `
-            <div class="avis-clients__item">
+            <div class="avis-clients__item avis-item--animate" style="animation-delay: ${staggerDelay}s">
                 <p>${escapeHtml(review.commentaire)}</p>
                 <span>- Client vérifié <span class="avis-clients__stars">${stars}</span></span>
             </div>

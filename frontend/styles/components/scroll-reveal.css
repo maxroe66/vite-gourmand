@@ -13,7 +13,7 @@
 
   .reveal.is-visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) translateX(0);
   }
 
   /* Variante : décalage pour effet cascade entre éléments frères */
@@ -21,9 +21,22 @@
     transition-delay: 0.25s;
   }
 
+  /* Variante : entrée depuis la gauche */
+  .reveal--left {
+    transform: translateX(-50px);
+  }
+
+  /* Variante : entrée depuis la droite */
+  .reveal--right {
+    transform: translateX(50px);
+    transition-delay: 0.15s;
+  }
+
   /* Respecter les préférences utilisateur */
   @media (prefers-reduced-motion: reduce) {
-    .reveal {
+    .reveal,
+    .reveal--left,
+    .reveal--right {
       opacity: 1;
       transform: none;
       transition: none;

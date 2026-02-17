@@ -1,0 +1,38 @@
+/* =========================================
+   — Component: Scroll Progress Bar
+   Fine barre horizontale sous la navbar
+   indiquant la progression dans la page.
+   ========================================= */
+
+@layer components {
+  .scroll-progress {
+    position: fixed;
+    top: var(--navbar-height, 80px);
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary) 0%,
+      var(--color-primary-600) 100%
+    );
+    z-index: var(--z-fixed);
+    transition: width 0.15s ease-out;
+    pointer-events: none;
+    box-shadow: 0 0 8px rgba(252, 114, 0, 0.3);
+  }
+
+  /* Masquer sur mobile/tablette */
+  @media (max-width: 1024px) {
+    .scroll-progress {
+      display: none;
+    }
+  }
+
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-progress {
+      transition: none;
+    }
+  }
+}

@@ -4,20 +4,25 @@
 
 @layer components {
   .hero {
-	background: url('/assets/images/hero-bg.webp') center/cover no-repeat;
+	background: var(--color-secondary); /* Couleur de fallback, l'image est sur ::before pour le parallax */
 	color: var(--color-title-secondary);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	position: relative;
 	padding: var(--space-8) var(--space-5);
+	overflow: hidden;
 	}
 	.hero::before {
 		content: '';
 		position: absolute;
-		inset: 0;
-		background: rgba(0,0,0,0.3); /* overlay noir 30% comme Figma */
+		inset: -15% 0; /* Extra height pour que le parallax ne montre pas de vide */
+		background: url('/assets/images/hero-bg.webp') center/cover no-repeat;
+		filter: brightness(0.7); /* Overlay intégré dans le background */
 		z-index: 1;
+		transform: translateY(var(--parallax-y, 0));
+		will-change: transform;
+		pointer-events: none;
 	}
 	.hero__content {
 		position: relative;
@@ -49,7 +54,23 @@
 		animation: heroFadeIn 0.8s ease-out 0.5s both;
 	}
 	.hero__content .button {
-		animation: heroFadeIn 0.8s ease-out 0.8s both, heroPulse 2.5s ease-in-out 2s infinite;
+		animation: heroFadeIn 0.8s ease-out 0.8s both;
+		/* Shimmer premium : gradient diagonal traversant le bouton */
+		background-image: linear-gradient(
+			110deg,
+			var(--color-primary) 0%,
+			var(--color-primary) 40%,
+			rgba(255, 255, 255, 0.25) 50%,
+			var(--color-primary) 60%,
+			var(--color-primary) 100%
+		);
+		background-size: 200% 100%;
+		background-position: 200% center;
+	}
+
+	/* Shimmer lancé après le fadeIn initial (2.5s de délai) */
+	.hero__content .button.is-shimmer {
+		animation: heroFadeIn 0.8s ease-out 0.8s both, shimmer 2.5s ease-in-out 2.5s infinite;
 	}
 
 	@keyframes heroFadeIn {
@@ -65,8 +86,10 @@
 	@media (prefers-reduced-motion: reduce) {
 		.hero__content h1,
 		.hero__content p,
-		.hero__content .button {
+		.hero__content .button,
+		.hero__content .button.is-shimmer {
 			animation: none;
+			background-image: none;
 		}
 	}
 
@@ -74,6 +97,17 @@
 		.hero {
 			padding: var(--space-7) var(--space-5);
 			min-height: 60vh;
+			/* En mobile, pas de parallax : background direct */
+			background: url('/assets/images/hero-bg.webp') center/cover no-repeat;
+		}
+
+		.hero::before {
+			/* Overlay simple sans parallax sur mobile */
+			inset: 0;
+			background: rgba(0,0,0,0.3);
+			filter: none;
+			transform: none;
+			will-change: auto;
 		}
 
 		.hero__content {
