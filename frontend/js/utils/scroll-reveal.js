@@ -32,4 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     reveals.forEach(el => observer.observe(el));
+
+    // Activer le shimmer sur le CTA hero après le fadeIn initial
+    const heroCta = document.querySelector('.hero__content .button');
+    if (heroCta) {
+        setTimeout(() => {
+            heroCta.classList.add('is-shimmer');
+        }, 1600); // Après la fin du heroFadeIn (0.8s delay + 0.8s animation)
+    }
 });

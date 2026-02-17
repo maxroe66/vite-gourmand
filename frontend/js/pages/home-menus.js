@@ -94,15 +94,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const html = menus.map(menu => {
+        const html = menus.map((menu, index) => {
             // Image par défaut si pas d'image
             const image = menu.image ? menu.image : '/assets/images/menu-noel.webp'; 
             
             // Formatage prix
             const prix = parseFloat(menu.prix).toFixed(0);
 
+            // Délai stagger pour animation d'entrée en cascade (max 0.6s)
+            const staggerDelay = Math.min(index * 0.1, 0.6);
+
             return `
-            <div class="menu-card">
+            <div class="menu-card menu-card--animate" style="animation-delay: ${staggerDelay}s">
                 <img src="${image}" alt="${escapeHtml(menu.titre)}" loading="lazy">
                 <div class="menu-card__content">
                     <h3>${escapeHtml(menu.titre)}</h3>
@@ -123,6 +126,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+
+    // --- Toggle filtres mobile ---
+    const filtersToggle = document.querySelector('.menus__filters-toggle');
+    const filtersPanel = document.querySelector('.menus__filters');
+    if (filtersToggle && filtersPanel) {
+        filtersToggle.addEventListener('click', () => {
+            filtersPanel.classList.toggle('is-open');
+            filtersToggle.classList.toggle('is-active');
+            filtersToggle.textContent = filtersPanel.classList.contains('is-open') ? 'Fermer' : 'Filtres';
+        });
+    }
 
     // --- Écouteurs d'événements pour les filtres ---
     

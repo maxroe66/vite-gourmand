@@ -1,339 +1,490 @@
 @layer components {
-/* =============================
-   PRESENTATION & CUBE 3D SPLIT
-   ============================= */
+	/* =============================
+	PRESENTATION & CUBE 3D SPLIT
+	4 faces — rotation séquentielle
+	============================= */
 
-.presentation {
-	position: relative;
-	background: var(--color-bg);
-	padding: var(--space-5) 0 0 0;
-	justify-content: flex-start;
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-5);
-	overflow: visible;
-}
-
-/* Présentation : split cube 3D */
-.presentation__content {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	max-width: 1100px;
-	min-width: 1000px;
-	min-height: 340px;
-	background: var(--color-bg-secondary);
-	margin: 0 auto;
-	border-radius: var(--radius-lg);
-	box-shadow: 0 2px 12px rgba(44,62,80,0.07);
-	align-items: stretch;
-	perspective: 1200px;
-	position: relative;
-	flex: 3 1 0%;
-	overflow: hidden;
-}
-
-/* Flèches navigation cube */
-.presentation__arrows {
-	position: absolute;
-	top: 50%;
-	/* Placées dans le bloc pour éviter d'être coupées (overflow hidden) */
-	right: var(--space-4);
-	transform: translateY(-50%);
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	z-index: var(--z-sticky);
-	pointer-events: auto;
-}
-.arrow-btn {
-	width: 44px;
-	height: 44px;
-	background: var(--color-primary);
-	color: #fff;
-	border: none;
-	border-radius: 50%;
-	box-shadow: 0 2px 8px rgba(44,62,80,0.10);
-	font-size: 2rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	transition: background 0.2s, transform 0.2s;
-	outline: none;
-}
-.arrow-btn:active, .arrow-btn:focus {
-	background: var(--color-primary-600);
-	transform: scale(0.95);
-}
-.arrow-btn--down { margin-bottom: 0; }
-.arrow-btn--up { margin-top: 0; display: none; }
-.arrow-btn.is-active { display: flex; }
-.arrow-btn.is-hidden { display: none; }
-
-
-
-/* Cube 3D split : structure de base (deux demi-cubes côte à côte) */
-.cube {
-	width: 100%;
-	height: 100%;
-	position: relative;
-	transform-style: preserve-3d;
-	transition: transform 0.8s cubic-bezier(0.77,0,0.175,1);
-	/* Pour que chaque demi-cube occupe sa colonne */
-	display: block;
-}
-.cube--split.cube--left {
-	grid-column: 1 / 2;
-	border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-	/* overflow: hidden; retiré pour la 3D */
-}
-.cube--split.cube--right {
-	grid-column: 2 / 3;
-	border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-	/* overflow: hidden; retiré pour la 3D */
-}
-
-
-/* Animation split : flip opposé (180deg pour afficher la face arrière) */
-.cube--split.cube--left.is-flipped {
-	transform: rotateX(-180deg);
-}
-.cube--split.cube--right.is-flipped {
-	transform: rotateX(180deg);
-}
-
-/* Faces du demi-cube (avant/arrière) */
-.cube__face {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	left: 0;
-	top: 0;
-	backface-visibility: hidden;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-.cube__face--front {
-	z-index: 2;
-	background: transparent;
-}
-.cube__face--back {
-	z-index: 1;
-	background: transparent;
-	transform: rotateX(180deg);
-}
-
-/* Contenu de chaque split (texte ou image) */
-.cube__split-content {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	box-sizing: border-box;
-	padding: var(--space-4);
-}
-.cube__split-content h3 {
-	margin-bottom: var(--space-4);
-}
-.cube--right .cube__split-content {
-	padding: 0;
-}
-.cube--right img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	display: block;
-	border-radius: 0 var(--radius-md) var(--radius-md) 0;
-	box-shadow: 0 2px 8px rgba(44,62,80,0.10);
-}
-
-
-/* =========================================
-   Responsive Design
-   ========================================= */
-
-/* Desktop faible hauteur (≤830px) : compacter pour éviter la coupe (scroll-snap conservé) */
-@media (min-width: 1025px) and (max-height: 830px) {
 	.presentation {
-		padding: var(--space-4) 0 0;
+		position: relative;
+		background: var(--color-bg);
+		align-items: center;
+		min-height: 0;
+		overflow-y: hidden; /* clippe le débordement 3D vertical */
+		overflow-x: clip;   /* clippe horizontal sans créer de scrollbar, préserve les flèches dans le flux */
 	}
 
+	/* ─── Chevron animé (séparateur cube ↔ avis) ─── */
+	.presentation__scroll-hint {
+		display: none; /* Masqué par défaut — affiché via media query hauteur */
+		justify-content: center;
+		align-items: center;
+		flex: 0 0 auto;
+	}
+
+	.presentation__chevron {
+		width: 28px;
+		height: 28px;
+		border-right: 3px solid var(--color-primary);
+		border-bottom: 3px solid var(--color-primary);
+		transform: rotate(45deg);
+		opacity: 0.5;
+		animation: chevron-pulse 2s ease-in-out infinite;
+	}
+
+	@keyframes chevron-pulse {
+		0%, 100% {
+			opacity: 0.3;
+			transform: rotate(45deg) translateY(-4px);
+		}
+		50% {
+			opacity: 0.7;
+			transform: rotate(45deg) translateY(4px);
+		}
+	}
+
+	/* Affiche le chevron uniquement sur écrans desktop assez hauts */
+	@media (min-height: 850px) and (min-width: 1025px) {
+		.presentation__scroll-hint {
+			display: flex;
+		}
+	}
+
+	/* Wrapper flex — aligne cube + contrôles côte à côte */
+	.presentation__cube-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(1.5rem, 3vw, 3rem);
+		flex: 0 1 auto;
+		width: 100%;
+		padding: 0 var(--space-6);
+		box-sizing: border-box;
+	}
+
+	/* Container grille — crée l'espace 3D pour les cubes */
 	.presentation__content {
-		min-height: 280px;
-		margin-bottom: var(--space-4);
+		--cube-half-h: 170px; /* fallback — recalculé par JS */
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		max-width: 1100px;
+		min-width: 1000px;
+		min-height: 340px;
+		background: var(--color-bg-secondary);
+		margin: 0;
+		border-radius: var(--radius-lg);
+		box-shadow: 0 2px 12px rgba(44,62,80,0.07);
+		align-items: stretch;
+		perspective: 2000px;
+		perspective-origin: 50% 50%;
+		position: relative;
+		flex: 0 1 auto;
+		overflow: visible; /* laisse les faces 3D dépasser — .presentation clippe */
 	}
 
-	.cube__split-content {
-		padding: var(--space-3);
+	/* Transition d'ombre sur le container (pas sur le cube — filter casse preserve-3d) */
+	.presentation__content.is-rotating {
+		box-shadow: 0 8px 32px rgba(44,62,80,0.15);
 	}
 
-	.cube__split-content h3 {
-		margin-top: var(--space-3);
-		margin-bottom: var(--space-3);
-		font-size: var(--font-600);
-	}
-
-	.cube__split-content p {
-		font-size: var(--font-300);
-		line-height: var(--lh-normal);
-	}
-
-	.arrow-btn {
-		width: 40px;
-		height: 40px;
-		font-size: 1.8rem;
-	}
-}
-
-/* Écrans moyens (1025px - 1200px) : Adaptation du layout desktop */
-@media (min-width: 1025px) and (max-width: 1200px) {
-	.presentation {
-		padding: var(--space-7) 0 0;
-	}
-
-	.presentation__content {
-		min-width: 0;
-		width: 95%;
-		max-width: 950px;
-		min-height: 370px;
-		margin-bottom: var(--space-6);
-	}
-
-	.cube__split-content {
-		padding: var(--space-3);
-	}
-
-	.cube__split-content h3 {
-		font-size: var(--font-600);
-		margin-bottom: 0;
-		margin-top: var(--space-4);
-	}
-
-	.cube__split-content p {
-		font-size: var(--font-400);
-		line-height: var(--lh-normal);
-	}
-
+	/* ─── Flèches navigation (à l'extérieur droit du cube) ─── */
 	.presentation__arrows {
-		/* Évite que la flèche soit coupée (overflow hidden) */
-		right: var(--space-4);
-	}
-
-	.arrow-btn {
-		width: 40px;
-		height: 40px;
-		font-size: 1.8rem;
-	}
-}
-
-/* Tablette et petits ordinateurs (jusqu'à 1175px) */
-
-/* Mobile & Tablette (jusqu'à 1024px)
-   Objectif: remplacer l'effet split 3D par une carte 1 colonne,
-   et garder un switch simple entre "Notre Histoire" / "Notre Professionnalisme".
-*/
-@media (max-width: 1024px) {
-	.presentation {
-		padding: var(--space-4) 0 0 0;
-	}
-
-	.presentation__content {
 		display: flex;
 		flex-direction: column;
-		align-items: stretch;
-		width: calc(100% - (var(--space-5) * 2));
-		max-width: 520px;
-		min-width: 0;
-		min-height: 0;
-		margin: 0 auto var(--space-4);
-		padding-bottom: 72px; /* réserve pour les flèches */
-		perspective: none;
+		align-items: center;
+		gap: 10px;
+		flex-shrink: 0;
+	}
+	.arrow-btn {
+		width: 44px;
+		height: 44px;
+		background: var(--color-primary);
+		color: #fff;
+		border: none;
+		border-radius: 50%;
+		box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+		font-size: 2rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: background 0.2s, transform 0.2s;
+		outline: none;
+	}
+	.arrow-btn:hover {
+		background: var(--color-primary-600);
+		transform: scale(1.08);
+	}
+	.arrow-btn:active,
+	.arrow-btn:focus-visible {
+		background: var(--color-primary-600);
+		transform: scale(0.95);
+	}
+	.arrow-btn--down { margin-bottom: 0; }
+	.arrow-btn--up { margin-top: 0; }
+
+	/* ─── Indicateurs dots ─── */
+	.presentation__indicators {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		margin-top: 4px;
+	}
+	.presentation__dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: rgba(44,62,80,0.20);
+		transition: background 0.3s ease, transform 0.3s ease;
+		cursor: pointer;
+	}
+	.presentation__dot.is-active {
+		background: var(--color-primary);
+		transform: scale(1.4);
+	}
+	.presentation__dot:hover:not(.is-active) {
+		background: rgba(44,62,80,0.40);
+	}
+
+
+	/* ========================
+	CUBE 3D — Géométrie
+	========================
+
+	Chaque demi-cube contient 4 faces positionnées à 90° d'intervalle
+	autour de l'axe X, poussées vers l'extérieur par translateZ(halfH).
+
+	Mathématique :
+	- containerAngle + faceAngle = 0° quand la face est devant le viewer
+	- Cube gauche : container tourne par -90n° → faces à +90n°
+	- Cube droit  : container tourne par +90n° → faces à -90n°
+
+	IMPORTANT : Ne JAMAIS ajouter `filter` sur un élément avec
+	transform-style: preserve-3d — ça force le rendu 2D (flat).
+	======================== */
+
+	.cube {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		transform-style: preserve-3d;
+		transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+		will-change: transform;
+		display: block;
+	}
+	.cube--split.cube--left {
+		grid-column: 1 / 2;
+	}
+	.cube--split.cube--right {
+		grid-column: 2 / 3;
+		transition-delay: 0.15s; /* stagger : l'image suit le texte */
+	}
+
+	/* Faces — positionnement 3D */
+	.cube__face {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		backface-visibility: hidden;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 		overflow: hidden;
 	}
 
-	/* Sur mobile on garde uniquement la partie texte (comme la maquette) */
-	.cube--split.cube--right {
-		display: none;
+	/* Cube gauche (texte) : faces à +90n° */
+	.cube--left .cube__face--1 {
+		transform: rotateX(0deg) translateZ(var(--cube-half-h));
+	}
+	.cube--left .cube__face--2 {
+		transform: rotateX(90deg) translateZ(var(--cube-half-h));
+	}
+	.cube--left .cube__face--3 {
+		transform: rotateX(180deg) translateZ(var(--cube-half-h));
+	}
+	.cube--left .cube__face--4 {
+		transform: rotateX(270deg) translateZ(var(--cube-half-h));
 	}
 
-	.cube {
-		height: auto;
-		transform-style: flat;
-		transition: none;
-		transform: none;
+	/* Cube droit (image) : faces à -90n° (sens opposé) */
+	.cube--right .cube__face--1 {
+		transform: rotateX(0deg) translateZ(var(--cube-half-h));
+	}
+	.cube--right .cube__face--2 {
+		transform: rotateX(-90deg) translateZ(var(--cube-half-h));
+	}
+	.cube--right .cube__face--3 {
+		transform: rotateX(-180deg) translateZ(var(--cube-half-h));
+	}
+	.cube--right .cube__face--4 {
+		transform: rotateX(-270deg) translateZ(var(--cube-half-h));
 	}
 
-	/* IMPORTANT: le JS ajoute .is-flipped et les règles desktop font rotateX.
-	   On les neutralise explicitement en mobile (spécificité supérieure). */
-	.cube--split.cube--left.is-flipped,
-	.cube--split.cube--right.is-flipped {
-		transform: none;
-	}
-
-	/* Désactive le positionnement 3D des faces et affiche une seule face à la fois */
+	/* Fond solide sur chaque face (pas de transparence = pas de voir-à-travers) */
 	.cube__face {
-		position: static;
-		width: 100%;
-		height: auto;
-		backface-visibility: visible;
-	}
-	.cube__face--back {
-		display: none;
-		transform: none;
-	}
-	.cube--split.is-flipped .cube__face--front {
-		display: none;
-	}
-	.cube--split.is-flipped .cube__face--back {
-		display: flex;
+		background: var(--color-bg-secondary);
 	}
 
+	/* Coins arrondis par côté */
+	.cube--left .cube__face {
+		border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+	}
+	.cube--right .cube__face {
+		border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+	}
+
+	/* Contenu de chaque face (texte ou image) */
 	.cube__split-content {
-		align-items: flex-start;
-		justify-content: flex-start;
-		padding: var(--space-6) var(--space-5);
-		gap: var(--space-4);
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		box-sizing: border-box;
+		padding: var(--space-4);
 	}
 	.cube__split-content h3 {
-		width: 100%;
-		text-align: center;
-		margin: 0;
-		color: var(--color-title-primary);
-		font-size: var(--font-500);
+		margin-bottom: var(--space-4);
 	}
-	.cube__split-content p {
-		margin: 0;
-		color: var(--color-text);
-		font-size: var(--font-300);
-		line-height: var(--lh-relaxed);
+	.cube--right .cube__split-content {
+		padding: 0;
+	}
+	.cube--right img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+		box-shadow: 0 2px 8px rgba(44,62,80,0.10);
 	}
 
-	/* Flèches: placées en bas, centrées, orientation gauche/droite */
-	.presentation__arrows {
-		position: absolute;
-		top: auto;
-		right: auto;
-		left: 50%;
-		bottom: var(--space-4);
-		transform: translateX(-50%);
-		flex-direction: row;
-		gap: var(--space-5);
+
+	/* =========================================
+	Responsive Design
+	========================================= */
+
+	/* Desktop faible hauteur (≤830px) */
+	@media (min-width: 1025px) and (max-height: 830px) {
+		.presentation {
+			padding: var(--space-4) 0 0;
+		}
+
+		.presentation__content {
+			min-height: 280px;
+			margin-bottom: var(--space-4);
+		}
+
+		.cube__split-content {
+			padding: var(--space-3);
+		}
+
+		.cube__split-content h3 {
+			margin-top: var(--space-3);
+			margin-bottom: var(--space-3);
+			font-size: var(--font-600);
+		}
+
+		.cube__split-content p {
+			font-size: var(--font-300);
+			line-height: var(--lh-normal);
+		}
+
+		.arrow-btn {
+			width: 40px;
+			height: 40px;
+			font-size: 1.8rem;
+		}
 	}
-	.arrow-btn {
-		width: 40px;
-		height: 40px;
-		font-size: 1.6rem;
+
+	/* Écrans moyens (1025px - 1200px) */
+	@media (min-width: 1025px) and (max-width: 1200px) {
+		.presentation {
+			padding: var(--space-7) 0 0;
+		}
+
+		.presentation__content {
+			min-width: 0;
+			width: 95%;
+			max-width: 950px;
+			min-height: 370px;
+			margin-bottom: var(--space-6);
+		}
+
+		.cube__split-content {
+			padding: var(--space-3);
+		}
+
+		.cube__split-content h3 {
+			font-size: var(--font-600);
+			margin-bottom: 0;
+			margin-top: var(--space-4);
+		}
+
+		.cube__split-content p {
+			font-size: var(--font-400);
+			line-height: var(--lh-normal);
+		}
+
+		.arrow-btn {
+			width: 40px;
+			height: 40px;
+			font-size: 1.8rem;
+		}
 	}
-	.arrow-btn--down span,
-	.arrow-btn--up span {
-		display: inline-block;
-		transform: rotate(-90deg);
+
+	/* Mobile & Tablette (≤ 1024px) — 3D désactivée */
+	@media (max-width: 1024px) {
+		.presentation {
+			padding: var(--space-4) 0 0 0;
+			overflow: hidden;
+		}
+
+		.presentation__cube-wrapper {
+			flex-direction: column;
+			gap: var(--space-4);
+		}
+
+		/* C — Relief carte mobile */
+		.presentation__content {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			width: calc(100% - (var(--space-5) * 2));
+			max-width: 520px;
+			min-width: 0;
+			min-height: 0;
+			margin: 0 auto var(--space-4);
+			padding-bottom: 0;
+			perspective: none;
+			overflow: hidden;
+			box-shadow: 0 4px 20px rgba(44,62,80,0.12);
+			border-left: 3px solid var(--color-primary);
+		}
+
+		.cube--split.cube--right {
+			display: none;
+		}
+
+		.cube {
+			height: auto;
+			transform-style: flat;
+			transition: none;
+			transform: none !important;
+			will-change: auto;
+		}
+
+		.cube__face {
+			position: static;
+			width: 100%;
+			height: auto;
+			backface-visibility: visible;
+			transform: none !important;
+			display: none;
+			overflow: visible;
+			border-radius: 0;
+			/* A — Transition fade/slide */
+			opacity: 0;
+			transition: opacity 0.4s ease;
+		}
+		.cube__face.is-active-face {
+			display: flex;
+			opacity: 1;
+		}
+		.cube:not([data-step]) .cube__face--1 {
+			display: flex;
+			opacity: 1;
+		}
+
+		.cube__split-content {
+			align-items: flex-start;
+			justify-content: flex-start;
+			padding: var(--space-6) var(--space-5);
+			gap: var(--space-4);
+		}
+		.cube__split-content h3 {
+			width: 100%;
+			text-align: center;
+			margin: 0;
+			color: var(--color-title-primary);
+			font-size: var(--font-500);
+		}
+		/* D — Aérer le texte mobile */
+		.cube__split-content p {
+			margin: 0;
+			color: var(--color-text);
+			font-size: 15px;
+			line-height: 1.8;
+		}
+
+		.presentation__arrows {
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: var(--space-3);
+		}
+		.arrow-btn {
+			width: 40px;
+			height: 40px;
+			font-size: 1.6rem;
+		}
+		.arrow-btn--down span,
+		.arrow-btn--up span {
+			display: inline-block;
+			transform: rotate(-90deg);
+		}
+
+		/* E — Dots améliorés mobile : ligne séparée sous les flèches */
+		.presentation__indicators {
+			flex-direction: row;
+			flex-basis: 100%; /* force les dots sur une nouvelle ligne */
+			justify-content: center;
+			margin-top: 0;
+			margin-left: 0;
+			gap: 8px;
+		}
+		.presentation__dot {
+			width: 10px;
+			height: 10px;
+			transition: background 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+		}
+		.presentation__dot.is-active {
+			transform: scale(1.5);
+			box-shadow: 0 0 6px rgba(252, 114, 0, 0.4);
+		}
 	}
-}
+
+	/* Petits mobiles (≤ 500px) — suppression du style carte, texte pleine largeur */
+	@media (max-width: 500px) {
+		.presentation__cube-wrapper {
+			padding: 0;
+		}
+
+		.presentation__content {
+			width: 100%;
+			max-width: none;
+			background: transparent;
+			box-shadow: none;
+			border-left: none;
+			border-radius: 0;
+			margin: 0 auto;
+			overflow: visible;
+		}
+
+		.cube__split-content {
+			padding: var(--space-4) var(--space-4);
+		}
+
+		.cube__split-content h3 {
+			font-size: var(--font-600);
+		}
+
+		.cube--left .cube__face {
+			border-radius: 0;
+		}
+	}
 } /* end @layer components */

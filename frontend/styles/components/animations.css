@@ -87,6 +87,91 @@
   .anim-delay-4 { animation-delay: 0.4s; }
   .anim-delay-5 { animation-delay: 0.5s; }
 
+  /* ── Stagger menu-cards (entrée en cascade) ── */
+
+  @keyframes cardSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .menu-card--animate {
+    opacity: 0;
+    animation: cardSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  /* ── Stagger avis-items (entrée en cascade) ── */
+
+  @keyframes avisSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .avis-item--animate {
+    opacity: 0;
+    animation: avisSlideIn 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  /* ── Bounce hint (flèches interactives) ── */
+
+  @keyframes bounceHint {
+    0%, 100% { transform: translateY(0); }
+    30%      { transform: translateY(-5px); }
+    60%      { transform: translateY(3px); }
+  }
+
+  .arrow-btn--hint {
+    animation: bounceHint 1.5s ease-in-out 2.5s 3;
+  }
+
+  /* ── Shimmer CTA (gradient traversant) ── */
+
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* ── Ripple feedback (flèches carousel) ── */
+
+  @keyframes rippleOut {
+    from {
+      transform: scale(0);
+      opacity: 0.4;
+    }
+    to {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  /* ── Blur-to-sharp reveal pour images ── */
+
+  @keyframes blurReveal {
+    from {
+      filter: blur(8px);
+      opacity: 0.6;
+    }
+    to {
+      filter: blur(0);
+      opacity: 1;
+    }
+  }
+
+  .img-reveal {
+    animation: blurReveal 0.6s ease-out both;
+  }
+
   /* ── Respect prefers-reduced-motion ── */
 
   @media (prefers-reduced-motion: reduce) {
@@ -94,10 +179,15 @@
     .anim-fade-in,
     .anim-slide-left,
     .anim-slide-right,
-    .anim-scale-in {
+    .anim-scale-in,
+    .menu-card--animate,
+    .avis-item--animate,
+    .arrow-btn--hint,
+    .img-reveal {
       animation: none;
       opacity: 1;
       transform: none;
+      filter: none;
     }
   }
 }

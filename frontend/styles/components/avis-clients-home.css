@@ -2,7 +2,7 @@
 /* Avis Clients Home Component */
 
 .avis-clients {
-	flex: 2 1 0%; /* Proportion réduite : 2/5 de l'espace vs 3/5 pour le cube */
+	flex: 0 0 auto; /* Hauteur naturelle — ne grandit pas sur écrans hauts */
 	display: flex;
 	flex-direction: column; /* Place title above the list */
 	align-items: center;
@@ -87,8 +87,38 @@
 }
 
 /* Contrôles visibles par défaut (desktop inclus) */
+.avis-clients__header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-4);
+	width: 100%;
+	flex-wrap: wrap;
+}
+.avis-clients__header h3 {
+	margin-bottom: 0;
+}
 .avis-clients__meta {
-	display: none;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+}
+.avis-clients__rating-line {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	font-size: var(--font-500);
+	font-weight: 600;
+}
+.avis-clients__rating {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+}
+.avis-clients__count {
+	font-weight: 400;
+	font-size: var(--font-400);
+	opacity: 0.85;
 }
 .avis-clients__controls {
 	position: absolute;
@@ -118,6 +148,23 @@
 	font-size: 1.5rem;
 	transition: all 0.2s;
 	z-index: var(--z-dropdown);
+}
+.avis-clients__arrow {
+	position: relative;
+	overflow: hidden;
+}
+.avis-clients__arrow::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: rgba(255, 255, 255, 0.3);
+	transform: scale(0);
+	opacity: 0;
+	pointer-events: none;
+}
+.avis-clients__arrow:active::after {
+	animation: rippleOut 0.4s ease-out;
 }
 .avis-clients__arrow:hover {
 	background: var(--color-primary-600);
@@ -197,7 +244,7 @@
 		align-items: stretch;
 		justify-content: flex-start;
 		gap: var(--space-3);
-		padding: var(--space-5) var(--space-5);
+		padding: var(--space-5) var(--space-4);
 	}
 
 	.avis-clients h3 {
@@ -222,6 +269,21 @@
 		-webkit-line-clamp: 4;
 		line-clamp: 4;
 		font-size: var(--font-300);
+	}
+
+	/* Flèches sous les avis au lieu d'overlay */
+	.avis-clients__controls {
+		position: static;
+		transform: none;
+		justify-content: center;
+		gap: var(--space-5);
+		padding: var(--space-3) 0 0;
+		pointer-events: auto;
+	}
+	.avis-clients__arrow {
+		width: 40px;
+		height: 40px;
+		font-size: 1.3rem;
 	}
 }
 } /* end @layer components */
