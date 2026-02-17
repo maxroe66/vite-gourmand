@@ -37,22 +37,8 @@
 
         <!-- Section Présentation & Avis -->
         <section class="presentation" id="presentation">
+            <div class="presentation__cube-wrapper">
             <div class="presentation__content reveal reveal--left">
-                <!-- Navigation cube 3D -->
-                <div class="presentation__arrows">
-                    <button id="demo-cube-btn-back" class="arrow-btn arrow-btn--up" aria-label="Présentation précédente" tabindex="0">
-                        <span aria-hidden="true">&#8593;</span>
-                    </button>
-                    <button id="demo-cube-btn" class="arrow-btn arrow-btn--down" aria-label="Présentation suivante" tabindex="0">
-                        <span aria-hidden="true">&#8595;</span>
-                    </button>
-                    <div class="presentation__indicators" aria-label="Indicateurs de position">
-                        <span class="presentation__dot is-active" data-index="0"></span>
-                        <span class="presentation__dot" data-index="1"></span>
-                        <span class="presentation__dot" data-index="2"></span>
-                        <span class="presentation__dot" data-index="3"></span>
-                    </div>
-                </div>
                 <!-- Demi-cube gauche (texte) — 4 faces -->
                 <div class="cube cube--split cube--left">
                     <div class="cube__face cube__face--1">
@@ -106,6 +92,22 @@
                 </div>
                 <!-- Script cube 3D -->
                 <script src="/frontend/js/widgets/demo-cube.js"></script>
+            </div>
+            <!-- Navigation cube 3D -->
+            <div class="presentation__arrows">
+                <button id="demo-cube-btn-back" class="arrow-btn arrow-btn--up" aria-label="Présentation précédente" tabindex="0">
+                    <span aria-hidden="true">&#8593;</span>
+                </button>
+                <button id="demo-cube-btn" class="arrow-btn arrow-btn--down" aria-label="Présentation suivante" tabindex="0">
+                    <span aria-hidden="true">&#8595;</span>
+                </button>
+                <div class="presentation__indicators" aria-label="Indicateurs de position">
+                    <span class="presentation__dot is-active" data-index="0"></span>
+                    <span class="presentation__dot" data-index="1"></span>
+                    <span class="presentation__dot" data-index="2"></span>
+                    <span class="presentation__dot" data-index="3"></span>
+                </div>
+            </div>
             </div>
             <!-- Chevron animé — visible sur écrans hauts (>= 850px) -->
             <div class="presentation__scroll-hint" aria-hidden="true">

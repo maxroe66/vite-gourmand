@@ -15,18 +15,14 @@ describe('demo-cube.js', () => {
             unobserve() {}
             disconnect() {}
         };
+        // Mock matchMedia (non supporté par jsdom)
+        window.matchMedia = vi.fn().mockReturnValue({
+            matches: false,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+        });
         document.body.innerHTML = `
             <div class="presentation__content">
-                <div class="presentation__arrows">
-                    <button id="demo-cube-btn-back"><span>↑</span></button>
-                    <button id="demo-cube-btn"><span>↓</span></button>
-                    <div class="presentation__indicators">
-                        <span class="presentation__dot is-active" data-index="0"></span>
-                        <span class="presentation__dot" data-index="1"></span>
-                        <span class="presentation__dot" data-index="2"></span>
-                        <span class="presentation__dot" data-index="3"></span>
-                    </div>
-                </div>
                 <div class="cube cube--split cube--left">
                     <div class="cube__face cube__face--1"></div>
                     <div class="cube__face cube__face--2"></div>
@@ -40,6 +36,16 @@ describe('demo-cube.js', () => {
                     <div class="cube__face cube__face--4"></div>
                 </div>
             </div>
+            <div class="presentation__arrows">
+                <button id="demo-cube-btn-back"><span>↑</span></button>
+                <button id="demo-cube-btn"><span>↓</span></button>
+                <div class="presentation__indicators">
+                    <span class="presentation__dot is-active" data-index="0"></span>
+                    <span class="presentation__dot" data-index="1"></span>
+                    <span class="presentation__dot" data-index="2"></span>
+                    <span class="presentation__dot" data-index="3"></span>
+                </div>
+            </div>
         `;
         loadScript(SRC);
         document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -48,6 +54,7 @@ describe('demo-cube.js', () => {
     afterEach(() => {
         document.body.innerHTML = '';
         delete global.ResizeObserver;
+        delete window.matchMedia;
     });
 
     it('tourne le cube gauche de -90° au clic ↓ (cumulatif)', () => {

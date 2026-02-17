@@ -130,6 +130,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-3);
+	flex: 1; /* occupe tout l'espace vertical restant */
 }
 .menu-card__content h3 {
 	margin: 0;
@@ -152,7 +153,7 @@
 	font-size: var(--font-400);
 	font-weight: 700;
 	text-align: center;
-	margin-top: var(--space-3);
+	margin-top: auto; /* pousse le bouton en bas de la carte */
 	transition: background 0.2s;
 }
 .menu-card__cta:hover {

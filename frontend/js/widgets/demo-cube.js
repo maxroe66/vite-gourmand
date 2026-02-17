@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var container = document.querySelector('.presentation__content');
   var cubeLeft = container ? container.querySelector('.cube--left') : null;
   var cubeRight = container ? container.querySelector('.cube--right') : null;
-  var dots = container ? container.querySelectorAll('.presentation__dot') : null;
+  var dots = document.querySelectorAll('.presentation__dot');
 
   if (!btnDown || !btnUp || !cubeLeft || !cubeRight || !container) return;
 
