@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentions Légales - Vite & Gourmand</title>
+    <meta name="description" content="Mentions légales, conditions générales d'utilisation et de vente, politique de cookies du site Vite & Gourmand, traiteur à Bordeaux.">
+    <link rel="stylesheet" href="/frontend/styles/_tokens.css">
+    <link rel="stylesheet" href="/frontend/styles/base.css">
+    <link rel="stylesheet" href="/frontend/styles/utilities.css">
+    <link rel="stylesheet" href="/frontend/styles/components/navbar.css">
+    <link rel="stylesheet" href="/frontend/styles/components/footer.css">
+    <link rel="stylesheet" href="/frontend/styles/components/scroll-reveal.css">
+    <link rel="stylesheet" href="/frontend/styles/components/animations.css">
+    <link rel="stylesheet" href="/frontend/styles/pages/mentions-legales.css">
+</head>
+<body>
+    <header id="header-placeholder"></header>
+
+    <main>
+        <!-- ═══════════════════════════════════════════
+             HERO
+             ═══════════════════════════════════════════ -->
+        <section class="legal-hero">
+            <div class="legal-hero__content">
+                <h1>Mentions Légales &amp; Conditions</h1>
+                <p class="legal-hero__subtitle">
+                    Informations légales, conditions d'utilisation, de vente et politique de cookies.<br>
+                    Dernière mise à jour : <span id="legalUpdateDate"></span>
+                </p>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             TABLE DES MATIÈRES (sticky)
+             ═══════════════════════════════════════════ -->
+        <nav class="legal-toc" aria-label="Table des matières">
+            <ul class="legal-toc__list">
+                <li>
+                    <a href="#mentions-legales" class="legal-toc__link legal-toc__link--active">
+                        <svg class="legal-toc__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        Mentions légales
+                    </a>
+                </li>
+                <li>
+                    <a href="#cookies" class="legal-toc__link">
+                        <svg class="legal-toc__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                        </svg>
+                        Cookies
+                    </a>
+                </li>
+                <li>
+                    <a href="#cgu" class="legal-toc__link">
+                        <svg class="legal-toc__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        CGU
+                    </a>
+                </li>
+                <li>
+                    <a href="#cgv" class="legal-toc__link">
+                        <svg class="legal-toc__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        </svg>
+                        CGV
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 1 — MENTIONS LÉGALES
+             ═══════════════════════════════════════════ -->
+        <section id="mentions-legales" class="legal-section">
+            <div class="legal-section__inner">
+                <div class="legal-section__header reveal">
+                    <h2 class="legal-section__title">
+                        <svg class="legal-section__title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        Mentions Légales
+                    </h2>
+                    <p class="legal-section__description">
+                        Conformément aux dispositions de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN).
+                    </p>
+                </div>
+
+                <div class="legal-card reveal">
+                    <!-- Article 1 : Éditeur du site -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">1</span>
+                            Éditeur du site
+                        </h3>
+                        <div class="legal-article__content">
+                            <!-- TODO: REMPLACER par les vraies informations de l'entreprise -->
+                            <p>Le site <strong>vite-et-gourmand.me</strong> est édité par :</p>
+                            <ul>
+                                <li><strong>Raison sociale :</strong> Vite & Gourmand SAS</li>
+                                <li><strong>Forme juridique :</strong> Société par Actions Simplifiée (SAS)</li>
+                                <li><strong>Capital social :</strong> 10 000 €</li>
+                                <li><strong>Siège social :</strong> 12 Rue Sainte-Catherine, 33000 Bordeaux, France</li>
+                                <li><strong>SIRET :</strong> 123 456 789 00012</li>
+                                <li><strong>RCS :</strong> Bordeaux B 123 456 789</li>
+                                <li><strong>Numéro de TVA intracommunautaire :</strong> FR 12 345678901</li>
+                                <li><strong>Téléphone :</strong> <a href="tel:+33556000000">05 56 00 00 00</a></li>
+                                <li><strong>Email :</strong> <a href="mailto:contact@vite-et-gourmand.me">contact@vite-et-gourmand.me</a></li>
+                                <li><strong>Directeur de la publication :</strong> Jean Dupont, en qualité de Président</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 2 : Hébergeur -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">2</span>
+                            Hébergeur
+                        </h3>
+                        <div class="legal-article__content">
+                            <!-- TODO: REMPLACER par les vraies informations de l'hébergeur -->
+                            <p>Le site est hébergé par :</p>
+                            <ul>
+                                <li><strong>Raison sociale :</strong> Microsoft Azure — Microsoft Ireland Operations Limited</li>
+                                <li><strong>Adresse :</strong> One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, D18 P521, Irlande</li>
+                                <li><strong>Site web :</strong> <a href="https://azure.microsoft.com" target="_blank" rel="noopener noreferrer">azure.microsoft.com</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 3 : Propriété intellectuelle -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">3</span>
+                            Propriété intellectuelle
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                L'ensemble des contenus présents sur le site <strong>vite-et-gourmand.me</strong> — incluant, de façon non limitative, les textes, photographies, illustrations, logos, icônes, marques, éléments graphiques, vidéos, mises en page et logiciels — est protégé par les dispositions du Code de la propriété intellectuelle et par les conventions internationales relatives au droit d'auteur.
+                            </p>
+                            <p>
+                                Toute reproduction, représentation, modification, publication, adaptation, totale ou partielle, de ces éléments, quel que soit le moyen ou le procédé utilisé, est interdite sans l'autorisation écrite préalable de Vite & Gourmand SAS.
+                            </p>
+                            <p>
+                                Toute exploitation non autorisée du site ou de l'un quelconque de ses éléments sera considérée comme constitutive d'une contrefaçon et poursuivie conformément aux articles L.335-2 et suivants du Code de la propriété intellectuelle.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 4 : Limitation de responsabilité -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">4</span>
+                            Limitation de responsabilité
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Vite & Gourmand SAS s'efforce d'assurer au mieux l'exactitude et la mise à jour des informations diffusées sur le site, dont elle se réserve le droit de corriger le contenu à tout moment et sans préavis.
+                            </p>
+                            <p>
+                                Toutefois, Vite & Gourmand SAS ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition sur le site. En conséquence, l'éditeur décline toute responsabilité :
+                            </p>
+                            <ul>
+                                <li>Pour toute imprécision, inexactitude ou omission portant sur des informations disponibles sur le site</li>
+                                <li>Pour tous dommages résultant d'une intrusion frauduleuse d'un tiers ayant entraîné une modification des informations mises à disposition sur le site</li>
+                                <li>Et plus généralement, pour tous dommages, directs ou indirects, qu'elles qu'en soient les causes, origines, natures ou conséquences</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 5 : Liens hypertextes -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">5</span>
+                            Liens hypertextes
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Le site peut contenir des liens hypertextes vers d'autres sites internet. Vite & Gourmand SAS n'exerce aucun contrôle sur le contenu de ces sites tiers et décline toute responsabilité quant à leur contenu, leurs pratiques en matière de confidentialité, ou leur sécurité.
+                            </p>
+                            <p>
+                                La mise en place de liens hypertextes vers le site <strong>vite-et-gourmand.me</strong> nécessite l'autorisation préalable et écrite de l'éditeur.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 6 : Crédits -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">6</span>
+                            Crédits
+                        </h3>
+                        <div class="legal-article__content">
+                            <!-- TODO: REMPLACER par les vrais crédits -->
+                            <ul>
+                                <li><strong>Conception et développement :</strong> Vite & Gourmand SAS</li>
+                                <li><strong>Design graphique :</strong> Vite & Gourmand SAS</li>
+                                <li><strong>Photographies :</strong> Droits réservés — Vite & Gourmand SAS</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 2 — POLITIQUE DE COOKIES
+             ═══════════════════════════════════════════ -->
+        <section id="cookies" class="legal-section">
+            <div class="legal-section__inner">
+                <div class="legal-section__header reveal">
+                    <h2 class="legal-section__title">
+                        <svg class="legal-section__title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                        </svg>
+                        Politique de Cookies
+                    </h2>
+                    <p class="legal-section__description">
+                        Conformément à la directive européenne 2009/136/CE et aux recommandations de la CNIL.
+                    </p>
+                </div>
+
+                <div class="legal-card reveal">
+                    <!-- Article 1 : Qu'est-ce qu'un cookie ? -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">1</span>
+                            Qu'est-ce qu'un cookie ?
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) lors de la visite d'un site web. Il permet au site de mémoriser des informations sur votre visite, comme votre langue préférée et d'autres paramètres, facilitant ainsi votre prochaine visite et rendant le site plus utile pour vous.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 2 : Cookies utilisés -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">2</span>
+                            Cookies utilisés sur ce site
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>Le site <strong>vite-et-gourmand.me</strong> utilise exclusivement des cookies <strong>strictement nécessaires</strong> au fonctionnement du service. Aucun cookie publicitaire ou de traçage n'est utilisé.</p>
+                            <ul>
+                                <li>
+                                    <strong>Cookie de session (<code>PHPSESSID</code>)</strong> — Permet de maintenir votre session de connexion active. Ce cookie est supprimé à la fermeture du navigateur. <em>Base légale :</em> nécessaire à l'exécution du contrat (connexion à votre compte).
+                                </li>
+                                <li>
+                                    <strong>Cookie CSRF (<code>csrfToken</code>)</strong> — Protège vos actions (formulaires, commandes) contre les attaques de type Cross-Site Request Forgery (CSRF). Ce cookie est un jeton de sécurité essentiel. <em>Base légale :</em> intérêt légitime (sécurité du site et des utilisateurs).
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 3 : Durée de conservation -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">3</span>
+                            Durée de conservation
+                        </h3>
+                        <div class="legal-article__content">
+                            <ul>
+                                <li><strong>PHPSESSID :</strong> Durée de la session (supprimé à la fermeture du navigateur)</li>
+                                <li><strong>csrfToken :</strong> Durée de la session ou 24 heures maximum</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 4 : Gestion des cookies -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">4</span>
+                            Gestion des cookies
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les cookies utilisés sur ce site étant strictement nécessaires à son fonctionnement, ils ne requièrent pas votre consentement préalable conformément à l'article 82 de la loi Informatique et Libertés.
+                            </p>
+                            <p>
+                                Vous pouvez néanmoins configurer votre navigateur pour bloquer les cookies. Veuillez noter que dans ce cas, certaines fonctionnalités du site (connexion, passage de commande) pourraient ne plus être disponibles.
+                            </p>
+                            <p>Pour gérer vos cookies, consultez l'aide de votre navigateur :</p>
+                            <ul>
+                                <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer">Google Chrome</a></li>
+                                <li><a href="https://support.mozilla.org/fr/kb/activer-desactiver-cookies" target="_blank" rel="noopener noreferrer">Mozilla Firefox</a></li>
+                                <li><a href="https://support.apple.com/fr-fr/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer">Safari</a></li>
+                                <li><a href="https://support.microsoft.com/fr-fr/microsoft-edge/supprimer-les-cookies-dans-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09" target="_blank" rel="noopener noreferrer">Microsoft Edge</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 3 — CONDITIONS GÉNÉRALES D'UTILISATION
+             ═══════════════════════════════════════════ -->
+        <section id="cgu" class="legal-section">
+            <div class="legal-section__inner">
+                <div class="legal-section__header reveal">
+                    <h2 class="legal-section__title">
+                        <svg class="legal-section__title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        Conditions Générales d'Utilisation
+                    </h2>
+                    <p class="legal-section__description">
+                        Les présentes CGU régissent l'utilisation du site vite-et-gourmand.me et de ses services.
+                    </p>
+                </div>
+
+                <div class="legal-card reveal">
+                    <!-- Article 1 : Objet -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">1</span>
+                            Objet
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de définir les modalités et conditions d'accès et d'utilisation du site <strong>vite-et-gourmand.me</strong> (ci-après « le Site ») édité par Vite & Gourmand SAS.
+                            </p>
+                            <p>
+                                L'accès au Site et son utilisation impliquent l'acceptation pleine et entière des présentes CGU. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser le Site.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 2 : Description des services -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">2</span>
+                            Description des services
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>Le Site propose les services suivants :</p>
+                            <ul>
+                                <li>Consultation des menus et plats proposés par Vite & Gourmand</li>
+                                <li>Passage de commandes de prestations traiteur en ligne</li>
+                                <li>Création et gestion d'un compte utilisateur personnel</li>
+                                <li>Publication d'avis clients sur les prestations reçues</li>
+                                <li>Envoi de demandes de contact via le formulaire dédié</li>
+                            </ul>
+                            <p>
+                                Vite & Gourmand SAS se réserve le droit de modifier, suspendre ou interrompre tout ou partie des services à tout moment, sans préavis ni indemnité.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 3 : Inscription et compte utilisateur -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">3</span>
+                            Inscription et compte utilisateur
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                L'accès à certaines fonctionnalités du Site (passage de commande, publication d'avis) nécessite la création d'un compte utilisateur. Lors de l'inscription, l'utilisateur s'engage à :
+                            </p>
+                            <ul>
+                                <li>Fournir des informations exactes, complètes et à jour</li>
+                                <li>Maintenir la confidentialité de ses identifiants de connexion</li>
+                                <li>Informer immédiatement Vite & Gourmand de toute utilisation non autorisée de son compte</li>
+                            </ul>
+                            <p>
+                                L'utilisateur est seul responsable de l'utilisation faite de son compte. Vite & Gourmand SAS se réserve le droit de suspendre ou supprimer un compte en cas de manquement aux présentes CGU, sans préavis ni indemnité.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 4 : Obligations de l'utilisateur -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">4</span>
+                            Obligations de l'utilisateur
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>En utilisant le Site, l'utilisateur s'engage à :</p>
+                            <ul>
+                                <li>Ne pas utiliser le Site à des fins illicites ou non autorisées</li>
+                                <li>Ne pas tenter de porter atteinte au bon fonctionnement du Site</li>
+                                <li>Ne pas collecter ou stocker des données personnelles d'autres utilisateurs</li>
+                                <li>Ne pas publier de contenu diffamatoire, injurieux, discriminatoire, obscène ou contraire à l'ordre public</li>
+                                <li>Respecter les droits de propriété intellectuelle de Vite & Gourmand et des tiers</li>
+                                <li>Ne pas utiliser de dispositifs automatisés (robots, scrapers) pour accéder au Site</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 5 : Avis clients -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">5</span>
+                            Avis clients
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les utilisateurs ayant passé commande peuvent publier des avis sur les prestations reçues. Vite & Gourmand SAS se réserve le droit de modérer, modifier ou supprimer tout avis qui :
+                            </p>
+                            <ul>
+                                <li>Contient des propos injurieux, diffamatoires ou discriminatoires</li>
+                                <li>Est manifestement faux ou sans rapport avec les services</li>
+                                <li>Contient des données personnelles de tiers</li>
+                                <li>Inclut du contenu publicitaire ou promotionnel</li>
+                            </ul>
+                            <p>
+                                En publiant un avis, l'utilisateur accorde à Vite & Gourmand SAS une licence non exclusive, gratuite et mondiale de reproduction et d'affichage de cet avis sur le Site.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 6 : Protection des données personnelles -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">6</span>
+                            Protection des données personnelles
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés du 6 janvier 1978 modifiée, Vite & Gourmand SAS collecte et traite les données personnelles suivantes dans le cadre de la fourniture de ses services :
+                            </p>
+                            <ul>
+                                <li><strong>Données d'identification :</strong> nom, prénom, adresse email</li>
+                                <li><strong>Données de commande :</strong> historique des commandes, adresse de livraison, préférences alimentaires</li>
+                                <li><strong>Données de navigation :</strong> cookies strictement nécessaires (voir section Cookies)</li>
+                            </ul>
+                            <p><strong>Finalités du traitement :</strong></p>
+                            <ul>
+                                <li>Gestion de votre compte et authentification</li>
+                                <li>Traitement et suivi de vos commandes</li>
+                                <li>Communication relative à vos commandes (emails transactionnels)</li>
+                                <li>Amélioration de nos services et de l'expérience utilisateur</li>
+                            </ul>
+                            <p><strong>Durée de conservation :</strong> vos données sont conservées pendant la durée de votre inscription, puis supprimées dans un délai de 3 ans après la dernière activité sur votre compte.</p>
+                            <p><strong>Vos droits :</strong> conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, de limitation du traitement, d'opposition et de portabilité de vos données. Pour exercer ces droits, contactez-nous à <a href="mailto:contact@vite-et-gourmand.me">contact@vite-et-gourmand.me</a>.</p>
+                            <p>
+                                En cas de litige relatif à la protection de vos données, vous pouvez introduire une réclamation auprès de la <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">CNIL</a>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 7 : Limitation de responsabilité -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">7</span>
+                            Limitation de responsabilité
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Vite & Gourmand SAS s'engage à mettre en œuvre tous les moyens nécessaires pour assurer la disponibilité et la sécurité du Site. Toutefois, la responsabilité de Vite & Gourmand SAS ne saurait être engagée en cas de :
+                            </p>
+                            <ul>
+                                <li>Interruption temporaire du Site pour maintenance ou mise à jour</li>
+                                <li>Défaillance technique imputable à des tiers (hébergeur, fournisseur d'accès)</li>
+                                <li>Force majeure au sens de l'article 1218 du Code civil</li>
+                                <li>Utilisation du Site non conforme aux présentes CGU</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 8 : Modification des CGU -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">8</span>
+                            Modification des CGU
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Vite & Gourmand SAS se réserve le droit de modifier les présentes CGU à tout moment. Les modifications entrent en vigueur dès leur publication sur le Site. L'utilisation continue du Site après modification vaut acceptation des nouvelles conditions.
+                            </p>
+                            <p>
+                                Il est recommandé aux utilisateurs de consulter régulièrement cette page afin de prendre connaissance des éventuelles modifications.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 9 : Droit applicable et juridiction -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">9</span>
+                            Droit applicable et juridiction compétente
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les présentes CGU sont régies par le droit français. Tout litige relatif à l'interprétation ou à l'exécution des présentes CGU relèvera de la compétence exclusive des tribunaux de Bordeaux, sauf dispositions légales impératives contraires.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 4 — CONDITIONS GÉNÉRALES DE VENTE
+             ═══════════════════════════════════════════ -->
+        <section id="cgv" class="legal-section">
+            <div class="legal-section__inner">
+                <div class="legal-section__header reveal">
+                    <h2 class="legal-section__title">
+                        <svg class="legal-section__title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        </svg>
+                        Conditions Générales de Vente
+                    </h2>
+                    <p class="legal-section__description">
+                        Les présentes CGV s'appliquent à toute commande passée sur le site vite-et-gourmand.me.
+                    </p>
+                </div>
+
+                <div class="legal-card reveal">
+                    <!-- Article 1 : Objet -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">1</span>
+                            Objet
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les présentes Conditions Générales de Vente (ci-après « CGV ») régissent les relations contractuelles entre Vite & Gourmand SAS et tout client (ci-après « le Client ») passant commande sur le Site. Toute commande implique l'acceptation sans réserve des présentes CGV.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 2 : Offre et prix -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">2</span>
+                            Offre et prix
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les menus et prestations proposés sur le Site sont décrits avec la plus grande exactitude possible. Les photographies d'illustration ont une valeur indicative et ne sont pas contractuelles.
+                            </p>
+                            <p>
+                                Les prix sont indiqués en euros, toutes taxes comprises (TTC). Vite & Gourmand SAS se réserve le droit de modifier ses prix à tout moment, étant entendu que le prix applicable est celui en vigueur au moment de la validation de la commande par le Client.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 3 : Processus de commande -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">3</span>
+                            Processus de commande
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>Le processus de commande comprend les étapes suivantes :</p>
+                            <ul>
+                                <li><strong>Sélection :</strong> le Client choisit un ou plusieurs menus et renseigne le nombre de convives ainsi que la date de l'événement</li>
+                                <li><strong>Récapitulatif :</strong> le Client vérifie le détail de sa commande et le montant total</li>
+                                <li><strong>Validation :</strong> le Client confirme sa commande, ce qui vaut acceptation des présentes CGV</li>
+                                <li><strong>Confirmation :</strong> un email de confirmation est envoyé au Client avec le récapitulatif de sa commande</li>
+                            </ul>
+                            <p>
+                                Vite & Gourmand SAS se réserve le droit de refuser ou d'annuler toute commande en cas de motif légitime (indisponibilité, erreur de prix manifeste, suspicion de fraude).
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 4 : Modalités de paiement -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">4</span>
+                            Modalités de paiement
+                        </h3>
+                        <div class="legal-article__content">
+                            <!-- TODO: REMPLACER par les vrais moyens de paiement acceptés -->
+                            <p>
+                                Le règlement des commandes peut s'effectuer par les moyens de paiement suivants :
+                            </p>
+                            <ul>
+                                <li>Carte bancaire (Visa, Mastercard)</li>
+                                <li>Virement bancaire</li>
+                            </ul>
+                            <p>
+                                Le paiement est exigible intégralement à la validation de la commande. La commande ne sera traitée qu'après confirmation du paiement. Les transactions sont sécurisées par un protocole de chiffrement SSL.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 5 : Livraison / Prestation -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">5</span>
+                            Livraison et prestation
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les prestations sont assurées dans la zone géographique de Bordeaux et sa métropole. Les dates, horaires et lieux de livraison sont convenus entre le Client et Vite & Gourmand lors de la validation de la commande.
+                            </p>
+                            <p>
+                                Vite & Gourmand SAS met tout en œuvre pour respecter les délais convenus. Toutefois, un retard raisonnable ne saurait donner lieu à annulation de la commande ni à versement de dommages et intérêts, sauf disposition légale contraire.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 6 : Droit de rétractation -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">6</span>
+                            Droit de rétractation
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Conformément aux articles L.221-18 et suivants du Code de la consommation, le Client dispose d'un délai de <strong>14 jours</strong> à compter de la validation de la commande pour exercer son droit de rétractation, sans avoir à justifier de motifs ni à payer de pénalités.
+                            </p>
+                            <p>
+                                <strong>Exception :</strong> conformément à l'article L.221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les prestations de services d'hébergement, de transport de biens, de locations de voitures, de restauration ou d'activités de loisirs devant être fournies à une date ou à une période déterminée. Les commandes de prestations traiteur pour une date précise sont donc exclues du droit de rétractation dès lors que la prestation a commencé à être exécutée ou que la date prévue rend l'annulation impossible.
+                            </p>
+                            <p>
+                                Pour exercer votre droit de rétractation dans les cas applicables, contactez-nous à <a href="mailto:contact@vite-et-gourmand.me">contact@vite-et-gourmand.me</a> en précisant votre numéro de commande.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 7 : Réclamations -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">7</span>
+                            Réclamations
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Toute réclamation relative à une commande doit être adressée dans les meilleurs délais à <a href="mailto:contact@vite-et-gourmand.me">contact@vite-et-gourmand.me</a> ou via le <a href="/contact">formulaire de contact</a> du Site.
+                            </p>
+                            <p>
+                                En cas de litige non résolu à l'amiable, le Client peut recourir gratuitement au service de médiation des litiges de la consommation. Conformément à l'article L.612-1 du Code de la consommation, le Client peut saisir le médiateur suivant :
+                            </p>
+                            <!-- TODO: REMPLACER par le vrai médiateur désigné -->
+                            <ul>
+                                <li><strong>Médiateur :</strong> [Nom du médiateur à renseigner]</li>
+                                <li><strong>Site web :</strong> [URL du médiateur à renseigner]</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 8 : Allergènes et responsabilité alimentaire -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">8</span>
+                            Allergènes et responsabilité alimentaire
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les informations relatives aux allergènes sont communiquées à titre indicatif sur les fiches des plats. Il est de la responsabilité du Client de signaler toute allergie ou intolérance alimentaire lors de la commande.
+                            </p>
+                            <p>
+                                Vite & Gourmand SAS met tout en œuvre pour prévenir les risques de contamination croisée mais ne peut garantir l'absence totale de traces d'allergènes dans ses préparations.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="legal-divider">
+
+                    <!-- Article 9 : Droit applicable -->
+                    <div class="legal-article">
+                        <h3 class="legal-article__title">
+                            <span class="legal-article__number">9</span>
+                            Droit applicable et juridiction compétente
+                        </h3>
+                        <div class="legal-article__content">
+                            <p>
+                                Les présentes CGV sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution relèvera de la compétence exclusive des tribunaux de Bordeaux, sous réserve des dispositions légales impératives en matière de compétence territoriale applicables aux consommateurs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════
+             BANDEAU DE MISE À JOUR
+             ═══════════════════════════════════════════ -->
+        <section class="legal-update">
+            <p class="legal-update__text">
+                Ces documents sont susceptibles d'être modifiés à tout moment. Veuillez les consulter régulièrement.
+            </p>
+        </section>
+    </main>
+
+    <footer id="footer-placeholder"></footer>
+
+    <script src="/frontend/js/utils/logger.js"></script>
+    <script src="/frontend/js/core/components.js"></script>
+    <script src="/frontend/js/services/authService.js"></script>
+    <script src="/frontend/js/auth/auth-navbar.js"></script>
+    <script src="/frontend/js/utils/scroll-reveal.js"></script>
+    <script src="/frontend/js/pages/mentions-legales.js"></script>
+    <script src="/frontend/js/core/navbar.js"></script>
+</body>
+</html>
