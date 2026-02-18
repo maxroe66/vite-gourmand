@@ -50,6 +50,14 @@ $router->get('/my-orders', function (ContainerInterface $container, array $param
     return $controller->listMyOrders($request);
 })->middleware(AuthMiddleware::class);
 
+// Vérification des matériels en retard (Employé/Admin — Cas E7)
+$router->get('/commandes/overdue-materials', function (ContainerInterface $container, array $params, Request $request) {
+    $controller = $container->get(CommandeController::class);
+    return $controller->checkOverdueMaterials($request);
+})
+->middleware(AuthMiddleware::class)
+->middleware(RoleMiddleware::class, ['EMPLOYE', 'ADMINISTRATEUR']);
+
 // Consultation d'une commande spécifique
 $router->get('/commandes/{id}', function (ContainerInterface $container, array $params, Request $request) {
     $controller = $container->get(CommandeController::class);

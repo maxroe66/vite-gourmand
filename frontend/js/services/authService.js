@@ -144,6 +144,24 @@ const AuthService = {
             return auth.user;
         }
         return null;
+    },
+
+    /**
+     * Met à jour le profil de l'utilisateur connecté
+     * @param {Object} data - Données à mettre à jour (firstName, lastName, phone, address, city, postalCode)
+     * @returns {Promise<{ok: boolean, status: number, data: object}>}
+     */
+    async updateProfile(data) {
+        try {
+            const response = await fetch('/api/auth/profile', this.getFetchOptions({
+                method: 'PUT',
+                body: JSON.stringify(data)
+            }));
+            const result = await response.json();
+            return { ok: response.ok, status: response.status, data: result };
+        } catch (error) {
+            throw error;
+        }
     }
 };
 

@@ -102,10 +102,10 @@ class Commande
     
     /**
      * Vérifie si la commande peut recevoir un avis.
-     * Règle métier : Statut TERMINEE et pas encore d'avis.
+     * Règle métier : Statut TERMINEE ou LIVRE et pas encore d'avis.
      */
     public function canBeReviewed(): bool
     {
-        return $this->statut === self::STATUS_TERMINEE && !$this->hasAvis;
+        return in_array($this->statut, [self::STATUS_TERMINEE, self::STATUS_LIVRE], true) && !$this->hasAvis;
     }
 }

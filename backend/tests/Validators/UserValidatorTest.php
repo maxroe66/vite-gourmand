@@ -396,4 +396,131 @@ class UserValidatorTest extends TestCase
         $this->assertArrayHasKey('city', $errors);
         $this->assertArrayHasKey('postalCode', $errors);
     }
+
+    // ==========================================
+    // TESTS POUR validateUpdate()
+    // ==========================================
+
+    public function testValidateUpdateAllFieldsValid(): void
+    {
+        $data = [
+            'firstName' => 'Jean',
+            'lastName' => 'Dupont',
+            'phone' => '0601020304',
+            'address' => '10 Rue de la Paix',
+            'city' => 'Bordeaux',
+            'postalCode' => '33000',
+        ];
+
+        $result = $this->validator->validateUpdate($data);
+        $this->assertTrue($result['isValid']);
+        $this->assertEmpty($result['errors']);
+    }
+
+    public function testValidateUpdateEmptyDataIsValid(): void
+    {
+        // Aucun champ fourni → rien à valider → valide
+        $result = $this->validator->validateUpdate([]);
+        $this->assertTrue($result['isValid']);
+        $this->assertEmpty($result['errors']);
+    }
+
+    public function testValidateUpdateFirstNameOptionalButValidatedIfPresent(): void
+    {
+        // Prénom valide
+        $result = $this->validator->validateUpdate(['firstName' => 'Marie-Claire']);
+        $this->assertTrue($result['isValid']);
+
+        // Prénom vide → invalide
+        $result = $this->validator->validateUpdate(['firstName' => '']);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('firstName', $result['errors']);
+    }
+
+    public function testValidateUpdateFirstNameRejectsInvalidChars(): void
+    {
+        $result = $this->validator->validateUpdate(['firstName' => 'Jean123']);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('firstName', $result['errors']);
+        $this->assertStringContainsString('lettres', $result['errors']['firstName']);
+    }
+
+    public function testValidateUpdateFirstNameAcceptsAccents(): void
+    {
+        $result = $this->validator->validateUpdate(['firstName' => 'François']);
+        $this->assertTrue($result['isValid']);
+    }
+
+    public function testValidateUpdateLastNameEmptyRejected(): void
+    {
+        $result = $this->validator->validateUpdate(['lastName' => '']);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('lastName', $result['errors']);
+    }
+
+    public function testValidateUpdatePhoneInvalidFormat(): void
+    {
+        $result = $this->validator->validateUpdate(['phone' => '12']);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('phone', $result['errors']);
+        $this->assertStringContainsString('format', $result['errors']['phone']);
+    }
+
+    public function testValidateUpdatePhoneValidFormat(): void
+    {
+        $result = $this->validator->validateUpdate(['phone' => '+33 6 01 02 03 04']);
+        $this->assertTrue($result['isValid']);
+    }
+
+    public function testValidateUpdateAddressTooShort(): void
+    {
+        $result = $this->validator->validateUpdate(['address' => 'Ab']);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('address', $result['errors']);
+        $this->assertStringContainsString('5 caractères', $result['errors']['address']);
+    }
+
+    public function testValidateUpdateCityEmptyRejected(): void
+    {
+        $result = $this->validator->validateUpdate(['city' => '']);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('city', $result['errors']);
+    }
+
+    public function testValidateUpdatePostalCodeInvalidFormat(): void
+    {
+        $result = $this->validator->validateUpdate(['postalCode' => '123']);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('postalCode', $result['errors']);
+        $this->assertStringContainsString('5 chiffres', $result['errors']['postalCode']);
+    }
+
+    public function testValidateUpdatePostalCodeValidFormat(): void
+    {
+        $result = $this->validator->validateUpdate(['postalCode' => '75001']);
+        $this->assertTrue($result['isValid']);
+    }
+
+    public function testValidateUpdateMultipleInvalidFields(): void
+    {
+        $data = [
+            'firstName' => '',
+            'phone' => '12',
+            'postalCode' => 'abc',
+        ];
+
+        $result = $this->validator->validateUpdate($data);
+        $this->assertFalse($result['isValid']);
+        $this->assertArrayHasKey('firstName', $result['errors']);
+        $this->assertArrayHasKey('phone', $result['errors']);
+        $this->assertArrayHasKey('postalCode', $result['errors']);
+    }
+
+    public function testValidateUpdatePartialDataOnlyValidatesProvidedFields(): void
+    {
+        // Seulement 'city' est fourni et valide → les autres champs absents ne génèrent pas d'erreur
+        $result = $this->validator->validateUpdate(['city' => 'Lyon']);
+        $this->assertTrue($result['isValid']);
+        $this->assertEmpty($result['errors']);
+    }
 }

@@ -24,12 +24,55 @@
         <h1>Mon Espace</h1>
 
         <div class="tabs mt-lg">
-            <!-- Simple navigation if needed, for now just orders -->
-            <h2>Mes Commandes</h2>
+            <div class="tabs__nav">
+                <button class="tabs__btn is-active" data-tab="orders">Mes Commandes</button>
+                <button class="tabs__btn" data-tab="profile">Mon Profil</button>
+            </div>
         </div>
 
-        <div id="orders-loader">Chargement...</div>
-        <div id="orders-list" class="mt-md"></div>
+        <!-- Onglet Commandes -->
+        <div id="tab-orders" class="tab-content is-visible">
+            <div id="orders-loader">Chargement...</div>
+            <div id="orders-list" class="mt-md"></div>
+        </div>
+
+        <!-- Onglet Profil -->
+        <div id="tab-profile" class="tab-content">
+            <form id="form-profile" class="profile-form mt-md">
+                <div class="profile-form__grid">
+                    <div class="form-group">
+                        <label for="profile-firstName">Prénom</label>
+                        <input type="text" id="profile-firstName" name="firstName" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-lastName">Nom</label>
+                        <input type="text" id="profile-lastName" name="lastName" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">Email</label>
+                        <input type="email" id="profile-email" class="input" disabled>
+                        <small class="form-hint">L'email ne peut pas être modifié.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-phone">Téléphone</label>
+                        <input type="tel" id="profile-phone" name="phone" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-address">Adresse</label>
+                        <input type="text" id="profile-address" name="address" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-city">Ville</label>
+                        <input type="text" id="profile-city" name="city" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-postalCode">Code postal</label>
+                        <input type="text" id="profile-postalCode" name="postalCode" class="input" required pattern="\d{5}">
+                    </div>
+                </div>
+                <button type="submit" class="button button--primary mt-md">Enregistrer les modifications</button>
+            </form>
+        </div>
         
         <!-- Modal ou Zone pour détail commande -->
         <div id="order-detail-modal" class="modal" aria-hidden="true">

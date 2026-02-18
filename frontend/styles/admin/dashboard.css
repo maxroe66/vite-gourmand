@@ -624,4 +624,54 @@
     margin-top: 3px;
 }
 
+/* --- Alerte retards matériel (Cas E7) --- */
+.overdue-alert {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    font-size: 0.9rem;
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning-text);
+    border: 1px solid var(--color-warning);
+}
+
+.overdue-alert--danger {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-text);
+    border-color: var(--color-error);
+}
+
+.overdue-alert > i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.overdue-alert__close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    padding: 0 var(--space-1);
+    line-height: 1;
+    transition: opacity var(--transition-fast);
+}
+
+.overdue-alert__close:hover {
+    opacity: 1;
+}
+
+/* Responsive : alerte en colonne sur mobile */
+@media (max-width: 768px) {
+    .overdue-alert {
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+}
+
 } /* end @layer pages */

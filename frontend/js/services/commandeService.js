@@ -183,6 +183,25 @@ const CommandeService = {
             throw new Error(err.error || "Erreur lors du retour matériel");
         }
         return await response.json();
+    },
+
+    /**
+     * Vérifie les matériels en retard de retour.
+     * Cas d'utilisation E7 : Vérifier retours matériels en retard.
+     * @param {boolean} notify Si true, envoie des emails de relance
+     * @returns {Promise<{count: number, overdueCommandes: Array, emailsSent: boolean}>}
+     */
+    async getOverdueMaterials(notify = false) {
+        const params = notify ? '?notify=true' : '';
+        const response = await fetch(`${this.API_URL}/overdue-materials${params}`, {
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || "Erreur vérification retards matériel");
+        }
+        return await response.json();
     }
 };
 

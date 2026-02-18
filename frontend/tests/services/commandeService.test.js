@@ -188,4 +188,47 @@ describe('commandeService.js', () => {
                 .rejects.toThrow('Matériel déjà retourné');
         });
     });
+
+    // ─── getOverdueMaterials ─────────────────────────────────────────
+
+    describe('getOverdueMaterials()', () => {
+        it('appelle GET /api/commandes/overdue-materials sans notify par défaut', async () => {
+            mockFetch(200, { count: 0, overdueCommandes: [], emailsSent: false });
+            const result = await CommandeService.getOverdueMaterials();
+
+            const url = fetch.mock.calls[0][0];
+            expect(url).toContain('/overdue-materials');
+            expect(url).not.toContain('notify');
+            expect(result.count).toBe(0);
+        });
+
+        it('ajoute ?notify=true quand demandé', async () => {
+            mockFetch(200, { count: 2, overdueCommandes: [{}, {}], emailsSent: true });
+            const result = await CommandeService.getOverdueMaterials(true);
+
+            const url = fetch.mock.calls[0][0];
+            expect(url).toContain('notify=true');
+            expect(result.emailsSent).toBe(true);
+            expect(result.count).toBe(2);
+        });
+
+        it('envoie credentials include', async () => {
+            mockFetch(200, { count: 0, overdueCommandes: [] });
+            await CommandeService.getOverdueMaterials();
+
+            expect(fetch.mock.calls[0][1].credentials).toBe('include');
+        });
+
+        it('throw si la réponse est en erreur', async () => {
+            mockFetch(403, { error: 'Accès interdit' });
+            await expect(CommandeService.getOverdueMaterials())
+                .rejects.toThrow('Accès interdit');
+        });
+
+        it('throw avec message par défaut si pas d\'erreur spécifique', async () => {
+            mockFetch(500, {});
+            await expect(CommandeService.getOverdueMaterials())
+                .rejects.toThrow('Erreur vérification retards matériel');
+        });
+    });
 });

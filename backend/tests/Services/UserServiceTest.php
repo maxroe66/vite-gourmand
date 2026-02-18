@@ -78,4 +78,103 @@ class UserServiceTest extends TestCase
         $userService = new UserService($userRepositoryMock, $loggerMock);
         $userService->createUser($userData);
     }
+
+    // ==========================================
+    // TESTS POUR updateProfile()
+    // ==========================================
+
+    public function testUpdateProfileReturnsUpdatedUser(): void
+    {
+        $userId = 42;
+        $inputData = [
+            'firstName' => 'Marie',
+            'lastName' => 'Curie',
+            'phone' => '0612345678',
+        ];
+
+        $updatedUser = [
+            'id' => 42,
+            'email' => 'marie@test.com',
+            'prenom' => 'Marie',
+            'nom' => 'Curie',
+            'gsm' => '0612345678',
+            'adresse_postale' => null,
+            'ville' => null,
+            'code_postal' => null,
+            'role' => 'UTILISATEUR',
+        ];
+
+        $userRepositoryMock = $this->createMock(UserRepository::class);
+        $loggerMock = $this->createMock(LoggerInterface::class);
+
+        // Doit appeler updateProfile avec les clés mappées
+        $userRepositoryMock->expects($this->once())
+            ->method('updateProfile')
+            ->with($userId, $this->callback(function ($dbData) {
+                return $dbData['prenom'] === 'Marie'
+                    && $dbData['nom'] === 'Curie'
+                    && $dbData['gsm'] === '0612345678';
+            }));
+
+        $userRepositoryMock->expects($this->once())
+            ->method('findById')
+            ->with($userId)
+            ->willReturn($updatedUser);
+
+        $userService = new UserService($userRepositoryMock, $loggerMock);
+        $result = $userService->updateProfile($userId, $inputData);
+
+        $this->assertEquals('Marie', $result['prenom']);
+        $this->assertEquals(42, $result['id']);
+    }
+
+    public function testUpdateProfileThrowsExceptionWhenNoData(): void
+    {
+        $userRepositoryMock = $this->createMock(UserRepository::class);
+        $loggerMock = $this->createMock(LoggerInterface::class);
+
+        // updateProfile ne doit jamais être appelé sur le repo
+        $userRepositoryMock->expects($this->never())->method('updateProfile');
+
+        $this->expectException(UserServiceException::class);
+        $this->expectExceptionMessage('Aucune donnée à mettre à jour');
+
+        $userService = new UserService($userRepositoryMock, $loggerMock);
+        $userService->updateProfile(1, []);
+    }
+
+    public function testUpdateProfileMapsAllKeysCorrectly(): void
+    {
+        $userId = 10;
+        $inputData = [
+            'firstName' => 'Jean',
+            'lastName' => 'Dupont',
+            'phone' => '0601020304',
+            'address' => '10 Rue Test',
+            'city' => 'Bordeaux',
+            'postalCode' => '33000',
+        ];
+
+        $userRepositoryMock = $this->createMock(UserRepository::class);
+        $loggerMock = $this->createMock(LoggerInterface::class);
+
+        $userRepositoryMock->expects($this->once())
+            ->method('updateProfile')
+            ->with($userId, $this->callback(function ($dbData) {
+                return $dbData['prenom'] === 'Jean'
+                    && $dbData['nom'] === 'Dupont'
+                    && $dbData['gsm'] === '0601020304'
+                    && $dbData['adresse_postale'] === '10 Rue Test'
+                    && $dbData['ville'] === 'Bordeaux'
+                    && $dbData['code_postal'] === '33000';
+            }));
+
+        $userRepositoryMock->method('findById')
+            ->willReturn(['id' => 10, 'prenom' => 'Jean']);
+
+        $userService = new UserService($userRepositoryMock, $loggerMock);
+        $result = $userService->updateProfile($userId, $inputData);
+
+        $this->assertEquals('Jean', $result['prenom']);
+    }
 }

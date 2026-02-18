@@ -570,4 +570,149 @@ class AuthControllerTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
         $this->assertFalse($result['isAuthenticated']);
     }
+
+    // ==========================================
+    // TESTS POUR updateProfile()
+    // ==========================================
+
+    public function test_updateProfile_success_with_valid_data(): void
+    {
+        // Arrange
+        $inputData = [
+            'firstName' => 'Marie',
+            'lastName' => 'Curie',
+            'phone' => '0612345678',
+            'address' => '5 Rue du Labo',
+            'city' => 'Paris',
+            'postalCode' => '75005',
+        ];
+
+        $request = new Request();
+        $request->setAttribute('user', (object)['sub' => 25, 'role' => 'UTILISATEUR']);
+        // Simuler le corps JSON via createFromJson puis setAttribute
+        $request = Request::createFromJson($inputData);
+        $request->setAttribute('user', (object)['sub' => 25, 'role' => 'UTILISATEUR']);
+
+        // Mock: validation réussit
+        $this->userValidatorMock->method('validateUpdate')
+            ->with($inputData)
+            ->willReturn(['isValid' => true, 'errors' => []]);
+
+        // Mock: updateProfile retourne les données fraîches
+        $updatedUser = [
+            'id' => 25,
+            'email' => 'marie@test.com',
+            'prenom' => 'Marie',
+            'nom' => 'Curie',
+            'gsm' => '0612345678',
+            'adresse_postale' => '5 Rue du Labo',
+            'ville' => 'Paris',
+            'code_postal' => '75005',
+            'role' => 'UTILISATEUR',
+        ];
+        $this->userServiceMock->expects($this->once())
+            ->method('updateProfile')
+            ->with(25, $inputData)
+            ->willReturn($updatedUser);
+
+        // Act
+        $response = $this->authController->updateProfile($request);
+        $result = json_decode($response->getContent(), true);
+
+        // Assert
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue($result['success']);
+        $this->assertStringContainsString('mis à jour', $result['message']);
+        $this->assertEquals('Marie', $result['user']['prenom']);
+        $this->assertEquals('75005', $result['user']['code_postal']);
+    }
+
+    public function test_updateProfile_returns_401_when_not_authenticated(): void
+    {
+        $request = new Request();
+        $request->setAttribute('user', null);
+
+        $response = $this->authController->updateProfile($request);
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_400_with_null_body(): void
+    {
+        $request = Request::createFromJson(null);
+        $request->setAttribute('user', (object)['sub' => 1, 'role' => 'UTILISATEUR']);
+
+        $response = $this->authController->updateProfile($request);
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('invalides', $result['message']);
+    }
+
+    public function test_updateProfile_returns_422_with_validation_errors(): void
+    {
+        $inputData = ['postalCode' => 'abc'];
+        $request = Request::createFromJson($inputData);
+        $request->setAttribute('user', (object)['sub' => 1, 'role' => 'UTILISATEUR']);
+
+        $this->userValidatorMock->method('validateUpdate')
+            ->willReturn([
+                'isValid' => false,
+                'errors' => ['postalCode' => 'Le format du code postal est invalide.']
+            ]);
+
+        $response = $this->authController->updateProfile($request);
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertFalse($result['success']);
+        $this->assertArrayHasKey('errors', $result);
+        $this->assertArrayHasKey('postalCode', $result['errors']);
+    }
+
+    public function test_updateProfile_returns_400_on_service_exception(): void
+    {
+        $inputData = ['firstName' => 'Jean'];
+        $request = Request::createFromJson($inputData);
+        $request->setAttribute('user', (object)['sub' => 1, 'role' => 'UTILISATEUR']);
+
+        $this->userValidatorMock->method('validateUpdate')
+            ->willReturn(['isValid' => true, 'errors' => []]);
+
+        $this->userServiceMock->method('updateProfile')
+            ->willThrowException(new UserServiceException('Aucune donnée à mettre à jour.'));
+
+        $response = $this->authController->updateProfile($request);
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_500_on_unexpected_error(): void
+    {
+        $inputData = ['firstName' => 'Jean'];
+        $request = Request::createFromJson($inputData);
+        $request->setAttribute('user', (object)['sub' => 1, 'role' => 'UTILISATEUR']);
+
+        $this->userValidatorMock->method('validateUpdate')
+            ->willReturn(['isValid' => true, 'errors' => []]);
+
+        $this->userServiceMock->method('updateProfile')
+            ->willThrowException(new \Exception('DB connection error'));
+
+        $this->loggerMock->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('mise à jour profil'), $this->anything());
+
+        $response = $this->authController->updateProfile($request);
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('erreur est survenue', $result['message']);
+    }
 }

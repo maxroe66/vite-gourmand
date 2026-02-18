@@ -7,10 +7,22 @@
 let commandesById = new Map();
 
 async function loadCommandesView(container, headerActions) {
-    headerActions.innerHTML = '';
+    headerActions.innerHTML = `
+        <button class="btn btn--warning btn--sm" id="btn-check-overdue" title="Vérifier les retards matériel">
+            <i class="fa-solid fa-triangle-exclamation"></i> Retards matériel
+        </button>
+    `;
 
     // Filtres
     container.innerHTML = `
+        <div id="overdue-alert" class="overdue-alert" style="display:none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="overdue-alert-text"></span>
+            <button class="btn btn--sm btn--danger" id="btn-notify-overdue" title="Envoyer des emails de relance">
+                <i class="fa-solid fa-envelope"></i> Relancer par email
+            </button>
+            <button class="overdue-alert__close" id="close-overdue-alert">&times;</button>
+        </div>
         <div class="filters-bar">
             <select id="filter-status" class="input">
                 <option value="">Tous les statuts</option>
@@ -95,6 +107,21 @@ async function loadCommandesView(container, headerActions) {
     // Init Modal View
     const modalView = document.getElementById('modal-view-cmd');
     document.getElementById('close-view-cmd').addEventListener('click', () => modalView.classList.remove('is-visible'));
+
+    // Vérification retards matériel (Cas E7)
+    document.getElementById('btn-check-overdue').addEventListener('click', checkOverdueMaterials);
+    document.getElementById('close-overdue-alert').addEventListener('click', () => {
+        document.getElementById('overdue-alert').style.display = 'none';
+    });
+    document.getElementById('btn-notify-overdue').addEventListener('click', async () => {
+        if (!confirm('Envoyer un email de relance à tous les clients en retard ?')) return;
+        try {
+            const result = await CommandeService.getOverdueMaterials(true);
+            showToast(`${result.count} email(s) de relance envoyé(s).`, 'success');
+        } catch (err) {
+            showToast(escapeHtml(err.message), 'error');
+        }
+    });
 
     document.getElementById('form-cancel-cmd').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -285,6 +312,40 @@ function openCmdDetails(cmd) {
     `;
     
     modal.classList.add('is-visible');
+}
+
+/**
+ * Vérifie les matériels en retard et affiche une bannière d'alerte.
+ * Cas d'utilisation E7 : Vérifier retours matériels en retard.
+ */
+async function checkOverdueMaterials() {
+    const alertEl = document.getElementById('overdue-alert');
+    const alertText = document.getElementById('overdue-alert-text');
+    const btnNotify = document.getElementById('btn-notify-overdue');
+
+    try {
+        const result = await CommandeService.getOverdueMaterials(false);
+
+        if (result.count === 0) {
+            alertEl.style.display = 'none';
+            showToast('Aucun matériel en retard.', 'success');
+            return;
+        }
+
+        // Construire le résumé
+        let totalMaterials = 0;
+        result.overdueCommandes.forEach(item => {
+            totalMaterials += item.materiels.length;
+        });
+
+        alertText.innerHTML = `<strong>${result.count} commande(s)</strong> avec matériel en retard (${totalMaterials} article(s)). `;
+        btnNotify.style.display = 'inline-flex';
+        alertEl.style.display = 'flex';
+        alertEl.className = 'overdue-alert overdue-alert--danger';
+
+    } catch (err) {
+        showToast(escapeHtml(err.message), 'error');
+    }
 }
 
 function renderStatusSelect(id, currentStatus) {

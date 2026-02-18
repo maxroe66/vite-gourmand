@@ -77,6 +77,43 @@ class UserService
     }
 
     /**
+     * Met à jour le profil d'un utilisateur
+     * @param int $userId
+     * @param array $data Données validées (clés frontend : firstName, lastName, phone, address, city, postalCode)
+     * @return array Données utilisateur mises à jour
+     * @throws UserServiceException
+     */
+    public function updateProfile(int $userId, array $data): array
+    {
+        try {
+            // Mapping clés frontend → colonnes BDD
+            $dbData = [];
+            if (isset($data['firstName'])) $dbData['prenom'] = trim($data['firstName']);
+            if (isset($data['lastName']))  $dbData['nom'] = trim($data['lastName']);
+            if (isset($data['phone']))     $dbData['gsm'] = trim($data['phone']);
+            if (isset($data['address']))   $dbData['adresse_postale'] = trim($data['address']);
+            if (isset($data['city']))      $dbData['ville'] = trim($data['city']);
+            if (isset($data['postalCode'])) $dbData['code_postal'] = trim($data['postalCode']);
+
+            if (empty($dbData)) {
+                throw new UserServiceException('Aucune donnée à mettre à jour.');
+            }
+
+            $this->userRepository->updateProfile($userId, $dbData);
+
+            // Retourner les données fraîches
+            $user = $this->userRepository->findById($userId);
+            if (!$user) {
+                throw new UserServiceException('Utilisateur introuvable après mise à jour.');
+            }
+            return $user;
+        } catch (PDOException $e) {
+            $this->logger->error('Erreur PDO lors de la mise à jour du profil', ['userId' => $userId, 'error' => $e->getMessage()]);
+            throw new UserServiceException('Erreur de base de données lors de la mise à jour du profil.');
+        }
+    }
+
+    /**
      * Désactive un compte utilisateur (soft delete)
      * @param int $id
      * @throws UserServiceException

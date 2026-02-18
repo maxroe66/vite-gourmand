@@ -261,23 +261,33 @@ class CommandeRepository
         // $materiels attendu : [['id' => int, 'quantite' => int]]
         $this->pdo->beginTransaction();
         try {
+            // Récupérer la date de prestation pour calculer date_retour_prevu (RG9 : prestation + 10 jours)
+            $stmtDate = $this->pdo->prepare("SELECT date_prestation FROM COMMANDE WHERE id_commande = :id");
+            $stmtDate->execute(['id' => $commandeId]);
+            $datePrestation = $stmtDate->fetchColumn();
+
             foreach ($materiels as $mat) {
                 // 1. Insert COMMANDE_MATERIEL
-                // Date retour prevu = date prestation + 1 jour par défaut ? Ou passé en param ? 
-                // On va dire NOW + 10 jours car RG9 (Matériel = 10j deadline)
-                // Mais il faut la date de prestation pour calculer +10j.
-                // Pour simplifier ici, on met une valeur par défaut, ou on devrait lire la commande.
-                // On assume ici que la logique métier a préparé les dates ou on fait simple :
-                
-                $sql = "INSERT INTO COMMANDE_MATERIEL (id_commande, id_materiel, quantite, date_pret, date_retour_prevu) 
-                        VALUES (:cmdId, :matId, :qty, NOW(), DATE_ADD(NOW(), INTERVAL 10 DAY))";
+                // date_retour_prevu = date_prestation + 10 jours (RG9 : délai de restitution)
+                // Fallback sur NOW()+10j si date_prestation absente (cas exceptionnel)
+                if ($datePrestation) {
+                    $sql = "INSERT INTO COMMANDE_MATERIEL (id_commande, id_materiel, quantite, date_pret, date_retour_prevu) 
+                            VALUES (:cmdId, :matId, :qty, NOW(), DATE_ADD(:datePrestation, INTERVAL 10 DAY))";
+                } else {
+                    $sql = "INSERT INTO COMMANDE_MATERIEL (id_commande, id_materiel, quantite, date_pret, date_retour_prevu) 
+                            VALUES (:cmdId, :matId, :qty, NOW(), DATE_ADD(NOW(), INTERVAL 10 DAY))";
+                }
                 
                 $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([
+                $params = [
                     'cmdId' => $commandeId,
                     'matId' => $mat['id'],
                     'qty' => $mat['quantite']
-                ]);
+                ];
+                if ($datePrestation) {
+                    $params['datePrestation'] = $datePrestation;
+                }
+                $stmt->execute($params);
 
                 // 2. Decrement stock MATERIEL
                 $upd = $this->pdo->prepare("UPDATE MATERIEL SET stock_disponible = stock_disponible - :qty WHERE id_materiel = :id");
@@ -315,8 +325,8 @@ class CommandeRepository
             }
 
             foreach ($materiels as $mat) {
-                // 2. Mettre à jour la date de retour effectif
-                $updLink = $this->pdo->prepare("UPDATE COMMANDE_MATERIEL SET date_retour_effectif = NOW() WHERE id_commande = :cmdId AND id_materiel = :matId");
+                // 2. Mettre à jour la date de retour effectif + flag retourne
+                $updLink = $this->pdo->prepare("UPDATE COMMANDE_MATERIEL SET date_retour_effectif = NOW(), retourne = TRUE WHERE id_commande = :cmdId AND id_materiel = :matId");
                 $updLink->execute(['cmdId' => $commandeId, 'matId' => $mat['id_materiel']]);
 
                 // 3. Ré-incrémenter le stock MATERIEL
@@ -331,8 +341,9 @@ class CommandeRepository
             $remaining = $check->fetchColumn();
 
             if ($remaining == 0) {
-                // Tout est rendu, on pourrait changer un flag si besoin, ou on laisse le statut gérer ça
-                // Ici on laisse materiel_pret = 1 car il Y A EU du prêt, mais on sait que c'est clos via les dates.
+                // Tout est rendu → écrire la date de retour sur la commande
+                $updCmd = $this->pdo->prepare("UPDATE COMMANDE SET date_retour_materiel = NOW() WHERE id_commande = :id");
+                $updCmd->execute(['id' => $commandeId]);
             }
 
             $this->pdo->commit();
@@ -366,7 +377,9 @@ class CommandeRepository
      */
     public function getMateriels(int $commandeId): array
     {
-        $sql = "SELECT m.libelle, cm.quantite, cm.date_retour_prevu, cm.retourne 
+        $sql = "SELECT cm.id_materiel, m.libelle, cm.quantite, cm.date_pret,
+                       cm.date_retour_prevu, cm.date_retour_effectif,
+                       (cm.date_retour_effectif IS NOT NULL) AS retourne
                 FROM COMMANDE_MATERIEL cm
                 JOIN MATERIEL m ON cm.id_materiel = m.id_materiel
                 WHERE cm.id_commande = :id";
@@ -423,6 +436,40 @@ class CommandeRepository
             'dateLivraisonEffective' => $row['date_livraison_effective'],
             'dateRetourMateriel' => $row['date_retour_materiel'],
         ];
+    }
+
+    /**
+     * Récupère les commandes avec du matériel en retard (date_retour_prevu dépassée, non rendu).
+     * @return array Liste des commandes en retard avec détails matériel et client
+     */
+    public function findOverdueMaterials(): array
+    {
+        $sql = "SELECT 
+                    c.id_commande,
+                    c.id_utilisateur,
+                    c.date_prestation,
+                    c.statut,
+                    u.prenom,
+                    u.nom,
+                    u.email,
+                    u.gsm,
+                    m.libelle AS materiel_libelle,
+                    cm.quantite,
+                    cm.date_pret,
+                    cm.date_retour_prevu,
+                    DATEDIFF(NOW(), cm.date_retour_prevu) AS jours_retard
+                FROM COMMANDE_MATERIEL cm
+                JOIN COMMANDE c ON cm.id_commande = c.id_commande
+                JOIN UTILISATEUR u ON c.id_utilisateur = u.id_utilisateur
+                JOIN MATERIEL m ON cm.id_materiel = m.id_materiel
+                WHERE cm.date_retour_effectif IS NULL
+                  AND cm.date_retour_prevu < NOW()
+                ORDER BY cm.date_retour_prevu ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

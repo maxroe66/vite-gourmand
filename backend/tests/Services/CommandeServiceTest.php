@@ -327,4 +327,157 @@ class CommandeServiceTest extends TestCase
         $this->assertEquals($materiels, $result['materiels']);
         $this->assertEquals('EN_ATTENTE', $result['timeline'][0]['statut']);
     }
+
+    // ==========================================
+    // TESTS POUR checkOverdueMaterials()
+    // ==========================================
+
+    public function testCheckOverdueMaterialsReturnsEmptyWhenNoOverdue(): void
+    {
+        $this->commandeRepo->method('findOverdueMaterials')->willReturn([]);
+
+        $result = $this->service->checkOverdueMaterials(false);
+
+        $this->assertEmpty($result);
+    }
+
+    public function testCheckOverdueMaterialsGroupsByCommande(): void
+    {
+        $overdueRows = [
+            [
+                'id_commande' => 10,
+                'id_utilisateur' => 1,
+                'prenom' => 'Jean',
+                'nom' => 'Dupont',
+                'email' => 'jean@test.com',
+                'gsm' => '0601020304',
+                'date_prestation' => '2026-01-01',
+                'statut' => 'EN_ATTENTE_RETOUR',
+                'materiel_libelle' => 'Chaise',
+                'quantite' => 10,
+                'date_pret' => '2026-01-01',
+                'date_retour_prevu' => '2026-01-11',
+                'jours_retard' => 5,
+            ],
+            [
+                'id_commande' => 10,
+                'id_utilisateur' => 1,
+                'prenom' => 'Jean',
+                'nom' => 'Dupont',
+                'email' => 'jean@test.com',
+                'gsm' => '0601020304',
+                'date_prestation' => '2026-01-01',
+                'statut' => 'EN_ATTENTE_RETOUR',
+                'materiel_libelle' => 'Table',
+                'quantite' => 5,
+                'date_pret' => '2026-01-01',
+                'date_retour_prevu' => '2026-01-11',
+                'jours_retard' => 5,
+            ],
+            [
+                'id_commande' => 20,
+                'id_utilisateur' => 2,
+                'prenom' => 'Marie',
+                'nom' => 'Durand',
+                'email' => 'marie@test.com',
+                'gsm' => '0699887766',
+                'date_prestation' => '2026-01-05',
+                'statut' => 'EN_ATTENTE_RETOUR',
+                'materiel_libelle' => 'Nappe',
+                'quantite' => 20,
+                'date_pret' => '2026-01-05',
+                'date_retour_prevu' => '2026-01-15',
+                'jours_retard' => 3,
+            ],
+        ];
+
+        $this->commandeRepo->method('findOverdueMaterials')->willReturn($overdueRows);
+
+        $result = $this->service->checkOverdueMaterials(false);
+
+        // 2 commandes distinctes
+        $this->assertCount(2, $result);
+
+        // Première commande (#10) a 2 matériels
+        $this->assertEquals(10, $result[0]['commandeId']);
+        $this->assertEquals('Jean Dupont', $result[0]['clientNom']);
+        $this->assertCount(2, $result[0]['materiels']);
+        $this->assertEquals('Chaise', $result[0]['materiels'][0]['libelle']);
+        $this->assertEquals('Table', $result[0]['materiels'][1]['libelle']);
+
+        // Deuxième commande (#20) a 1 matériel
+        $this->assertEquals(20, $result[1]['commandeId']);
+        $this->assertCount(1, $result[1]['materiels']);
+    }
+
+    public function testCheckOverdueMaterialsSendsEmailsWhenRequested(): void
+    {
+        $overdueRows = [
+            [
+                'id_commande' => 10,
+                'id_utilisateur' => 1,
+                'prenom' => 'Jean',
+                'nom' => 'Dupont',
+                'email' => 'jean@test.com',
+                'gsm' => '0601020304',
+                'date_prestation' => '2026-01-01',
+                'statut' => 'EN_ATTENTE_RETOUR',
+                'materiel_libelle' => 'Chaise',
+                'quantite' => 10,
+                'date_pret' => '2026-01-01',
+                'date_retour_prevu' => '2026-01-11',
+                'jours_retard' => 5,
+            ],
+        ];
+
+        $this->commandeRepo->method('findOverdueMaterials')->willReturn($overdueRows);
+
+        // L'email doit être envoyé
+        $this->mailerService->expects($this->once())
+            ->method('sendMaterialOverdueAlert')
+            ->with(
+                'jean@test.com',
+                'Jean',
+                10,
+                $this->callback(function ($materiels) {
+                    return count($materiels) === 1 && $materiels[0]['libelle'] === 'Chaise';
+                })
+            );
+
+        $result = $this->service->checkOverdueMaterials(true);
+
+        $this->assertCount(1, $result);
+    }
+
+    public function testCheckOverdueMaterialsDoesNotSendEmailsWhenNotRequested(): void
+    {
+        $overdueRows = [
+            [
+                'id_commande' => 10,
+                'id_utilisateur' => 1,
+                'prenom' => 'Jean',
+                'nom' => 'Dupont',
+                'email' => 'jean@test.com',
+                'gsm' => null,
+                'date_prestation' => '2026-01-01',
+                'statut' => 'EN_ATTENTE_RETOUR',
+                'materiel_libelle' => 'Verre',
+                'quantite' => 50,
+                'date_pret' => '2026-01-01',
+                'date_retour_prevu' => '2026-01-11',
+                'jours_retard' => 2,
+            ],
+        ];
+
+        $this->commandeRepo->method('findOverdueMaterials')->willReturn($overdueRows);
+
+        // L'email ne doit PAS être envoyé
+        $this->mailerService->expects($this->never())
+            ->method('sendMaterialOverdueAlert');
+
+        $result = $this->service->checkOverdueMaterials(false);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('', $result[0]['clientGsm']); // gsm null → ''
+    }
 }
