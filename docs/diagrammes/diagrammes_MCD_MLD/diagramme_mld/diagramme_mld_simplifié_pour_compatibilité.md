@@ -7,6 +7,8 @@ erDiagram
         string gsm
         string email UK
         string adresse_postale
+        string ville
+        string code_postal
         string mot_de_passe
         string role
         boolean actif
@@ -128,7 +130,7 @@ erDiagram
         int id_commande FK
         int modifie_par FK
         datetime date_modif
-        string champs_modified
+        json champs_modified
     }
     AVIS_FALLBACK {
         int id_avis_fallback PK
@@ -142,6 +144,29 @@ erDiagram
         int modere_par FK
         datetime date_validation
         string mongo_id
+    }
+
+    MATERIEL {
+        int id_materiel PK
+        string libelle
+        text description
+        decimal valeur_unitaire
+        int stock_disponible
+    }
+    MENU_MATERIEL {
+        int id_menu FK
+        int id_materiel FK
+        int quantite_par_personne
+    }
+    COMMANDE_MATERIEL {
+        int id_commande_materiel PK
+        int id_commande FK
+        int id_materiel FK
+        int quantite
+        datetime date_pret
+        datetime date_retour_prevu
+        datetime date_retour_effectif
+        boolean retourne
     }
 
     UTILISATEUR ||--o{ RESET_TOKEN : "possede"
@@ -164,4 +189,8 @@ erDiagram
     UTILISATEUR ||--o{ AVIS_FALLBACK : "avis"
     COMMANDE ||--o{ AVIS_FALLBACK : "concerne"
     MENU ||--o{ AVIS_FALLBACK : "evalue"
+    MENU ||--o{ MENU_MATERIEL : "materiel_defaut"
+    MATERIEL ||--o{ MENU_MATERIEL : "propose_dans"
+    COMMANDE ||--o{ COMMANDE_MATERIEL : "pret"
+    MATERIEL ||--o{ COMMANDE_MATERIEL : "utilise_dans"
 ```

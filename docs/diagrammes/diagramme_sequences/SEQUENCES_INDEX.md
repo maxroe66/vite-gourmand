@@ -14,10 +14,10 @@ Bienvenue dans la section des **diagrammes de séquences**. Chaque fichier couvr
 - Inscription (email + password)
 - Création compte
 - Email bienvenue
-- Connexion (JWT token)
+- Connexion (JWT HS256 en cookie HttpOnly)
 
 **Durée** : ~5 min utilisateur  
-**Classes** : User, UserService, Auth, Mailer
+**Classes** : UserRepository, UserService, AuthService, CsrfService, MailerService
 
 ---
 
@@ -156,7 +156,7 @@ Bienvenue dans la section des **diagrammes de séquences**. Chaque fichier couvr
 | Backend | PHP 8.0+ (POO) |
 | Persistance | MySQL 8.0+ (relationnel) |
 | Analytics | MongoDB 4.4+ (NoSQL) |
-| Auth | JWT tokens |
+| Auth | JWT HS256 en cookie HttpOnly + CSRF Double Submit Cookie |
 | Email | PHPMailer/SMTP |
 
 ---

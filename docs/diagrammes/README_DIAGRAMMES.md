@@ -98,13 +98,13 @@ Ce projet contient tous les livrables attendus pour la partie base de données :
 
 #### 2. Modèle Logique de Données (MLD)
 - **Fichier** : `diagramme_mld.md`
-- **Contenu** : 16 tables, contraintes complètes (NOT NULL, CHECK, DEFAULT, UNIQUE)
-- **Amélioration** : Tables de traçabilité (COMMANDE_STATUT, COMMANDE_ANNULATION, COMMANDE_MODIFICATION)
+- **Contenu** : 20 tables, contraintes complètes (NOT NULL, CHECK, DEFAULT, UNIQUE)
+- **Amélioration** : Tables de traçabilité (COMMANDE_STATUT, COMMANDE_ANNULATION, COMMANDE_MODIFICATION) + Matériel (MATERIEL, MENU_MATERIEL, COMMANDE_MATERIEL)
 
 #### 3. Schéma Physique SQL
 - **Fichier** : `../backend/database/sql/database_creation.sql`
 - **Contenu** : 
-  - Création de 16 tables avec contraintes nommées
+  - Création de 20 tables avec contraintes nommées
   - 2 triggers (historisation automatique)
   - 3 vues (v_menus_actifs, v_commandes_en_cours, v_avis_valides)
   - Index optimisés sur FK et colonnes de recherche
@@ -121,11 +121,11 @@ Ce projet contient tous les livrables attendus pour la partie base de données :
 #### 5. Données de Test
 - **Fichier** : `../backend/database/sql/database_fixtures.sql`
 - **Contenu** : 
-  - 7 utilisateurs (1 admin, 1 employé, 5 clients)
+  - 13 utilisateurs (1 admin, 2 employés, 10 clients)
   - 6 menus complets
   - 17 plats avec allergènes
-  - 7 commandes (tous les statuts)
-  - 4 avis clients
+  - 10+ commandes (tous les statuts)
+  - Avis clients + matériel
 
 #### 6. Documentation Technique
 - **Fichier** : `explications_des_diagrammes.md`
@@ -168,7 +168,7 @@ Pour toute question sur les diagrammes ou la base de données :
 
 ---
 
-**Projet** : Vite & Gourmand - Application de Commande de Menus  
+**Projet** : Vite & Gourmand — Application de Commande de Menus  
 **Candidat** : Max  
 **Formation** : Développeur Web et Web Mobile  
-**Date** : Décembre 2025
+**Date** : Février 2026
