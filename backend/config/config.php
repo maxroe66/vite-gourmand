@@ -164,6 +164,7 @@ $mailHost = $env('MAIL_HOST', '');
 $mailUser = $env('MAIL_USERNAME') ?? $env('MAIL_USER') ?? '';
 $mailPass = $env('MAIL_PASSWORD') ?? $env('MAIL_PASS') ?? '';
 $mailFrom = $env('MAIL_FROM_ADDRESS') ?? $env('MAIL_FROM') ?? '';
+$contactEmail = $env('CONTACT_EMAIL') ?? '';
 
 if ($appEnv === 'production') {
     $mailProvider = 'sendgrid';
@@ -173,6 +174,7 @@ if ($appEnv === 'production') {
     $mailUser = 'apikey';
     $mailPass = $mailApiKey;
     $mailFrom = $env('MAIL_FROM_ADDRESS') ?? 'no-reply@vite-et-gourmand.me';
+    $contactEmail = $contactEmail ?: 'contact@vite-et-gourmand.me';
 }
 
 /**
@@ -263,12 +265,13 @@ return [
         'form_action' => ["'self'"],
     ],
     'mail' => [
-        'provider' => $mailProvider,
-        'api_key'  => $mailApiKey,
-        'host'     => $mailHost,
-        'user'     => $mailUser,
-        'pass'     => $mailPass,
-        'from'     => $mailFrom,
+        'provider'      => $mailProvider,
+        'api_key'       => $mailApiKey,
+        'host'          => $mailHost,
+        'user'          => $mailUser,
+        'pass'          => $mailPass,
+        'from'          => $mailFrom,
+        'contact_email' => $contactEmail ?: $mailFrom,
     ],
     // URL frontend utilisée par les emails (fallback sur FRONTEND_ORIGIN)
     'app_url' => $env('APP_URL', $frontendOrigin),

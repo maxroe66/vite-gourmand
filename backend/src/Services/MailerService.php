@@ -593,12 +593,13 @@ class MailerService
                 ];
             }
 
-            // Expéditeur = adresse de l'entreprise (pour éviter le spam)
+            // Expéditeur = adresse no-reply de l'entreprise (pour éviter le spam)
             $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand — Contact');
             // Reply-To = adresse du visiteur pour faciliter la réponse
             $mail->addReplyTo($senderEmail);
-            // Destinataire = l'entreprise elle-même
-            $mail->addAddress($this->config['mail']['from'], 'Vite & Gourmand');
+            // Destinataire = adresse de contact de l'entreprise
+            $contactEmail = $this->config['mail']['contact_email'] ?? $this->config['mail']['from'];
+            $mail->addAddress($contactEmail, 'Vite & Gourmand');
 
             $mail->isHTML(true);
             $mail->Subject = '📩 Nouveau message de contact — ' . mb_substr($titre, 0, 80);

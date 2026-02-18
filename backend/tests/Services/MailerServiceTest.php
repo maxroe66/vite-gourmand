@@ -280,7 +280,8 @@ class MailerServiceTest extends TestCase
                 'host' => '',
                 'user' => '',
                 'pass' => '',
-                'from' => 'contact@viteetgourmand.fr'
+                'from' => 'noreply@vite-et-gourmand.me',
+                'contact_email' => 'contact@vite-et-gourmand.me'
             ]
         ];
 
@@ -308,7 +309,8 @@ class MailerServiceTest extends TestCase
                 'host' => 'smtp.example.com',
                 'user' => '',
                 'pass' => 'password',
-                'from' => 'contact@viteetgourmand.fr'
+                'from' => 'noreply@vite-et-gourmand.me',
+                'contact_email' => 'contact@vite-et-gourmand.me'
             ]
         ];
 
@@ -336,7 +338,8 @@ class MailerServiceTest extends TestCase
                 'host' => 'smtp.example.com',
                 'user' => 'test@example.com',
                 'pass' => 'password',
-                'from' => 'contact@viteetgourmand.fr'
+                'from' => 'noreply@vite-et-gourmand.me',
+                'contact_email' => 'contact@vite-et-gourmand.me'
             ]
         ];
 
@@ -350,20 +353,20 @@ class MailerServiceTest extends TestCase
         $mockMailer->expects($this->once())
             ->method('isSMTP');
 
-        // From = adresse de l'entreprise (pas celle du visiteur)
+        // From = adresse no-reply de l'entreprise (pas celle du visiteur)
         $mockMailer->expects($this->once())
             ->method('setFrom')
-            ->with('contact@viteetgourmand.fr', 'Vite & Gourmand — Contact');
+            ->with('noreply@vite-et-gourmand.me', 'Vite & Gourmand — Contact');
 
         // Reply-To = adresse du visiteur
         $mockMailer->expects($this->once())
             ->method('addReplyTo')
             ->with('visitor@example.com');
 
-        // Destinataire = l'entreprise
+        // Destinataire = adresse de contact de l'entreprise
         $mockMailer->expects($this->once())
             ->method('addAddress')
-            ->with('contact@viteetgourmand.fr', 'Vite & Gourmand');
+            ->with('contact@vite-et-gourmand.me', 'Vite & Gourmand');
 
         $mockMailer->expects($this->once())
             ->method('send')
@@ -399,7 +402,8 @@ class MailerServiceTest extends TestCase
                 'host' => 'smtp.example.com',
                 'user' => 'test@example.com',
                 'pass' => 'password',
-                'from' => 'contact@viteetgourmand.fr'
+                'from' => 'noreply@vite-et-gourmand.me',
+                'contact_email' => 'contact@vite-et-gourmand.me'
             ]
         ];
 
@@ -449,7 +453,8 @@ class MailerServiceTest extends TestCase
                 'host' => 'smtp.example.com',
                 'user' => 'test@example.com',
                 'pass' => 'password',
-                'from' => 'contact@viteetgourmand.fr'
+                'from' => 'noreply@vite-et-gourmand.me',
+                'contact_email' => 'contact@vite-et-gourmand.me'
             ]
         ];
 
