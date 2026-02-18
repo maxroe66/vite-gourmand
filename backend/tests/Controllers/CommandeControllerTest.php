@@ -137,4 +137,71 @@ class CommandeControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    // ==========================================
+    // TESTS POUR checkOverdueMaterials()
+    // ==========================================
+
+    public function testCheckOverdueMaterialsSuccess(): void
+    {
+        $request = $this->createMock(Request::class);
+        $request->method('getAttribute')->with('user')
+            ->willReturn((object)['sub' => 1, 'role' => 'ADMINISTRATEUR']);
+        $request->method('getQueryParams')->willReturn([]);
+
+        $overdueItems = [
+            ['commandeId' => 1, 'clientNom' => 'Jean Dupont', 'materiels' => []],
+        ];
+        $this->service->expects($this->once())
+            ->method('checkOverdueMaterials')
+            ->with(false)
+            ->willReturn($overdueItems);
+
+        $response = $this->controller->checkOverdueMaterials($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(1, $data['count']);
+        $this->assertFalse($data['emailsSent']);
+    }
+
+    public function testCheckOverdueMaterialsWithNotify(): void
+    {
+        $request = $this->createMock(Request::class);
+        $request->method('getAttribute')->with('user')
+            ->willReturn((object)['sub' => 1, 'role' => 'EMPLOYE']);
+        $request->method('getQueryParams')->willReturn(['notify' => 'true']);
+
+        $this->service->expects($this->once())
+            ->method('checkOverdueMaterials')
+            ->with(true)
+            ->willReturn([]);
+
+        $response = $this->controller->checkOverdueMaterials($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals(0, $data['count']);
+        $this->assertTrue($data['emailsSent']);
+    }
+
+    public function testCheckOverdueMaterialsReturns401WhenNotAuthenticated(): void
+    {
+        $request = $this->createMock(Request::class);
+        $request->method('getAttribute')->with('user')->willReturn(null);
+
+        $response = $this->controller->checkOverdueMaterials($request);
+
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    public function testCheckOverdueMaterialsReturns403ForClient(): void
+    {
+        $request = $this->createMock(Request::class);
+        $request->method('getAttribute')->with('user')
+            ->willReturn((object)['sub' => 1, 'role' => 'UTILISATEUR']);
+
+        $response = $this->controller->checkOverdueMaterials($request);
+
+        $this->assertEquals(403, $response->getStatusCode());
+    }
 }

@@ -58,7 +58,7 @@ class AccessControlTest extends TestCase
         $this->assertSame(403, $response->getStatusCode());
     }
 
-    public function testValidateAvisRejectsEmploye(): void
+    public function testValidateAvisAllowsEmploye(): void
     {
         $controller = $this->makeAvisController();
         $request = $this->createMock(Request::class);
@@ -67,7 +67,8 @@ class AccessControlTest extends TestCase
 
         $response = $controller->validate($request, ['id' => '1']);
 
-        $this->assertSame(403, $response->getStatusCode());
+        // Les employés sont autorisés à valider les avis (correction Gap 3)
+        $this->assertNotSame(403, $response->getStatusCode());
     }
 
     public function testDeleteAvisRejectsUnauthenticated(): void
@@ -93,7 +94,7 @@ class AccessControlTest extends TestCase
         $this->assertSame(403, $response->getStatusCode());
     }
 
-    public function testDeleteAvisRejectsEmploye(): void
+    public function testDeleteAvisAllowsEmploye(): void
     {
         $controller = $this->makeAvisController();
         $request = $this->createMock(Request::class);
@@ -102,7 +103,8 @@ class AccessControlTest extends TestCase
 
         $response = $controller->delete($request, ['id' => '1']);
 
-        $this->assertSame(403, $response->getStatusCode());
+        // Les employés sont autorisés à supprimer les avis (correction Gap 3)
+        $this->assertNotSame(403, $response->getStatusCode());
     }
 
     // =============================================

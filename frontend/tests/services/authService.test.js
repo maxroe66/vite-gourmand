@@ -236,4 +236,54 @@ describe('authService.js', () => {
             expect(user).toBeNull();
         });
     });
+
+    // ─── updateProfile ───────────────────────────────────────────────
+
+    describe('updateProfile()', () => {
+        it('envoie un PUT avec les données du profil', async () => {
+            const profileData = { firstName: 'Marie', lastName: 'Curie', city: 'Paris' };
+            mockFetch(200, { success: true, user: { id: 1, prenom: 'Marie' } });
+
+            const result = await AuthService.updateProfile(profileData);
+
+            const [url, opts] = fetch.mock.calls[0];
+            expect(url).toBe('/api/auth/profile');
+            expect(opts.method).toBe('PUT');
+            expect(opts.credentials).toBe('include');
+            expect(JSON.parse(opts.body)).toEqual(profileData);
+        });
+
+        it('retourne ok=true et les données utilisateur en succès', async () => {
+            mockFetch(200, { success: true, user: { id: 5, prenom: 'Jean' } });
+            const result = await AuthService.updateProfile({ firstName: 'Jean' });
+
+            expect(result.ok).toBe(true);
+            expect(result.status).toBe(200);
+            expect(result.data.success).toBe(true);
+            expect(result.data.user.prenom).toBe('Jean');
+        });
+
+        it('retourne ok=false pour une erreur de validation 422', async () => {
+            mockFetch(422, { success: false, errors: { postalCode: 'Format invalide' } });
+            const result = await AuthService.updateProfile({ postalCode: 'abc' });
+
+            expect(result.ok).toBe(false);
+            expect(result.status).toBe(422);
+            expect(result.data.errors.postalCode).toBe('Format invalide');
+        });
+
+        it('retourne ok=false pour un 401 non authentifié', async () => {
+            mockFetch(401, { success: false, message: 'Non autorisé.' });
+            const result = await AuthService.updateProfile({ firstName: 'Test' });
+
+            expect(result.ok).toBe(false);
+            expect(result.status).toBe(401);
+        });
+
+        it('propage l\'erreur réseau', async () => {
+            mockFetchError('Network error');
+            await expect(AuthService.updateProfile({ firstName: 'Test' }))
+                .rejects.toThrow('Network error');
+        });
+    });
 });

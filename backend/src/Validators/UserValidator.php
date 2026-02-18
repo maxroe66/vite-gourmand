@@ -87,4 +87,70 @@ class UserValidator
             'errors' => $errors
         ];
     }
+
+    /**
+     * Valide les données de mise à jour du profil utilisateur.
+     * Tous les champs sont optionnels mais validés s'ils sont présents.
+     * @param array $data
+     * @return array [isValid => bool, errors => array]
+     */
+    public function validateUpdate(array $data): array
+    {
+        $errors = [];
+
+        // Prénom (optionnel, mais validé si présent)
+        if (isset($data['firstName'])) {
+            if (!is_string($data['firstName']) || trim($data['firstName']) === '') {
+                $errors['firstName'] = 'Le prénom doit être une chaîne de caractères non vide.';
+            } elseif (!preg_match('/^[a-zA-ZÀ-ÖØ-öø-ÿ\-\s]+$/u', $data['firstName'])) {
+                $errors['firstName'] = 'Le prénom ne doit contenir que des lettres (sans emoji, chiffre ou symbole).';
+            }
+        }
+
+        // Nom (optionnel)
+        if (isset($data['lastName'])) {
+            if (!is_string($data['lastName']) || trim($data['lastName']) === '') {
+                $errors['lastName'] = 'Le nom de famille doit être une chaîne de caractères non vide.';
+            }
+        }
+
+        // GSM / Téléphone (optionnel)
+        if (isset($data['phone'])) {
+            if (!is_string($data['phone']) || trim($data['phone']) === '') {
+                $errors['phone'] = 'Le numéro de téléphone doit être une chaîne de caractères non vide.';
+            } elseif (!preg_match('/^[0-9\s\-\+]{10,}$/', $data['phone'])) {
+                $errors['phone'] = 'Le format du numéro de téléphone est invalide.';
+            }
+        }
+
+        // Adresse (optionnel)
+        if (isset($data['address'])) {
+            if (!is_string($data['address']) || trim($data['address']) === '') {
+                $errors['address'] = 'L\'adresse doit être une chaîne de caractères non vide.';
+            } elseif (strlen($data['address']) < 5) {
+                $errors['address'] = 'L\'adresse est trop courte (minimum 5 caractères).';
+            }
+        }
+
+        // Ville (optionnel)
+        if (isset($data['city'])) {
+            if (!is_string($data['city']) || trim($data['city']) === '') {
+                $errors['city'] = 'La ville doit être une chaîne de caractères non vide.';
+            }
+        }
+
+        // Code postal (optionnel)
+        if (isset($data['postalCode'])) {
+            if (!is_string($data['postalCode']) || trim($data['postalCode']) === '') {
+                $errors['postalCode'] = 'Le code postal doit être une chaîne de caractères non vide.';
+            } elseif (!preg_match('/^\d{5}$/', $data['postalCode'])) {
+                $errors['postalCode'] = 'Le format du code postal est invalide (5 chiffres attendus).';
+            }
+        }
+
+        return [
+            'isValid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
 }

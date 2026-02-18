@@ -554,6 +554,80 @@ class MailerService
     }
 
     /**
+     * Envoie un email de relance pour matériel en retard (dépassement du délai de 10 jours).
+     * Correspond au cas d'utilisation E7 (Vérifier retours matériels en retard).
+     *
+     * @param string $email Adresse email du client
+     * @param string $firstName Prénom du client
+     * @param int $commandeId ID de la commande concernée
+     * @param array $materiels Liste des matériels en retard [{libelle, quantite, joursRetard}]
+     * @return bool
+     */
+    public function sendMaterialOverdueAlert(string $email, string $firstName, int $commandeId, array $materiels): bool
+    {
+        try {
+            if (empty($this->config['mail']['host'])) return false;
+
+            $mail = $this->createMailer();
+            $mail->isSMTP();
+            $mail->Host = $this->config['mail']['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['mail']['user'];
+            $mail->Password = $this->config['mail']['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+
+            if ($this->config['mail']['host'] === 'sandbox.smtp.mailtrap.io') {
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true
+                    )
+                );
+            }
+
+            $mail->setFrom($this->config['mail']['from'], 'Vite & Gourmand - SAV');
+            $mail->addAddress($email, $firstName);
+
+            $mail->isHTML(true);
+            $mail->Subject = '🚨 RETARD : Matériel non retourné — Commande #' . $commandeId;
+
+            // Build material list HTML
+            $materialListHtml = '';
+            foreach ($materiels as $mat) {
+                $nom = htmlspecialchars($mat['libelle'] ?? 'Matériel', ENT_QUOTES, 'UTF-8');
+                $qty = (int)($mat['quantite'] ?? 1);
+                $jours = (int)($mat['joursRetard'] ?? 0);
+                $materialListHtml .= "<li>{$qty}x {$nom} — <strong>{$jours} jour(s) de retard</strong></li>";
+            }
+
+            $templatePath = __DIR__ . '/../../templates/emails/material_overdue_alert.html';
+
+            if (file_exists($templatePath)) {
+                $htmlBody = file_get_contents($templatePath);
+                $htmlBody = str_replace('{firstName}', htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8'), $htmlBody);
+                $htmlBody = str_replace('{commandeId}', (string)$commandeId, $htmlBody);
+                $htmlBody = str_replace('{materialList}', $materialListHtml, $htmlBody);
+                $mail->Body = $htmlBody;
+            } else {
+                $mail->Body = "Bonjour $firstName,<br><br>URGENT : Le matériel de votre commande #$commandeId n'a pas été retourné dans les délais.<br><ul>$materialListHtml</ul><br>Une pénalité de 600€ pourra être appliquée. Contactez-nous immédiatement.";
+            }
+
+            $mail->AltBody = "Bonjour $firstName, URGENT: Le matériel de votre commande #$commandeId n'a pas été retourné. Pénalité de 600€ applicable. Contactez-nous.";
+
+            $mail->send();
+            $this->logger->info('Email relance retard matériel envoyé', ['email' => $email, 'commandeId' => $commandeId]);
+            return true;
+
+        } catch (Exception $e) {
+            $this->logger->error("Erreur envoi relance retard matériel: {$e->getMessage()}", ['email' => $email, 'commandeId' => $commandeId]);
+            return false;
+        }
+    }
+
+    /**
      * Envoie un email de notification de contact à l'entreprise.
      * Appelé lorsqu'un visiteur soumet le formulaire de contact.
      *

@@ -97,6 +97,14 @@ function loadTab(tabName) {
             titleEl.textContent = 'Statistiques';
             loadStatsView(contentEl, actionsEl);
             break;
+        case 'materiel':
+            titleEl.textContent = 'Gestion du Matériel';
+            loadMaterielView(contentEl, actionsEl);
+            break;
+        case 'horaires':
+            titleEl.textContent = 'Gestion des Horaires';
+            loadHorairesView(contentEl, actionsEl);
+            break;
         default:
             contentEl.innerHTML = '<p>Onglet inconnu.</p>';
     }

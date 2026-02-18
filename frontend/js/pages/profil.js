@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const ordersLoader = document.getElementById('orders-loader');
     const ordersList = document.getElementById('orders-list');
+    const ordersLoader = document.getElementById('orders-loader');
     const modal = document.getElementById('order-detail-modal');
     const modalBody = document.getElementById('modal-body');
     const closeModal = document.getElementById('close-modal');
@@ -10,22 +10,77 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeAvis = document.getElementById('close-avis');
     const formAvis = document.getElementById('form-avis');
 
+    // Tabs navigation
+    const tabBtns = document.querySelectorAll('.tabs__btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('is-active'));
+            tabContents.forEach(c => c.classList.remove('is-visible'));
+            btn.classList.add('is-active');
+            const target = document.getElementById('tab-' + btn.dataset.tab);
+            if (target) target.classList.add('is-visible');
+        });
+    });
+
     // Afficher des skeletons de chargement
     Skeleton.renderCards(ordersList, 3);
     ordersLoader.classList.add('u-hidden');
 
     // Init
+    let currentUser = null;
     try {
-        const user = await AuthService.getUser();
-        if (!user) {
+        currentUser = await AuthService.getUser();
+        if (!currentUser) {
             window.location.href = '/frontend/pages/connexion.html';
             return;
         }
+        fillProfileForm(currentUser);
         await loadOrders();
         checkQueryOrderParam();
     } catch (e) {
         Logger.error(e);
     }
+
+    // --- PROFIL ---
+    function fillProfileForm(user) {
+        document.getElementById('profile-firstName').value = user.prenom || '';
+        document.getElementById('profile-lastName').value = user.nom || '';
+        document.getElementById('profile-email').value = user.email || '';
+        document.getElementById('profile-phone').value = user.gsm || '';
+        document.getElementById('profile-address').value = user.adresse_postale || '';
+        document.getElementById('profile-city').value = user.ville || '';
+        document.getElementById('profile-postalCode').value = user.code_postal || '';
+    }
+
+    const formProfile = document.getElementById('form-profile');
+    formProfile.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            firstName: document.getElementById('profile-firstName').value.trim(),
+            lastName: document.getElementById('profile-lastName').value.trim(),
+            phone: document.getElementById('profile-phone').value.trim(),
+            address: document.getElementById('profile-address').value.trim(),
+            city: document.getElementById('profile-city').value.trim(),
+            postalCode: document.getElementById('profile-postalCode').value.trim()
+        };
+
+        try {
+            const result = await AuthService.updateProfile(data);
+            if (result.ok) {
+                showToast('Profil mis à jour avec succès.', 'success');
+                if (result.data.user) {
+                    fillProfileForm(result.data.user);
+                }
+            } else {
+                const msg = result.data?.message || 'Erreur lors de la mise à jour.';
+                showToast(escapeHtml(msg), 'error');
+            }
+        } catch (err) {
+            showToast('Erreur réseau. Réessayez plus tard.', 'error');
+        }
+    });
 
     // Load Orders
     async function loadOrders() {

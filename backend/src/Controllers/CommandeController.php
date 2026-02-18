@@ -341,4 +341,37 @@ class CommandeController
             return $this->jsonResponse(['error' => $e->getMessage()], 400);
         }
     }
+
+    /**
+     * Vérifie les matériels en retard de retour.
+     * GET /api/commandes/overdue-materials?notify=true
+     * Cas d'utilisation E7 : Vérifier retours matériels en retard.
+     */
+    public function checkOverdueMaterials(Request $request): Response
+    {
+        $user = $request->getAttribute('user');
+
+        if (!$user || !isset($user->role)) {
+            return $this->jsonResponse(['error' => 'Non authentifié'], 401);
+        }
+
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!in_array($user->role, $allowedRoles, true)) {
+            return $this->jsonResponse(['error' => 'Accès interdit'], 403);
+        }
+
+        $params = $request->getQueryParams();
+        $sendEmails = ($params['notify'] ?? '') === 'true';
+
+        try {
+            $overdueItems = $this->commandeService->checkOverdueMaterials($sendEmails);
+            return $this->jsonResponse([
+                'count' => count($overdueItems),
+                'overdueCommandes' => $overdueItems,
+                'emailsSent' => $sendEmails,
+            ]);
+        } catch (Exception $e) {
+            return $this->jsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
 }

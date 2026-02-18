@@ -562,6 +562,70 @@ class CommandeService
     }
 
     /**
+     * Vérifie les matériels en retard de retour (> date_retour_prevu).
+     * Regroupe par commande/client, envoie un email de relance, retourne la liste.
+     * Correspond au cas d'utilisation E7 (Vérifier retours matériels en retard).
+     *
+     * @param bool $sendEmails Si true, envoie les emails de relance aux clients
+     * @return array Liste des retards groupés par commande
+     */
+    public function checkOverdueMaterials(bool $sendEmails = false): array
+    {
+        $overdueRows = $this->commandeRepository->findOverdueMaterials();
+
+        if (empty($overdueRows)) {
+            return [];
+        }
+
+        // Grouper par commande
+        $grouped = [];
+        foreach ($overdueRows as $row) {
+            $cmdId = $row['id_commande'];
+            if (!isset($grouped[$cmdId])) {
+                $grouped[$cmdId] = [
+                    'commandeId' => (int)$cmdId,
+                    'userId' => (int)$row['id_utilisateur'],
+                    'clientNom' => $row['prenom'] . ' ' . $row['nom'],
+                    'clientEmail' => $row['email'],
+                    'clientGsm' => $row['gsm'] ?? '',
+                    'datePrestation' => $row['date_prestation'],
+                    'statut' => $row['statut'],
+                    'materiels' => [],
+                ];
+            }
+            $grouped[$cmdId]['materiels'][] = [
+                'libelle' => $row['materiel_libelle'],
+                'quantite' => (int)$row['quantite'],
+                'datePret' => $row['date_pret'],
+                'dateRetourPrevu' => $row['date_retour_prevu'],
+                'joursRetard' => (int)$row['jours_retard'],
+            ];
+        }
+
+        $result = array_values($grouped);
+
+        // Envoi des emails de relance si demandé
+        if ($sendEmails) {
+            foreach ($result as $item) {
+                try {
+                    if (!empty($item['clientEmail'])) {
+                        $this->mailerService->sendMaterialOverdueAlert(
+                            $item['clientEmail'],
+                            explode(' ', $item['clientNom'])[0], // prénom
+                            $item['commandeId'],
+                            $item['materiels']
+                        );
+                    }
+                } catch (\Exception $e) {
+                    error_log("Erreur envoi email retard matériel commande #{$item['commandeId']}: " . $e->getMessage());
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Garantit qu'une chaîne est en UTF-8 valide
      */
     private function ensureUtf8(string $text): string

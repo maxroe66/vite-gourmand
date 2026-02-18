@@ -102,8 +102,9 @@ class AvisController
             return Response::json(['error' => 'Non autorisé'], 401);
         }
 
-        // Seuls les administrateurs peuvent valider un avis (cohérent avec RoleMiddleware)
-        if (!isset($user->role) || $user->role !== 'ADMINISTRATEUR') {
+        // Employés et administrateurs peuvent valider un avis (cohérent avec RoleMiddleware)
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!isset($user->role) || !in_array($user->role, $allowedRoles, true)) {
             return Response::json(['error' => 'Accès interdit'], 403);
         }
 
@@ -129,8 +130,9 @@ class AvisController
             return Response::json(['error' => 'Non autorisé'], 401);
         }
 
-        // Seuls les administrateurs peuvent supprimer un avis (cohérent avec RoleMiddleware)
-        if (!isset($user->role) || $user->role !== 'ADMINISTRATEUR') {
+        // Employés et administrateurs peuvent supprimer/refuser un avis (cohérent avec RoleMiddleware)
+        $allowedRoles = ['ADMINISTRATEUR', 'EMPLOYE'];
+        if (!isset($user->role) || !in_array($user->role, $allowedRoles, true)) {
             return Response::json(['error' => 'Accès interdit'], 403);
         }
 

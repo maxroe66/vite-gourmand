@@ -326,6 +326,65 @@ class AuthController
                               ]);
     }
 
+    /**
+     * Mise à jour du profil utilisateur
+     * @param Request $request
+     * @return Response
+     */
+    public function updateProfile(Request $request): Response
+    {
+        $decodedToken = $request->getAttribute('user');
+        if (!$decodedToken) {
+            return (new Response())->setStatusCode(Response::HTTP_UNAUTHORIZED)
+                                  ->setJsonContent(['success' => false, 'message' => 'Non autorisé.']);
+        }
+
+        $data = $request->getJsonBody();
+        if (!$data) {
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
+                                  ->setJsonContent(['success' => false, 'message' => 'Données invalides ou manquantes.']);
+        }
+
+        // Validation des données de mise à jour
+        $validation = $this->userValidator->validateUpdate($data);
+        if (!$validation['isValid']) {
+            return (new Response())->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                                  ->setJsonContent([
+                                      'success' => false,
+                                      'message' => 'Des champs sont invalides.',
+                                      'errors' => $validation['errors']
+                                  ]);
+        }
+
+        try {
+            $user = $this->userService->updateProfile($decodedToken->sub, $data);
+
+            return (new Response())->setStatusCode(Response::HTTP_OK)
+                                  ->setJsonContent([
+                                      'success' => true,
+                                      'message' => 'Profil mis à jour avec succès.',
+                                      'user' => [
+                                          'id' => $user['id'],
+                                          'email' => $user['email'],
+                                          'prenom' => $user['prenom'],
+                                          'nom' => $user['nom'],
+                                          'gsm' => $user['gsm'],
+                                          'adresse_postale' => $user['adresse_postale'],
+                                          'ville' => $user['ville'],
+                                          'code_postal' => $user['code_postal'],
+                                          'role' => $user['role']
+                                      ]
+                                  ]);
+        } catch (UserServiceException $e) {
+            return (new Response())->setStatusCode(Response::HTTP_BAD_REQUEST)
+                                  ->setJsonContent(['success' => false, 'message' => $e->getMessage()]);
+        } catch (\Exception $e) {
+            $this->logger->error('Erreur mise à jour profil', ['error' => $e->getMessage()]);
+            return (new Response())->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
+                                  ->setJsonContent(['success' => false, 'message' => 'Une erreur est survenue.']);
+        }
+    }
+
     public function checkAuth(Request $request): Response
     {
         // Le middleware a déjà fait la vérification et a enrichi l'objet Request.
@@ -350,6 +409,10 @@ class AuthController
                                           'email' => $user['email'],
                                           'prenom' => $user['prenom'],
                                           'nom' => $user['nom'],
+                                          'gsm' => $user['gsm'] ?? '',
+                                          'adresse_postale' => $user['adresse_postale'] ?? '',
+                                          'ville' => $user['ville'] ?? '',
+                                          'code_postal' => $user['code_postal'] ?? '',
                                           'role' => $user['role']
                                       ]
                                   ]);

@@ -109,6 +109,33 @@ class UserRepository
     }
 
     /**
+     * Met à jour les informations de profil d'un utilisateur
+     * @param int $userId
+     * @param array $data Champs à mettre à jour (prenom, nom, gsm, adresse_postale, ville, code_postal)
+     */
+    public function updateProfile(int $userId, array $data): void
+    {
+        $allowedFields = ['prenom', 'nom', 'gsm', 'adresse_postale', 'ville', 'code_postal'];
+        $setClauses = [];
+        $params = ['id' => $userId];
+
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $setClauses[] = "$field = :$field";
+                $params[$field] = $data[$field];
+            }
+        }
+
+        if (empty($setClauses)) {
+            return;
+        }
+
+        $sql = 'UPDATE UTILISATEUR SET ' . implode(', ', $setClauses) . ' WHERE id_utilisateur = :id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
+    /**
      * Active ou désactive un utilisateur
      * @param int $userId
      * @param bool $actif

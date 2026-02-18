@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RETARD : Matériel non retourné - Vite & Gourmand</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+        .header p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
+        .content { padding: 30px 20px; }
+        .content h2 { color: #991b1b; font-size: 20px; margin-top: 0; }
+        .content p { margin: 15px 0; color: #555; }
+        .overdue-box { background-color: #fef2f2; color: #991b1b; padding: 20px; border-radius: 5px; border: 2px solid #dc2626; margin: 20px 0; }
+        .overdue-box h3 { margin: 0 0 10px; font-size: 16px; }
+        .overdue-box ul { margin: 10px 0; padding-left: 20px; }
+        .overdue-box li { margin: 5px 0; }
+        .penalty-box { background-color: #fefce8; color: #854d0e; padding: 15px; text-align: center; border-radius: 5px; border: 1px solid #facc15; margin: 20px 0; }
+        .penalty-box strong { font-size: 1.1em; }
+        .footer { background-color: #f9f9f9; padding: 20px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eeeeee; }
+        .btn { display: inline-block; background-color: #dc2626; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-top: 10px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Matériel Non Retourné</h1>
+            <p>Commande #{commandeId}</p>
+        </div>
+        <div class="content">
+            <h2>Bonjour {firstName},</h2>
+            <p>Nous constatons que le matériel prêté dans le cadre de votre commande <strong>#{commandeId}</strong> n'a pas encore été retourné et que le délai de restitution est dépassé.</p>
+
+            <div class="overdue-box">
+                <h3>Matériel en retard :</h3>
+                <ul>
+                    {materialList}
+                </ul>
+            </div>
+
+            <div class="penalty-box">
+                ⚠️ Conformément à nos conditions générales, une <strong>pénalité de 600 €</strong> pourra être appliquée si le matériel n'est pas restitué dans les plus brefs délais.
+            </div>
+
+            <p>Nous vous invitons à nous contacter <strong>immédiatement</strong> pour organiser la restitution du matériel.</p>
+
+            <p style="text-align: center;">
+                <a href="mailto:contact@vite-et-gourmand.me" class="btn">Nous Contacter Maintenant</a>
+            </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 Vite & Gourmand. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>
