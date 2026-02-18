@@ -126,12 +126,14 @@ jobs:
             echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env.test
             echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env.test
             echo "MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}" >> .env.test
+            echo "CONTACT_EMAIL=${{ secrets.CONTACT_EMAIL }}" >> .env.test
           else
             # Placeholders pour graceful degradation
             echo "MAIL_HOST=smtp.example.com" >> .env.test
             echo "MAIL_USERNAME=placeholder" >> .env.test
             echo "MAIL_PASSWORD=placeholder" >> .env.test
             echo "MAIL_FROM_ADDRESS=noreply@example.com" >> .env.test
+            echo "CONTACT_EMAIL=contact-test@example.com" >> .env.test
           fi
           # Configuration BDD (identique au workflow test-backend.yml)
           echo "DB_HOST=127.0.0.1" >> .env.test
