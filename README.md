@@ -47,6 +47,7 @@ cd vite-gourmand
 cp .env.example .env
 ```
 > Les valeurs par défaut fonctionnent telles quelles. Aucune modification n'est nécessaire pour un usage local.
+> Toutes les fonctionnalités sont opérationnelles — voir le tableau ci-dessous.
 
 ### 3. Lancer les services
 ```bash
@@ -84,6 +85,40 @@ docker exec vite-php-app php scripts/setup/setup-admin-password.php
 | Client | `marie.dupont@email.fr` | `Password123!` |
 
 > Tous les comptes utilisent le même mot de passe : `Password123!`
+
+### Fonctionnalités disponibles
+
+| Fonctionnalité | Disponible | Détail |
+|---|---|---|
+| Navigation, menus, plats | ✅ | — |
+| Authentification / JWT | ✅ | Secret dev auto-généré |
+| Commande complète | ✅ | Sélection plats, calcul prix, validation |
+| Calcul réel distance livraison | ✅ | Clé Google Maps restreinte incluse dans `.env.example` |
+| Envoi d'emails | ✅ | Emails capturés dans Mailtrap sandbox (voir ci-dessous) |
+| Espace admin / employé | ✅ | Comptes de test ci-dessus |
+| Upload images menus | ✅ | Stockage local (filesystem) |
+| Avis clients | ✅ | Création, modération, carousel |
+
+### 📬 Consulter les emails envoyés
+
+L'application utilise **Mailtrap** (sandbox email) : les emails sont capturés et consultables en ligne, mais **ne sont jamais délivrés à de vrais destinataires**.
+
+Pour voir les emails envoyés (inscription, confirmation de commande, reset mot de passe, contact…) :
+1. Se connecter sur **https://mailtrap.io/signin**
+   - **Email :** `contact@vite-et-gourmand.me`
+   - **Mot de passe :** `?34*h8rPG3gJzXv`
+2. Aller dans **Email Testing → Inboxes → "My Sandbox"**
+3. Tous les emails envoyés par l'application apparaissent ici
+
+> **Note :** Les identifiants Mailtrap sont déjà renseignés dans `.env.example`. Aucune configuration supplémentaire n'est nécessaire.
+
+### 🔒 Note de sécurité
+
+Les credentials externes fournis dans `.env.example` sont des **clés restreintes/sandbox** dédiées à la démonstration locale :
+- **Mailtrap** : inbox sandbox — aucun vrai email n'est délivré
+- **Google Maps** : clé restreinte à `localhost` uniquement, limitée à l'API Distance Matrix
+- **JWT** : secret dev auto-généré, jamais utilisé en production
+- **Mots de passe BDD** : valeurs Docker locales, isolées dans des containers
 
 **Bases de données DEV :**
 - MySQL : `vite_gourmand` (port 3306)
