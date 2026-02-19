@@ -1,4 +1,4 @@
-name: Frontend Tests
+name: Tests frontend automatisés
 
 on:
   push:
