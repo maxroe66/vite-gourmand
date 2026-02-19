@@ -328,6 +328,7 @@ class CommandeController
         $filters = [
             'status' => $params['status'] ?? null,
             'userId' => $params['user'] ?? null,
+            'search' => $params['search'] ?? null,
             'date' => $params['date'] ?? null
         ];
 

@@ -55,17 +55,17 @@ describe('reset password form (client validation)', () => {
 
     // ─── Validation : mot de passe trop court ────────────────────────
 
-    it('affiche une erreur si le mot de passe fait moins de 8 caractères', async () => {
+    it('affiche une erreur si le mot de passe fait moins de 10 caractères', async () => {
         await initWithToken('abc');
         const form = document.getElementById('forgotPasswordForm');
 
-        document.getElementById('newPassword').value = 'Short1';
-        document.getElementById('confirmPassword').value = 'Short1';
+        document.getElementById('newPassword').value = 'Short1!';
+        document.getElementById('confirmPassword').value = 'Short1!';
         fireEvent.submit(form);
 
         const msg = document.querySelector('.general-error');
         expect(msg).not.toBeNull();
-        expect(msg.textContent).toMatch(/8 caractères/);
+        expect(msg.textContent).toMatch(/10 caractères/);
     });
 
     // ─── Validation : mots de passe différents ───────────────────────
@@ -74,8 +74,8 @@ describe('reset password form (client validation)', () => {
         await initWithToken('abc');
         const form = document.getElementById('forgotPasswordForm');
 
-        document.getElementById('newPassword').value = 'password123';
-        document.getElementById('confirmPassword').value = 'different123';
+        document.getElementById('newPassword').value = 'Password123!';
+        document.getElementById('confirmPassword').value = 'Different123!';
         fireEvent.submit(form);
 
         const banner = document.querySelector('.general-error');
@@ -93,12 +93,12 @@ describe('reset password form (client validation)', () => {
             ok: true, data: { success: true }
         });
 
-        document.getElementById('newPassword').value = 'NewPass1234';
-        document.getElementById('confirmPassword').value = 'NewPass1234';
+        document.getElementById('newPassword').value = 'NewPass1234!';
+        document.getElementById('confirmPassword').value = 'NewPass1234!';
         fireEvent.submit(form);
 
         await vi.waitFor(() => {
-            expect(AuthService.resetPassword).toHaveBeenCalledWith('tok456', 'NewPass1234');
+            expect(AuthService.resetPassword).toHaveBeenCalledWith('tok456', 'NewPass1234!');
         });
     });
 
@@ -110,8 +110,8 @@ describe('reset password form (client validation)', () => {
             ok: true, data: { success: true }
         });
 
-        document.getElementById('newPassword').value = 'ValidPass1234';
-        document.getElementById('confirmPassword').value = 'ValidPass1234';
+        document.getElementById('newPassword').value = 'ValidPass1234!';
+        document.getElementById('confirmPassword').value = 'ValidPass1234!';
         fireEvent.submit(form);
 
         await vi.waitFor(() => {
@@ -131,8 +131,8 @@ describe('reset password form (client validation)', () => {
             ok: false, data: { message: 'Token expiré' }
         });
 
-        document.getElementById('newPassword').value = 'ValidPass1234';
-        document.getElementById('confirmPassword').value = 'ValidPass1234';
+        document.getElementById('newPassword').value = 'ValidPass1234!';
+        document.getElementById('confirmPassword').value = 'ValidPass1234!';
         fireEvent.submit(form);
 
         await vi.waitFor(() => {
@@ -150,8 +150,8 @@ describe('reset password form (client validation)', () => {
 
         AuthService.resetPassword.mockRejectedValue(new Error('Offline'));
 
-        document.getElementById('newPassword').value = 'ValidPass1234';
-        document.getElementById('confirmPassword').value = 'ValidPass1234';
+        document.getElementById('newPassword').value = 'ValidPass1234!';
+        document.getElementById('confirmPassword').value = 'ValidPass1234!';
         fireEvent.submit(form);
 
         await vi.waitFor(() => {

@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const newPassword = newPasswordInput.value.trim();
         const confirmPassword = confirmPasswordInput.value.trim();
 
-        if (newPassword.length < 8) {
-            showMessage('Le mot de passe doit faire au moins 8 caractères.');
+        if (newPassword.length < 10 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d])/.test(newPassword)) {
+            showMessage('Le mot de passe doit faire au moins 10 caractères avec 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.');
             return;
         }
         if (newPassword !== confirmPassword) {

@@ -39,8 +39,8 @@ async function loadEquipeView(container, headerActions) {
                     </div>
                     <div class="form-group">
                         <label for="emp-password">Mot de passe *</label>
-                        <input type="password" id="emp-password" name="password" required class="form-input" minlength="8">
-                        <small>Ne sera pas envoyé par mail. Communiquer à l'employé.</small>
+                        <input type="password" id="emp-password" name="password" required class="form-input" minlength="10">
+                        <small>Min. 10 caractères, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial. Ne sera pas envoyé par mail.</small>
                     </div>
                     <div class="form-group">
                         <label for="emp-firstName">Prénom</label>

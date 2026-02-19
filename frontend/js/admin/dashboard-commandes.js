@@ -34,6 +34,7 @@ async function loadCommandesView(container, headerActions) {
                 <option value="TERMINEE">Terminée</option>
                 <option value="ANNULEE">Annulée</option>
             </select>
+            <input type="text" id="filter-client" class="input" placeholder="Rechercher un client (nom, email)...">
             <button class="btn btn--secondary" id="btn-refresh-cmd"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
 
@@ -99,6 +100,13 @@ async function loadCommandesView(container, headerActions) {
 
     document.getElementById('btn-refresh-cmd').addEventListener('click', fetchCommandesList);
     document.getElementById('filter-status').addEventListener('change', fetchCommandesList);
+
+    // Filtre par client avec debounce
+    let clientFilterTimer;
+    document.getElementById('filter-client').addEventListener('input', () => {
+        clearTimeout(clientFilterTimer);
+        clientFilterTimer = setTimeout(fetchCommandesList, 300);
+    });
     
     // Init Modal Cancel
     const modalCancel = document.getElementById('modal-cancel-cmd');
@@ -145,12 +153,14 @@ async function loadCommandesView(container, headerActions) {
 
 async function fetchCommandesList() {
     const status = document.getElementById('filter-status').value;
+    const clientSearch = document.getElementById('filter-client').value.trim();
     const body = document.getElementById('cmd-table-body');
     body.innerHTML = '<tr><td colspan="5" class="data-table__cell--center">Chargement...</td></tr>';
 
     try {
         const filters = {};
         if (status) filters.status = status;
+        if (clientSearch) filters.search = clientSearch;
         
         const commandes = await CommandeService.getAllOrders(filters);
         
@@ -187,7 +197,7 @@ async function fetchCommandesList() {
                 <td>#${safeId}</td>
                 <td>
                     <div><strong>${new Date(cmd.datePrestation).toLocaleDateString()}</strong></div>
-                    <small>Client #${safeUserId}</small>
+                    <small>${cmd.clientNom ? escapeHtml(cmd.clientNom) : 'Client #' + safeUserId}</small>
                 </td>
                 <td>${parseFloat(cmd.prixTotal).toFixed(2)} €</td>
                 <td>

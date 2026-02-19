@@ -30,6 +30,11 @@ class MenuRepository
         // Si on veut aussi les inactifs (pour admin), il faudra un paramètre en plus, 
         // mais ici c'est findAll pour l'affichage liste
 
+        if (!empty($filters['prix_min'])) {
+            $sql .= ' AND m.prix >= :prix_min';
+            $params[':prix_min'] = $filters['prix_min'];
+        }
+
         if (!empty($filters['prix_max'])) {
             $sql .= ' AND m.prix <= :prix_max';
             $params[':prix_max'] = $filters['prix_max'];

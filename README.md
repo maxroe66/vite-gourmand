@@ -47,16 +47,27 @@ cd vite-gourmand
 cp .env.example .env
 ```
 > Les valeurs par défaut fonctionnent telles quelles. Aucune modification n'est nécessaire pour un usage local.
+> Toutes les fonctionnalités sont opérationnelles — voir le tableau ci-dessous.
 
 ### 3. Lancer les services
 ```bash
 docker compose up -d
 ```
+> La base de données MySQL est **automatiquement initialisée** (schéma + données de test) au premier lancement via les scripts SQL montés dans `docker-entrypoint-initdb.d`.
+> Pour réinitialiser complètement la BDD : `docker compose down -v && docker compose up -d`.
 
-### 4. Initialiser le compte administrateur
+### 4. Installer les dépendances PHP
+```bash
+docker exec vite-php-app bash -c "cd backend && composer install"
+```
+> Le dossier `backend/vendor/` n'est pas versionné (`.gitignore`). Cette étape est **obligatoire** après le clone.
+
+### 5. (Optionnel) Personnaliser le mot de passe administrateur
 ```bash
 docker exec vite-php-app php scripts/setup/setup-admin-password.php
 ```
+> Les comptes de test ci-dessous sont déjà fonctionnels grâce aux fixtures SQL.
+> Cette étape n'est nécessaire que pour définir un mot de passe personnalisé pour l'administrateur.
 
 ### Accès locaux
 | Service | URL |
@@ -64,6 +75,50 @@ docker exec vite-php-app php scripts/setup/setup-admin-password.php
 | Application | http://localhost:8000 |
 | phpMyAdmin | http://localhost:8081 |
 | Mongo Express | http://localhost:8082 |
+
+### Comptes de test
+
+| Rôle | Email | Mot de passe |
+|---|---|---|
+| Administrateur | `jose@vite-gourmand.fr` | `Password123!` |
+| Employé | `julie@vite-gourmand.fr` | `Password123!` |
+| Client | `marie.dupont@email.fr` | `Password123!` |
+
+> Tous les comptes utilisent le même mot de passe : `Password123!`
+
+### Fonctionnalités disponibles
+
+| Fonctionnalité | Disponible | Détail |
+|---|---|---|
+| Navigation, menus, plats | ✅ | — |
+| Authentification / JWT | ✅ | Secret dev auto-généré |
+| Commande complète | ✅ | Sélection plats, calcul prix, validation |
+| Calcul réel distance livraison | ✅ | Clé Google Maps restreinte incluse dans `.env.example` |
+| Envoi d'emails | ✅ | Emails capturés dans Mailtrap sandbox (voir ci-dessous) |
+| Espace admin / employé | ✅ | Comptes de test ci-dessus |
+| Upload images menus | ✅ | Stockage local (filesystem) |
+| Avis clients | ✅ | Création, modération, carousel |
+
+### 📬 Consulter les emails envoyés
+
+L'application utilise **Mailtrap** (sandbox email) : les emails sont capturés et consultables en ligne, mais **ne sont jamais délivrés à de vrais destinataires**.
+
+Pour voir les emails envoyés (inscription, confirmation de commande, reset mot de passe, contact…) :
+1. Se connecter sur **https://mailtrap.io/signin**
+   - **Email :** `contact@vite-et-gourmand.me`
+   - **Mot de passe :** `?34*h8rPG3gJzXv`
+2. Aller dans **Email Testing → Inboxes → "My Sandbox"**
+3. Tous les emails envoyés par l'application apparaissent ici
+
+> **Note :** Les identifiants Mailtrap sont déjà renseignés dans `.env.example`. Aucune configuration supplémentaire n'est nécessaire.
+
+### 🔒 Note de sécurité
+
+Les credentials externes fournis dans `.env.example` sont des **clés restreintes/sandbox** dédiées à la démonstration locale :
+- **Mailtrap** : inbox sandbox — aucun vrai email n'est délivré
+- **Google Maps** : clé restreinte à `localhost` uniquement, limitée à l'API Distance Matrix
+- **JWT** : secret dev auto-généré, jamais utilisé en production
+- **Mots de passe BDD** : valeurs Docker locales, isolées dans des containers
 
 **Bases de données DEV :**
 - MySQL : `vite_gourmand` (port 3306)
@@ -90,6 +145,15 @@ cp .env.test.example .env.test
 
 ---
 
+## 🧪 Tests frontend
+
+```bash
+cd frontend && npm install && npx vitest --run
+```
+> Les tests frontend utilisent [Vitest](https://vitest.dev/) et couvrent la validation des formulaires, les interactions DOM et les services API.
+
+---
+
 ## 🔄 CI/CD (GitHub Actions)
 
 ### CI (tests)
@@ -98,18 +162,13 @@ cp .env.test.example .env.test
 - Lance des tests Postman via Newman
 - Démarre MySQL + MongoDB en services GitHub Actions (bases de test)
 
-### CD (build & publication de l’image Docker)
-- Workflow : `.github/workflows/publish-image.yml`
+### CD (build, publication & déploiement Azure)
+- **Workflow** : `.github/workflows/deploy-azure.yml`
 - Build l'image Docker via `docker/azure/Dockerfile.azure`
-- Push l’image sur GitHub Container Registry (GHCR) :
+- Push l'image sur GitHub Container Registry (GHCR) :
   - `ghcr.io/maxroe66/vite-gourmand:develop`
   - `ghcr.io/maxroe66/vite-gourmand:<sha>`
-
-
-### CD (déploiement Azure App Service)
-
-- **Workflow** : `.github/workflows/deploy-azure.yml`
-- Configure l’App Service pour utiliser l’image SHA immuable depuis GHCR
+- Configure l'Azure App Service pour utiliser l'image SHA immuable depuis GHCR
 - Redémarre l’application
 - **Post-checks** :
   - Health-check HTTP (`APP_BASE_URL`)
@@ -140,9 +199,8 @@ cp .env.test.example .env.test
 
   > **Note :** Sans `AZURE_STORAGE_CONNECTION_STRING`, les images uploadées par les administrateurs sont stockées dans le filesystem du conteneur et **seront perdues à chaque redéploiement**. Avec cette variable configurée, les images sont persistées dans Azure Blob Storage.
 
-- **Endpoints de vérification**
+- **Endpoint de vérification**
   ```http
-  GET /health
   GET /api/auth/test
   ```
 

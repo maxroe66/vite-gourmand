@@ -1,5 +1,5 @@
 
-name: Build, Publish image to GHCR and Deploy to Azure App Service
+name: Déploiement Azure
 
 on:
   push:

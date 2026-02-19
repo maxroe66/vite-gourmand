@@ -39,13 +39,13 @@ class UserValidator
             $errors['email'] = "Le format de l'adresse email est invalide.";
         }
 
-        // Mot de passe (obligatoire, type string, min 8 caractères, 1 maj, 1 min, 1 chiffre)
+        // Mot de passe (obligatoire, type string, min 10 caractères, 1 maj, 1 min, 1 chiffre, 1 spécial)
         if (empty($data['password'])) {
             $errors['password'] = 'Le mot de passe est requis.';
         } elseif (!is_string($data['password'])) {
             $errors['password'] = 'Le mot de passe doit être une chaîne de caractères.';
-        } elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $data['password'])) {
-            $errors['password'] = 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.';
+        } elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{10,}$/', $data['password'])) {
+            $errors['password'] = 'Le mot de passe doit contenir au moins 10 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.';
         }
 
         // GSM / Téléphone (obligatoire, type string, format simple)

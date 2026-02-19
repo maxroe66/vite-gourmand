@@ -10,7 +10,6 @@
 ### 1. DOCUMENTATION_TECHNIQUE.md
 
 **Localisation :** `docs/documentation_technique/DOCUMENTATION_TECHNIQUE.md`  
-**Taille :** ~1 700 lignes — 10 sections  
 
 | Section | Contenu |
 |---------|---------|
@@ -30,7 +29,6 @@
 ### 2. DOCUMENTATION_DEPLOIEMENT.md
 
 **Localisation :** `docs/documentation_technique/DOCUMENTATION_DEPLOIEMENT.md`  
-**Taille :** ~800 lignes  
 
 | Section | Contenu |
 |---------|---------|
@@ -47,7 +45,6 @@
 ### 3. MANUEL_UTILISATION.md
 
 **Localisation :** `docs/documentation_technique/MANUEL_UTILISATION.md`  
-**Taille :** ~425 lignes — 15 sections  
 
 | Section | Contenu |
 |---------|---------|
@@ -63,7 +60,6 @@
 ### 4. GESTION_PROJET.md
 
 **Localisation :** `docs/documentation_technique/GESTION_PROJET.md`  
-**Taille :** ~300 lignes — 10 sections  
 
 | Section | Contenu |
 |---------|---------|
@@ -98,7 +94,6 @@
 |----------|--------|
 | Documents techniques | 4 fichiers Markdown |
 | Diagrammes | 8 fichiers mis à jour |
-| Lignes totales (docs) | ~3 200 lignes |
 | Exemples de code | 60+ snippets |
 | Tableaux | 30+ tables |
 | Endpoints documentés | 46 |
