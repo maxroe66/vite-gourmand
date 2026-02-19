@@ -2,7 +2,7 @@
 
 > **Version :** 1.1  
 > **Date :** 19 février 2026  
-> **Auteur :** Maxime Roé  
+> **Auteur :** Max Roe  
 > **Public cible :** Utilisateurs finaux (clients), Employés, Administrateurs
 
 ---

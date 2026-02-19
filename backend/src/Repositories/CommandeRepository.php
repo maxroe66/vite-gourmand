@@ -289,9 +289,21 @@ class CommandeRepository
                 }
                 $stmt->execute($params);
 
-                // 2. Decrement stock MATERIEL
-                $upd = $this->pdo->prepare("UPDATE MATERIEL SET stock_disponible = stock_disponible - :qty WHERE id_materiel = :id");
-                $upd->execute(['qty' => $mat['quantite'], 'id' => $mat['id']]);
+                // 2. Decrement stock MATERIEL (uniquement si stock suffisant)
+                $upd = $this->pdo->prepare(
+                    "UPDATE MATERIEL SET stock_disponible = stock_disponible - :qty 
+                     WHERE id_materiel = :id AND stock_disponible >= :qtyCheck"
+                );
+                $upd->execute([
+                    'qty' => $mat['quantite'],
+                    'id' => $mat['id'],
+                    'qtyCheck' => $mat['quantite']
+                ]);
+                if ($upd->rowCount() === 0) {
+                    throw new \RuntimeException(
+                        "Stock insuffisant pour le matériel ID {$mat['id']} (quantité demandée : {$mat['quantite']})."
+                    );
+                }
             }
             
             // Update commande flag

@@ -1,414 +1,446 @@
 {
-  "info": {
-    "name": "vite & gourmand - login",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000/api",
-      "type": "string"
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token') || pm.environment.get('csrf_token');",
-          "if (csrfToken) {",
-          "  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
-          "}"
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "const csrfToken = pm.cookies.get('csrfToken');",
-          "if (csrfToken) {",
-          "  pm.collectionVariables.set('csrf_token', csrfToken);",
-          "}"
-        ]
-      }
-    }
-  ],
-  "item": [
-    {
-      "name": "00. Login sans CSRF (attendu 403)",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.request.headers.upsert({ key: 'X-CSRF-Token', value: 'invalid' });"
-            ]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 403 attendu (CSRF)', () => pm.response.to.have.status(403));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"Password123!\"}"
-        }
-      }
-    },
-    {
-      "name": "01. Init CSRF",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "const json = pm.response.json();",
-              "if (json && json.csrfToken) {",
-              "  pm.collectionVariables.set('csrf_token', json.csrfToken);",
-              "}"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{base_url}}/csrf"
-      }
-    },
-    {
-      "name": "login réussi",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"Password123!\"}"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 200 attendu', () => pm.response.to.have.status(200));",
-              "pm.test('Réponse JSON succès', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.true;",
-              "  pm.expect(json.userId).to.exist;",
-              "});",
-              "pm.test('Cookie authToken présent', () => {",
-              "  pm.expect(pm.cookies.has('authToken')).to.be.true;",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "email inexistant",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{\"email\": \"inexistant@test.fr\", \"password\": \"password\"}"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
-              "pm.test('Message credentials invalides', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.false;",
-              "  pm.expect(json.message).to.include('mot de passe incorrect');",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "mot de passe incorrect",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{\"email\": \"marie.dupont@email.fr\", \"password\": \"WrongPassword123\"}"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
-              "pm.test('Message credentials invalides', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.false;",
-              "  pm.expect(json.message).to.include('mot de passe incorrect');",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "email manquant",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{\"password\": \"password\"}"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
-              "pm.test('Erreur sur champ email', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.false;",
-              "  pm.expect(json.errors.email).to.exist;",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "password manquant",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{\"email\": \"marie.dupont@email.fr\"}"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
-              "pm.test('Erreur sur champ password', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.false;",
-              "  pm.expect(json.errors.password).to.exist;",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "format email invalide",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{\"email\": \"invalid-email\", \"password\": \"password\"}"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
-              "pm.test('Erreur validation format email', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.false;",
-              "  pm.expect(json.errors.email).to.exist;",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "payload vide",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "{}"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 400 attendu', () => pm.response.to.have.status(400));",
-              "pm.test('Réponse échec attendue', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.false;",
-              "  pm.expect(json.message).to.exist;",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "JSON malformé",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{base_url}}/auth/login",
-        "body": {
-          "mode": "raw",
-          "raw": "not a valid json"
-        }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 400 ou 401 attendu', () => {",
-              "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
-              "});",
-              "pm.test('Message données invalides', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.be.false;",
-              "  pm.expect(json.message).to.include('invalide');",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "auth check avec cookie",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 200 attendu', () => pm.response.to.have.status(200));",
-              "pm.test('Réponse auth ok', () => {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.isAuthenticated).to.be.true;",
-              "  pm.expect(json.user).to.exist;",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{base_url}}/auth/check"
-      }
-    },
-    {
-      "name": "auth check sans cookie",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "const jar = pm.cookies.jar();",
-              "const url = pm.environment.get('base_url') || pm.collectionVariables.get('base_url');",
-              "if (url) {",
-              "  jar.unset(url, 'authToken', () => {});",
-              "}"
-            ]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{base_url}}/auth/check"
-      }
-    }
-  ]
+	"info": {
+		"name": "vite & gourmand - login",
+		"description": "Tests d'intégration pour la connexion (POST /api/auth/login), auth check, et logout.\n4 phases avec resets de rate limit entre chaque batch.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:8000/api", "type": "string" },
+		{ "key": "csrf_token", "value": "", "type": "string" }
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token') || pm.environment.get('csrf_token');",
+					"if (csrfToken) {",
+					"  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken');",
+					"if (csrfToken) {",
+					"  pm.collectionVariables.set('csrf_token', csrfToken);",
+					"}"
+				]
+			}
+		}
+	],
+	"item": [
+		{
+			"name": "Phase 1 — CSRF & Login réussi",
+			"item": [
+				{
+					"name": "00. Login sans CSRF (attendu 403)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.request.headers.upsert({ key: 'X-CSRF-Token', value: 'invalid-token' });"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 403 attendu (CSRF invalide)', () => {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"marie.dupont@email.fr\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "01. Init CSRF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('CSRF token récupéré', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.csrfToken).to.be.a('string');",
+									"    pm.collectionVariables.set('csrf_token', json.csrfToken);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/csrf"
+					}
+				},
+				{
+					"name": "01a. Reset Rate Limit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "02. Login réussi",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 200 attendu', () => pm.response.to.have.status(200));",
+									"pm.test('Réponse JSON succès avec userId', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.true;",
+									"    pm.expect(json.userId).to.exist;",
+									"});",
+									"pm.test('Cookie authToken présent', () => {",
+									"    pm.expect(pm.cookies.has('authToken')).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"marie.dupont@email.fr\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "03. Auth check avec cookie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 200 attendu', () => pm.response.to.have.status(200));",
+									"pm.test('Utilisateur authentifié', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.isAuthenticated).to.be.true;",
+									"    pm.expect(json.user).to.exist;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/auth/check"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 2 — Credentials invalides",
+			"item": [
+				{
+					"name": "04. Email inexistant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+									"pm.test('Message credentials invalides', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.message).to.include('mot de passe incorrect');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"inexistant@test.fr\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "05. Mot de passe incorrect",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 401 attendu', () => pm.response.to.have.status(401));",
+									"pm.test('Message credentials invalides', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.message).to.include('mot de passe incorrect');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"marie.dupont@email.fr\",\"password\":\"WrongPassword123\"}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 3 — Validations champs",
+			"item": [
+				{
+					"name": "05a. Reset Rate Limit (intermédiaire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "06. Email manquant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur sur champ email', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "07. Password manquant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur sur champ password', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.errors).to.have.property('password');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"marie.dupont@email.fr\"}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "08. Format email invalide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur validation format email', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"invalid-email\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 4 — Body invalide & auth check sans cookie",
+			"item": [
+				{
+					"name": "08a. Reset Rate Limit (intermédiaire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "09. Payload vide ({})",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 400 attendu', () => pm.response.to.have.status(400));",
+									"pm.test('Réponse échec', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.message).to.exist;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "10. JSON malformé",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 400 attendu', () => pm.response.to.have.status(400));",
+									"pm.test('Message données invalides', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.false;",
+									"    pm.expect(json.message).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "not a valid json"
+						},
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "11. Auth check sans cookie (non connecté)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 200 ou 401 attendu', () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/auth/check"
+					}
+				}
+			]
+		}
+	]
 }

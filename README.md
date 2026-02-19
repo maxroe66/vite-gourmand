@@ -26,7 +26,7 @@ Vite & Gourmand permet :
 |----------|-------------|
 | [Documentation technique](docs/documentation_technique/DOCUMENTATION_TECHNIQUE.md) | Architecture, modèle de données, API REST, sécurité, tests |
 | [Documentation déploiement](docs/documentation_technique/DOCUMENTATION_DEPLOIEMENT.md) | Docker, Azure, CI/CD, SSL, troubleshooting |
-| [Manuel d'utilisation](docs/documentation_technique/MANUEL_UTILISATION.md) | Parcours utilisateur, comptes de test, captures |
+| [Manuel d'utilisation](docs/documentation_technique/MANUEL_UTILISATION.pdf) | Parcours utilisateur, comptes de test, captures |
 | [Gestion de projet](docs/documentation_technique/GESTION_PROJET.md) | Méthodologie Kanban, chronologie, Git flow, bilan |
 | [Diagrammes](docs/diagrammes/) | MCD, MLD, UML (68 classes), cas d'utilisation (35 UC), séquences |
 
