@@ -104,7 +104,7 @@
               "// Sauvegarder les données pour les tests suivants",
               "const jsonData = pm.response.json();",
               "pm.collectionVariables.set(\"created_user_email\", pm.variables.get(\"uniqueEmail\"));",
-              "pm.collectionVariables.set(\"created_user_password\", \"Password123\");",
+              "pm.collectionVariables.set(\"created_user_password\", \"Password123!\");",
               "pm.collectionVariables.set(\"created_user_id\", jsonData.userId);"
             ],
             "type": "text/javascript",
@@ -123,7 +123,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"{{uniqueEmail}}\",\r\n  \"firstName\": \"{{uniqueFirstName}}\",\r\n  \"lastName\": \"{{uniqueLastName}}\",\r\n  \"phone\": \"{{uniquePhone}}\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}",
+          "raw": "{\r\n  \"email\": \"{{uniqueEmail}}\",\r\n  \"firstName\": \"{{uniqueFirstName}}\",\r\n  \"lastName\": \"{{uniqueLastName}}\",\r\n  \"phone\": \"{{uniquePhone}}\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -166,7 +166,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"{{uniqueEmail}}\",\r\n  \"firstName\": \"{{uniqueFirstName}}\",\r\n  \"lastName\": \"{{uniqueLastName}}\",\r\n  \"phone\": \"{{uniquePhone}}\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"{{uniqueEmail}}\",\r\n  \"firstName\": \"{{uniqueFirstName}}\",\r\n  \"lastName\": \"{{uniqueLastName}}\",\r\n  \"phone\": \"{{uniquePhone}}\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -206,7 +206,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -286,7 +286,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"phonefail_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"abc123\",           \r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"phonefail_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"abc123\",           \r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -319,7 +319,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"longname_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"A\".repeat(300),\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"longname_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"A\".repeat(300),\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -355,7 +355,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"inattendu_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\",\r\n  \"admin\": true\r\n}"
+          "raw": "{\r\n  \"email\": \"inattendu_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\",\r\n  \"admin\": true\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -393,7 +393,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"typeinattendu_{{$timestamp}}@example.com\",\r\n  \"firstName\": [\"Test\", \"Hacker\"],\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"typeinattendu_{{$timestamp}}@example.com\",\r\n  \"firstName\": [\"Test\", \"Hacker\"],\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -432,7 +432,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"' OR 1=1 --\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"' OR 1=1 --\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -465,7 +465,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"bigpayload@example.com\",\r\n  \"firstName\": \"A\".repeat(1000000), // 1 million de caractères\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"bigpayload@example.com\",\r\n  \"firstName\": \"A\".repeat(1000000), // 1 million de caractères\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },
@@ -513,7 +513,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"emoji_{{timestamp}}@example.com\",\r\n  \"firstName\": \"😀🚀✨漢字\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123\"\r\n}"
+          "raw": "{\r\n  \"email\": \"emoji_{{timestamp}}@example.com\",\r\n  \"firstName\": \"😀🚀✨漢字\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
         },
         "url": "{{base_url}}{{api_path}}"
       },

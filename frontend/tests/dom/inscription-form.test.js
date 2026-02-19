@@ -360,7 +360,7 @@ describe('inscription form (client validation)', () => {
 
         it('affiche "Fort" pour un bon mot de passe', async () => {
             await initScript();
-            fillField('password', 'MonPass123');
+            fillField('password', 'MonPassword1');
 
             const label = document.querySelector('.password-strength__label');
             expect(label.textContent).toBe('Fort');
