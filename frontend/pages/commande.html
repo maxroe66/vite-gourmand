@@ -28,7 +28,25 @@
             <!-- Formulaire de commande -->
             <div class="commande-form card">
                 <form id="order-form">
-                    <h2 class="h3">Informations de livraison</h2>
+                    <h2 class="h3">Informations du client</h2>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="client-lastname">Nom *</label>
+                            <input type="text" id="client-lastname" name="client-lastname" class="input" required readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="client-firstname">Prénom *</label>
+                            <input type="text" id="client-firstname" name="client-firstname" class="input" required readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="client-email">Email *</label>
+                        <input type="email" id="client-email" name="client-email" class="input" required readonly>
+                    </div>
+
+                    <h2 class="h3 mt-lg">Informations de livraison</h2>
                     
                     <div class="form-group">
                         <label for="address">Adresse de livraison *</label>
@@ -119,6 +137,7 @@
 
     <script src="/frontend/js/utils/logger.js"></script>
     <script src="/frontend/js/core/components.js"></script>
+    <script src="/frontend/js/core/footer-horaires.js"></script>
     <script src="/frontend/js/services/authService.js"></script>
     <script src="/frontend/js/services/menuService.js"></script>
     <script src="/frontend/js/services/commandeService.js"></script>

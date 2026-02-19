@@ -480,32 +480,44 @@ class CommandeRepository
     {
         // Note: La table COMMANDE a déjà une colonne 'statut' (dénormalisée / snapshot)
         // On peut l'utiliser directement pour la performance plutôt que de joindre COMMANDE_STATUT
-        $sql = "SELECT * FROM COMMANDE WHERE 1=1";
+        $sql = "SELECT c.*, u.nom AS client_nom, u.prenom AS client_prenom, u.email AS client_email
+                FROM COMMANDE c
+                JOIN UTILISATEUR u ON c.id_utilisateur = u.id_utilisateur
+                WHERE 1=1";
         $params = [];
 
         if (!empty($filters['status'])) {
-            $sql .= " AND statut = :status";
+            $sql .= " AND c.statut = :status";
             $params[':status'] = $filters['status'];
         }
 
         if (!empty($filters['userId'])) {
-            $sql .= " AND id_utilisateur = :userId";
+            $sql .= " AND c.id_utilisateur = :userId";
             $params[':userId'] = $filters['userId'];
         }
 
+        if (!empty($filters['search'])) {
+            $sql .= " AND (u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
         if (!empty($filters['date'])) {
-            $sql .= " AND DATE(date_prestation) = :date";
+            $sql .= " AND DATE(c.date_prestation) = :date";
             $params[':date'] = $filters['date'];
         }
 
-        $sql .= " ORDER BY date_prestation DESC";
+        $sql .= " ORDER BY c.date_prestation DESC";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
 
         $commandes = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $commandes[] = $this->mapToModel($row);
+            $model = $this->mapToModel($row);
+            // Ajouter les infos client au modèle
+            $model['clientNom'] = ($row['client_prenom'] ?? '') . ' ' . ($row['client_nom'] ?? '');
+            $model['clientEmail'] = $row['client_email'] ?? '';
+            $commandes[] = $model;
         }
         return $commandes;
     }

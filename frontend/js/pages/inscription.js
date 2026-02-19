@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         firstName:  { regex: /^[a-zA-ZÀ-ÖØ-öø-ÿ\-\s]+$/u,           message: 'Le prénom ne doit contenir que des lettres, espaces ou tirets.' },
         lastName:   { regex: /^.+$/,                                   message: 'Le nom est requis.' },
         email:      { regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,            message: 'Veuillez saisir une adresse email valide.' },
-        password:   { regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/, message: 'Min. 8 caractères, 1 majuscule, 1 minuscule et 1 chiffre.' },
+        password:   { regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{10,}$/, message: 'Min. 10 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.' },
         phone:      { regex: /^[0-9\s\-+]{10,}$/,                     message: 'Min. 10 caractères (chiffres, espaces, tirets, +).' },
         address:    { minLength: 5,                                    message: 'L\'adresse doit contenir au moins 5 caractères.' },
         city:       { regex: /^.+$/,                                   message: 'La ville est requise.' },
@@ -274,12 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let score = 0;
-        if (password.length >= 8) score++;
+        if (password.length >= 10) score++;
         if (/[a-z]/.test(password)) score++;
         if (/[A-Z]/.test(password)) score++;
         if (/\d/.test(password)) score++;
         if (/[^a-zA-Z\d]/.test(password)) score++;
-        if (password.length >= 12) score++;
+        if (password.length >= 14) score++;
 
         if (score <= 2) return { level: 'weak',   percent: 25,  text: 'Faible' };
         if (score <= 3) return { level: 'medium', percent: 50,  text: 'Moyen' };

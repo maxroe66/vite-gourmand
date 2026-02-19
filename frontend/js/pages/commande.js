@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Prefill Form with User Data
+        if (currentUser.nom) document.getElementById('client-lastname').value = currentUser.nom;
+        if (currentUser.prenom) document.getElementById('client-firstname').value = currentUser.prenom;
+        if (currentUser.email) document.getElementById('client-email').value = currentUser.email;
         if (currentUser.adresse_postale) document.getElementById('address').value = currentUser.adresse_postale;
         if (currentUser.ville) document.getElementById('city').value = currentUser.ville;
         if (currentUser.code_postal) document.getElementById('zipcode').value = currentUser.code_postal;

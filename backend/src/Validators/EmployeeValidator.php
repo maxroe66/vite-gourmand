@@ -19,9 +19,9 @@ class EmployeeValidator
             $errors['email'] = "Email invalide.";
         }
 
-        // Mot de passe (8+, 1 maj, 1 min, 1 chiffre)
-        if (empty($data['password']) || !is_string($data['password']) || !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $data['password'])) {
-            $errors['password'] = "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.";
+        // Mot de passe (10+, 1 maj, 1 min, 1 chiffre, 1 spécial)
+        if (empty($data['password']) || !is_string($data['password']) || !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{10,}$/', $data['password'])) {
+            $errors['password'] = "Le mot de passe doit contenir au moins 10 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.";
         }
 
         // Prénom

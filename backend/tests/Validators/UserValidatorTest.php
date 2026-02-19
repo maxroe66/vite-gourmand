@@ -19,7 +19,7 @@ class UserValidatorTest extends TestCase
             'firstName' => 'Jean',
             'lastName' => 'Dupont',
             'email' => 'jean.dupont@example.com',
-            'password' => 'Password123',
+            'password' => 'Password123!',
             'phone' => '0123456789',
             'address' => '123 Rue de la Paix',
             'city' => 'Paris',
@@ -177,19 +177,19 @@ class UserValidatorTest extends TestCase
     public function testPasswordTooShort(): void
     {
         $data = $this->validData;
-        $data['password'] = 'Pass1';
+        $data['password'] = 'Pass1!';
 
         $result = $this->validator->validate($data);
         $errors = $result["errors"];
 
         $this->assertArrayHasKey('password', $errors);
-        $this->assertStringContainsString('8 caractères', $errors['password']);
+        $this->assertStringContainsString('10 caractères', $errors['password']);
     }
 
     public function testPasswordWithoutUppercase(): void
     {
         $data = $this->validData;
-        $data['password'] = 'password123';
+        $data['password'] = 'password123!!';
 
         $result = $this->validator->validate($data);
         $errors = $result["errors"];
@@ -201,7 +201,7 @@ class UserValidatorTest extends TestCase
     public function testPasswordWithoutLowercase(): void
     {
         $data = $this->validData;
-        $data['password'] = 'PASSWORD123';
+        $data['password'] = 'PASSWORD123!!';
 
         $result = $this->validator->validate($data);
         $errors = $result["errors"];
@@ -212,7 +212,7 @@ class UserValidatorTest extends TestCase
     public function testPasswordWithoutDigit(): void
     {
         $data = $this->validData;
-        $data['password'] = 'PasswordABC';
+        $data['password'] = 'PasswordABC!!';
 
         $result = $this->validator->validate($data);
         $errors = $result["errors"];

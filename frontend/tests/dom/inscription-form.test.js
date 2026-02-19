@@ -58,7 +58,7 @@ describe('inscription form (client validation)', () => {
         fillField('firstName', 'Jean');
         fillField('lastName', 'Dupont');
         fillField('email', 'jean@email.fr');
-        fillField('password', 'Password1');
+        fillField('password', 'Password1!!');
         fillField('phone', '06 12 34 56 78');
         fillField('address', '123 Rue de la Liberté');
         fillField('city', 'Bordeaux');
@@ -165,31 +165,31 @@ describe('inscription form (client validation)', () => {
     // ═══════════════════════════════════════════════════
 
     describe('mot de passe', () => {
-        it('accepte un mot de passe valide (8+ chars, maj, min, chiffre)', async () => {
+        it('accepte un mot de passe valide (10+ chars, maj, min, chiffre, spécial)', async () => {
             await initScript();
             fillAllValid();
-            fillField('password', 'MonPass1');
+            fillField('password', 'MonPass12!!');
             fireEvent.submit(form);
 
             const error = document.getElementById('password-error');
             expect(error).toBeNull();
         });
 
-        it('refuse un mot de passe trop court (< 8 caractères)', async () => {
+        it('refuse un mot de passe trop court (< 10 caractères)', async () => {
             await initScript();
             fillAllValid();
-            fillField('password', 'Ab1');
+            fillField('password', 'Ab1!');
             fireEvent.submit(form);
 
             const error = document.getElementById('password-error');
             expect(error).not.toBeNull();
-            expect(error.textContent).toMatch(/8 caractères/i);
+            expect(error.textContent).toMatch(/10 caractères/i);
         });
 
         it('refuse un mot de passe sans majuscule', async () => {
             await initScript();
             fillAllValid();
-            fillField('password', 'password1');
+            fillField('password', 'password12!!');
             fireEvent.submit(form);
 
             const error = document.getElementById('password-error');
@@ -199,7 +199,7 @@ describe('inscription form (client validation)', () => {
         it('refuse un mot de passe sans chiffre', async () => {
             await initScript();
             fillAllValid();
-            fillField('password', 'PasswordAbc');
+            fillField('password', 'PasswordAbc!!');
             fireEvent.submit(form);
 
             const error = document.getElementById('password-error');
@@ -209,7 +209,17 @@ describe('inscription form (client validation)', () => {
         it('refuse un mot de passe sans minuscule', async () => {
             await initScript();
             fillAllValid();
-            fillField('password', 'PASSWORD1');
+            fillField('password', 'PASSWORD12!!');
+            fireEvent.submit(form);
+
+            const error = document.getElementById('password-error');
+            expect(error).not.toBeNull();
+        });
+
+        it('refuse un mot de passe sans caractère spécial', async () => {
+            await initScript();
+            fillAllValid();
+            fillField('password', 'Password123');
             fireEvent.submit(form);
 
             const error = document.getElementById('password-error');
@@ -350,7 +360,7 @@ describe('inscription form (client validation)', () => {
 
         it('affiche "Fort" pour un bon mot de passe', async () => {
             await initScript();
-            fillField('password', 'MonPass1');
+            fillField('password', 'MonPass123');
 
             const label = document.querySelector('.password-strength__label');
             expect(label.textContent).toBe('Fort');

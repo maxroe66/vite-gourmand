@@ -25,7 +25,7 @@ declare(strict_types=1);
 // --- Configuration : lecture des variables d'environnement ---
 
 // Charger .env si disponible (localhost)
-$root = realpath(__DIR__ . '/..');
+$root = realpath(__DIR__ . '/../..');
 if ($root && file_exists($root . '/.env')) {
     $lines = file($root . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {

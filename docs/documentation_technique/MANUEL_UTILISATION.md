@@ -1,7 +1,7 @@
 # Manuel d'utilisation — Vite & Gourmand
 
-> **Version :** 1.0  
-> **Date :** 18 février 2026  
+> **Version :** 1.1  
+> **Date :** 19 février 2026  
 > **Auteur :** Maxime Roé  
 > **Public cible :** Utilisateurs finaux (clients), Employés, Administrateurs
 
@@ -23,7 +23,8 @@
 12. [Contacter l'entreprise](#12-contacter-lentreprise)
 13. [Mentions légales et CGV](#13-mentions-légales-et-cgv)
 14. [Espace de gestion (Employés et Administrateurs)](#14-espace-de-gestion-employés-et-administrateurs)
-15. [Comptes de démonstration](#15-comptes-de-démonstration)
+15. [Accessibilité](#15-accessibilité)
+16. [Comptes de démonstration](#16-comptes-de-démonstration)
 
 ---
 
@@ -98,7 +99,7 @@ En tant que visiteur, vous pouvez :
    | Prénom | Lettres uniquement, max 100 caractères | ✅ |
    | Nom | Lettres uniquement, max 100 caractères | ✅ |
    | Email | Format email valide (ex: jean.dupont@email.fr) | ✅ |
-   | Mot de passe | Minimum 8 caractères, avec majuscule, minuscule et chiffre | ✅ |
+   | Mot de passe | Minimum 10 caractères, avec majuscule, minuscule, chiffre et caractère spécial | ✅ |
    | GSM / Téléphone | 10 à 20 chiffres | ✅ |
    | Adresse | Minimum 5 caractères | ✅ |
    | Ville | Max 100 caractères | ✅ |
@@ -138,7 +139,8 @@ En tant que visiteur, vous pouvez :
 
 1. Faites défiler la page jusqu'à la section **« Nos Menus »** (ou cliquez sur « Menu » dans la navigation)
 2. Utilisez les **filtres** pour affiner votre recherche :
-   - **Prix maximum** : curseur pour définir un budget
+   - **Prix minimum** : définir un prix plancher
+   - **Prix maximum** : définir un budget plafond
    - **Thème** : type d'événement (Mariage, Entreprise, Anniversaire…)
    - **Régime** : préférence alimentaire (Végétarien, Végan, Sans gluten…)
    - **Nombre de personnes minimum** : capacité requise
@@ -171,13 +173,20 @@ Pour commander :
 1. Depuis la page détail d'un menu, cliquez sur **« Commander »**
 2. Remplissez le formulaire de commande :
 
+   **Informations du client (auto-remplies depuis votre compte) :**
+   | Champ | Description |
+   |---|---|
+   | Nom | Votre nom (lecture seule) |
+   | Prénom | Votre prénom (lecture seule) |
+   | Email | Votre adresse email (lecture seule) |
+
    **Informations de livraison :**
    | Champ | Description |
    |---|---|
-   | Adresse de livraison | L'adresse complète de l'événement |
+   | Adresse de livraison | L’adresse complète de l’événement |
    | Code postal | Code postal de la ville (5 chiffres) |
    | Ville | Ville de livraison |
-   | Téléphone / GSM | Numéro pour le jour J (10-15 chiffres) |
+   | Téléphone / GSM | Numéro pour le jour J (10-15 chiffres, auto-rempli) |
 
    **Détails de la prestation :**
    | Champ | Description |
@@ -323,7 +332,12 @@ Cette page contient :
 - **Mentions légales** : éditeur du site, hébergeur, propriété intellectuelle
 - **Politique de cookies** : seuls 2 cookies techniques sont utilisés (`authToken` pour la session, `csrfToken` pour la sécurité) — aucun cookie publicitaire
 - **CGU** : conditions générales d'utilisation
-- **CGV** : conditions générales de vente
+- **CGV** : conditions générales de vente, incluant notamment :
+  - Les modalités de commande et de paiement
+  - Les conditions de livraison
+  - Le **prêt de matériel** : restitution sous 10 jours ouvrés, **pénalité de 600 €** en cas de non-restitution
+  - Le droit de rétractation et les réclamations
+  - Les informations sur les allergènes
 
 ---
 
@@ -356,6 +370,7 @@ L'espace de gestion se présente sous forme d'un **tableau de bord avec un menu 
 | Action | Description |
 |---|---|
 | **Voir les commandes** | Tableau de toutes les commandes (client, menu, date, statut, montant) |
+| **Filtrer les commandes** | Par statut (En attente, Acceptée, etc.) et/ou par client (recherche par nom ou email) |
 | **Détail d'une commande** | Informations complètes (adresse livraison, horaire, nombre de personnes, prix détaillé) |
 | **Changer le statut** | Progression dans le workflow : En attente → Acceptée → En préparation → En livraison → Livrée → Terminée |
 | **Annuler une commande** | Après acceptation : motif et mode de contact (GSM/Mail) obligatoires |
@@ -389,10 +404,11 @@ L'espace de gestion se présente sous forme d'un **tableau de bord avec un menu 
 | Action | Description |
 |---|---|
 | **Voir les employés** | Liste des membres de l'équipe (nom, email, rôle, statut) |
-| **Créer un employé** | Formulaire de création d'un compte employé |
+| **Créer un employé** | Formulaire de création d'un compte employé. Un **email de notification** est envoyé automatiquement à l'employé avec son identifiant (email). Le mot de passe **n'est pas communiqué** dans l'email — l'administrateur doit le transmettre en personne |
 | **Désactiver un compte** | Désactivation d'un compte (le compte n'est pas supprimé) |
 
 > Seul un **Administrateur** peut accéder à cet onglet. Les employés ne le voient pas dans le menu.
+> ⚠️ **Il n'est pas possible de créer un compte Administrateur depuis l'application.** Le compte administrateur initial est provisionné lors du déploiement.
 
 ### 14.8 Statistiques (Administrateur uniquement)
 
@@ -407,18 +423,34 @@ Les statistiques sont présentées sous forme de **graphiques interactifs** (Cha
 
 ---
 
-## 15. Comptes de démonstration
+## 15. Accessibilité
+
+L'application Vite & Gourmand s'engage à respecter les bonnes pratiques d'accessibilité conformément au **Référentiel Général d'Amélioration de l'Accessibilité (RGAA)** :
+
+- **Navigation au clavier** : tous les éléments interactifs (boutons, liens, formulaires) sont accessibles via la touche Tab
+- **Attributs ARIA** : les composants dynamiques (navigation mobile, carrousels, modales) utilisent des attributs `aria-label`, `aria-expanded`, `aria-hidden` et `aria-controls` pour les technologies d'assistance
+- **Focus visible** : un indicateur visuel de focus est présent sur tous les éléments interactifs
+- **Langue de la page** : l'attribut `lang="fr"` est défini sur toutes les pages
+- **Textes alternatifs** : les images disposent d'attributs `alt` descriptifs
+- **Formulaires accessibles** : les champs sont associés à leurs labels et les erreurs de validation sont signalées via `aria-invalid` et `aria-describedby`
+- **Contraste** : les couleurs respectent un ratio de contraste suffisant pour la lisibilité
+
+> L'application vise un niveau de conformité partiel au RGAA. Des améliorations continues sont prévues pour renforcer l'accessibilité.
+
+---
+
+## 16. Comptes de démonstration
 
 Pour tester l'application, les comptes suivants sont disponibles en environnement de développement :
 
 | Rôle | Email | Mot de passe | Accès |
 |---|---|---|---|
-| **Administrateur** | `jose@vite-gourmand.fr` | `Admin123!` | Toutes les fonctionnalités + Gestion équipe + Statistiques |
-| **Employé** | `julie@vite-gourmand.fr` | `Employe123!` | Gestion menus, plats, commandes, avis, matériel, horaires |
-| **Utilisateur** | `marie.dupont@email.fr` | `User123!` | Consultation, commandes, avis, profil |
+| **Administrateur** | `jose@vite-gourmand.fr` | `Password123!` | Toutes les fonctionnalités + Gestion équipe + Statistiques |
+| **Employé** | `julie@vite-gourmand.fr` | `Password123!` | Gestion menus, plats, commandes, avis, matériel, horaires |
+| **Utilisateur** | `marie.dupont@email.fr` | `Password123!` | Consultation, commandes, avis, profil |
 
-> Ces comptes sont créés par les fixtures de base de données (`database_seed.sql`). En production, seul le compte administrateur initial est provisionné automatiquement via le pipeline CI/CD.
+> Ces comptes sont créés par les fixtures de base de données (`database_fixtures.sql`). En production, seul le compte administrateur initial est provisionné automatiquement via le pipeline CI/CD.
 
 ---
 
-*Document généré le 18 février 2026.*
+*Document mis à jour le 19 février 2026.*

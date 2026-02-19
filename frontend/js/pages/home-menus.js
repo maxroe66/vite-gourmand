@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Éléments du DOM
     const menusList = document.getElementById('menus-list');
+    const filterPriceMin = document.getElementById('filter-price-min');
     const filterPriceMax = document.getElementById('filter-price-max');
     const filterTheme = document.getElementById('filter-theme');
     const filterRegime = document.getElementById('filter-regime');
@@ -69,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
      */
     async function loadMenus() {
         const filters = {
+            prix_min: filterPriceMin.value,
             prix_max: filterPriceMax.value,
             theme: filterTheme.value,
             regime: filterRegime.value,
@@ -147,6 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         debounceTimer = setTimeout(loadMenus, 300);
     }
 
+    filterPriceMin.addEventListener('input', debounceLoad);
     filterPriceMax.addEventListener('input', debounceLoad);
     filterNbPers.addEventListener('input', debounceLoad);
     
