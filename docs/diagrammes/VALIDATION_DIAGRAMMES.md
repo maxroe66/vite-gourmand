@@ -1,7 +1,7 @@
 # ✅ VALIDATION COMPLÈTE DES DIAGRAMMES
 
-**Date:** 11 décembre 2025  
-**Status:** VÉRIFICATION FINALE AVANT JURY
+**Date:** 18 février 2026  
+**Status:** VÉRIFICATION FINALE — MIS À JOUR
 
 ---
 
@@ -21,7 +21,7 @@
 | **Commandes complètes** | ✅ OUI | COMMANDE avec 25+ champs (snapshots, prix, frais, statuts) |
 | **Réduction 10% (5 pers de plus)** | ✅ OUI | RG_REDUCTION dans règles de gestion |
 | **Frais livraison 5€ + 0,59€/km** | ✅ OUI | RG_LIVRAISON + champs distance_km, hors_bordeaux |
-| **Historique changements** | ✅ OUI | HISTORIQUE table (previousStatus, newStatus, changedAt, changedBy) |
+| **Historique changements** | ✅ OUI | COMMANDE_STATUT (statut, date_changement, modifie_par, commentaire) |
 | **Matériel prêté (10 jours, 600€)** | ✅ OUI | MATERIEL + COMMANDE_MATERIEL association N:M |
 | **Avis (note 1-5, commentaire)** | ✅ OUI | AVIS entity avec note, commentaire, isValidated |
 | **Horaires (lun-dim)** | ✅ OUI | HORAIRE entity avec jour ENUM |
@@ -37,15 +37,15 @@
 
 | Exigence | MLD Couvert? | Détail |
 |---|---|---|
-| **17 tables créées** | ✅ OUI | UTILISATEUR, MENU, PLAT, THEME, REGIME, ALLERGENE, IMAGE_MENU, COMMANDE, MATERIEL, COMMANDE_MATERIEL, HISTORIQUE, AVIS, AVIS_FALLBACK, HORAIRE, CONTACT, RESET_TOKEN, PLAT_ALLERGENE |
+| **20 tables créées** | ✅ OUI | UTILISATEUR, RESET_TOKEN, THEME, REGIME, MENU, IMAGE_MENU, MENU_MATERIEL, PLAT, PROPOSE, ALLERGENE, PLAT_ALLERGENE, HORAIRE, CONTACT, MATERIEL, COMMANDE, COMMANDE_MATERIEL, COMMANDE_STATUT, COMMANDE_ANNULATION, COMMANDE_MODIFICATION, AVIS_FALLBACK |
 | **Clés primaires (PK)** | ✅ OUI | Toutes les tables ont une PK INT auto-increment |
 | **Clés étrangères (FK)** | ✅ OUI | Toutes les relations référencées (ON DELETE + ON UPDATE) |
 | **Contraintes CHECK** | ✅ OUI | nombre_personne_min > 0, prix > 0, note BETWEEN 1 AND 5, distance_km >= 0 |
 | **Types de données** | ✅ OUI | VARCHAR, TEXT, INT, DECIMAL, DATETIME, BOOLEAN, ENUM, JSON |
 | **Index pour performance** | ✅ OUI | FK indexées, recherches fréquentes optimisées |
-| **Snapshots prix** | ✅ OUI | prixMenuSnapshot, minPersonnesSnapshot dans COMMANDE |
+| **Snapshots prix** | ✅ OUI | prix_menu_unitaire, nombre_personne_min_snapshot dans COMMANDE |
 | **Distance en km** | ✅ OUI | distance_km + hors_bordeaux dans COMMANDE |
-| **Statuts commande** | ✅ OUI | ENUM 8 statuts (EN_ATTENTE, ACCEPTE, EN_PREP, EN_LIVR, LIVRE, MATERIEL_PENDING, TERMINEE, ANNULEE) |
+| **Statuts commande** | ✅ OUI | COMMANDE_STATUT (historique), 8 états : EN_ATTENTE → ACCEPTE → EN_PREPARATION → EN_LIVRAISON → LIVRE → EN_ATTENTE_RETOUR → TERMINEE / ANNULEE |
 
 **🎯 VERDICT MLD:** ✅ **100% CONFORME**
 
@@ -59,12 +59,12 @@
 | **Classe Menu (MENU)** | ✅ OUI | Properties: id, titre, description, prix, minPersonnes, stock, theme, regime |
 | **Classe Commande (COMMANDE)** | ✅ OUI | Properties: id, userId, menuId, personnes, totalPrice, status, snapshots |
 | **Classe Avis (AVIS)** | ✅ OUI | Properties: id, userId, commandeId, rating, comment, isValidated |
-| **Classe Historique (HISTORIQUE)** | ✅ OUI | Properties: id, commandeId, previousStatus, newStatus, changedBy, changedAt |
-| **Services (CommandeService, AvisService, etc)** | ✅ OUI | 4 services: User, Menu, Commande, Avis + Auth, Mailer, Logger |
-| **Repository Pattern** | ✅ OUI | Chaque entité gère son accès données (CRUD) |
-| **Database abstraction** | ✅ OUI | MySQLDatabase + MongoDBClient classes |
-| **Injection de dépendances** | ✅ OUI | Services reçoivent repositories en constructeur |
-| **11 classes (beginner-friendly)** | ✅ OUI | Simplifié vs 18 pour être réaliste |
+| **Classe CommandeStatut** | ✅ OUI | Properties: id, commandeId, statut, dateChangement, modifiePar, commentaire |
+| **Services (11 services)** | ✅ OUI | AuthService, AvisService, CommandeService, ContactService, CsrfService, GoogleMapsService, MailerService, MenuService, PlatService, StorageService, UserService |
+| **Repository Pattern (12 repos)** | ✅ OUI | Chaque entité a son Repository dédié (UserRepository, MenuRepository, etc.) |
+| **Database abstraction** | ✅ OUI | PDO (MySQL) + MongoDB\Client via PHP-DI container |
+| **Injection de dépendances** | ✅ OUI | PHP-DI container.php — Services reçoivent Repositories en constructeur |
+| **68 classes (architecture complète)** | ✅ OUI | 11 Controllers, 11 Services, 12 Repositories, 6 Middlewares, 10 Validators, 7 Models, 6 Exceptions, Core |
 
 **🎯 VERDICT UML:** ✅ **100% CONFORME**
 
@@ -135,9 +135,9 @@
 | Étape | Status | Détail |
 |---|---|---|
 | Inscription | ✅ | Formulaire → UserService → Hash password → INSERT user → Email bienvenue |
-| Login | ✅ | Email + Password → Auth → Verify → JWT token → cookie HttpOnly → Dashboard |
-| Réinit Password | ✅ | Email → RESET_TOKEN → Lien → Nouveau password → UPDATE user |
-| Sécurité | ✅ | Password hash, JWT stateless, validation client+serveur |
+| Login | ✅ | Email + Password → AuthService → Argon2ID verify → JWT HS256 → cookie HttpOnly → CSRF rotation → Dashboard |
+| Réinit Password | ✅ | Email → RESET_TOKEN → Lien → Nouveau password → Argon2ID hash → UPDATE user |
+| Sécurité | ✅ | Argon2ID, JWT HS256 cookie HttpOnly, CSRF Double Submit Cookie, validation client+serveur |
 
 **🎯 VERDICT SEQ 01:** ✅ **CORRECT**
 
@@ -198,11 +198,11 @@
 
 | Diagramme | Status | Score |
 |-----------|--------|-------|
-| **MCD** | ✅ CONFORME | 17 entités, 30+ règles métier |
-| **MLD** | ✅ CONFORME | 17 tables, FK/PK/Contraintes OK |
+| **MCD** | ✅ CONFORME | 12 entités, 38 règles métier |
+| **MLD** | ✅ CONFORME | 20 tables, FK/PK/Contraintes OK |
 | **SQL** | ✅ CONFORME | DDL + fixtures prêts |
 | **MongoDB** | ✅ CONFORME | Collections avis + statistiques |
-| **UML** | ✅ CONFORME | 11 classes, Services, Pattern OOP |
+| **UML** | ✅ CONFORME | 68 classes, MVC/Service/Repository, PHP-DI |
 | **Use Cases** | ✅ CONFORME | 35 UC / 4 acteurs / 100% énoncé |
 | **Séquences** | ✅ CONFORME | 5 flows principaux + API géoloc |
 
@@ -212,7 +212,8 @@
 
 ### **Sécurité**
 - ✅ Password hash (Argon2ID — recommandé OWASP)
-- ✅ JWT tokens (stateless)
+- ✅ JWT HS256 en cookie HttpOnly (Secure, SameSite=Strict)
+- ✅ CSRF Double Submit Cookie (X-CSRF-Token header)
 - ✅ Validation input client + serveur
 - ✅ API key en .env (jamais exposée)
 - ✅ SQL prepared statements

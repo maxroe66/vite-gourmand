@@ -112,27 +112,30 @@ sequenceDiagram
 | 4 | Visiteur | Clique "Se connecter" |
 | 5 | Frontend | POST /api/auth/login |
 | 6 | Backend | Appelle Auth |
-| 7 | Auth | Récupère user + Verify password |
-| 8 | Auth | Génère JWT token |
-| 9 | Frontend | Stocke token + Redirige |
-| 10 | Visiteur | Connecté ! |
+| 7 | AuthService | Récupère user + Verify password (Argon2ID) |
+| 8 | AuthService | Génère JWT HS256, pose cookie `authToken` (HttpOnly, Secure) |
+| 9 | CsrfService | Génère token CSRF, pose cookie `csrfToken` (non-HttpOnly) |
+| 10 | Frontend | Redirigé vers espace personnel (cookie transmis automatiquement) |
+| 11 | Visiteur | Connecté ! |
 
 ---
 
 ## 🔐 Sécurité
 
 ✅ **Validation côté client** (email, password fort)  
-✅ **Hash password** (bcrypt via Auth::hashPassword)  
-✅ **JWT token** pour authentification stateless  
-✅ **Stockage cookie HttpOnly** du token (protection XSS)  
+✅ **Hash password** (Argon2ID via `password_hash(PASSWORD_ARGON2ID)`)  
+✅ **JWT HS256** stocké en cookie HttpOnly `authToken` (jamais accessible en JavaScript)  
+✅ **CSRF Double Submit Cookie** : cookie `csrfToken` + header `X-CSRF-Token`  
+✅ **Stockage cookie HttpOnly + Secure + SameSite** du token (protection XSS)  
 ✅ **Validation côté serveur** de tous les inputs
 
 ---
 
 ## 🔗 Classes Impliquées
 
-- **User** : Gère les données utilisateurs
+- **UserRepository** : Accès données utilisateurs (MySQL)
 - **UserService** : Logique d'inscription
-- **Auth** : Hash + JWT
-- **Mailer** : Notifications email
-- **MySQLDatabase** : Persistance données
+- **AuthService** : Hash Argon2ID + JWT HS256 + gestion cookies
+- **CsrfService** : Génération / rotation token CSRF
+- **MailerService** : Notifications email (bienvenue, reset)
+- **Database** : Persistance MySQL via PDO

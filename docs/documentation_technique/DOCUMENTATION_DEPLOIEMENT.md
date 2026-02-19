@@ -1,940 +1,812 @@
-# 🚀 Documentation Déploiement - Vite & Gourmand
+# Documentation de déploiement — Vite & Gourmand
 
-**Date :** 11 décembre 2025  
-**Version :** 1.0.0  
-**Auteur :** FastDev Team  
-**Statut :** Production-Ready Template
-
----
-
-## 📋 Table des Matières
-
-1. [Architecture Déploiement](#architecture-déploiement)
-2. [Installation Locale](#installation-locale)
-3. [Déploiement Docker](#déploiement-docker)
-4. [Configuration Production](#configuration-production)
-5. [Migrations Base de Données](#migrations-base-de-données)
-6. [Variables d'Environnement](#variables-denvironnement)
-7. [Monitoring & Logs](#monitoring--logs)
-8. [Troubleshooting](#troubleshooting)
+> **Version :** 2.0  
+> **Date :** 18 février 2026  
+> **Auteur :** Maxime Roé  
+> **Statut :** Validé — Production Azure active
 
 ---
 
-## 🏗️ Architecture Déploiement
+## Table des matières
 
-### Environnements
-
-```
-Development (LOCAL)
-├─ PHP CLI 8.0+
-├─ MySQL 8.0 (local)
-├─ MongoDB (optionnel)
-└─ Navigateur local
-
-Staging (TEST)
-├─ Docker Compose
-├─ Services: PHP-Apache, MySQL, MongoDB
-├─ Volume persistant pour DB
-└─ HTTPS (Let's Encrypt)
-
-Production (LIVE)
-├─ Cloud (AWS, Azure, Digital Ocean, OVH)
-├─ Kubernetes (optionnel scalabilité)
-├─ MySQL 8.0 managed
-├─ Azure Cosmos DB Serverless (API MongoDB 4.2)
-├─ CDN (images, assets)
-├─ Load balancer
-└─ HTTPS (Let's Encrypt auto-renew)
-```
-
-### Stack Conteneurisation
-
-```yaml
-Services Docker:
-  ├─ PHP-FPM 8.0 (FastCGI)
-  ├─ Apache 2.4 (Web server)
-  ├─ MySQL 8.0 (Database)
-  └─ MongoDB 4.4 (Analytics)
-
-Volumes Persistants:
-  ├─ /var/lib/mysql (DB data)
-  ├─ /var/lib/mongodb (NoSQL data)
-  └─ /var/www/vite_gourmand (Code)
-
-Networks:
-  └─ internal (services communiquent)
-```
+1. [Prérequis et environnement](#1-prérequis-et-environnement)
+2. [Architecture Docker — Développement local](#2-architecture-docker--développement-local)
+3. [Configuration des variables d'environnement](#3-configuration-des-variables-denvironnement)
+4. [Installation et lancement local](#4-installation-et-lancement-local)
+5. [Base de données — Initialisation](#5-base-de-données--initialisation)
+6. [HTTPS local (optionnel)](#6-https-local-optionnel)
+7. [Architecture de production — Azure](#7-architecture-de-production--azure)
+8. [CI/CD — GitHub Actions](#8-cicd--github-actions)
+9. [Monitoring et maintenance](#9-monitoring-et-maintenance)
+10. [Dépannage](#10-dépannage)
 
 ---
 
-## 💻 Installation Locale
+## 1. Prérequis et environnement
 
-### Prérequis
+### 1.1 Outils requis
 
-```bash
-# Linux/Mac
-- PHP 8.0+
-- MySQL 8.0+
-- MongoDB 4.4+ (optionnel)
-- Composer
-- Git
-- Apache/Nginx (optionnel, PHP built-in suffit)
+| Outil | Version minimale | Usage |
+|---|---|---|
+| **Docker** | 24.x | Conteneurisation de tous les services |
+| **Docker Compose** | 2.20+ | Orchestration multi-conteneurs |
+| **Git** | 2.30+ | Gestion de version |
+| **Node.js** | 18.x | Tests frontend (Vitest) |
+| **Composer** | 2.x | Dépendances PHP (installé dans le conteneur) |
+| **mkcert** (optionnel) | 1.4+ | Certificats SSL auto-signés pour HTTPS local |
 
-# Windows
-- Même + WSL2 recommandé
-- Ou XAMPP/Laragon (intègre PHP, MySQL)
-```
+### 1.2 Ports utilisés
 
-### Étape 1 : Cloner Dépôt
-
-```bash
-# Clone
-git clone https://github.com/votre-org/vite-et-gourmand.git
-cd vite-et-gourmand
-
-# Checkout develop branch (dev, pas main)
-git checkout develop
-```
-
-### Étape 2 : Installer Dépendances
-
-```bash
-# Installer composer (si pas installé)
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
-
-# Installer dépendances PHP
-composer install --dev
-
-# Vérifier installation
-php -v  # ≥ 8.0
-composer --version
-```
-
-### Étape 3 : Copier .env
-
-```bash
-# Template
-cp .env.example .env
-
-# Éditer variables locales
-nano .env
-
-# Contenu minimal pour LOCAL:
-APP_ENV=development
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=vite_gourmand_dev
-DB_USER=root
-DB_PASSWORD=root
-
-MONGO_HOST=localhost
-MONGO_PORT=27017
-MONGO_DB=vite_gourmand_dev
-
-JWT_SECRET=dev-secret-key-change-in-production
-
-GOOGLE_MAPS_API_KEY=xxxxx  (optionnel pour dev)
-```
-
-### Étape 4 : Créer Base de Données
-
-```bash
-# MySQL
-# Option A : Via command line
-mysql -u root -proot < backend/database/sql/database_creation.sql
-mysql -u root -proot vite_gourmand_dev < backend/database/sql/database_fixtures.sql
-
-# Option B : Via GUI (MySQL Workbench)
-# - File → Open SQL Script → backend/database/sql/database_creation.sql → Execute
-# - File → Open SQL Script → backend/database/sql/database_fixtures.sql → Execute
-```
-
-### Étape 5 : Démarrer Serveur Local
-
-```bash
-# Option A : PHP Built-in (simple)
-php -S localhost:8000
-
-# Option B : Apache local
-sudo systemctl start apache2
-# Configurer vhost /etc/apache2/sites-available/vite.conf
-# DocumentRoot /chemin/vite-et-gourmand/public
-# a2ensite vite.conf
-# sudo systemctl restart apache2
-
-# Accéder
-open http://localhost:8000
-```
-
-### Étape 6 : Vérifier Installation
-
-```bash
-# Vérifier PHP
-php -r "echo 'PHP ' . PHP_VERSION . ' OK';"
-
-# Vérifier MySQL
-mysql -u root -proot -e "SELECT 1"
-
-# Vérifier extensions PHP
-php -m | grep -E "pdo|pdo_mysql|curl|json"
-
-# Tests quick
-curl http://localhost:8000/api/health
-# Should return 200 OK
-```
+| Port | Service | Accès |
+|---|---|---|
+| `8000` | Apache HTTP | `http://localhost:8000` |
+| `8443` | Apache HTTPS | `https://localhost:8443` (si HTTPS activé) |
+| `9000` | PHP-FPM | Interne uniquement (proxy Apache) |
+| `3306` | MySQL | Connexion BDD principale |
+| `3307` | MySQL Test | BDD de tests PHPUnit/Newman |
+| `27017` | MongoDB | Base NoSQL principale |
+| `27018` | MongoDB Test | BDD de tests MongoDB |
+| `8081` | phpMyAdmin | `http://localhost:8081` |
+| `8082` | Mongo Express | `http://localhost:8082` |
 
 ---
 
-## 🐳 Déploiement Docker
+## 2. Architecture Docker — Développement local
 
-### Files Docker
+### 2.1 Vue d'ensemble des services
 
-#### `docker-compose.yml`
-
-```yaml
-version: '3.9'
-
-services:
-  # PHP-FPM Service
-  php-app:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile.php
-    container_name: vite-php-app
-    working_dir: /var/www/vite_gourmand
-    volumes:
-      - .:/var/www/vite_gourmand
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    environment:
-      - APP_ENV=development
-      - APP_DEBUG=true
-      - DB_HOST=mysql
-      - MONGO_HOST=mongodb
-    depends_on:
-      - mysql
-      - mongodb
-    networks:
-      - vite-network
-    restart: unless-stopped
-
-  # Apache Web Server
-  apache:
-    build:
-      context: .
-      dockerfile: docker/apache/Dockerfile.apache
-    container_name: vite-apache
-    ports:
-      - "8000:80"
-    volumes:
-      - .:/var/www/vite_gourmand
-      - ./docker/apache/vite.conf:/etc/apache2/sites-available/vite.conf
-    depends_on:
-      - php-app
-    networks:
-      - vite-network
-    restart: unless-stopped
-
-  # MySQL Database
-  mysql:
-    image: mysql:8.0
-    container_name: vite-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: vite_gourmand
-      MYSQL_USER: vite_user
-      MYSQL_PASSWORD: vite_pass
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./backend/database/sql/database_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./backend/database/sql/database_fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql
-    networks:
-      - vite-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
-  # MongoDB Database
-  mongodb:
-    image: mongo:4.4
-    container_name: vite-mongodb
-    environment:
-      MONGO_INITDB_DATABASE: vite_gourmand
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-      - ./backend/database/mongoDB/database_mongodb_setup.js:/docker-entrypoint-initdb.d/setup.js
-    networks:
-      - vite-network
-    restart: unless-stopped
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # phpMyAdmin (optionnel, dev only)
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: vite-phpmyadmin
-    environment:
-      PMA_HOST: mysql
-      PMA_USER: root
-      PMA_PASSWORD: root
-    ports:
-      - "8081:80"
-    depends_on:
-      - mysql
-    networks:
-      - vite-network
-    restart: unless-stopped
-
-  # Mongo Express (optionnel, dev only)
-  mongo-express:
-    image: mongo-express:latest
-    container_name: vite-mongo-express
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: root
-      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017
-    ports:
-      - "8082:8081"
-    depends_on:
-      - mongodb
-    networks:
-      - vite-network
-    restart: unless-stopped
-
-volumes:
-  mysql_data:
-    driver: local
-  mongodb_data:
-    driver: local
-
-networks:
-  vite-network:
-    driver: bridge
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        docker-compose.yml                       │
+│                         réseau: vite-network                    │
+│                                                                 │
+│  ┌──────────────┐    proxy:fcgi     ┌──────────────────┐        │
+│  │   Apache      │ ───────────────► │    PHP-FPM        │        │
+│  │  vite-apache  │  :9000           │   vite-php-app    │        │
+│  │  :8000/:8443  │                  │   :9000           │        │
+│  └──────────────┘                   └───────┬──────────┘        │
+│                                         PDO │  MongoDB\Client   │
+│                                             │                    │
+│              ┌──────────────────────────────┼──────────┐        │
+│              │                              │          │        │
+│  ┌───────────▼──┐  ┌───────────────┐  ┌────▼───────┐  │        │
+│  │    MySQL      │  │  MySQL Test   │  │  MongoDB   │  │        │
+│  │  vite-mysql   │  │ vite-mysql-   │  │ vite-      │  │        │
+│  │  :3306        │  │  test :3307   │  │ mongodb    │  │        │
+│  └──────────────┘  └───────────────┘  │ :27017     │  │        │
+│                                       └────────────┘  │        │
+│                                                        │        │
+│  ┌───────────────┐  ┌───────────────┐  ┌────────────┐ │        │
+│  │  phpMyAdmin   │  │ Mongo Express │  │ MongoDB    │ │        │
+│  │  :8081        │  │  :8082        │  │ Test       │ │        │
+│  └───────────────┘  └───────────────┘  │ :27018     │ │        │
+│                                        └────────────┘ │        │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-#### `docker/php/Dockerfile.php`
+### 2.2 Détail des conteneurs
 
-```dockerfile
-FROM php:8.0-fpm
+#### PHP-FPM (`vite-php-app`)
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    git \
-    unzip \
-    libpq-dev \
-    libmcrypt-dev \
-    && rm -rf /var/lib/apt/lists/*
+| Paramètre | Valeur |
+|---|---|
+| Image de base | `php:8.1-fpm` |
+| Extensions PHP | `pdo`, `pdo_mysql`, `zip`, `mbstring`, `mongodb` (PECL) |
+| Utilisateur | `vite_user:vite_group` (UID/GID 1000) — non-root |
+| Composer | Copié depuis l'image officielle `composer:latest` |
+| Volumes | Tout le projet monté dans `/var/www/vite_gourmand` |
+| Config PHP | `docker/php/php.ini` : `memory_limit=256M`, `upload_max_filesize=50M`, `display_errors=On` |
 
-# Install PHP extensions
-RUN docker-php-ext-install \
-    pdo \
-    pdo_mysql \
-    curl \
-    json
+#### Apache (`vite-apache`)
 
-# Install MongoDB driver
-RUN pecl install mongodb && docker-php-ext-enable mongodb
+| Paramètre | Valeur |
+|---|---|
+| Image de base | `httpd:2.4` |
+| Modules activés | `proxy`, `proxy_fcgi`, `rewrite`, `ssl`, `headers` |
+| DocumentRoot | `/var/www/vite_gourmand/public` |
+| VirtualHost HTTP | `vite.conf` — port 80 |
+| VirtualHost HTTPS | `vite-ssl.conf` — port 443 (activation conditionnelle) |
+| Entrypoint | `entrypoint.sh` — active HTTPS si `ENABLE_HTTPS=true` |
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working directory
-WORKDIR /var/www/vite_gourmand
-
-# Copy app files
-COPY . .
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Create logs directory
-RUN mkdir -p logs && chmod -R 755 logs
-
-# Expose port (FPM listens on 9000)
-EXPOSE 9000
-
-CMD ["php-fpm"]
-```
-
-#### `docker/apache/Dockerfile.apache`
-
-```dockerfile
-FROM apache:2.4
-
-# Enable required modules
-RUN a2enmod rewrite \
-    && a2enmod proxy \
-    && a2enmod proxy_fcgi
-
-# Install PHP CLI (pour scripts)
-RUN apt-get update && apt-get install -y php-cli && rm -rf /var/lib/apt/lists/*
-
-# Copy Apache config
-COPY docker/apache/vite.conf /etc/apache2/sites-available/vite.conf
-
-# Enable site
-RUN a2ensite vite.conf && a2dissite 000-default.conf
-
-# Copy app files
-COPY . /var/www/vite_gourmand
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/vite_gourmand
-
-EXPOSE 80
-```
-
-#### `docker/apache/vite.conf`
+**Alias Apache configurés :**
 
 ```apache
-<VirtualHost *:80>
-    ServerName vite.local
-    ServerAlias localhost
-    DocumentRoot /var/www/vite_gourmand/public
-
-    <Directory /var/www/vite_gourmand/public>
-        AllowOverride All
-        Require all granted
-        
-        # URL rewriting
-        RewriteEngine On
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
-    </Directory>
-
-    # PHP-FPM proxy
-    <FilesMatch \.php$>
-        SetHandler "proxy:fcgi://php-app:9000"
-    </FilesMatch>
-
-    # Logs
-    ErrorLog ${APACHE_LOG_DIR}/vite-error.log
-    CustomLog ${APACHE_LOG_DIR}/vite-access.log combined
-</VirtualHost>
+Alias /frontend /var/www/vite_gourmand/frontend
+Alias /assets   /var/www/vite_gourmand/public/assets
 ```
 
-#### `docker/php/php.ini`
+**Headers de sécurité (systématiques) :**
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: SAMEORIGIN`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- HSTS activé en HTTPS
 
-```ini
-[PHP]
-upload_max_filesize = 50M
-post_max_size = 50M
-max_execution_time = 300
-memory_limit = 256M
+**Front controller (RewriteRule) :**
 
-[mail]
-; SMTP config for local dev (optionnel)
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.php [QSA,L]
 ```
 
-### Lancer Docker
+Toute requête PHP est envoyée à PHP-FPM via `proxy:fcgi://php-app:9000`.
 
-```bash
-# Build images
-docker-compose build
+#### MySQL (`vite-mysql`)
 
-# Démarrer services
-docker-compose up -d
+| Paramètre | Valeur |
+|---|---|
+| Image | `mysql:8.0` |
+| Charset | `utf8mb4` forcé (serveur + client via `my.cnf`) |
+| SQL Mode | `STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,...` |
+| Volume | `mysql_data` (persistant) |
+| Variables d'env | `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` |
 
-# Vérifier
-docker-compose ps
-# Tous les containers doivent être "healthy"
+#### MySQL Test (`vite-mysql-test`)
 
-# Vérifier logs
-docker-compose logs -f
+Configuration identique à MySQL principal, sur le port **3307**, avec les variables `MYSQL_TEST_*`. Base isolée pour PHPUnit et Newman.
 
-# Accéder
-open http://localhost:8000
-open http://localhost:8081  # phpMyAdmin
-open http://localhost:8082  # Mongo Express
+#### MongoDB (`vite-mongodb`)
 
-# Arrêter
-docker-compose down
+| Paramètre | Valeur |
+|---|---|
+| Image | `mongo:4.4` |
+| Config | `docker/mongodb/mongod.conf` |
+| Bind | `0.0.0.0:27017` |
+| Auth | Activée (`authorization: enabled`) |
+| Storage | WiredTiger |
+| Volume | `mongodb_data` (persistant) |
 
-# Arrêter + supprimer volumes (reset complètement)
-docker-compose down -v
-```
+#### MongoDB Test (`vite-mongodb-test`)
+
+Identique à MongoDB principal, sur le port **27018**. Base isolée pour les tests.
+
+#### phpMyAdmin et Mongo Express
+
+Interfaces web pour administrer les bases de données en développement :
+- **phpMyAdmin** : `http://localhost:8081` — se connecte automatiquement à `vite-mysql`
+- **Mongo Express** : `http://localhost:8082` — se connecte automatiquement à `vite-mongodb`
 
 ---
 
-## ⚙️ Configuration Production
+## 3. Configuration des variables d'environnement
 
-### Variables d'Environnement Production
+### 3.1 Fichiers `.env`
 
-```env
-# Application
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://vitegourmand.fr
-FORCE_HTTPS=true
+Le projet utilise 3 fichiers de configuration :
 
-# Database Production (managed service)
-DB_HOST=mysql.prod.rds.amazonaws.com  # AWS RDS ou similar
-DB_PORT=3306
-DB_NAME=vite_gourmand_prod
-DB_USER=vite_prod_user
-DB_PASSWORD=<very_strong_password>
+| Fichier | Environnement | Priorité de chargement |
+|---|---|---|
+| `.env` | Développement local | 3 (défaut) |
+| `.env.test` | Tests (PHPUnit, Newman) | 1 (prioritaire en mode test) |
+| `.env.azure` | Production Azure | 2 (prioritaire si présent) |
 
-# MongoDB Production — Azure Cosmos DB Serverless (API MongoDB)
-# Connection string récupérable via :
-#   az cosmosdb keys list --name vite-gourmand-mongo --resource-group rg-vite-gourmand-prod --type connection-strings
-MONGO_URI=mongodb://<COMPTE>:<CLE>@<COMPTE>.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@<COMPTE>@
-MONGO_DB=vite_gourmand_prod
-# Script d'init : backend/database/mongoDB/database_mongodb_setup_cosmosdb.js
+**Ordre de chargement dans `index.php` :** `.env.test` → `.env.azure` → `.env`
 
-# API Géolocalisation
-GOOGLE_MAPS_API_KEY=<your_production_key>
-GEOLOCATION_API_TIMEOUT=10000
-
-# Email
-MAIL_DRIVER=smtp
-MAIL_HOST=smtp.gmail.com  # ou service professionnel
-MAIL_PORT=587
-MAIL_ENCRYPTION=tls
-MAIL_USERNAME=noreply@vitegourmand.fr
-MAIL_PASSWORD=<app_password>
-MAIL_FROM_ADDRESS=noreply@vitegourmand.fr
-MAIL_FROM_NAME="Vite & Gourmand"
-
-# JWT Security (générer nouveau token)
-JWT_SECRET=<generate_new_long_random_string>
-JWT_EXPIRATION=86400
-
-# Cache
-CACHE_DRIVER=redis  # optionnel mais recommandé
-REDIS_HOST=redis.prod.aws.com
-REDIS_PASSWORD=<password>
-REDIS_PORT=6379
-
-# Session
-SESSION_DRIVER=cookie  # ou redis
-SESSION_LIFETIME=120
-
-# Logging
-LOG_CHANNEL=stack
-LOG_LEVEL=error  # Plus restrictif en prod
-
-# Security
-TRUSTED_PROXIES=*  # Pour load balancer
-TRUSTED_HOSTS=vitegourmand.fr,www.vitegourmand.fr
-```
-
-### Configuration Serveur Web (Nginx)
-
-```nginx
-# /etc/nginx/sites-available/vitegourmand
-
-upstream php_backend {
-    server php-app:9000;
-}
-
-server {
-    listen 80;
-    server_name vitegourmand.fr www.vitegourmand.fr;
-    
-    # Redirect to HTTPS
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name vitegourmand.fr www.vitegourmand.fr;
-    
-    # SSL Certificates (Let's Encrypt)
-    ssl_certificate /etc/letsencrypt/live/vitegourmand.fr/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/vitegourmand.fr/privkey.pem;
-    
-    # HSTS
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "no-referrer-when-downgrade" always;
-    
-    # Root & index
-    root /var/www/vite_gourmand/public;
-    index index.php;
-    
-    # Logs
-    access_log /var/log/nginx/vite-access.log;
-    error_log /var/log/nginx/vite-error.log;
-    
-    # Location
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-    
-    # PHP
-    location ~ \.php$ {
-        fastcgi_pass php_backend;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-    
-    # Static assets (cache 1 year)
-    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
-        expires 365d;
-        add_header Cache-Control "public, immutable";
-    }
-    
-    # Deny access to files
-    location ~ /\. {
-        deny all;
-    }
-    location ~ /^(\.|composer) {
-        deny all;
-    }
-}
-```
-
-### SSL Let's Encrypt Auto-Renewal
+### 3.2 Variables de développement local (`.env`)
 
 ```bash
-# Install Certbot
-sudo apt-get install certbot python3-certbot-nginx -y
-
-# Get certificate
-sudo certbot certonly --nginx -d vitegourmand.fr -d www.vitegourmand.fr
-
-# Auto-renewal (runs twice daily)
-sudo systemctl enable certbot.timer
-sudo systemctl start certbot.timer
-
-# Test renewal
-sudo certbot renew --dry-run
-```
-
----
-
-## 🗄️ Migrations Base de Données
-
-### Versioning SQL
-
-```
-backend/database/sql/
-├─ backend/database/sql/database_creation.sql      (v1.0 - schema initial)
-├─ migrations/
-│  ├─ 001_create_tables.sql
-│  ├─ 002_add_indexes.sql
-│  ├─ 003_add_avis_fallback.sql
-│  └─ 004_add_triggers.sql
-```
-
-### Process Migration
-
-```bash
-# Development
-1. Créer fichier migration: backend/database/sql/migrations/005_new_feature.sql
-2. Tester localement: mysql vite_gourmand < backend/database/sql/migrations/005_new_feature.sql
-3. Commit + push
-
-# Staging
-1. Backup DB: mysqldump vite_gourmand > backup_prod_$(date +%s).sql
-2. Exécuter: mysql vite_gourmand < backend/database/sql/migrations/005_new_feature.sql
-3. Test new feature
-
-# Production
-1. Backup DB: mysqldump vite_gourmand_prod > backup_prod_$(date +%s).sql
-2. Scheduled downtime (maintenance window)
-3. Exécuter migration
-4. Vérifier
-5. Rollback plan (restore from backup)
-```
-
-### Schema Update (Production Safe)
-
-```sql
--- SAFE : Ajouter colonne (vs supprimer)
-ALTER TABLE commandes ADD COLUMN new_field VARCHAR(100);
-
--- DANGEROUS : Supprimer (backup d'abord!)
-ALTER TABLE commandes DROP COLUMN old_field;
-
--- SAFE : Ajouter index (vs supprimer)
-ALTER TABLE commandes ADD INDEX idx_new (new_field);
-
--- Process migration d'ajustement de schéma
--- 1. Ajouter colonne vide
--- 2. Remplir données existantes
--- 3. Contrainte NOT NULL (après vérif)
-```
-
----
-
-## 🔐 Variables d'Environnement
-
-### Template `.env.example`
-
-```env
-# ==================================================
-# APPLICATION
-# ==================================================
+# ─── Application ───
 APP_ENV=development
 APP_DEBUG=true
 APP_URL=http://localhost:8000
-FORCE_HTTPS=false
 
-# ==================================================
-# DATABASE (MySQL)
-# ==================================================
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+# ─── MySQL ───
+DB_HOST=mysql                    # Nom du service Docker
 DB_PORT=3306
 DB_NAME=vite_gourmand
-DB_USER=root
-DB_PASSWORD=
+DB_USER=vite_user
+DB_PASSWORD=<mot_de_passe>
 
-# ==================================================
-# DATABASE (MongoDB)
-# ==================================================
-MONGO_HOST=127.0.0.1
+# ─── MongoDB ───
+MONGO_HOST=mongodb               # Nom du service Docker
 MONGO_PORT=27017
 MONGO_DB=vite_gourmand
-MONGO_USERNAME=
-MONGO_PASSWORD=
+MONGO_USERNAME=vite_user
+MONGO_PASSWORD=<mot_de_passe>
 
-# ==================================================
-# API - GEOLOCATION
-# ==================================================
-GOOGLE_MAPS_API_KEY=
-GEOLOCATION_API_TIMEOUT=5000
+# ─── JWT ───
+JWT_SECRET=<clé_secrète_HS256_minimum_32_caractères>
 
-# ==================================================
-# EMAIL
-# ==================================================
-MAIL_DRIVER=smtp
-MAIL_HOST=smtp.example.com
-MAIL_PORT=587
-MAIL_ENCRYPTION=tls
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM_ADDRESS=noreply@vitegourmand.fr
-MAIL_FROM_NAME="Vite & Gourmand"
+# ─── CORS ───
+CORS_ALLOWED_ORIGINS=http://localhost:8000,https://localhost:8443
+FRONTEND_ORIGIN=http://localhost:8000
 
-# ==================================================
-# JWT AUTHENTICATION
-# ==================================================
-JWT_SECRET=your-secret-key-change-in-production
-JWT_EXPIRATION=86400
+# ─── Email (Mailtrap en dev) ───
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_USERNAME=<mailtrap_user>
+MAIL_PASSWORD=<mailtrap_password>
+MAIL_FROM_ADDRESS=noreply@vite-gourmand.fr
+CONTACT_EMAIL=contact@vite-gourmand.fr
 
-# ==================================================
-# CACHE
-# ==================================================
-CACHE_DRIVER=array
-CACHE_TTL=3600
+# ─── Google Maps API ───
+GOOGLE_MAPS_API_KEY=<clé_api>
 
-# ==================================================
-# SESSION
-# ==================================================
-SESSION_DRIVER=cookie
-SESSION_LIFETIME=120
+# ─── Docker Compose (interpolation) ───
+MYSQL_ROOT_PASSWORD=<root_password>
+MYSQL_DATABASE=vite_gourmand
+MYSQL_USER=vite_user
+MYSQL_PASSWORD=<mot_de_passe>
+MYSQL_TEST_ROOT_PASSWORD=<test_root_password>
+MYSQL_TEST_DATABASE=vite_gourmand_test
+MYSQL_TEST_USER=test_user
+MYSQL_TEST_PASSWORD=<test_password>
+MONGO_INITDB_ROOT_USERNAME=vite_user
+MONGO_INITDB_ROOT_PASSWORD=<mot_de_passe>
+MONGO_INITDB_DATABASE=vite_gourmand
+MONGO_TEST_INITDB_ROOT_USERNAME=test_user
+MONGO_TEST_INITDB_ROOT_PASSWORD=<test_password>
+MONGO_TEST_INITDB_DATABASE=vite_gourmand_test
 
-# ==================================================
-# LOGGING
-# ==================================================
-LOG_CHANNEL=single
-LOG_LEVEL=debug
+# ─── Outils admin ───
+PMA_HOST=mysql
+PMA_USER=root
+PMA_PASSWORD=<root_password>
+ME_MONGO_HOST=mongodb
+ME_MONGO_PORT=27017
+ME_MONGO_ADMIN_USERNAME=vite_user
+ME_MONGO_ADMIN_PASSWORD=<mot_de_passe>
 
-# ==================================================
-# SECURITY
-# ==================================================
-TRUSTED_PROXIES=
-TRUSTED_HOSTS=localhost
+# ─── HTTPS local (optionnel) ───
+ENABLE_HTTPS=false
 ```
 
-### Managing Secrets
+### 3.3 Variables de production Azure (`.env.azure`)
 
 ```bash
-# NEVER commit .env file!
-echo ".env" >> .gitignore
-git rm --cached .env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://<app-name>.azurewebsites.net
 
-# Use .env.example for team
-cp .env.example .env  # Each dev generates own
+# ─── MySQL Azure Database ───
+DB_HOST=<serveur>.mysql.database.azure.com
+DB_PORT=3306
+DB_NAME=vite_gourmand
+DB_USER=<admin_user>
+DB_PASSWORD=<mot_de_passe_fort>
+DB_SSL=true                      # Active le TLS MySQL
+DB_SSL_CA=/etc/ssl/azure/DigiCertGlobalRootCA.crt.pem
 
-# Production: Pass via Docker/Kubernetes secrets
-# Option 1: Docker secrets
-docker secret create jwt_secret <(echo "long-secret-here")
+# ─── MongoDB Cosmos DB ───
+MONGO_URI=mongodb://<account>:<key>@<account>.mongo.cosmos.azure.com:10255/?ssl=true&...
 
-# Option 2: Kubernetes secrets
-kubectl create secret generic vite-secrets \
-  --from-literal=JWT_SECRET=xxx \
-  --from-literal=DB_PASSWORD=xxx
+# ─── Azure Blob Storage (images) ───
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=...
+AZURE_STORAGE_CONTAINER=images
 
-# Option 3: Cloud provider (AWS Secrets Manager, Azure KeyVault)
+# ─── Email (SendGrid en prod) ───
+SENDGRID_API_KEY=<sendgrid_api_key>
+
+# ─── Port Azure ───
+WEBSITES_PORT=8080
+```
+
+### 3.4 Variables de test (`.env.test`)
+
+```bash
+APP_ENV=test
+DB_HOST=mysql-test              # Service Docker mysql-test
+DB_PORT=3307
+DB_NAME=vite_gourmand_test
+DB_USER=test_user
+DB_PASSWORD=<test_password>
+MONGO_HOST=mongodb-test
+MONGO_PORT=27018
+MONGO_DB=vite_gourmand_test
 ```
 
 ---
 
-## 📊 Monitoring & Logs
+## 4. Installation et lancement local
 
-### Log Files
+### 4.1 Clonage et configuration initiale
 
-```
-logs/
-├─ app.log              (application logs)
-├─ error.log            (PHP errors)
-├─ slow-queries.log     (MySQL queries > 2s)
-└─ access.log           (HTTP requests)
-```
+```bash
+# 1. Cloner le dépôt
+git clone https://github.com/maxroe66/vite-gourmand.git
+cd vite-gourmand
 
-### Monitoring Stack
+# 2. Créer les fichiers d'environnement
+cp .env.example .env
+cp .env.test.example .env.test
 
-```yaml
-# ELK Stack (Elasticsearch, Logstash, Kibana)
-- Filebeat → read logs
-- Logstash → parse & enrich
-- Elasticsearch → store & index
-- Kibana → visualize & analyze
+# 3. Éditer .env avec vos valeurs (mots de passe, clés API)
+nano .env
 ```
 
-### Healthcheck Endpoint
+### 4.2 Lancement de l'infrastructure Docker
+
+```bash
+# Démarrer tous les services
+docker compose up -d
+
+# Vérifier que tous les conteneurs tournent
+docker compose ps
+
+# Résultat attendu :
+# vite-apache       running   0.0.0.0:8000->80/tcp, 0.0.0.0:8443->443/tcp
+# vite-php-app      running   9000/tcp
+# vite-mysql        running   0.0.0.0:3306->3306/tcp
+# vite-mysql-test   running   0.0.0.0:3307->3306/tcp
+# vite-mongodb      running   0.0.0.0:27017->27017/tcp
+# vite-mongodb-test running   0.0.0.0:27018->27017/tcp
+# vite-phpmyadmin   running   0.0.0.0:8081->80/tcp
+# vite-mongo-express running  0.0.0.0:8082->8081/tcp
+```
+
+### 4.3 Installation des dépendances PHP
+
+```bash
+# Installer les dépendances Composer dans le conteneur PHP
+docker exec -it vite-php-app composer install
+
+# Vérifier l'installation
+docker exec -it vite-php-app php -m | grep -E "pdo_mysql|mongodb"
+```
+
+### 4.4 Installation des dépendances frontend (tests)
+
+```bash
+# Depuis la racine du projet (sur le host)
+cd frontend
+npm install
+cd ..
+```
+
+### 4.5 Vérification
+
+| URL | Service attendu |
+|---|---|
+| `http://localhost:8000` | Page d'accueil Vite & Gourmand |
+| `http://localhost:8000/api/menus` | API JSON — liste des menus |
+| `http://localhost:8081` | phpMyAdmin |
+| `http://localhost:8082` | Mongo Express |
+
+---
+
+## 5. Base de données — Initialisation
+
+### 5.1 Fichiers SQL disponibles
+
+| Fichier | Rôle |
+|---|---|
+| `backend/database/sql/database_creation.sql` | Schéma complet (20 tables, 3 vues, 2 triggers, contraintes) |
+| `backend/database/sql/database_seed.sql` | Données de démonstration (fixtures) |
+| `backend/database/sql/database_complete.sql` | Schéma + seed combinés |
+| `backend/database/sql/database_creation_test.sql` | Schéma pour la BDD de test |
+
+### 5.2 Initialisation MySQL
+
+```bash
+# Méthode 1 : Schéma + fixtures séparément
+docker exec -i vite-mysql mysql -u root -p<ROOT_PASSWORD> vite_gourmand \
+  < backend/database/sql/database_creation.sql
+docker exec -i vite-mysql mysql -u root -p<ROOT_PASSWORD> vite_gourmand \
+  < backend/database/sql/database_seed.sql
+
+# Méthode 2 : Tout en une commande
+docker exec -i vite-mysql mysql -u root -p<ROOT_PASSWORD> vite_gourmand \
+  < backend/database/sql/database_complete.sql
+
+# Initialiser la base de test
+docker exec -i vite-mysql-test mysql -u root -p<TEST_ROOT_PASSWORD> vite_gourmand_test \
+  < backend/database/sql/database_creation_test.sql
+```
+
+### 5.3 Initialisation MongoDB
+
+```bash
+# Fichiers de setup MongoDB
+docker exec -i vite-mongodb mongosh \
+  --username <MONGO_USER> --password <MONGO_PASS> --authenticationDatabase admin \
+  < backend/database/mongoDB/database_mongodb_setup.js
+```
+
+### 5.4 Comptes de test (fixtures)
+
+Après l'initialisation des fixtures, les comptes suivants sont disponibles :
+
+| Email | Rôle | Mot de passe |
+|---|---|---|
+| `jose@vite-gourmand.fr` | ADMIN | `Admin123!` |
+| `julie@vite-gourmand.fr` | EMPLOYE | `Employe123!` |
+| `marie.dupont@email.fr` | UTILISATEUR | `User123!` |
+
+> 13 comptes au total sont créés par les fixtures. Voir `database_seed.sql` pour la liste complète.
+
+---
+
+## 6. HTTPS local (optionnel)
+
+### 6.1 Installation de mkcert
+
+```bash
+# macOS
+brew install mkcert && mkcert -install
+
+# Linux (Ubuntu/Debian)
+sudo apt install libnss3-tools
+curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+chmod +x mkcert-v*-linux-amd64 && sudo mv mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+mkcert -install
+
+# WSL (Windows)
+# Installer mkcert dans WSL ET dans Windows (PowerShell : choco install mkcert)
+```
+
+### 6.2 Génération des certificats
+
+```bash
+# Script automatisé
+./scripts/docker/init-https-local.sh
+
+# OU manuellement
+mkdir -p docker/certs
+mkcert -cert-file docker/certs/vite.local.pem \
+       -key-file docker/certs/vite.local-key.pem \
+       vite.local localhost 127.0.0.1 ::1
+```
+
+### 6.3 Activation
+
+```bash
+# Dans .env, activer HTTPS
+ENABLE_HTTPS=true
+
+# Redémarrer Apache
+docker compose restart apache
+
+# Accéder en HTTPS
+# https://localhost:8443
+```
+
+L'entrypoint Apache (`entrypoint.sh`) détecte `ENABLE_HTTPS=true` et :
+1. Active le module SSL (`a]loadModule ssl_module`)
+2. Ajoute `Listen 443` 
+3. Inclut la configuration `vite-ssl.conf`
+4. Lance Apache avec SSL + TLS 1.2+
+
+---
+
+## 7. Architecture de production — Azure
+
+### 7.1 Services Azure utilisés
+
+| Service Azure | Usage | Équivalent Docker local |
+|---|---|---|
+| **Azure App Service** (Linux) | Hébergement de l'application (PHP + Apache) | `vite-php-app` + `vite-apache` |
+| **Azure Database for MySQL** | Base de données relationnelle | `vite-mysql` |
+| **Azure Cosmos DB** (API MongoDB) | Base de données NoSQL | `vite-mongodb` |
+| **Azure Blob Storage** | Stockage des images uploadées | Système de fichiers local |
+| **GHCR** (GitHub Container Registry) | Registre d'images Docker | — |
+
+### 7.2 Image Docker de production (`Dockerfile.azure`)
+
+Contrairement au développement local (PHP-FPM + Apache séparés), la production utilise une **image unique** :
+
+```
+┌─────────────────────────────────────────┐
+│     Dockerfile.azure                    │
+│     Base : php:8.1-apache               │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │ PHP 8.1 + Apache (mod_php)     │    │
+│  │ Extensions : pdo, pdo_mysql,   │    │
+│  │              mysqli, mongodb    │    │
+│  │ Modules : rewrite, headers,    │    │
+│  │           ssl                   │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+│  DocumentRoot : /var/www/html/public    │
+│  AllowOverride : All                    │
+│  DirectoryIndex : index.php             │
+│                                         │
+│  Certificat TLS : DigiCertGlobalRoot    │
+│  (pour MySQL Azure en SSL)              │
+│                                         │
+│  Headers sécurité :                     │
+│  - HSTS (31536000s, includeSubDomains)  │
+│  - X-Content-Type-Options: nosniff      │
+│  - X-Frame-Options: SAMEORIGIN          │
+│  - Referrer-Policy: strict-origin       │
+│                                         │
+│  Dépendances : Composer 2 (--no-dev)    │
+│  Port exposé : 80                       │
+└─────────────────────────────────────────┘
+```
+
+Différences avec le setup local :
+
+| Aspect | Développement local | Production Azure |
+|---|---|---|
+| Architecture | PHP-FPM + Apache (2 conteneurs) | PHP + Apache combinés (1 conteneur) |
+| Communication PHP | Proxy FastCGI (port 9000) | mod_php (intégré) |
+| Debugging | `display_errors=On`, `APP_DEBUG=true` | `display_errors=Off`, `APP_DEBUG=false` |
+| Dépendances | Composer avec dev | Composer `--no-dev` |
+| Images | Système de fichiers local | Azure Blob Storage |
+| MySQL TLS | Non (réseau Docker interne) | Oui (certificat DigiCert) |
+| MongoDB | Standalone local | Azure Cosmos DB (API MongoDB) |
+
+### 7.3 Configuration Cosmos DB
+
+Le fichier `config.php` détecte automatiquement Cosmos DB via le port (`10255`) ou le domaine (`cosmos`, `mongocluster`) et adapte les options de connexion MongoDB :
 
 ```php
-// GET /api/health
-class HealthController {
-    public function check() {
-        $health = [
-            'status' => 'ok',
-            'timestamp' => now(),
-            'mysql' => $this->checkMySQL(),
-            'mongodb' => $this->checkMongoDB(),
-            'api_geoloc' => $this->checkApiGeolocation(),
-        ];
-        return response()->json($health);
-    }
+// Détection automatique Cosmos DB
+if ($port == 10255 || str_contains($host, 'cosmos') || str_contains($host, 'mongocluster')) {
+    $options['ssl'] = true;
+    $options['retryWrites'] = false;      // Cosmos DB ne supporte pas retryWrites
+    $options['maxIdleTimeMS'] = 120000;
 }
+```
 
-// Monitoring
-curl https://vitegourmand.fr/api/health
-# Expected: {"status":"ok", "mysql":true, "mongodb":true, "api_geoloc":true}
+### 7.4 Redirection HTTPS en production
+
+`public/index.php` force HTTPS en production via détection des headers de proxy Azure :
+
+```php
+if ($isProduction) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+        || isset($_SERVER['HTTP_X_ARR_SSL']);  // Header spécifique Azure
+
+    if (!$isHttps) {
+        header('Location: https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], true, 301);
+        exit;
+    }
+
+    // HSTS
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 ```
 
 ---
 
-## 🔧 Troubleshooting
+## 8. CI/CD — GitHub Actions
 
-### Problèmes Courants
+### 8.1 Vue d'ensemble des pipelines
 
-| Problème | Cause | Solution |
-|----------|-------|----------|
-| `Connection refused 3306` | MySQL not running | `docker-compose restart mysql` |
-| `SQLSTATE[HY000]` | Bad credentials | Vérifier DB_USER, DB_PASSWORD en .env |
-| `JWT token expired` | Token vieux | User doit se reconnecter |
-| `Google Maps API rate limit` | Trop appels | Augmenter quota, implémenter cache |
-| `MongoDB connection timeout` | MongoDB down | Fallback AVIS_FALLBACK activé? |
-| `PHP Out of memory` | Script heavy | Augmenter memory_limit en php.ini |
-| `CORS error` | Frontend ≠ Backend domain | Ajouter CORS headers |
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                     GitHub Actions Workflows                      │
+│                                                                    │
+│  ┌─────────────────────┐  ┌────────────────────┐  ┌──────────┐  │
+│  │ test-backend.yml    │  │ frontend-tests.yml │  │ email-   │  │
+│  │ push/PR → main,     │  │ push/PR modifiant  │  │ integr.  │  │
+│  │ develop, feat/*     │  │ frontend/**        │  │ PR/cron/ │  │
+│  │                     │  │                    │  │ manual   │  │
+│  │ MySQL + MongoDB     │  │ Node 18            │  │          │  │
+│  │ PHP 8.1 + Newman    │  │ npm ci             │  │ PHPUnit  │  │
+│  │ → PHPUnit           │  │ → Vitest           │  │ + Newman │  │
+│  │ → Newman            │  │                    │  │          │  │
+│  └─────────────────────┘  └────────────────────┘  └──────────┘  │
+│                                                                    │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │ deploy-azure.yml                                         │    │
+│  │ Trigger : push sur develop                               │    │
+│  │                                                           │    │
+│  │ ┌──────────┐   ┌──────────┐   ┌─────────────────────┐   │    │
+│  │ │  Build    │──►│  Deploy  │──►│  Post-deploy check  │   │    │
+│  │ │  + Push   │   │  Azure   │   │  Health + Migrations│   │    │
+│  │ │  GHCR     │   │  Webapp  │   │  + Admin + MongoDB  │   │    │
+│  │ └──────────┘   └──────────┘   └─────────────────────┘   │    │
+│  └──────────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────────┘
+```
 
-### Debug Commands
+### 8.2 Pipeline de tests backend (`test-backend.yml`)
+
+**Déclencheur :** Push ou PR sur `main`, `master`, `develop`, `feat/*`
+
+**Services GitHub Actions :**
+- MySQL 8.0 (port 3306, base `vite_gourmand_test`)
+- MongoDB 4.4 (port 27017)
+
+**Étapes :**
+
+```
+1. Checkout du code
+2. Setup PHP 8.1 (shivammathur/setup-php)
+   Extensions : pdo_mysql, mbstring, mongodb
+3. Install Newman (npm install -g newman)
+4. Setup BDD test :
+   - MySQL : database_creation.sql + database_seed.sql
+   - MongoDB : database_mongodb_setup.js
+5. Composer install
+6. Lancement serveur PHP intégré (php -S localhost:8000)
+7. PHPUnit (32 tests)
+8. Newman :
+   - Collection inscription
+   - Collection login
+   - Collection logout
+   - Collection password reset
+   - Test JWT e2e
+```
+
+### 8.3 Pipeline de tests frontend (`frontend-tests.yml`)
+
+**Déclencheur :** Push ou PR modifiant `frontend/**`
+
+**Étapes :**
+
+```
+1. Checkout du code
+2. Setup Node.js 18
+3. npm ci (dans frontend/)
+4. npm run test:ci (Vitest)
+```
+
+### 8.4 Pipeline de déploiement Azure (`deploy-azure.yml`)
+
+**Déclencheur :** Push sur `develop`
+
+**Job 1 — Build & Push :**
+
+```
+1. Checkout du code
+2. Copie frontend/ dans public/frontend (pour servir via Apache)
+3. Composer install --no-dev
+4. Docker build (Dockerfile.azure)
+5. Docker push vers GHCR :
+   - ghcr.io/maxroe66/vite-gourmand:develop
+   - ghcr.io/maxroe66/vite-gourmand:<sha>
+```
+
+**Job 2 — Deploy :**
+
+```
+1. Azure Login (AZURE_CREDENTIALS, service principal)
+2. az webapp config container set :
+   - Image GHCR
+   - Variables d'env (DB, MongoDB, JWT, Mail, Storage)
+3. az webapp restart
+```
+
+**Job 3 — Post-deploy check :**
+
+```
+1. Health check HTTP (20 retries, 10s d'intervalle)
+2. Migrations MySQL via SSL :
+   - database_creation.sql
+   - database_seed.sql
+3. Setup admin password (Argon2ID hash) 
+4. Install mongosh
+5. Init MongoDB Cosmos DB (database_mongodb_setup_cosmosdb.js)
+```
+
+**Secrets GitHub utilisés :**
+
+| Secret | Usage |
+|---|---|
+| `AZURE_CREDENTIALS` | Service principal (JSON) pour `az login` |
+| `AZURE_WEBAPP_NAME` | Nom de l'App Service |
+| `AZURE_RESOURCE_GROUP` | Resource group Azure |
+| `APP_BASE_URL` | URL publique de l'application |
+| `AZURE_MYSQL_HOST` | Serveur MySQL Azure |
+| `AZURE_MYSQL_DB` | Nom de la base |
+| `AZURE_MYSQL_USER` | Utilisateur MySQL |
+| `AZURE_MYSQL_PASS` | Mot de passe MySQL |
+| `ADMIN_INITIAL_PASSWORD` | Mot de passe admin initial |
+| `AZURE_MONGO_URI` | URI Cosmos DB complète |
+
+### 8.5 Pipeline d'intégration email (`email-integration.yml`)
+
+**Déclencheur :** PR vers `develop` + cron quotidien + dispatch manuel
+
+Teste l'envoi d'emails avec **graceful degradation** (fonctionne même sans secrets SMTP configurés). Vérifie que les appels d'envoi sont tracés dans les logs.
+
+---
+
+## 9. Monitoring et maintenance
+
+### 9.1 Logs
+
+| Composant | Emplacement | Format |
+|---|---|---|
+| **PHP applicatif** (Monolog) | `backend/logs/app.log` (dev) / `stderr` (prod) | JSON structuré |
+| **Apache access** | `docker compose logs apache` | Combined Log Format |
+| **Apache error** | `docker compose logs apache` | Standard error log |
+| **MySQL** | `docker compose logs mysql` | MySQL error log |
+| **Azure** | Portail Azure → App Service → Log stream | Stdout + Stderr |
+
+### 9.2 Commandes de maintenance
 
 ```bash
-# Docker
-docker-compose ps
-docker-compose logs -f php-app
-docker-compose logs -f mysql
+# ─── Gestion Docker ───
+docker compose up -d                     # Démarrer
+docker compose down                      # Arrêter
+docker compose restart apache            # Redémarrer Apache seul
+docker compose logs -f php-app           # Suivre les logs PHP en temps réel
+docker compose logs -f --tail=100 apache # 100 dernières lignes Apache
 
-# MySQL
-docker-compose exec mysql mysql -u root -proot -e "SHOW DATABASES;"
-docker-compose exec mysql mysql -u root -proot vite_gourmand -e "SHOW TABLES;"
+# ─── Shell dans les conteneurs ───
+docker exec -it vite-php-app bash        # Shell PHP
+docker exec -it vite-mysql mysql -u root -p  # Client MySQL
+docker exec -it vite-mongodb mongosh     # Client MongoDB
 
-# MongoDB
-docker-compose exec mongodb mongosh
-> show databases
-> use vite_gourmand
-> db.statistiques_commandes.find().limit(1)
+# ─── Tests ───
+docker exec vite-php-app ./vendor/bin/phpunit     # Tests backend
+cd frontend && npx vitest                          # Tests frontend
 
-# PHP
-docker-compose exec php-app php -v
-docker-compose exec php-app composer show
+# ─── Composer ───
+docker exec -it vite-php-app composer install      # Installer les dépendances
+docker exec -it vite-php-app composer update       # Mettre à jour
 
-# Network
-docker-compose exec php-app ping mysql
-docker-compose exec php-app curl -I http://apache:80
+# ─── Base de données ───
+docker exec -i vite-mysql mysqldump -u root -p vite_gourmand > backup.sql  # Backup
+docker exec -i vite-mysql mysql -u root -p vite_gourmand < backup.sql      # Restore
+
+# ─── Azure (si CLI installé) ───
+az webapp log tail --name <app> --resource-group <rg>     # Logs en temps réel
+az webapp restart --name <app> --resource-group <rg>      # Redémarrer
 ```
 
-### Performance Tuning
+### 9.3 Script de vérification matériel
 
 ```bash
-# MySQL slow query log
-# /etc/mysql/my.cnf
-[mysqld]
-slow_query_log = 1
-slow_query_log_file = /var/log/mysql/slow.log
-long_query_time = 2
+# Vérifier les retours de matériel en retard
+docker exec vite-php-app php scripts/check_overdue_materials.php
+```
 
-# View slow queries
-docker-compose exec mysql tail -f /var/log/mysql/slow.log
+Ce script identifie les commandes en `en_attente_retour_materiel` dont le délai de 10 jours ouvrés est dépassé.
+
+---
+
+## 10. Dépannage
+
+### 10.1 Problèmes fréquents
+
+| Symptôme | Cause probable | Solution |
+|---|---|---|
+| `localhost:8000` ne répond pas | Apache non démarré | `docker compose up -d apache` |
+| Erreur 502 Bad Gateway | PHP-FPM non démarré | `docker compose restart php-app` |
+| Erreur 500 sur `/api/*` | Erreur PHP (config, BDD) | `docker compose logs php-app` |
+| `SQLSTATE[HY000] Connection refused` | MySQL non prêt | Attendre ~30s après `docker compose up`, vérifier `docker compose ps` |
+| `MongoDB connection failed` | MongoDB non démarré ou auth incorrecte | Vérifier `MONGO_USERNAME`/`MONGO_PASSWORD` dans `.env` |
+| CORS error dans le navigateur | `CORS_ALLOWED_ORIGINS` incorrect | Vérifier que l'URL dans `.env` correspond exactement (port inclus) |
+| `403 Forbidden` sur requête POST | Token CSRF manquant ou invalide | Vérifier que `AuthService.addCsrfHeader()` est appelé |
+| `401 Unauthorized` inattendu | Cookie `authToken` expiré (1h) | Se reconnecter |
+| Page blanche (HTML) | Fichier HTML manquant | Vérifier que `frontend/pages/` contient le fichier demandé |
+| phpMyAdmin inaccessible | Conteneur phpmyadmin arrêté | `docker compose up -d phpmyadmin` |
+
+### 10.2 Reset complet de l'environnement
+
+```bash
+# Arrêter tout et supprimer les volumes (ATTENTION : perte de données)
+docker compose down -v
+
+# Supprimer les images du projet
+docker images | grep vite | awk '{print $3}' | xargs docker rmi -f
+
+# Reconstruire de zéro
+docker compose build --no-cache
+docker compose up -d
+
+# Réinitialiser les bases de données
+docker exec -i vite-mysql mysql -u root -p<PASSWORD> vite_gourmand \
+  < backend/database/sql/database_complete.sql
+```
+
+### 10.3 Vérification de la connectivité
+
+```bash
+# Tester MySQL depuis le conteneur PHP
+docker exec vite-php-app php -r "
+  \$pdo = new PDO('mysql:host=mysql;port=3306;dbname=vite_gourmand', 'vite_user', '<password>');
+  echo 'MySQL OK';
+"
+
+# Tester MongoDB depuis le conteneur PHP  
+docker exec vite-php-app php -r "
+  \$client = new MongoDB\Client('mongodb://vite_user:<password>@mongodb:27017/vite_gourmand?authSource=admin');
+  \$db = \$client->selectDatabase('vite_gourmand');
+  echo 'MongoDB OK';
+"
+
+# Tester l'API
+curl -s http://localhost:8000/api/menus | head -c 200
 ```
 
 ---
 
-## ✅ Checklist Déploiement
-
-**Avant Production :**
-
-- [ ] `.env.example` commité, `.env` ignoré
-- [ ] JWT_SECRET changé (nouveau token fort)
-- [ ] GOOGLE_MAPS_API_KEY valide
-- [ ] Email config fonctionnel
-- [ ] HTTPS activé + SSL certificate
-- [ ] Database backups automatisés
-- [ ] Logs centralisés (ELK ou similaire)
-- [ ] Monitoring alerts configurés
-- [ ] Firewall rules restrictives
-- [ ] Admin user créé (pas default)
-- [ ] Rate limiting API activé
-- [ ] Cache Redis configuré
-- [ ] CDN pour assets (optionnel)
-
----
-
-## 📞 Support
-
-**Documentation Complète :** `README.md`  
-**Architecture Technique :** `DOCUMENTATION_TECHNIQUE.md`  
-**Questions Docker ?** https://docs.docker.com/  
-**Questions MySQL ?** https://dev.mysql.com/doc/  
-
----
-
-**Status :** ✅ Production-Ready  
-**Last Updated :** 11 décembre 2025
-
-
-## ☁️ Persistance des FICHIERS sur Azure (Web App for Containers)
-
-⚠️ **IMPORTANT** : Sur Azure App Service (Docker), le système de fichiers est **éphémère**. Tout fichier uploadé dans le dossier `/var/www/vite_gourmand/public/assets/uploads` (ex: images des menus) sera perdu au redémarrage du conteneur.
-
-### Solution : Monter un Azure File Share
-
-Pour rendre les uploads persistants, vous devez utiliser le mécanisme de "Path Mappings" d'Azure.
-
-1.  **Créer un Storage Account** dans le même Resource Group que votre App Service.
-2.  **Créer un File Share** (exemple: `vite-uploads`) dans ce Storage Account.
-3.  **Configurer le Path Mapping** dans Azure Portal :
-    *   Allez dans votre **App Service** > **Configuration** > **Path mappings** > **New Azure Storage Mount**.
-    *   **Name** : `uploads` (arbitraire)
-    *   **Configuration options** : `Basic`
-    *   **Storage Account** : (Celui créé à l'étape 1)
-    *   **Share Name** : `vite-uploads`
-    *   **Mount Path** : `/var/www/vite_gourmand/public/assets/uploads`
-
-Ainsi, chaque image uploadée par l'application sera physiquement stockée dans le File Share Azure et survivra aux redémarrages.
+*Document généré le 18 février 2026 — Reflète l'infrastructure en production.*

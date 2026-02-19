@@ -1,4 +1,8 @@
-# Diagramme de Cas d'Utilisation - Vite & Gourmand
+# Diagramme de Cas d'Utilisation — Vite & Gourmand
+
+> **Version :** 2.0.0  
+> **Mise à jour :** 18 février 2026  
+> **Correspond au code réel** du projet
 
 ## 📊 Vue Globale des Acteurs et Use Cases
 
@@ -13,6 +17,7 @@ graph TB
         V6["Se Connecter"]
         V7["Contacter Entreprise"]
         V8["Voir Avis Validés"]
+        V9["Consulter Mentions Légales / CGV"]
     end
 
     subgraph Utilisateur["👤 Utilisateur (Authentifié)"]
@@ -36,6 +41,7 @@ graph TB
         E6["Modifier Statut Commande"]
         E7["Prêter Matériel"]
         E8["Gérer Matériel"]
+        E9["Annuler Commande Client"]
     end
 
     subgraph Admin["👨‍💻 Administrateur"]
@@ -114,9 +120,10 @@ graph LR
         UC_CalcRevenue["Calculer Chiffre d'Affaires"]
     end
     
-    subgraph Contact["📧 Contact"]
+    subgraph Contact["📧 Contact & Légal"]
         UC_ContactForm["Remplir Formulaire Contact"]
         UC_SendEmail["Envoyer Email Contact"]
+        UC_MentionsLegales["Consulter Mentions Légales / CGV"]
     end
 
     %% Acteurs vers Use Cases
@@ -128,6 +135,7 @@ graph LR
     Visiteur -->|S'inscrire| UC_Register
     Visiteur -->|Se connecter| UC_Login
     Visiteur -->|Contact| UC_ContactForm
+    Visiteur -->|Mentions légales| UC_MentionsLegales
     
     Utilisateur -->|Voir accueil| UC_ConsultAccueil
     Utilisateur -->|Consulter| UC_ConsultMenus
@@ -232,17 +240,17 @@ graph LR
 | **Flux Principal** | 1. Visiteur clique "S'inscrire" 2. Saisit nom, prénom, téléphone, adresse, email, mot de passe 3. Système valide données 4. Crée compte avec rôle "Utilisateur" 5. Envoie email bienvenue |
 | **Postcondition** | Compte créé, utilisateur reçoit email |
 | **Exceptions** | Email déjà utilisé, password faible, données invalides |
-| **Classes** | User, Auth, UserService, Mailer |
+| **Classes** | AuthService, UserRepository, UserValidator, MailerService |
 
 #### UC_Login : Se Connecter
 | Propriété | Valeur |
 |-----------|--------|
 | **Acteurs** | Visiteur → Utilisateur / Employé / Admin |
 | **Précondition** | Compte existant, non authentifié |
-| **Flux Principal** | 1. Visiteur entre email + mot de passe 2. Système vérifie identifiants 3. Crée token JWT 4. Redirige vers espace personnel |
-| **Postcondition** | Token JWT valide, utilisateur authentifié |
-| **Exceptions** | Email non trouvé, mot de passe incorrect |
-| **Classes** | Auth, JWTManager, User |
+| **Flux Principal** | 1. Visiteur entre email + mot de passe 2. Système vérifie identifiants (Argon2ID) 3. Génère JWT HS256 stocké en cookie HttpOnly `authToken` 4. Génère token CSRF en cookie `csrfToken` 5. Redirige vers espace personnel |
+| **Postcondition** | Cookie JWT posé, token CSRF actif, utilisateur authentifié |
+| **Exceptions** | Email non trouvé, mot de passe incorrect, compte désactivé |
+| **Classes** | AuthService, UserRepository, CsrfService, MailerService |
 
 #### UC_ResetPwd : Réinitialiser Mot de Passe
 | Propriété | Valeur |
@@ -250,7 +258,7 @@ graph LR
 | **Acteurs** | Utilisateur (oublié pwd) |
 | **Flux Principal** | 1. Clic "Mot de passe oublié" 2. Saisit email 3. Système envoie lien reset 4. Utilisateur clique lien 5. Change mot de passe 6. Confirmation |
 | **Postcondition** | Mot de passe changé, email de confirmation |
-| **Classes** | Auth, ResetToken, Mailer |
+| **Classes** | AuthService, ResetTokenRepository, MailerService |
 
 ---
 
@@ -271,8 +279,8 @@ graph LR
 | **Acteurs** | Visiteur, Utilisateur |
 | **Flux Principal** | 1. Utilisateur saisit critères (prix, thème, régime, min personnes) 2. Clique appliquer 3. Système filtre sans rechargement page (AJAX) 4. Affiche résultats |
 | **Postcondition** | Liste filtrée affichée dynamiquement |
-| **Tech** | Fetch API, MenuService::getFiltered() |
-| **Classes** | MenuService, Validator |
+| **Tech** | Fetch API avec `credentials: 'include'`, filtrage dynamique sans rechargement |
+| **Classes** | MenuService, MenuRepository, ThemeRepository, RegimeRepository |
 
 #### UC_DetailMenu : Voir Détail Menu
 | Propriété | Valeur |
@@ -302,7 +310,7 @@ graph LR
 | **Flux Principal** | 1. Clique "Commander" depuis détail menu 2. Pré-remplit menu sélectionné 3. Saisit adresse livraison, date/heure, nb personnes 4. Système calcule prix (reduction 10% si nb personnes ≥ min+5) 5. Calcule frais livraison (5€ + 0,59€/km si hors Bordeaux) 6. Affiche résumé 7. Valide commande 8. Envoie email confirmation |
 | **Postcondition** | Commande créée, email envoyé, statut "En attente" |
 | **Règles** | RG_REDUCTION, RG_LIVRAISON, RG_STOCK |
-| **Classes** | Commande, CommandeService, Mailer |
+| **Classes** | CommandeService, CommandeRepository, MenuRepository, GoogleMapsService, MailerService |
 
 #### UC_ModifyCmd : Modifier Commande
 | Propriété | Valeur |
@@ -312,7 +320,7 @@ graph LR
 | **Flux Principal** | 1. Utilisateur modifie adresse/date/nb personnes 2. Système recalcule prix 3. Valide modification 4. Enregistre historique |
 | **Postcondition** | Commande modifiée, historique updated |
 | **Exceptions** | Commande acceptée → impossible |
-| **Classes** | Commande, CommandeService, CommandeModification |
+| **Classes** | CommandeService, CommandeRepository (table COMMANDE_MODIFICATION) |
 
 #### UC_CancelCmd : Annuler Commande
 | Propriété | Valeur |
@@ -320,7 +328,7 @@ graph LR
 | **Acteurs** | Utilisateur (avant acceptation) |
 | **Flux Principal** | 1. Clic "Annuler" 2. Confirmation 3. Système change statut à "Annulée" 4. Rembourse (optionnel) |
 | **Postcondition** | Commande annulée, email envoyé |
-| **Classes** | Commande, CommandeAnnulation |
+| **Classes** | CommandeService, CommandeRepository (table COMMANDE_ANNULATION) |
 
 #### UC_ViewCmd : Consulter Commandes
 | Propriété | Valeur |
@@ -337,7 +345,7 @@ graph LR
 | **Précondition** | Commande acceptée |
 | **Flux Principal** | 1. Clique sur commande 2. Affiche timeline : "Acceptée" → "En préparation" → "Livraison" → "Livrée" → "Matériel retourné" → "Terminée" 3. Chaque étape montre date/heure changement |
 | **Postcondition** | Timeline affichée |
-| **Classes** | Historique, Commande |
+| **Classes** | CommandeRepository (table COMMANDE_STATUT), CommandeService |
 
 #### UC_LoanMaterial : Emprunter Matériel
 | Propriété | Valeur |
@@ -345,15 +353,15 @@ graph LR
 | **Acteurs** | Utilisateur (commande), Employé (gère) |
 | **Flux Principal** | 1. Employé sélectionne matériel prêté 2. Système enregistre emprunt 3. Utilisateur reçoit email notification 4. Statut commande passe à "En attente retour matériel" |
 | **Postcondition** | Matériel prêté, email envoyé, délai 10j ouvrés |
-| **Classes** | Emprunt, Materiel, CommandeService |
+| **Classes** | CommandeService, MaterielRepository (table COMMANDE_MATERIEL), MailerService |
 
 #### UC_ReturnMaterial : Retourner Matériel
 | Propriété | Valeur |
 |-----------|--------|
-| **Acteurs** | Utilisateur |
-| **Flux Principal** | 1. Utilisateur retourne matériel 2. Employé enregistre retour 3. Système change statut à "Terminée" 4. Email notification |
-| **Postcondition** | Matériel retourné, commande terminée |
-| **Classes** | Emprunt, CommandeService |
+| **Acteurs** | Utilisateur (retourne), Employé (enregistre) |
+| **Flux Principal** | 1. Utilisateur contacte l'entreprise pour rendre le matériel 2. Employé enregistre le retour via le dashboard 3. Système change statut commande à "Terminée" 4. Email de confirmation |
+| **Postcondition** | Matériel retourné, stock remis à jour, commande terminée |
+| **Classes** | CommandeService, MaterielRepository (table COMMANDE_MATERIEL), MailerService |
 
 ---
 
@@ -415,7 +423,7 @@ graph LR
 | **Acteurs** | Admin |
 | **Flux Principal** | 1. Admin accès "Employés" 2. Clic "Créer" 3. Saisit email + password 4. Système envoie email avec identifiants (pwd non inclus) 5. Employé doit contacter admin pour pwd |
 | **Postcondition** | Compte employé créé |
-| **Classes** | User, Auth, Mailer |
+| **Classes** | UserService, UserRepository, AuthService, MailerService |
 
 #### UC_ViewStats : Consulter Statistiques
 | Propriété | Valeur |
@@ -423,25 +431,35 @@ graph LR
 | **Acteurs** | Admin |
 | **Flux Principal** | 1. Accès dashboard admin 2. Voir : nombre commandes par menu, graphiques comparatifs, CA par menu, CA par période 3. Données depuis MongoDB (statistiques_commandes) |
 | **Postcondition** | Stats affichées |
-| **Classes** | StatistiquesCommandes, MongoDBClient |
+| **Classes** | StatsController, CommandeRepository, MongoDB (collection statistiques_commandes) |
 
 ---
 
-## 🔗 **Mappage Use Cases → Classes UML**
+## 🔗 **Mappage Use Cases → Classes du code réel**
 
-| Use Case | Classes Impliquées | Type |
-|----------|-------------------|------|
-| Register | User, Auth, UserService, Mailer | Core |
-| Login | Auth, User, JWTManager | Core |
-| ConsultMenus | Menu, MenuService | Core |
-| FilterMenus | MenuService, Validator | Core |
-| PasserCmd | Commande, CommandeService, Mailer | Core |
-| ModifyCmd | Commande, CommandeModification | Core |
-| CreateAvis | Avis, AvisService, Mailer | Core |
-| ValidateAvis | Avis, AvisService, MongoDBClient | Core |
-| CreateMenu | Menu, MenuService | Feature |
-| CreateEmp | User, Auth, Mailer | Admin |
-| ViewStats | StatistiquesCommandes | Analytics |
+| Use Case | Controller | Service | Repository | Autres |
+|----------|-----------|---------|------------|--------|
+| Register | AuthController | AuthService | UserRepository | UserValidator, MailerService |
+| Login | AuthController | AuthService | UserRepository | CsrfService, LoginValidator |
+| ResetPwd | AuthController | AuthService | ResetTokenRepository | MailerService |
+| ConsultMenus | MenuController | MenuService | MenuRepository | — |
+| FilterMenus | MenuController | MenuService | MenuRepository | ThemeRepository, RegimeRepository |
+| DetailMenu | MenuController | MenuService | MenuRepository | PlatRepository, AllergeneRepository |
+| PasserCmd | CommandeController | CommandeService | CommandeRepository | GoogleMapsService, MailerService |
+| ModifyCmd | CommandeController | CommandeService | CommandeRepository | CommandeValidator |
+| CancelCmd | CommandeController | CommandeService | CommandeRepository | — |
+| FollowCmd | CommandeController | CommandeService | CommandeRepository | — |
+| CreateAvis | AvisController | AvisService | AvisRepository | MongoDB |
+| ValidateAvis | AvisController | AvisService | AvisRepository | MongoDB |
+| CreateMenu | MenuController | MenuService | MenuRepository | MenuValidator |
+| ManagePlats | PlatController | PlatService | PlatRepository | PlatValidator, AllergeneRepository |
+| ManageHoraires | HoraireController | — | HoraireRepository | HoraireValidator |
+| ManageMateriel | MaterielController | — | MaterielRepository | MaterielValidator |
+| LoanMaterial | CommandeController | CommandeService | MaterielRepository | MailerService |
+| CreateEmp | AdminController | UserService | UserRepository | EmployeeValidator, MailerService |
+| ViewStats | StatsController | — | CommandeRepository | MongoDB |
+| Contact | ContactController | ContactService | ContactRepository | ContactValidator, MailerService |
+| Upload | UploadController | StorageService | — | — |
 
 ---
 
@@ -462,12 +480,19 @@ graph LR
 | Espace admin | UC_CreateEmp, UC_ViewStats | ✅ |
 | Prêt matériel | UC_LoanMaterial, UC_ReturnMaterial | ✅ |
 | Contact | UC_ContactForm | ✅ |
+| Mentions légales / CGV | UC_MentionsLegales | ✅ |
+| Horaires en pied de page | Visible dans footer (HoraireRepository) | ✅ |
 
 ---
 
 ## 📊 **Statistiques**
 
 - **4 Acteurs** (Visiteur, Utilisateur, Employé, Admin)
-- **32 Cas d'Utilisation** couvrant tous les besoins
+- **35+ Cas d'Utilisation** couvrant tous les besoins de l'énoncé
 - **100% conformité énoncé** ✅
-- **Mappage UML complet** avec classes responsables
+- **Mappage complet** vers les classes réelles du code (Controllers, Services, Repositories)
+- **Authentification** : JWT HS256 en cookie HttpOnly + CSRF Double Submit Cookie
+
+---
+
+> Ce diagramme reflète le code réel du projet au 18 février 2026.
