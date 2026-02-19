@@ -49,3 +49,42 @@ $router->get('/test/latest-reset-token', function (ContainerInterface $container
                               ->setJsonContent(['error' => 'Une erreur interne est survenue.', 'details' => $e->getMessage()]);
     }
 });
+
+/**
+ * Route utilitaire pour réinitialiser le rate limiting avant les tests Postman/Newman.
+ * DELETE /api/test/reset-rate-limit
+ *
+ * Supprime tous les fichiers de compteur rate limit pour permettre
+ * l'exécution répétée des collections de tests sans être bloqué.
+ *
+ * Sécurité : accessible uniquement en environnement test/development.
+ */
+$router->delete('/test/reset-rate-limit', function (ContainerInterface $container, array $params, Request $request) {
+    $config = $container->get('config');
+    if (!in_array(($config['env'] ?? 'production'), ['test', 'development'])) {
+        return (new Response())->setStatusCode(Response::HTTP_FORBIDDEN)
+                              ->setJsonContent(['error' => 'Endpoint accessible en environnement de test uniquement.']);
+    }
+
+    $rateLimitDir = realpath(__DIR__ . '/../var/rate_limit');
+    if (!$rateLimitDir || !is_dir($rateLimitDir)) {
+        return (new Response())->setJsonContent([
+            'success' => true,
+            'message' => 'Aucun dossier rate_limit trouvé — rien à nettoyer.',
+            'deleted' => 0,
+        ]);
+    }
+
+    $deleted = 0;
+    foreach (glob($rateLimitDir . '/*.json') as $file) {
+        if (unlink($file)) {
+            $deleted++;
+        }
+    }
+
+    return (new Response())->setJsonContent([
+        'success' => true,
+        'message' => "Rate limiting réinitialisé : $deleted compteur(s) supprimé(s).",
+        'deleted' => $deleted,
+    ]);
+});

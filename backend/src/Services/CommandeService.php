@@ -213,7 +213,13 @@ class CommandeService
             }
             
             if (!empty($materialsToLoan)) {
-                $this->loanMaterial($commandeId, $materialsToLoan);
+                try {
+                    $this->loanMaterial($commandeId, $materialsToLoan);
+                } catch (\Exception $e) {
+                    // Le prêt automatique de matériel ne doit pas bloquer la création de commande.
+                    // Le matériel pourra être prêté manuellement par un employé plus tard.
+                    error_log("Auto-loan warning (commande #{$commandeId}): " . $e->getMessage());
+                }
             }
         }
 

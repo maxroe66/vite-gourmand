@@ -1,523 +1,483 @@
 {
-  "info": {
-    "_postman_id": "57e97f7c-a986-4e32-b0cb-137d55a495cf",
-    "name": "vite & gourmand - inscription",
-    "description": "Collection de tests d’intégration pour l’inscription utilisateur sur l’API Vite & Gourmand.  \nContient tous les scénarios : inscription réussie, email déjà utilisé, validation des champs, etc.  \nUtilisée pour valider le bon fonctionnement du endpoint /auth/register en développement et CI.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "50957939",
-    "_collection_link": "https://maxroe66300-8951494.postman.co/workspace/max-roe's-Workspace~9e483d7c-0845-4224-878d-731e26bc2e27/collection/50957939-57e97f7c-a986-4e32-b0cb-137d55a495cf?action=share&source=collection_link&creator=50957939"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000/api",
-      "type": "string"
-    },
-    {
-      "key": "api_path",
-      "value": "/auth/register",
-      "type": "string"
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token') || pm.environment.get('csrf_token');",
-          "if (csrfToken) {",
-          "  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
-          "}"
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "const csrfToken = pm.cookies.get('csrfToken');",
-          "if (csrfToken) {",
-          "  pm.collectionVariables.set('csrf_token', csrfToken);",
-          "}"
-        ]
-      }
-    }
-  ],
-  "item": [
-    {
-      "name": "00. Init CSRF",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "const json = pm.response.json();",
-              "if (json && json.csrfToken) {",
-              "  pm.collectionVariables.set('csrf_token', json.csrfToken);",
-              "}"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{base_url}}/csrf"
-      }
-    },
-    {
-      "name": "tout valide",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "// Generate unique data for this test run",
-              "const timestamp = Date.now();",
-              "const randomId = Math.floor(Math.random() * 10000);",
-              "pm.variables.set(\"timestamp\", timestamp);",
-              "pm.variables.set(\"randomId\", randomId);",
-              "pm.variables.set(\"uniqueEmail\", `testuser_${timestamp}_${randomId}@example.com`);",
-              "pm.variables.set(\"uniquePhone\", `060${String(randomId).padStart(7, '0')}`);",
-              "pm.variables.set(\"uniqueFirstName\", \"Test\");",
-              "pm.variables.set(\"uniqueLastName\", \"User\");"
-            ]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 201 attendu\", function () {\r",
-              "    pm.response.to.have.status(201);\r",
-              "});\r",
-              "pm.test(\"Réponse JSON succès\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(true);\r",
-              "    pm.expect(json).to.have.property('userId');\r",
-              "});",
-              "",
-              "// Sauvegarder les données pour les tests suivants",
-              "const jsonData = pm.response.json();",
-              "pm.collectionVariables.set(\"created_user_email\", pm.variables.get(\"uniqueEmail\"));",
-              "pm.collectionVariables.set(\"created_user_password\", \"Password123!\");",
-              "pm.collectionVariables.set(\"created_user_id\", jsonData.userId);"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"{{uniqueEmail}}\",\r\n  \"firstName\": \"{{uniqueFirstName}}\",\r\n  \"lastName\": \"{{uniqueLastName}}\",\r\n  \"phone\": \"{{uniquePhone}}\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "email déjà utilisé",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 409 attendu\", function () {\r",
-              "    pm.response.to.have.status(409);\r",
-              "});\r",
-              "pm.test(\"Erreur email déjà utilisé\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(false);\r",
-              "    pm.expect(json.message).to.include(\"email\");\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"{{uniqueEmail}}\",\r\n  \"firstName\": \"{{uniqueFirstName}}\",\r\n  \"lastName\": \"{{uniqueLastName}}\",\r\n  \"phone\": \"{{uniquePhone}}\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "champs manquants ou invalides",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 422 attendu\", function () {\r",
-              "    pm.response.to.have.status(422);\r",
-              "});\r",
-              "pm.test(\"Erreur de validation sur l'email\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(false);\r",
-              "    pm.expect(json).to.have.property('errors');\r",
-              "    pm.expect(json.errors).to.have.property('email');\r",
-              "    pm.expect(json.errors.email).to.include(\"requis\");\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "mot de passe faible",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 422 attendu\", function () {\r",
-              "    pm.response.to.have.status(422);\r",
-              "});\r",
-              "pm.test(\"Erreur de validation sur le mot de passe\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(false);\r",
-              "    pm.expect(json).to.have.property('errors');\r",
-              "    pm.expect(json.errors).to.have.property('password');\r",
-              "    pm.expect(json.errors.password).to.include(\"mot de passe\");\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"weakpass_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"abc\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "téléphone invalide",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 422 attendu\", function () {\r",
-              "    pm.response.to.have.status(422);\r",
-              "});\r",
-              "pm.test(\"Erreur de validation sur le téléphone\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(false);\r",
-              "    pm.expect(json).to.have.property('errors');\r",
-              "    pm.expect(json.errors).to.have.property('phone');\r",
-              "    pm.expect(json.errors.phone).to.include(\"téléphone\");\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"phonefail_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"abc123\",           \r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "champs trop long",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 400 attendu pour prénom trop long\", function () {\r",
-              "    pm.response.to.have.status(400);\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"longname_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"A\".repeat(300),\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "champs inattendus",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 201 ou 400 attendu\", function () {\r",
-              "    pm.expect([201, 400]).to.include(pm.response.code);\r",
-              "});\r",
-              "pm.test(\"Pas d'erreur serveur\", function () {\r",
-              "    pm.expect(pm.response.code).not.eql(500);\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"inattendu_{{$timestamp}}@example.com\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\",\r\n  \"admin\": true\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "type inattendu",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 422 attendu pour type inattendu\", function () {\r",
-              "    pm.response.to.have.status(422);\r",
-              "});\r",
-              "pm.test(\"Erreur de validation ou message explicite\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(false);\r",
-              "    pm.expect(json.message).to.include(\"invalide\");\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"typeinattendu_{{$timestamp}}@example.com\",\r\n  \"firstName\": [\"Test\", \"Hacker\"],\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "Injection SQL",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 422 attendu pour injection SQL\", function () {\r",
-              "    pm.response.to.have.status(422);\r",
-              "});\r",
-              "pm.test(\"Erreur de validation sur l'email (injection SQL)\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(false);\r",
-              "    pm.expect(json.errors).to.have.property('email');\r",
-              "    pm.expect(json.errors.email).to.include(\"invalide\");\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"' OR 1=1 --\",\r\n  \"firstName\": \"Test\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "payload très volumineux",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 400, 413 ou 500 attendu pour payload volumineux\", function () {\r",
-              "    pm.expect([400, 413, 500]).to.include(pm.response.code);\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"bigpayload@example.com\",\r\n  \"firstName\": \"A\".repeat(1000000), // 1 million de caractères\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "encodage exotique (Unicode, emojis)",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.variables.set(\"timestamp\", Date.now());"
-            ]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Statut 422 attendu pour encodage exotique\", function () {\r",
-              "    pm.response.to.have.status(422);\r",
-              "});\r",
-              "pm.test(\"Réponse JSON échec attendu\", function () {\r",
-              "    var json = pm.response.json();\r",
-              "    pm.expect(json.success).to.eql(false);\r",
-              "    pm.expect(json).to.have.property('errors');\r",
-              "    pm.expect(json.errors).to.have.property('firstName');\r",
-              "});"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"email\": \"emoji_{{timestamp}}@example.com\",\r\n  \"firstName\": \"😀🚀✨漢字\",\r\n  \"lastName\": \"User\",\r\n  \"phone\": \"0600000000\",\r\n  \"address\": \"1 rue du test\",\r\n  \"city\": \"Testville\",\r\n  \"postalCode\": \"12345\",\r\n  \"password\": \"Password123!\"\r\n}"
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    }
-  ]
+	"info": {
+		"_postman_id": "57e97f7c-a986-4e32-b0cb-137d55a495cf",
+		"name": "vite & gourmand - inscription",
+		"description": "Tests d'intégration pour l'inscription utilisateur (POST /api/auth/register).\n5 phases avec resets de rate limit entre chaque batch de 5 POST.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:8000/api", "type": "string" },
+		{ "key": "csrf_token", "value": "", "type": "string" }
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token') || pm.environment.get('csrf_token');",
+					"if (csrfToken) {",
+					"  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken');",
+					"if (csrfToken) {",
+					"  pm.collectionVariables.set('csrf_token', csrfToken);",
+					"}"
+				]
+			}
+		}
+	],
+	"item": [
+		{
+			"name": "Phase 1 — Setup",
+			"item": [
+				{
+					"name": "00. Init CSRF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('CSRF token récupéré', () => {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.csrfToken).to.be.a('string');",
+									"    pm.collectionVariables.set('csrf_token', json.csrfToken);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/csrf"
+					}
+				},
+				{
+					"name": "00a. Reset Rate Limit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/test/reset-rate-limit"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 2 — Inscription réussie & doublon",
+			"item": [
+				{
+					"name": "01. Inscription valide",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const ts = Date.now();",
+									"const rnd = Math.floor(Math.random() * 10000);",
+									"pm.collectionVariables.set('unique_email', `testuser_${ts}_${rnd}@example.com`);",
+									"pm.collectionVariables.set('unique_phone', `060${String(rnd).padStart(7, '0')}`);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 201 attendu', () => {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test('Réponse JSON succès avec userId', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(true);",
+									"    pm.expect(json).to.have.property('userId');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"{{unique_email}}\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"{{unique_phone}}\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				},
+				{
+					"name": "02. Email déjà utilisé",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 409 attendu', () => {",
+									"    pm.response.to.have.status(409);",
+									"});",
+									"pm.test('Erreur email déjà utilisé', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.message).to.include('email');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"{{unique_email}}\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"0600000000\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 3 — Validations champs",
+			"item": [
+				{
+					"name": "03. Email vide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur de validation sur email', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"    pm.expect(json.errors.email).to.include('requis');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"0600000000\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				},
+				{
+					"name": "04. Mot de passe faible",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur sur le mot de passe', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('password');",
+									"    pm.expect(json.errors.password).to.include('mot de passe');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"weakpass@example.com\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"0600000000\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"abc\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				},
+				{
+					"name": "05. Téléphone invalide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur sur le téléphone', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('phone');",
+									"    pm.expect(json.errors.phone).to.include('téléphone');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"phonefail@example.com\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"abc123\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 4 — Types, sécurité & edge cases",
+			"item": [
+				{
+					"name": "05a. Reset Rate Limit (intermédiaire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "06. Champs inattendus ignorés",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const ts = Date.now();",
+									"const rnd = Math.floor(Math.random() * 10000);",
+									"pm.collectionVariables.set('extra_email', `extra_${ts}_${rnd}@example.com`);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 201 attendu (champs inattendus ignorés)', () => {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test('Pas d\\'erreur serveur', () => {",
+									"    pm.expect(pm.response.code).not.eql(500);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"{{extra_email}}\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"0600000000\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\",\"admin\":true}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				},
+				{
+					"name": "07. Type inattendu (tableau)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur de validation', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.message).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"typefail@example.com\",\"firstName\":[\"Test\",\"Hacker\"],\"lastName\":\"User\",\"phone\":\"0600000000\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				},
+				{
+					"name": "08. Injection SQL email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur de validation sur email', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"    pm.expect(json.errors.email).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"' OR 1=1 --\",\"firstName\":\"Test\",\"lastName\":\"User\",\"phone\":\"0600000000\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				},
+				{
+					"name": "09. Encodage exotique (emojis)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', () => pm.response.to.have.status(422));",
+									"pm.test('Erreur de validation sur firstName', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('firstName');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"emoji@example.com\",\"firstName\":\"\\ud83d\\ude00\\ud83d\\ude80\",\"lastName\":\"User\",\"phone\":\"0600000000\",\"address\":\"1 rue du test\",\"city\":\"Testville\",\"postalCode\":\"12345\",\"password\":\"Password123!\"}"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 5 — Body invalide",
+			"item": [
+				{
+					"name": "09a. Reset Rate Limit (intermédiaire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', () => pm.response.to.have.status(200));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "10. Body JSON invalide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 400 attendu', () => pm.response.to.have.status(400));",
+									"pm.test('Message données invalides', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.message).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{invalid json body"
+						},
+						"url": "{{base_url}}/auth/register"
+					}
+				},
+				{
+					"name": "11. Body vide (pas de JSON)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 400 attendu', () => pm.response.to.have.status(400));",
+									"pm.test('Message données invalides', () => {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.message).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"url": "{{base_url}}/auth/register"
+					}
+				}
+			]
+		}
+	]
 }

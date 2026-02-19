@@ -1,676 +1,682 @@
 {
-  "info": {
-    "_postman_id": "c3e8f1a2-9b47-4d6e-a1c3-5f8d2e7b4a90",
-    "name": "vite & gourmand - contact",
-    "description": "Collection de tests d'intégration pour le formulaire de contact sur l'API Vite & Gourmand.\nContient tous les scénarios : soumission valide, validation des champs, sécurité (XSS, injection SQL), rate limiting, etc.\nUtilisée pour valider le bon fonctionnement du endpoint POST /api/contact en développement et CI.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000/api",
-      "type": "string"
-    },
-    {
-      "key": "api_path",
-      "value": "/contact",
-      "type": "string"
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token') || pm.environment.get('csrf_token');",
-          "if (csrfToken) {",
-          "  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
-          "}"
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "const csrfToken = pm.cookies.get('csrfToken');",
-          "if (csrfToken) {",
-          "  pm.collectionVariables.set('csrf_token', csrfToken);",
-          "}"
-        ]
-      }
-    }
-  ],
-  "item": [
-    {
-      "name": "00. Init CSRF",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('CSRF token récupéré', function () {",
-              "  const json = pm.response.json();",
-              "  if (json && json.csrfToken) {",
-              "    pm.collectionVariables.set('csrf_token', json.csrfToken);",
-              "    pm.expect(json.csrfToken).to.be.a('string');",
-              "  }",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{base_url}}/csrf"
-      }
-    },
-    {
-      "name": "01. Soumission valide",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 201 attendu', function () {",
-              "  pm.response.to.have.status(201);",
-              "});",
-              "pm.test('Réponse JSON succès', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(true);",
-              "  pm.expect(json.message).to.include('reçu');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Demande de devis traiteur\",\n  \"email\": \"client.test@example.com\",\n  \"description\": \"Bonjour, je souhaite organiser un événement pour 30 personnes le 15 mars. Pouvez-vous me faire un devis ?\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "02. Titre manquant",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur de validation sur le titre', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json).to.have.property('errors');",
-              "  pm.expect(json.errors).to.have.property('titre');",
-              "  pm.expect(json.errors.titre).to.include('requis');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "03. Email manquant",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur de validation sur email', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.errors).to.have.property('email');",
-              "  pm.expect(json.errors.email).to.include('requise');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Question sur les menus\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "04. Description manquante",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur de validation sur description', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.errors).to.have.property('description');",
-              "  pm.expect(json.errors.description).to.include('requis');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Question sur les menus\",\n  \"email\": \"client@example.com\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "05. Email invalide",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur format email invalide', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.errors).to.have.property('email');",
-              "  pm.expect(json.errors.email).to.include('invalide');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Question sur les menus\",\n  \"email\": \"pas-un-email\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "06. Titre trop court",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur titre trop court', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.errors).to.have.property('titre');",
-              "  pm.expect(json.errors.titre).to.include('3 caractères');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"AB\",\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "07. Description trop courte",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur description trop courte', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.errors).to.have.property('description');",
-              "  pm.expect(json.errors.description).to.include('10 caractères');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Question valide\",\n  \"email\": \"client@example.com\",\n  \"description\": \"Court\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "08. Tous les champs manquants",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreurs multiples (titre, email, description)', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.errors).to.have.property('titre');",
-              "  pm.expect(json.errors).to.have.property('email');",
-              "  pm.expect(json.errors).to.have.property('description');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "09. Body vide (pas de JSON)",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 400 attendu', function () {",
-              "  pm.response.to.have.status(400);",
-              "});",
-              "pm.test('Message données invalides', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.message).to.include('invalide');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "10. Injection XSS dans le titre",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 201 ou 422 attendu (pas de 500)', function () {",
-              "  pm.expect([201, 422]).to.include(pm.response.code);",
-              "});",
-              "pm.test('Pas d\\'erreur serveur', function () {",
-              "  pm.expect(pm.response.code).not.eql(500);",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"<script>alert('xss')</script>\",\n  \"email\": \"xss@example.com\",\n  \"description\": \"Tentative d'injection XSS via le formulaire de contact.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "11. Injection SQL dans l'email",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu pour injection SQL', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur de validation sur email (injection SQL)', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "  pm.expect(json.errors).to.have.property('email');",
-              "  pm.expect(json.errors.email).to.include('invalide');",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Injection test\",\n  \"email\": \"' OR 1=1 --\",\n  \"description\": \"Tentative d'injection SQL via le formulaire de contact.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "12. Type inattendu (tableau)",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 422 attendu pour type inattendu', function () {",
-              "  pm.response.to.have.status(422);",
-              "});",
-              "pm.test('Erreur de validation', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(false);",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": [\"array\", \"not\", \"string\"],\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "13. Caractères Unicode et accents",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 201 attendu pour caractères Unicode', function () {",
-              "  pm.response.to.have.status(201);",
-              "});",
-              "pm.test('Réponse JSON succès', function () {",
-              "  var json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(true);",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Réservation spéciale — événement à Noël\",\n  \"email\": \"événement@example.com\",\n  \"description\": \"Bonjour, j'aimerais réserver pour un événement privé à Noël. Merci d'avance pour votre réponse rapide !\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "14. Champs supplémentaires inattendus",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 201 attendu (champs inattendus ignorés)', function () {",
-              "  pm.response.to.have.status(201);",
-              "});",
-              "pm.test('Pas d\\'erreur serveur', function () {",
-              "  pm.expect(pm.response.code).not.eql(500);",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"titre\": \"Question légitime\",\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message valide pour tester les champs inattendus.\",\n  \"admin\": true,\n  \"role\": \"superadmin\",\n  \"password\": \"hack123\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    },
-    {
-      "name": "15. Méthode GET non autorisée",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Statut 405 attendu pour méthode GET', function () {",
-              "  pm.expect([404, 405]).to.include(pm.response.code);",
-              "});",
-              "pm.test('Pas d\\'erreur serveur', function () {",
-              "  pm.expect(pm.response.code).not.eql(500);",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{base_url}}{{api_path}}"
-      },
-      "response": []
-    }
-  ]
+	"info": {
+		"_postman_id": "c3e8f1a2-9b47-4d6e-a1c3-5f8d2e7b4a90",
+		"name": "vite & gourmand - contact",
+		"description": "Collection de tests E2E pour le formulaire de contact (POST /api/contact).\n\nScénario séquentiel :\n1. Setup (CSRF, reset rate-limit)\n2. Soumission valide + validations champs requis\n3. Validations longueur + body vide (avec reset rate-limit intermédiaire)\n4. Sécurité (XSS, injection SQL, types inattendus)\n5. Edge cases (Unicode, champs supplémentaires) + GET interdit\n\nRate limit : 5 req/h sur /api/contact — des resets sont insérés pour éviter les 429.\n\nPré-requis :\n- Docker Compose up\n- Endpoint DELETE /api/test/reset-rate-limit disponible",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken') || pm.collectionVariables.get('csrf_token');",
+					"if (csrfToken) {",
+					"  pm.request.headers.upsert({ key: 'X-CSRF-Token', value: csrfToken });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const csrfToken = pm.cookies.get('csrfToken');",
+					"if (csrfToken) {",
+					"  pm.collectionVariables.set('csrf_token', csrfToken);",
+					"}"
+				]
+			}
+		}
+	],
+	"item": [
+		{
+			"name": "Phase 1 — Setup",
+			"description": "Initialisation : CSRF + reset rate-limit.",
+			"item": [
+				{
+					"name": "00. Init CSRF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('CSRF token récupéré', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.csrfToken).to.be.a('string').and.not.empty;",
+									"    pm.collectionVariables.set('csrf_token', json.csrfToken);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/api/csrf"
+					}
+				},
+				{
+					"name": "00a. Reset Rate Limit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/api/test/reset-rate-limit"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 2 — Soumission & validations champs requis",
+			"description": "Soumission valide + champs manquants (titre, email, description, email invalide). 5 POST max avant reset.",
+			"item": [
+				{
+					"name": "01. Soumission valide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 201 attendu', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Réponse JSON succès', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(true);",
+									"    pm.expect(json.message).to.include('envoyé');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Demande de devis traiteur\",\n  \"email\": \"client.test@example.com\",\n  \"description\": \"Bonjour, je souhaite organiser un événement pour 30 personnes le 15 mars. Pouvez-vous me faire un devis ?\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "02. Titre manquant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur de validation sur le titre', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('titre');",
+									"    pm.expect(json.errors.titre).to.include('requis');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "03. Email manquant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur de validation sur email', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"    pm.expect(json.errors.email).to.include('requise');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Question sur les menus\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "04. Description manquante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur de validation sur description', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('description');",
+									"    pm.expect(json.errors.description).to.include('requis');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Question sur les menus\",\n  \"email\": \"client@example.com\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "05. Email invalide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur format email invalide', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"    pm.expect(json.errors.email).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Question sur les menus\",\n  \"email\": \"pas-un-email\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 3 — Validations longueur & body vide",
+			"description": "Reset rate-limit puis tests de longueur et body vide.",
+			"item": [
+				{
+					"name": "05a. Reset Rate Limit (intermédiaire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/api/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "06. Titre trop court",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur titre trop court', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('titre');",
+									"    pm.expect(json.errors.titre).to.include('3');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"AB\",\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "07. Description trop courte",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur description trop courte', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('description');",
+									"    pm.expect(json.errors.description).to.include('10');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Question valide\",\n  \"email\": \"client@example.com\",\n  \"description\": \"Court\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "08. Tous les champs manquants",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreurs multiples (titre, email, description)', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('titre');",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"    pm.expect(json.errors).to.have.property('description');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"\",\n  \"email\": \"\",\n  \"description\": \"\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "09. Body vide (pas de JSON)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 400 attendu', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Message données invalides', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.message).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 4 — Sécurité",
+			"description": "Reset rate-limit puis tests XSS, injection SQL, types inattendus.",
+			"item": [
+				{
+					"name": "09a. Reset Rate Limit (intermédiaire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/api/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "10. Injection XSS dans le titre",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 201 ou 422 attendu (pas de 500)', function () {",
+									"    pm.expect([201, 422]).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test('Pas d\\'erreur serveur', function () {",
+									"    pm.expect(pm.response.code).to.not.eql(500);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"<script>alert('xss')</script>\",\n  \"email\": \"xss@example.com\",\n  \"description\": \"Tentative d'injection XSS via le formulaire de contact.\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "11. Injection SQL dans l'email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu pour injection SQL', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur de validation sur email', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"    pm.expect(json.errors).to.have.property('email');",
+									"    pm.expect(json.errors.email).to.include('invalide');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Injection test\",\n  \"email\": \"' OR 1=1 --\",\n  \"description\": \"Tentative d'injection SQL via le formulaire de contact.\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "12. Type inattendu (tableau)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 422 attendu pour type inattendu', function () {",
+									"    pm.response.to.have.status(422);",
+									"});",
+									"",
+									"pm.test('Erreur de validation', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(false);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": [\"array\", \"not\", \"string\"],\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message suffisamment long pour passer la validation.\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				}
+			]
+		},
+		{
+			"name": "Phase 5 — Edge cases & méthode HTTP",
+			"description": "Reset rate-limit puis Unicode, champs supplémentaires, méthode GET.",
+			"item": [
+				{
+					"name": "12a. Reset Rate Limit (intermédiaire)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Rate limit réinitialisé', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.be.true;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/api/test/reset-rate-limit"
+					}
+				},
+				{
+					"name": "13. Caractères Unicode et accents",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 201 attendu pour caractères Unicode', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Réponse JSON succès', function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.success).to.eql(true);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Réservation spéciale — événement à Noël\",\n  \"email\": \"evenement@example.com\",\n  \"description\": \"Bonjour, j'aimerais réserver pour un événement privé à Noël. Merci d'avance pour votre réponse rapide !\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "14. Champs supplémentaires inattendus",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 201 attendu (champs inattendus ignorés)', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Pas d\\'erreur serveur', function () {",
+									"    pm.expect(pm.response.code).to.not.eql(500);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"titre\": \"Question légitime\",\n  \"email\": \"client@example.com\",\n  \"description\": \"Un message valide pour tester les champs inattendus.\",\n  \"admin\": true,\n  \"role\": \"superadmin\",\n  \"password\": \"hack123\"\n}"
+						},
+						"url": "{{base_url}}/api/contact"
+					}
+				},
+				{
+					"name": "15. Méthode GET non autorisée",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Statut 405 ou 404 attendu', function () {",
+									"    pm.expect([404, 405]).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test('Pas d\\'erreur serveur', function () {",
+									"    pm.expect(pm.response.code).to.not.eql(500);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/api/contact"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "csrf_token",
+			"value": ""
+		}
+	]
 }
