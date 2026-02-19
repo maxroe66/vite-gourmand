@@ -32,7 +32,7 @@ JSON_DATA=$(cat <<EOF
   "firstName": "Test",
   "lastName": "User",
   "email": "$EMAIL",
-  "password": "Test1234",
+  "password": "Password123!",
   "phone": "0612345678",
   "address": "123 Rue Test",
   "city": "Paris",
