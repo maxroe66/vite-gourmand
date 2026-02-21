@@ -34,40 +34,207 @@ Vite & Gourmand permet :
 
 ## ⚡ Démarrage rapide (DEV)
 
-**Prérequis :** Docker + Docker Compose
+> **Le projet s'exécute entièrement dans Docker.** Aucun PHP, Composer, MySQL ou MongoDB n'est à installer sur votre machine. Seuls **Git** et **Docker Desktop** sont nécessaires.
 
-### 1. Cloner le dépôt
+---
+
+### Étape 0 — Installer les outils requis
+
+Si vous partez d'un poste avec uniquement VS Code installé, suivez ces étapes **dans l'ordre**.
+
+#### 0.1 Installer Git
+
+Git est nécessaire pour cloner le dépôt.
+
+<details>
+<summary><strong>Windows</strong></summary>
+
+1. Télécharger l'installeur : https://git-scm.com/download/win
+2. Lancer l'installeur et **garder toutes les options par défaut** (cocher "Git from the command line and also from 3rd-party software")
+3. **Redémarrer VS Code** après l'installation
+4. Ouvrir un terminal dans VS Code (`Ctrl + ù` ou menu **Terminal → Nouveau terminal**) et vérifier :
+   ```bash
+   git --version
+   ```
+</details>
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+Git est souvent pré-installé sur macOS. Vérifier dans le terminal VS Code (`Cmd + ù`) :
+```bash
+git --version
+```
+Si la commande n'est pas reconnue, une popup Apple proposera automatiquement d'installer les **Xcode Command Line Tools** — cliquer sur **Installer** et patienter. Sinon, lancer manuellement :
+```bash
+xcode-select --install
+```
+</details>
+
+<details>
+<summary><strong>Linux (Ubuntu / Debian)</strong></summary>
+
+```bash
+sudo apt update && sudo apt install -y git
+git --version
+```
+</details>
+
+#### 0.2 Installer Docker Desktop
+
+Docker permet d'exécuter l'application dans des conteneurs isolés (PHP, MySQL, MongoDB, Apache…). **Docker Compose est inclus dans Docker Desktop.**
+
+<details>
+<summary><strong>Windows</strong></summary>
+
+1. **Activer WSL2** (obligatoire pour Docker sur Windows) :
+   - Ouvrir **PowerShell en administrateur** et exécuter :
+     ```powershell
+     wsl --install
+     ```
+   - **Redémarrer l'ordinateur** quand demandé
+2. Télécharger Docker Desktop : https://www.docker.com/products/docker-desktop/
+3. Installer et **laisser les options par défaut** (s'assurer que "Use WSL 2 based engine" est coché)
+4. **Lancer Docker Desktop** (icône dans la barre des tâches — attendre que le statut passe au vert "Engine running")
+5. **Redémarrer VS Code**, puis vérifier dans le terminal :
+   ```bash
+   docker --version
+   docker compose version
+   ```
+
+> **Important :** Docker Desktop doit être **lancé et en cours d'exécution** (icône verte dans la barre des tâches) avant d'utiliser les commandes Docker.
+</details>
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+1. Télécharger Docker Desktop : https://www.docker.com/products/docker-desktop/
+2. Ouvrir le `.dmg`, glisser Docker dans Applications
+3. Lancer Docker Desktop et attendre que le statut passe au vert
+4. Vérifier dans le terminal :
+   ```bash
+   docker --version
+   docker compose version
+   ```
+</details>
+
+<details>
+<summary><strong>Linux (Ubuntu / Debian)</strong></summary>
+
+```bash
+# Installer Docker Engine + Compose plugin
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Autoriser votre utilisateur à utiliser Docker sans sudo
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Vérifier
+docker --version
+docker compose version
+```
+</details>
+
+#### 0.3 (Optionnel) Extensions VS Code recommandées
+
+Ces extensions ne sont **pas nécessaires** pour faire fonctionner le projet, mais améliorent le confort :
+
+| Extension | ID VS Code | Utilité |
+|-----------|-----------|---------|
+| Docker | `ms-azuretools.vscode-docker` | Interface visuelle pour gérer les conteneurs, voir les logs |
+| PHP Intelephense | `bmewburn.vscode-intelephense-client` | Autocomplétion et navigation dans le code PHP |
+| MySQL Client | `cweijan.vscode-mysql-client2` | Consulter la base de données depuis VS Code |
+| REST Client | `humao.rest-client` | Tester les endpoints API directement |
+
+Pour les installer, exécuter dans le terminal VS Code :
+```bash
+code --install-extension ms-azuretools.vscode-docker
+code --install-extension bmewburn.vscode-intelephense-client
+code --install-extension cweijan.vscode-mysql-client2
+code --install-extension humao.rest-client
+```
+
+#### Vérification des prérequis
+
+Avant de continuer, **vérifier que les deux commandes suivantes fonctionnent** dans le terminal VS Code :
+
+```bash
+git --version        # Doit afficher : git version 2.x.x
+docker --version     # Doit afficher : Docker version 2x.x.x
+docker compose version  # Doit afficher : Docker Compose version v2.x.x
+```
+
+> Si `docker` n'est pas reconnu : s'assurer que Docker Desktop est **lancé** (Windows/macOS) ou que le service tourne (`sudo systemctl start docker` sur Linux).
+
+---
+
+### Étape 1 — Cloner le dépôt
+
 ```bash
 git clone https://github.com/maxroe66/vite-gourmand.git
 cd vite-gourmand
 ```
 
-### 2. Configurer les variables d'environnement
+Puis ouvrir le dossier dans VS Code : **Fichier → Ouvrir le dossier** → sélectionner `vite-gourmand`.
+
+### Étape 2 — Configurer les variables d'environnement
+
 ```bash
 cp .env.example .env
 ```
-> Les valeurs par défaut fonctionnent telles quelles. Aucune modification n'est nécessaire pour un usage local.
-> Toutes les fonctionnalités sont opérationnelles — voir le tableau ci-dessous.
+> **Windows (si `cp` n'est pas reconnu) :** `copy .env.example .env`
 
-### 3. Lancer les services
+> Les valeurs par défaut fonctionnent telles quelles. Aucune modification n'est nécessaire pour un usage local.
+
+### Étape 3 — Lancer l'application
+
 ```bash
 docker compose up -d
 ```
-> La base de données MySQL est **automatiquement initialisée** (schéma + données de test) au premier lancement via les scripts SQL montés dans `docker-entrypoint-initdb.d`.
-> Pour réinitialiser complètement la BDD : `docker compose down -v && docker compose up -d`.
 
-### 4. Installer les dépendances PHP
+**C'est tout.** Tout est automatisé :
+
+| Étape | Automatisation |
+|-------|---------------|
+| Installation des dépendances PHP (Composer) | ✅ Automatique au premier démarrage |
+| Création de la base de données MySQL | ✅ Automatique (schéma + données de test) |
+| Configuration de MongoDB | ✅ Automatique |
+| Démarrage d'Apache | ✅ Attend automatiquement que PHP soit prêt |
+
+> **⏳ Premier lancement :** l'installation des dépendances Composer prend environ 30-60 secondes.
+> Pour suivre l'avancement en temps réel :
+> ```bash
+> docker compose logs -f php-app
+> ```
+> L'application est prête quand vous voyez : `✅ Dépendances Composer installées avec succès.`
+
+### Étape 4 — Accéder à l'application
+
+Ouvrir dans votre navigateur : **http://localhost:8000**
+
+### Vérifier que tout fonctionne
+
 ```bash
-docker exec vite-php-app bash -c "cd backend && composer install"
-```
-> Le dossier `backend/vendor/` n'est pas versionné (`.gitignore`). Cette étape est **obligatoire** après le clone.
+# Vérifier l'état des conteneurs (tous doivent être "Up" ou "healthy")
+docker compose ps
 
-### 5. (Optionnel) Personnaliser le mot de passe administrateur
+# Tester l'API (doit renvoyer : {"message":"API Auth OK"})
+curl http://localhost:8000/api/auth/test
+```
+
+> **Windows (si `curl` n'est pas reconnu) :** ouvrir directement http://localhost:8000/api/auth/test dans le navigateur.
+
+### (Optionnel) Personnaliser le mot de passe administrateur
 ```bash
 docker exec vite-php-app php scripts/setup/setup-admin-password.php
 ```
-> Les comptes de test ci-dessous sont déjà fonctionnels grâce aux fixtures SQL.
-> Cette étape n'est nécessaire que pour définir un mot de passe personnalisé pour l'administrateur.
+> Les comptes de test sont déjà fonctionnels grâce aux fixtures SQL — cette étape n'est nécessaire que pour définir un mot de passe personnalisé.
 
 ### Accès locaux
 | Service | URL |
@@ -78,13 +245,7 @@ docker exec vite-php-app php scripts/setup/setup-admin-password.php
 
 ### Comptes de test
 
-| Rôle | Email | Mot de passe |
-|---|---|---|
-| Administrateur | `jose@vite-gourmand.fr` | `Password123!` |
-| Employé | `julie@vite-gourmand.fr` | `Password123!` |
-| Client | `marie.dupont@email.fr` | `Password123!` |
-
-> Tous les comptes utilisent le même mot de passe : `Password123!`
+Les identifiants de démonstration sont fournis dans le **Manuel d'utilisation** (`docs/documentation_technique/MANUEL_UTILISATION.md`, section 16).
 
 ### Fonctionnalités disponibles
 
@@ -95,7 +256,7 @@ docker exec vite-php-app php scripts/setup/setup-admin-password.php
 | Commande complète | ✅ | Sélection plats, calcul prix, validation |
 | Calcul réel distance livraison | ✅ | Clé Google Maps restreinte incluse dans `.env.example` |
 | Envoi d'emails | ✅ | Emails capturés dans Mailtrap sandbox (voir ci-dessous) |
-| Espace admin / employé | ✅ | Comptes de test ci-dessus |
+| Espace admin / employé | ✅ | Voir Manuel d'utilisation pour les identifiants |
 | Upload images menus | ✅ | Stockage local (filesystem) |
 | Avis clients | ✅ | Création, modération, carousel |
 
@@ -104,9 +265,7 @@ docker exec vite-php-app php scripts/setup/setup-admin-password.php
 L'application utilise **Mailtrap** (sandbox email) : les emails sont capturés et consultables en ligne, mais **ne sont jamais délivrés à de vrais destinataires**.
 
 Pour voir les emails envoyés (inscription, confirmation de commande, reset mot de passe, contact…) :
-1. Se connecter sur **https://mailtrap.io/signin**
-   - **Email :** `contact@vite-et-gourmand.me`
-   - **Mot de passe :** `?34*h8rPG3gJzXv`
+1. Se connecter sur **https://mailtrap.io/signin** avec les identifiants fournis dans le Manuel d'utilisation
 2. Aller dans **Email Testing → Inboxes → "My Sandbox"**
 3. Tous les emails envoyés par l'application apparaissent ici
 
@@ -242,3 +401,112 @@ Le projet utilise plusieurs fichiers d'environnement, un par contexte :
 | `.env.test` | Configuration tests | ❌ Ignoré |
 
 > **Sécurité :** Les fichiers contenant des secrets réels (`.env`, `.env.test`, `.env.azure`) sont exclus du dépôt via `.gitignore`. Seuls les templates (`.env.example`, `.env.test.example`, `.env.azure.example`) sont versionnés.
+
+---
+
+## ❓ Troubleshooting
+
+<details>
+<summary><strong>L'application ne répond pas sur http://localhost:8000</strong></summary>
+
+1. Vérifier que tous les conteneurs tournent :
+   ```bash
+   docker compose ps
+   ```
+2. Si `vite-php-app` affiche `(health: starting)`, les dépendances Composer sont en cours d'installation. Patienter 30-60 secondes :
+   ```bash
+   docker compose logs -f php-app
+   ```
+3. Si `vite-apache` affiche `Exit` ou redémarre en boucle, c'est qu'il attend le healthcheck de PHP. Attendre que `vite-php-app` passe à `(healthy)`.
+4. Si le problème persiste, rebuild complet :
+   ```bash
+   docker compose down -v
+   docker compose up -d --build
+   ```
+</details>
+
+<details>
+<summary><strong>Erreur "port already in use" au lancement</strong></summary>
+
+Un autre service utilise déjà le port 8000, 3306 ou 27017. Identifier le processus :
+```bash
+# Linux / macOS
+sudo lsof -i :8000
+# Windows (PowerShell)
+netstat -ano | findstr :8000
+```
+Arrêter le processus concerné, ou modifier les ports dans `docker-compose.yml`.
+</details>
+
+<details>
+<summary><strong>Erreur "permission denied" sur Docker (Linux)</strong></summary>
+
+Ajouter votre utilisateur au groupe Docker :
+```bash
+sudo usermod -aG docker $USER
+# Puis se reconnecter (ou redémarrer)
+```
+</details>
+
+<details>
+<summary><strong>La BDD semble vide ou les fixtures ne se chargent pas</strong></summary>
+
+Les scripts SQL ne s'exécutent qu'au **premier** démarrage de MySQL (quand le volume est vierge). Pour réinitialiser :
+```bash
+docker compose down -v   # Supprime les volumes (données BDD)
+docker compose up -d     # Recrée tout depuis zéro
+```
+</details>
+
+<details>
+<summary><strong>Composer install échoue dans le conteneur</strong></summary>
+
+Si l'installation automatique échoue (problème réseau, etc.), vous pouvez la relancer manuellement :
+```bash
+docker exec vite-php-app bash -c "cd backend && composer install"
+```
+Puis vérifier le healthcheck :
+```bash
+docker compose ps   # vite-php-app doit être "healthy"
+```
+</details>
+
+<details>
+<summary><strong>"docker" n'est pas reconnu comme commande (Windows)</strong></summary>
+
+1. S'assurer que **Docker Desktop est lancé** (icône baleine dans la barre des tâches, statut vert)
+2. Si Docker Desktop vient d'être installé, **redémarrer VS Code** (le PATH est mis à jour au redémarrage)
+3. Vérifier que Docker est dans le PATH : ouvrir un **nouveau** terminal dans VS Code (`Ctrl + ù`)
+4. Si le problème persiste, redémarrer l'ordinateur
+</details>
+
+<details>
+<summary><strong>"wsl --install" demande un redémarrage (Windows)</strong></summary>
+
+C'est normal. WSL2 (Windows Subsystem for Linux) est un prérequis de Docker Desktop sur Windows. Après `wsl --install` :
+1. Redémarrer l'ordinateur
+2. Au redémarrage, une fenêtre Ubuntu peut s'ouvrir pour créer un compte — la fermer
+3. Installer Docker Desktop
+4. Relancer VS Code
+</details>
+
+<details>
+<summary><strong>"cp" n'est pas reconnu (Windows CMD)</strong></summary>
+
+Le terminal par défaut de VS Code sur Windows peut être CMD au lieu de PowerShell/Git Bash. Solutions :
+```powershell
+# PowerShell / CMD : utiliser copy au lieu de cp
+copy .env.example .env
+```
+Ou changer le terminal par défaut dans VS Code : `Ctrl + Shift + P` → "Terminal: Select Default Profile" → choisir **Git Bash** ou **PowerShell**.
+</details>
+
+<details>
+<summary><strong>Réinitialiser complètement le projet</strong></summary>
+
+Pour repartir de zéro (supprime toutes les données, tous les conteneurs, tous les volumes) :
+```bash
+docker compose down -v --rmi local
+docker compose up -d
+```
+</details>

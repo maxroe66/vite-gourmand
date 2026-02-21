@@ -119,6 +119,19 @@ try {
     if ($rowCount > 0) {
         echo "✅ Mot de passe administrateur mis à jour avec succès (Argon2ID).\n";
         echo "   Email : $adminEmail\n";
+
+        // Vérification post-update : s'assurer que le hash est valide
+        $checkStmt = $pdo->prepare('SELECT mot_de_passe FROM UTILISATEUR WHERE email = :email AND role = :role');
+        $checkStmt->execute([':email' => $adminEmail, ':role' => 'ADMINISTRATEUR']);
+        $storedHash = $checkStmt->fetchColumn();
+
+        if ($storedHash && password_verify($password, $storedHash)) {
+            echo "   ✅ Vérification password_verify() : OK — le login fonctionnera.\n";
+        } else {
+            echo "   ❌ Vérification password_verify() : ÉCHEC — le hash stocké est invalide !\n";
+            exit(1);
+        }
+
         echo "   ⚠️  Conservez ce mot de passe en lieu sûr, il n'est stocké nulle part dans le code.\n";
     } else {
         echo "⚠️  Aucun compte administrateur trouvé avec l'email : $adminEmail\n";

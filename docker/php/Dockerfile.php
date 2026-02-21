@@ -48,8 +48,15 @@ COPY --chown=vite_user:vite_group . .
 # Générer l'autoloader de Composer
 RUN composer dump-autoload --optimize
 
+# Copier l'entrypoint custom (en tant que root pour le rendre exécutable)
+USER root
+COPY docker/php/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+USER vite_user
+
 # Exposer le port 9000 sur lequel PHP-FPM écoute
 EXPOSE 9000
 
-# Commande par défaut pour démarrer le service PHP-FPM
-CMD ["php-fpm"]
+# Utiliser l'entrypoint pour installer les dépendances Composer automatiquement
+# au premier démarrage (le volume mount Docker écrase le vendor/ du build)
+ENTRYPOINT ["/entrypoint.sh"]
