@@ -173,8 +173,26 @@ jobs:
           if [ -n "$ADMIN_INITIAL_PASSWORD" ]; then
             php scripts/setup/setup-admin-password.php
           else
-            echo "⚠️ ADMIN_INITIAL_PASSWORD non défini, le mot de passe admin reste inchangé."
+            echo "❌ ADMIN_INITIAL_PASSWORD non défini — impossible de configurer le compte admin."
+            echo "   Ajoutez le secret ADMIN_INITIAL_PASSWORD dans GitHub → Settings → Secrets → Actions."
+            exit 1
           fi
+
+      - name: Vérifier le compte administrateur en base
+        env:
+          DB_HOST: ${{ secrets.AZURE_MYSQL_HOST }}
+          DB_NAME: ${{ secrets.AZURE_MYSQL_DB }}
+          DB_USER: ${{ secrets.AZURE_MYSQL_USER }}
+          DB_PASS: ${{ secrets.AZURE_MYSQL_PASS }}
+        run: |
+          ADMIN_COUNT=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" --ssl-mode=REQUIRED \
+            -N -e "SELECT COUNT(*) FROM UTILISATEUR WHERE role = 'ADMINISTRATEUR' AND actif = TRUE;" "$DB_NAME")
+          echo "Comptes admin actifs trouvés : $ADMIN_COUNT"
+          if [ "$ADMIN_COUNT" -lt 1 ]; then
+            echo "❌ Aucun compte administrateur actif en base après le seed."
+            exit 1
+          fi
+          echo "✅ Compte administrateur vérifié en base de données."
 
       - name: Install MongoDB Shell (mongosh)
         run: |

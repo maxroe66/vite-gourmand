@@ -404,15 +404,8 @@ docker exec -i vite-mongodb mongosh \
 
 ### 5.4 Comptes de test (fixtures)
 
-Après l'initialisation des fixtures, les comptes suivants sont disponibles :
-
-| Email | Rôle | Mot de passe |
-|---|---|---|
-| `jose@vite-gourmand.fr` | ADMIN | `Admin123!` |
-| `julie@vite-gourmand.fr` | EMPLOYE | `Employe123!` |
-| `marie.dupont@email.fr` | UTILISATEUR | `User123!` |
-
-> 13 comptes au total sont créés par les fixtures. Voir `database_seed.sql` pour la liste complète.
+Après l'initialisation des fixtures, les comptes de démonstration sont disponibles.
+Consultez le **Manuel d'utilisation** (`MANUEL_UTILISATION.md`, section 16) pour les identifiants.
 
 ---
 
@@ -686,7 +679,7 @@ if ($isProduction) {
 | `AZURE_MYSQL_DB` | Nom de la base |
 | `AZURE_MYSQL_USER` | Utilisateur MySQL |
 | `AZURE_MYSQL_PASS` | Mot de passe MySQL |
-| `ADMIN_INITIAL_PASSWORD` | Mot de passe admin initial |
+| `ADMIN_INITIAL_PASSWORD` | **Requis.** Mot de passe admin initial (≥ 12 chars, 1 maj., 1 min., 1 chiffre, 1 spécial). Le déploiement échouera si absent. |
 | `AZURE_MONGO_URI` | URI Cosmos DB complète |
 
 ### 8.5 Pipeline d'intégration email (`email-integration.yml`)

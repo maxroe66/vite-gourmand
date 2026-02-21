@@ -11,6 +11,12 @@ LICENSE
 
 # Docker configs (pas dans l'image elle-même)
 docker/
+!docker/php/entrypoint.sh
+!docker/php/Dockerfile.php
+!docker/apache/entrypoint.sh
+!docker/apache/vite.conf
+!docker/apache/vite-ssl.conf
+!docker/apache/Dockerfile.apache
 !docker/certs/DigiCertGlobalRootCA.crt.pem
 docker-compose.yml
 
